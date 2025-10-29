@@ -37,7 +37,7 @@ class ContactFormHandler {
         this.setLoadingState(true);
 
         try {
-            const response = await fetch('/api/contacts/', {
+            const response = await fetch('http://127.0.0.1:8001/api/contacts/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
