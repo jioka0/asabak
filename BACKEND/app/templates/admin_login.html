@@ -96,7 +96,7 @@
                 if (response.ok) {
                     const data = await response.json();
                     localStorage.setItem('token', data.access_token);
-                    window.location.href = '/admin/contact';
+                    window.location.href = '/admin/dashboard';
                 } else {
                     const error = await response.json();
                     showError(error.detail || 'Login failed');
