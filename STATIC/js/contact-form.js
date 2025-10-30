@@ -14,19 +14,45 @@ class ContactFormHandler {
     }
 
     init() {
+        // Production: rely on native HTML5 validation (required fields in HTML)
+        console.debug('[contact-form] initialized, attaching submit handler', this.form);
         this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+    }
+
+    // Resolve the API base URL in a way that works for local dev and production.
+    // - If window.API_BASE is provided (e.g., via a script tag), use it.
+    // - If running locally on port 8000 (static server), target FastAPI on 8001.
+    // - Otherwise, use the current origin (expecting a reverse proxy in production).
+    getApiBase() {
+        try {
+            if (window.API_BASE && typeof window.API_BASE === 'string') {
+                return window.API_BASE.replace(/\/$/, '');
+            }
+        } catch (_) {}
+        const loc = window.location;
+        if (loc.port === '8000') {
+            return 'http://127.0.0.1:8001';
+        }
+        return `${loc.protocol}//${loc.host}`;
     }
 
     async handleSubmit(e) {
         e.preventDefault();
+        console.debug('[contact-form] submit intercepted');
+
+        if (!this.form) {
+            console.error('[contact-form] form not found');
+            return;
+        }
 
         // Get form data
         const formData = new FormData(this.form);
         const data = {
-            name: formData.get('Name')?.trim(),
-            email: formData.get('E-mail')?.trim(),
-            message: formData.get('Message')?.trim()
+            name: (formData.get('Name') || '').toString().trim(),
+            email: (formData.get('E-mail') || '').toString().trim(),
+            message: (formData.get('Message') || '').toString().trim()
         };
+        console.debug('[contact-form] payload', data);
 
         // Basic client-side validation
         if (!this.validateForm(data)) {
@@ -37,7 +63,8 @@ class ContactFormHandler {
         this.setLoadingState(true);
 
         try {
-            const response = await fetch('http://127.0.0.1:8001/api/contacts/', {
+            const apiUrl = `${this.getApiBase()}/api/contacts/`;
+            const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -154,6 +181,8 @@ class ContactFormHandler {
             }
 
             this.replyMessage.style.display = 'block';
+            // Ensure the user actually sees the feedback
+            try { this.replyMessage.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (_) {}
 
             // Auto-hide success messages after 5 seconds
             if (type === 'success') {
@@ -171,10 +200,22 @@ class ContactFormHandler {
     }
 }
 
-// Initialize contact form when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    new ContactFormHandler();
-});
+// Initialize contact form when DOM is ready or if already loaded
+(function initContactForm(){
+    const start = () => {
+        try {
+            new ContactFormHandler();
+        } catch (e) {
+            console.error('Failed to initialize ContactFormHandler:', e);
+        }
+    };
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', start, { once: true });
+    } else {
+        // DOM is already parsed at this point (scripts loaded at end of body)
+        start();
+    }
+})();
 
 // Export for potential use in other scripts
 if (typeof module !== 'undefined' && module.exports) {

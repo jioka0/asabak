@@ -153,7 +153,7 @@ async def admin_login():
                     if (response.ok) {
                         const data = await response.json();
                         localStorage.setItem('token', data.access_token);
-                        window.location.href = '/admin/dashboard';
+                        window.location.href = '/admin/contact';
                     } else {
                         const error = await response.json();
                         showError(error.detail || 'Login failed');
@@ -175,8 +175,8 @@ async def admin_login():
     </html>
     """
 
-@app.get("/admin/dashboard", response_class=HTMLResponse)
-async def admin_dashboard():
+@app.get("/admin/contact", response_class=HTMLResponse)
+async def admin_contact():
     """Serve admin dashboard"""
     return """
     <!DOCTYPE html>
