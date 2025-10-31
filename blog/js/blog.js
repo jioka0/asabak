@@ -22,6 +22,35 @@
     initSmoothScrolling();
     initAnimations();
     initCardLinks();
+    forceTextWrapping();
+  }
+
+  // Force text wrapping for slide titles on mobile
+  function forceTextWrapping() {
+    const slideTitles = document.querySelectorAll('.slide-title-text');
+
+    slideTitles.forEach(title => {
+      // Force line breaks for long titles
+      const text = title.textContent;
+      if (text.length > 30) {
+        // Insert line breaks at word boundaries
+        const words = text.split(' ');
+        let currentLine = '';
+        let newText = '';
+
+        words.forEach(word => {
+          if ((currentLine + ' ' + word).length > 15) {
+            newText += currentLine + '\n';
+            currentLine = word;
+          } else {
+            currentLine += (currentLine ? ' ' : '') + word;
+          }
+        });
+        newText += currentLine;
+
+        title.innerHTML = newText.replace(/\n/g, '<br>');
+      }
+    });
   }
 
   // Particle System for Hero Section
