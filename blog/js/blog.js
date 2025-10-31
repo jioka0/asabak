@@ -21,6 +21,7 @@
     initNewsletterForm();
     initSmoothScrolling();
     initAnimations();
+    initCardLinks();
   }
 
   // Particle System for Hero Section
@@ -691,6 +692,18 @@
             behavior: 'smooth',
             block: 'start'
           });
+        }
+      });
+    });
+  }
+
+  // Card Link Click Handler
+  function initCardLinks() {
+    document.querySelectorAll('.card-link, .post-link, .slide-link, .banner-link, .tag-item').forEach(card => {
+      card.addEventListener('click', function(e) {
+        const href = this.getAttribute('data-href');
+        if (href) {
+          window.location.href = href;
         }
       });
     });
