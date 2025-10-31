@@ -337,7 +337,10 @@
 
     function updateSlides() {
       slides.forEach((slide, index) => {
-        slide.classList.toggle('active', index === currentSlide);
+        slide.classList.remove('active');
+        if (index === currentSlide) {
+          slide.classList.add('active');
+        }
       });
     }
 
@@ -346,15 +349,6 @@
       slider.style.transform = `translateX(-${currentSlide * 33.333}%)`;
       updateDots();
       updateSlides();
-    }
-
-    function updateSlides() {
-      slides.forEach((slide, index) => {
-        slide.classList.remove('active');
-        if (index === currentSlide) {
-          slide.classList.add('active');
-        }
-      });
     }
 
     function nextSlide() {
@@ -366,6 +360,17 @@
       currentSlide = (currentSlide - 1 + slides.length) % slides.length;
       goToSlide(currentSlide);
     }
+
+    // Make slides clickable
+    slides.forEach((slide, index) => {
+      slide.addEventListener('click', () => {
+        const href = slide.getAttribute('data-href');
+        if (href) {
+          window.location.href = href;
+        }
+      });
+      slide.style.cursor = 'pointer';
+    });
 
     // Event listeners
     nextBtn.addEventListener('click', nextSlide);

@@ -618,7 +618,7 @@ body {
   letter-spacing: 0.2rem;
   margin-bottom: 2rem;
   opacity: 0.9;
-  background: linear-gradient(135deg, var(--accent), var(--secondary));
+  background: white;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;
@@ -1351,6 +1351,170 @@ body {
   background: rgba(231, 76, 60, 0.2);
   color: #e74c3c;
   border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+/* Ads Section */
+.ads-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.ad-container {
+  background: var(--base);
+  border: 1px solid var(--stroke-elements);
+  border-radius: var(--_radius-xl);
+  overflow: hidden;
+  transition: all 0.3s var(--_animbezier);
+  cursor: pointer;
+}
+
+.ad-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.ad-large {
+  height: 250px;
+}
+
+.ad-small {
+  height: 180px;
+}
+
+.ad-content {
+  display: flex;
+  height: 100%;
+  position: relative;
+}
+
+.ad-large .ad-content {
+  flex-direction: row;
+}
+
+.ad-small .ad-content {
+  flex-direction: column;
+}
+
+.ad-image {
+  position: relative;
+  overflow: hidden;
+}
+
+.ad-large .ad-image {
+  width: 50%;
+  flex-shrink: 0;
+}
+
+.ad-small .ad-image {
+  width: 100%;
+  height: 100px;
+}
+
+.ad-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s var(--_animbezier);
+}
+
+.ad-container:hover .ad-image img {
+  transform: scale(1.05);
+}
+
+.ad-text {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+}
+
+.ad-large .ad-text {
+  padding: 2rem;
+}
+
+.ad-small .ad-text {
+  padding: 1rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.ad-icon {
+  font-size: 2.5rem;
+  color: var(--accent);
+  margin-bottom: 0.8rem;
+}
+
+.ad-text h5 {
+  font: normal 600 1.6rem/1.3 var(--_font-default);
+  color: var(--t-bright);
+  margin-bottom: 0.5rem;
+}
+
+.ad-small .ad-text h6 {
+  font: normal 600 1.4rem/1.3 var(--_font-default);
+  color: var(--t-bright);
+  margin-bottom: 0.5rem;
+}
+
+.ad-text p {
+  font-size: 1.4rem;
+  color: var(--t-medium);
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.ad-cta {
+  font: normal 600 1.4rem/1 var(--_font-default);
+  color: var(--accent);
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--accent);
+  border-radius: var(--_radius-m);
+  transition: all 0.3s var(--_animbezier);
+  align-self: flex-start;
+  display: inline-block;
+}
+
+.ad-container:hover .ad-cta {
+  background: var(--accent);
+  color: var(--t-opp-bright);
+}
+
+.ad-small .ad-cta {
+  align-self: center;
+  font-size: 1.2rem;
+  padding: 0.4rem 0.8rem;
+}
+
+/* Engagement Metrics */
+.engagement-metric {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 1.2rem;
+  color: var(--t-medium);
+}
+
+.engagement-metric i {
+  font-size: 1.4rem;
+}
+
+.views-metric {
+  font-size: 1.2rem;
+  color: var(--t-medium);
+}
+.view-metric {
+  font-size: 1.2rem;
+  color: white;
+}
+[color-scheme=dark] .views-metric {
+  color: white;
 }
 
 /* Footer */
