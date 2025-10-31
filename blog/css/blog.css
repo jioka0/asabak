@@ -1705,8 +1705,8 @@ body {
 
 .modal-close {
   position: absolute;
-  top: 2rem;
-  right: 2rem;
+  top: 1rem;
+  right: 1rem;
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -1943,6 +1943,17 @@ body {
 
   .main-nav {
     display: none;
+  }
+
+  /* Hide mobile menu toggle on desktop */
+  .mobile-menu-toggle {
+    display: block !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-menu-toggle {
+    display: none !important;
   }
 
   .section-title {
