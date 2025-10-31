@@ -12,7 +12,7 @@
     // Initialize all blog features
     initParticleSystem();
     initThemeToggle();
-    initHeroSlider();
+    initBannerSlider();
     initTrendingSlider();
     initArticlesSlider();
     initSearchModal();
@@ -227,16 +227,16 @@
     loadTheme(getCurrentTheme());
   }
 
-  // Hero Slider Functionality
-  function initHeroSlider() {
-    const slider = document.getElementById('heroSlider');
-    const prevBtn = document.getElementById('heroPrev');
-    const nextBtn = document.getElementById('heroNext');
-    const dotsContainer = document.getElementById('heroDots');
+  // Banner Slider Functionality
+  function initBannerSlider() {
+    const slider = document.getElementById('bannerSlider');
+    const prevBtn = document.getElementById('bannerPrev');
+    const nextBtn = document.getElementById('bannerNext');
+    const dotsContainer = document.getElementById('bannerDots');
 
     if (!slider || !prevBtn || !nextBtn) return;
 
-    const slides = slider.querySelectorAll('.hero-slide');
+    const slides = slider.querySelectorAll('.banner-slide');
     let currentSlide = 0;
     let autoSlideInterval;
 
@@ -284,7 +284,7 @@
     nextBtn.addEventListener('click', nextSlide);
     prevBtn.addEventListener('click', prevSlide);
 
-    // Auto slide
+    // Auto slide every 4 seconds
     function startAutoSlide() {
       autoSlideInterval = setInterval(nextSlide, 4000);
     }
