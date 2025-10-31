@@ -2,6 +2,8 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from pathlib import Path
 import uvicorn
 
 from database import create_tables
@@ -14,6 +16,9 @@ app = FastAPI(
     description="Backend API for NekwasaR's portfolio website",
     version="1.0.0"
 )
+
+# Templates for admin pages
+templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
 # CORS middleware
 app.add_middleware(
@@ -52,6 +57,12 @@ async def root():
         </body>
     </html>
     """
+
+# Fallback admin dashboard routes (ensure rendering even if router load order conflicts)
+@app.get("/admin/dashboard", response_class=HTMLResponse)
+@app.get("/admin/dashboard/", response_class=HTMLResponse)
+async def admin_dashboard_page(request: Request):
+    return templates.TemplateResponse("admin_dashboard.html", {"request": request})
 
 
 # Production Security Features (Commented for easy enabling)

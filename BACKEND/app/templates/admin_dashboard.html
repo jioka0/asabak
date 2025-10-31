@@ -5,11 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - NekwasaR</title>
     <link rel="stylesheet" href="/static/css/main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/bold/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/duotone/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/fill/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/light/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/thin/style.css">
     <style>
-        /* Modern Dashboard Styles */
+        /* Modern Dashboard Styles - Enhanced Typography */
         .dashboard-wrapper {
             min-height: 100vh;
             background: linear-gradient(135deg, var(--base) 0%, var(--base-tint) 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         .dashboard-sidebar {
@@ -30,18 +38,40 @@
             margin-bottom: 3rem;
             padding-bottom: 2rem;
             border-bottom: 1px solid var(--stroke-elements);
+            position: relative;
+        }
+
+        .theme-switcher {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: transparent;
+            border: 1px solid var(--stroke-elements);
+            border-radius: var(--_radius-m);
+            padding: 0.8rem;
+            cursor: pointer;
+            color: var(--t-bright);
+            transition: all 0.3s var(--_animbezier);
+            font-size: 1.4rem;
+        }
+
+        .theme-switcher:hover {
+            background: var(--base-tint);
+            transform: scale(1.05);
         }
 
         .sidebar-logo {
-            font-size: 1.8rem;
-            font-weight: 700;
+            font-size: 2.2rem;
+            font-weight: 800;
             color: var(--accent);
             margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
         }
 
         .sidebar-subtitle {
-            font-size: 1rem;
+            font-size: 1.1rem;
             color: var(--t-medium);
+            font-weight: 500;
         }
 
         .sidebar-nav {
@@ -54,7 +84,7 @@
             display: flex;
             align-items: center;
             gap: 1rem;
-            padding: 1rem 1.2rem;
+            padding: 1.2rem 1.4rem;
             border-radius: var(--_radius-xl);
             cursor: pointer;
             transition: all 0.3s var(--_animbezier);
@@ -78,14 +108,15 @@
         }
 
         .nav-icon {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             width: 24px;
             text-align: center;
         }
 
         .nav-text {
             font-weight: 600;
-            font-size: 1rem;
+            font-size: 1.1rem;
+            letter-spacing: -0.01em;
         }
 
         .dashboard-main {
@@ -99,7 +130,7 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 2rem;
-            padding: 2rem;
+            padding: 2.5rem;
             background: var(--base);
             border-radius: var(--_radius-xl);
             border: 1px solid var(--stroke-elements);
@@ -107,10 +138,11 @@
         }
 
         .header-title {
-            font-size: 2rem;
-            font-weight: 700;
+            font-size: 2.4rem;
+            font-weight: 800;
             color: var(--t-bright);
             margin: 0;
+            letter-spacing: -0.02em;
         }
 
         .header-actions {
@@ -120,13 +152,14 @@
         }
 
         .logout-btn {
-            padding: 0.75rem 1.5rem;
+            padding: 0.9rem 1.8rem;
             background: transparent;
             border: 1px solid var(--stroke-controls);
             color: var(--t-bright);
             border-radius: var(--_radius-m);
             cursor: pointer;
             font-weight: 600;
+            font-size: 1.1rem;
             transition: all 0.3s var(--_animbezier);
         }
 
@@ -140,7 +173,7 @@
             background: var(--base);
             border-radius: var(--_radius-xl);
             border: 1px solid var(--stroke-elements);
-            padding: 2rem;
+            padding: 2.5rem;
             margin-bottom: 2rem;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             display: none;
@@ -160,10 +193,11 @@
         }
 
         .section-title {
-            font-size: 1.8rem;
+            font-size: 2rem;
             font-weight: 700;
             color: var(--t-bright);
             margin: 0;
+            letter-spacing: -0.01em;
         }
 
         .section-actions {
@@ -182,7 +216,7 @@
         .stat-card {
             background: linear-gradient(135deg, var(--base-tint) 0%, var(--base) 100%);
             border-radius: var(--_radius-xl);
-            padding: 1.5rem;
+            padding: 2rem;
             text-align: center;
             border: 1px solid var(--stroke-elements);
             transition: all 0.3s var(--_animbezier);
@@ -194,31 +228,34 @@
         }
 
         .stat-number {
-            font-size: 2.5rem;
-            font-weight: 700;
+            font-size: 3rem;
+            font-weight: 800;
             color: var(--accent);
             display: block;
             margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
         }
 
         .stat-label {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             color: var(--t-medium);
             font-weight: 600;
+            letter-spacing: -0.005em;
         }
 
         /* Buttons */
         .btn {
-            padding: 0.75rem 1.5rem;
+            padding: 0.9rem 1.8rem;
             border: none;
             border-radius: var(--_radius-m);
             cursor: pointer;
             font-weight: 600;
-            font-size: 1rem;
+            font-size: 1.1rem;
             transition: all 0.3s var(--_animbezier);
             text-decoration: none;
             display: inline-block;
             text-align: center;
+            letter-spacing: -0.005em;
         }
 
         .btn-primary {
@@ -246,7 +283,8 @@
             text-align: center;
             padding: 3rem;
             color: var(--t-medium);
-            font-size: 1.2rem;
+            font-size: 1.3rem;
+            font-weight: 500;
         }
 
         .empty-state {
@@ -291,7 +329,15 @@
             }
 
             .header-title {
-                font-size: 1.5rem;
+                font-size: 2rem;
+            }
+
+            .section-title {
+                font-size: 1.8rem;
+            }
+
+            .stat-number {
+                font-size: 2.5rem;
             }
         }
     </style>
@@ -300,6 +346,9 @@
     <!-- Sidebar -->
     <aside class="dashboard-sidebar">
         <div class="sidebar-header">
+            <button class="theme-switcher" id="adminThemeSwitcher" title="Toggle theme">
+                <i class="ph-bold ph-moon-stars"></i>
+            </button>
             <div class="sidebar-logo">NekwasaR</div>
             <div class="sidebar-subtitle">Admin Panel</div>
         </div>
@@ -727,10 +776,43 @@
             return div.innerHTML;
         }
 
+        // Theme switcher functionality
+        const themeBtn = document.getElementById('adminThemeSwitcher');
+
+        function getCurrentTheme(){
+            let theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            localStorage.getItem('admin.theme') ? theme = localStorage.getItem('admin.theme') : null;
+            return theme;
+        }
+
+        function loadTheme(theme){
+            const root = document.querySelector(':root');
+            if(theme === "light"){
+                if(themeBtn) themeBtn.innerHTML = '<i class="ph-bold ph-moon-stars"></i>';
+            } else {
+                if(themeBtn) themeBtn.innerHTML = '<i class="ph-bold ph-sun"></i>';
+            }
+            if(root) root.setAttribute('color-scheme', `${theme}`);
+        };
+
+        if(themeBtn) {
+            themeBtn.addEventListener('click', () => {
+                let theme = getCurrentTheme();
+                if(theme === 'dark'){
+                    theme = 'light';
+                } else {
+                    theme = 'dark';
+                }
+                localStorage.setItem('admin.theme', `${theme}`);
+                loadTheme(theme);
+            });
+        }
+
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             checkAuth();
             loadOverview();
+            loadTheme(getCurrentTheme());
         });
     </script>
 </body>
