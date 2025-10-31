@@ -550,6 +550,7 @@ body {
   display: flex;
   align-items: center;
   height: 600px;
+  cursor: pointer;
 }
 
 .banner-slide.active {
@@ -737,6 +738,7 @@ body {
   overflow: hidden;
   transition: all 0.3s var(--_animbezier);
   margin-right: 1rem;
+  cursor: pointer;
 }
 
 .article-card:hover {
@@ -1117,6 +1119,7 @@ body {
   border-radius: var(--_radius-m);
   text-decoration: none;
   transition: all 0.3s var(--_animbezier);
+  cursor: pointer;
 }
 
 .tag-item:hover {
