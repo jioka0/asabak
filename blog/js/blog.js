@@ -501,20 +501,27 @@
   // Advanced Search Modal Functionality
   function initSearchModal() {
     const searchBtn = document.getElementById('searchToggle');
-    const menuSearchBtn = document.getElementById('menuSearchToggle');
     const searchOverlay = document.getElementById('searchOverlay');
     const searchClose = document.getElementById('searchClose');
     const searchInput = document.getElementById('searchInput');
     const searchSubmit = document.getElementById('searchBtn');
-    const searchResults = document.getElementById('searchResults');
+
+    // State management elements
+    const searchSuggestions = document.getElementById('searchSuggestions');
+    const typingState = document.getElementById('typingState');
+    const initialFilters = document.querySelector('.search-filters');
+    const searchResultsSection = document.querySelector('.search-results-section');
     const resultsCount = document.getElementById('resultsCount');
     const searchStats = document.getElementById('searchStats');
+    const resultFilters = document.getElementById('resultsSort');
+    const searchResults = document.getElementById('searchResults');
     const loadMoreContainer = document.getElementById('loadMoreContainer');
     const loadMoreBtn = document.getElementById('loadMoreBtn');
 
     if (!searchBtn || !searchOverlay) return;
 
     // Search state
+    let searchState = 'idle'; // 'idle' or 'active'
     let currentQuery = '';
     let currentFilters = {
       section: 'all',
@@ -530,8 +537,7 @@
       document.body.style.overflow = 'hidden';
       if (searchInput) {
         searchInput.focus();
-        // Reset to initial state
-        resetSearchState();
+        setState('idle'); // Set to idle state when opening
       }
     }
 
@@ -541,12 +547,48 @@
       resetSearchState();
     }
 
+    function setState(newState) {
+      const currentState = searchState;
+      if (currentState === newState) return; // No change needed
+
+      searchState = newState;
+
+      if (newState === 'idle') {
+        // Fade out active state components
+        if (searchResultsSection) {
+          searchResultsSection.classList.remove('visible');
+        }
+        
+        // Wait for fade out animation, then show idle state
+        setTimeout(() => {
+          if (searchSuggestions) searchSuggestions.classList.remove('hidden');
+          if (typingState) typingState.classList.remove('hidden');
+          if (initialFilters) initialFilters.classList.remove('hidden');
+        }, 300);
+      } else if (newState === 'active') {
+        // Fade out idle state components
+        if (searchSuggestions) searchSuggestions.classList.add('hidden');
+        if (typingState) typingState.classList.add('hidden');
+        if (initialFilters) initialFilters.classList.add('hidden');
+        
+        // Wait for fade out animation, then show active state
+        setTimeout(() => {
+          if (searchResultsSection) searchResultsSection.classList.add('visible');
+        }, 300);
+      }
+    }
+
     function resetSearchState() {
       currentQuery = '';
       currentFilters = { section: 'all', tags: [], sort: 'relevance' };
       currentResults = [];
       resultsOffset = 0;
+      searchState = 'idle';
+      
       if (searchInput) searchInput.value = '';
+      
+      // Reset UI to idle state
+      setState('idle');
       updateUI();
       showInitialState();
     }
@@ -555,21 +597,22 @@
       resultsCount.textContent = 'Start typing to search...';
       searchStats.innerHTML = '';
       loadMoreContainer.style.display = 'none';
-      searchResults.innerHTML = `
-        <div class="no-results">
-          <div class="no-results-icon">
-            <i class="ph-bold ph-magnifying-glass"></i>
+      
+      if (searchResults) {
+        searchResults.innerHTML = `
+          <div class="no-results">
+            <div class="no-results-icon">
+              <i class="ph-bold ph-magnifying-glass"></i>
+            </div>
+            <h3>Discover Amazing Content</h3>
+            <p>Search through our collection of articles, tutorials, and insights</p>
           </div>
-          <h3>Discover Amazing Content</h3>
-          <p>Search through our collection of articles, tutorials, and insights</p>
-        </div>
-      `;
+        `;
+      }
     }
 
     // Event listeners
-    [searchBtn, menuSearchBtn].forEach(btn => {
-      if (btn) btn.addEventListener('click', openSearch);
-    });
+    searchBtn.addEventListener('click', openSearch);
 
     if (searchClose) searchClose.addEventListener('click', closeSearch);
     searchOverlay.addEventListener('click', (e) => {
@@ -579,28 +622,38 @@
     // Filter event listeners
     initFilterListeners();
 
-    // Search input handling
+    // Search input handling with state transitions
     let searchTimeout;
     if (searchInput) {
       searchInput.addEventListener('input', (e) => {
         clearTimeout(searchTimeout);
         currentQuery = e.target.value.trim();
 
+        // State transition logic
         if (currentQuery.length === 0) {
+          setState('idle');
           showInitialState();
           return;
+        } else if (currentQuery.length === 1 && searchState === 'idle') {
+          setState('active');
         }
 
         // Debounced search
         searchTimeout = setTimeout(() => {
-          performSearch();
+          if (currentQuery.length > 0) {
+            performSearch();
+          }
         }, 300);
       });
     }
 
     if (searchSubmit) {
       searchSubmit.addEventListener('click', () => {
-        if (searchInput.value.trim()) {
+        if (searchInput && searchInput.value.trim()) {
+          currentQuery = searchInput.value.trim();
+          if (searchState === 'idle') {
+            setState('active');
+          }
           performSearch();
         }
       });
@@ -622,13 +675,17 @@
       if (e.key === 'Escape' && searchOverlay.classList.contains('active')) {
         closeSearch();
       }
-      if (e.key === 'Enter' && searchOverlay.classList.contains('active') && searchInput.value.trim()) {
+      if (e.key === 'Enter' && searchOverlay.classList.contains('active') && searchInput && searchInput.value.trim()) {
+        currentQuery = searchInput.value.trim();
+        if (searchState === 'idle') {
+          setState('active');
+        }
         performSearch();
       }
     });
 
     function initFilterListeners() {
-      // Section filters
+      // Section filters (initial state)
       document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           const section = btn.dataset.section;
@@ -660,7 +717,7 @@
         });
       });
 
-      // Sort options
+      // Sort options (results state)
       document.querySelectorAll('.sort-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           const sort = btn.dataset.sort;
@@ -682,8 +739,8 @@
       if (!currentQuery) return;
 
       // Show loading state
-      resultsCount.textContent = 'Searching...';
-      searchResults.innerHTML = '<div class="loading">Searching...</div>';
+      if (resultsCount) resultsCount.textContent = 'Searching...';
+      if (searchResults) searchResults.innerHTML = '<div class="loading">Searching...</div>';
 
       // Simulate API call - replace with real implementation
       setTimeout(() => {
@@ -712,17 +769,30 @@
 
     function updateUI() {
       const totalResults = currentResults.length;
-      resultsCount.textContent = totalResults === 1 ? '1 result found' : `${totalResults} results found`;
+      
+      if (resultsCount) {
+        if (totalResults === 0) {
+          resultsCount.textContent = '0 results found';
+        } else {
+          resultsCount.textContent = totalResults === 1 ? '1 result found' : `${totalResults} results found`;
+        }
+      }
 
       // Show search stats
       const searchTime = Math.random() * 0.5 + 0.1; // Simulate search time
-      searchStats.innerHTML = `<i class="ph-bold ph-clock"></i> ${searchTime.toFixed(2)}s`;
+      if (searchStats) {
+        searchStats.innerHTML = `<i class="ph-bold ph-clock"></i> ${searchTime.toFixed(2)}s`;
+      }
 
       // Show load more if there are more results
-      loadMoreContainer.style.display = totalResults >= resultsPerPage ? 'block' : 'none';
+      if (loadMoreContainer) {
+        loadMoreContainer.style.display = totalResults >= resultsPerPage ? 'block' : 'none';
+      }
     }
 
     function renderResults(append = false) {
+      if (!searchResults) return;
+
       if (!append) {
         searchResults.innerHTML = '';
       }
@@ -740,7 +810,10 @@
         return;
       }
 
-      const resultsHTML = currentResults.map((result, index) => createResultCard(result, append ? index + (resultsOffset - resultsPerPage) : index)).join('');
+      const resultsHTML = currentResults.map((result, index) =>
+        createResultCard(result, append ? index + (resultsOffset - resultsPerPage) : index)
+      ).join('');
+      
       if (append) {
         searchResults.insertAdjacentHTML('beforeend', resultsHTML);
       } else {
@@ -748,7 +821,7 @@
       }
     }
 
-    function createResultCard(result, index) {
+    function createResultCard(result, index, append = false) {
       const delay = append ? 0 : index * 0.1;
       return `
         <div class="result-card" style="animation-delay: ${delay}s">
