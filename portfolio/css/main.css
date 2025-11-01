@@ -1143,6 +1143,12 @@ p.additional-text a {
 .btn-default i, .btn-default span {
   position: relative;
 }
+a.btn.btn-default{
+  color: rgb(0, 0, 5);
+}
+[color-scheme=dark] a.btn.btn-default{
+  color: white;
+}
 .btn-default i {
   font-size: 1.8rem;
   margin-left: 0.6rem;

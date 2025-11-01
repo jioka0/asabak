@@ -52,6 +52,17 @@ class ContactFormHandler {
             email: (formData.get('E-mail') || '').toString().trim(),
             message: (formData.get('Message') || '').toString().trim()
         };
+
+        // Add optional fields
+        const company = formData.get('Company');
+        const phone = formData.get('Phone');
+        if (company && company.toString().trim()) {
+            data.company = company.toString().trim();
+        }
+        if (phone && phone.toString().trim()) {
+            data.phone = phone.toString().trim();
+        }
+
         console.debug('[contact-form] payload', data);
 
         // Basic client-side validation
@@ -64,6 +75,8 @@ class ContactFormHandler {
 
         try {
             const apiUrl = `${this.getApiBase()}/api/contacts/`;
+            console.log('[contact-form] sending request to:', apiUrl);
+
             const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: {
@@ -72,17 +85,39 @@ class ContactFormHandler {
                 body: JSON.stringify(data)
             });
 
+            console.log('[contact-form] response status:', response.status);
+            console.log('[contact-form] response ok:', response.ok);
+
             if (response.ok) {
                 const result = await response.json();
-                this.showSuccess('Message sent successfully! I\'ll get back to you soon.');
+                console.log('[contact-form] success response:', result);
+                this.showSuccess('Message sent successfully');
                 this.form.reset();
             } else {
-                const error = await response.json();
-                this.showError(this.parseError(error));
+                console.log('[contact-form] error response status:', response.status);
+                try {
+                    const error = await response.json();
+                    console.log('[contact-form] error response body:', error);
+                    this.showError(`API Error: ${this.parseError(error)}`);
+                } catch (parseError) {
+                    console.log('[contact-form] could not parse error response:', parseError);
+                    this.showError(`API Error: Server returned status ${response.status}`);
+                }
             }
         } catch (error) {
-            console.error('Contact form error:', error);
-            this.showError('Network error. Please check your connection and try again.');
+            console.error('[contact-form] network/connection error:', error);
+
+            // Check if it's a network connectivity issue
+            if (!navigator.onLine) {
+                console.log('[contact-form] user is offline');
+                this.showError('Connection error. Please check your internet connection and try again.');
+            } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                console.log('[contact-form] network request failed');
+                this.showError('Connection error. Please check your internet connection and try again.');
+            } else {
+                console.log('[contact-form] unknown error type:', error.name);
+                this.showError('Connection error. Please try again later.');
+            }
         } finally {
             this.setLoadingState(false);
         }
@@ -95,24 +130,34 @@ class ContactFormHandler {
         let isValid = true;
         const errors = [];
 
-        // Name validation
-        if (!data.name || data.name.length < 3) {
-            errors.push('Name must be at least 3 characters long');
+        // Name validation (minimum 2 characters, required)
+        if (!data.name || data.name.length < 2) {
+            errors.push('Name must be at least 2 characters long');
             isValid = false;
+            console.log('[contact-form] validation failed: name too short', data.name);
         }
 
-        // Email validation
+        // Email validation (required, proper email format)
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!data.email || !emailRegex.test(data.email)) {
-            errors.push('Please enter a valid email address');
+        if (!data.email) {
+            errors.push('Email address is required');
             isValid = false;
+            console.log('[contact-form] validation failed: email missing');
+        } else if (!emailRegex.test(data.email)) {
+            errors.push('Please enter a valid email address (format: user@domain.com)');
+            isValid = false;
+            console.log('[contact-form] validation failed: invalid email format', data.email);
         }
 
-        // Message validation
+        // Message validation (minimum 3 characters, required)
         if (!data.message || data.message.length < 3) {
             errors.push('Message must be at least 3 characters long');
             isValid = false;
+            console.log('[contact-form] validation failed: message too short', data.message);
         }
+
+        // Phone and Company are optional - no validation needed
+        console.log('[contact-form] validation result:', isValid ? 'PASSED' : 'FAILED', { errors: errors.length });
 
         if (!isValid) {
             this.showError(errors.join('<br>'));
