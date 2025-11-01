@@ -284,6 +284,23 @@ body {
   position: relative;
 }
 
+.portfolio-link {
+  border: 2px solid var(--stroke-controls);
+  background: transparent;
+  padding: 0.8rem 1.5rem;
+  border-radius: var(--_radius-m);
+  font-weight: 600;
+  transition: all 0.3s var(--_animbezier);
+}
+
+.portfolio-link:hover {
+  background: var(--accent);
+  color: var(--t-opp-bright);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
 .nav-link:hover,
 .nav-link.active {
   color: var(--t-accent);
@@ -359,7 +376,7 @@ body {
 
 /* Trending Section */
 .trending-section {
-  padding: 10rem 0;
+  padding: 2rem 0 10rem 0;
   background: linear-gradient(135deg, var(--gradient-one), var(--gradient-two));
   color: var(--t-opp-bright);
   position: relative;
@@ -702,7 +719,7 @@ body {
 
 /* Latest Articles Section */
 .latest-articles-section {
-  padding: 8rem 0;
+  padding: 6rem 0 8rem 0;
   background: var(--base);
 }
 
@@ -857,7 +874,7 @@ body {
 
 /* Magazine Section */
 .magazine-section {
-  padding: 8rem 0;
+  padding: 6rem 0 8rem 0;
   background: var(--base-tint);
 }
 
@@ -1168,7 +1185,7 @@ body {
 
 /* Newsletter Section */
 .newsletter-section {
-  padding: 8rem 0;
+  padding: 6rem 0 8rem 0;
   background: linear-gradient(135deg, var(--gradient-one), var(--gradient-two));
   position: relative;
   overflow: hidden;
