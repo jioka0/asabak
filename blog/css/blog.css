@@ -285,15 +285,15 @@ body {
 }
 
 .portfolio-link {
-  border: 2px solid var(--stroke-controls);
+ 
   background: transparent;
-  padding: 0.8rem 1.5rem;
+  text-decoration: underline;
   border-radius: var(--_radius-m);
   font-weight: 600;
   transition: all 0.3s var(--_animbezier);
 }
 
-.portfolio-link:hover {
+ a .portfolio-link:hover {
   background: var(--accent);
   color: var(--t-opp-bright);
   border-color: var(--accent);

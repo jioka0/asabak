@@ -51,9 +51,10 @@
 
             <nav class="main-nav">
                 <a href="https://nekwasar.com" class="nav-link portfolio-link">Back to Portfolio</a>
-                <a href="#trending" class="nav-link">Trending</a>
                 <a href="#latest" class="nav-link">Latest</a>
-                <a href="#magazine" class="nav-link">Magazine</a>
+                <a href="#popular" class="nav-link">Popular</a>
+                <a href="#others" class="nav-link">Others</a>
+                <a href="#featured" class="nav-link">Featured</a>
                 <a href="#tags" class="nav-link">Topics</a>
             </nav>
 
@@ -77,9 +78,9 @@
         <canvas id="particleCanvas" class="particle-canvas"></canvas>
 
         <!-- Trending Section -->
-        <section id="trending" class="trending-section">
+        <section id="latest" class="trending-section">
             <div class="section-container">
-                <h2 class="section-title">TRENDING NOW</h2>
+                <h2 class="section-title">LATEST POST</h2>
 
                 <!-- Banner Auto Slider -->
                 <div class="banner-slider">
@@ -154,7 +155,7 @@
         </section>
 
         <!-- Latest Articles Section -->
-        <section id="latest" class="latest-articles-section">
+        <section id="popular" class="latest-articles-section">
             <div class="section-container">
                 <h2 class="section-title">POPULAR POSTS</h2>
 <div class="trending-slider">
@@ -495,51 +496,51 @@
 
                         <!-- Popular Tags -->
                         <div class="sidebar-widget" id="tags">
-                            <h4 class="widget-title">POPULAR TAGS</h4>
+                            <h4 class="widget-title">TOP TOPICS</h4>
                             <div class="tags-grid">
-                                <div class="tag-item" data-href="#tag-ai">
-                                    <div class="tag-icon"><i class="ph-bold ph-cpu"></i></div>
-                                    <div class="tag-content">
-                                        <span class="tag-name">AI</span>
-                                        <span class="tag-count">24 posts</span>
+                                    <div class="tag-item" data-href="#tag-ai">
+                                        <div class="tag-icon"><i class="ph-bold ph-cpu"></i></div>
+                                        <div class="tag-content">
+                                            <span class="tag-name">AI</span>
+                                            <span class="tag-count">24 posts</span>
+                                        </div>
+                                    </div>
+                                    <div class="tag-item" data-href="#tag-startup">
+                                        <div class="tag-icon"><i class="ph-bold ph-rocket"></i></div>
+                                        <div class="tag-content">
+                                            <span class="tag-name">Startup</span>
+                                            <span class="tag-count">18 posts</span>
+                                        </div>
+                                    </div>
+                                    <div class="tag-item" data-href="#tag-innovation">
+                                        <div class="tag-icon"><i class="ph-bold ph-lightbulb"></i></div>
+                                        <div class="tag-content">
+                                            <span class="tag-name">Innovation</span>
+                                            <span class="tag-count">15 posts</span>
+                                        </div>
+                                    </div>
+                                    <div class="tag-item" data-href="#tag-opinions">
+                                        <div class="tag-icon"><i class="ph-bold ph-chat-circle"></i></div>
+                                        <div class="tag-content">
+                                            <span class="tag-name">Opinions</span>
+                                            <span class="tag-count">12 posts</span>
+                                        </div>
+                                    </div>
+                                    <div class="tag-item" data-href="#tag-business">
+                                        <div class="tag-icon"><i class="ph-bold ph-building"></i></div>
+                                        <div class="tag-content">
+                                            <span class="tag-name">Business</span>
+                                            <span class="tag-count">10 posts</span>
+                                        </div>
+                                    </div>
+                                    <div class="tag-item" data-href="#tag-software">
+                                        <div class="tag-icon"><i class="ph-bold ph-code"></i></div>
+                                        <div class="tag-content">
+                                            <span class="tag-name">Software and App Development</span>
+                                            <span class="tag-count">8 posts</span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="tag-item" data-href="#tag-development">
-                                    <div class="tag-icon"><i class="ph-bold ph-code"></i></div>
-                                    <div class="tag-content">
-                                        <span class="tag-name">Development</span>
-                                        <span class="tag-count">18 posts</span>
-                                    </div>
-                                </div>
-                                <div class="tag-item" data-href="#tag-trends">
-                                    <div class="tag-icon"><i class="ph-bold ph-trend-up"></i></div>
-                                    <div class="tag-content">
-                                        <span class="tag-name">Trends</span>
-                                        <span class="tag-count">15 posts</span>
-                                    </div>
-                                </div>
-                                <div class="tag-item" data-href="#tag-innovation">
-                                    <div class="tag-icon"><i class="ph-bold ph-lightbulb"></i></div>
-                                    <div class="tag-content">
-                                        <span class="tag-name">Innovation</span>
-                                        <span class="tag-count">12 posts</span>
-                                    </div>
-                                </div>
-                                <div class="tag-item" data-href="#tag-business">
-                                    <div class="tag-icon"><i class="ph-bold ph-building"></i></div>
-                                    <div class="tag-content">
-                                        <span class="tag-name">Business</span>
-                                        <span class="tag-count">10 posts</span>
-                                    </div>
-                                </div>
-                                <div class="tag-item" data-href="#tag-security">
-                                    <div class="tag-icon"><i class="ph-bold ph-shield"></i></div>
-                                    <div class="tag-content">
-                                        <span class="tag-name">Security</span>
-                                        <span class="tag-count">8 posts</span>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
 
                         <!-- Sponsored Ads -->
@@ -750,25 +751,21 @@
                         <button class="filter-btn active" data-section="all">
                             <span>All</span>
                         </button>
-                        <button class="filter-btn" data-section="trending">
-                            <i class="ph-bold ph-trend-up"></i>
-                            <span>Trending</span>
-                        </button>
                         <button class="filter-btn" data-section="latest">
                             <i class="ph-bold ph-clock"></i>
                             <span>Latest</span>
                         </button>
-                        <button class="filter-btn" data-section="ai">
-                            <i class="ph-bold ph-cpu"></i>
-                            <span>AI</span>
+                        <button class="filter-btn" data-section="popular">
+                            <i class="ph-bold ph-star"></i>
+                            <span>Popular</span>
                         </button>
-                        <button class="filter-btn" data-section="business">
-                            <i class="ph-bold ph-building"></i>
-                            <span>Business</span>
+                        <button class="filter-btn" data-section="others">
+                            <i class="ph-bold ph-grid-four"></i>
+                            <span>Others</span>
                         </button>
-                        <button class="filter-btn" data-section="tutorials">
-                            <i class="ph-bold ph-graduation-cap"></i>
-                            <span>Tutorials</span>
+                        <button class="filter-btn" data-section="featured">
+                            <i class="ph-bold ph-star"></i>
+                            <span>Featured</span>
                         </button>
                     </div>
                 </div>
@@ -781,20 +778,20 @@
                             <span>AI</span>
                             <span class="tag-count">24</span>
                         </span>
-                        <span class="tag-chip" data-tag="blockchain">
-                            <span>Blockchain</span>
-                            <span class="tag-count">18</span>
-                        </span>
                         <span class="tag-chip" data-tag="startup">
                             <span>Startup</span>
-                            <span class="tag-count">15</span>
-                        </span>
-                        <span class="tag-chip" data-tag="tutorial">
-                            <span>Tutorial</span>
-                            <span class="tag-count">12</span>
+                            <span class="tag-count">18</span>
                         </span>
                         <span class="tag-chip" data-tag="innovation">
                             <span>Innovation</span>
+                            <span class="tag-count">15</span>
+                        </span>
+                        <span class="tag-chip" data-tag="opinions">
+                            <span>Opinions</span>
+                            <span class="tag-count">12</span>
+                        </span>
+                        <span class="tag-chip" data-tag="business">
+                            <span>Business</span>
                             <span class="tag-count">10</span>
                         </span>
                     </div>
@@ -860,9 +857,10 @@
             </div>
             <nav class="mobile-nav">
                 <a href="https://nekwasar.com" class="mobile-nav-link">Back to Portfolio</a>
-                <a href="#trending" class="mobile-nav-link">Trending</a>
                 <a href="#latest" class="mobile-nav-link">Latest</a>
-                <a href="#magazine" class="mobile-nav-link">Magazine</a>
+                <a href="#popular" class="mobile-nav-link">Popular</a>
+                <a href="#others" class="mobile-nav-link">Others</a>
+                <a href="#featured" class="mobile-nav-link">Featured</a>
                 <a href="#tags" class="mobile-nav-link">Topics</a>
             </nav>
             
