@@ -557,24 +557,54 @@
         // Fade out active state components
         if (searchResultsSection) {
           searchResultsSection.classList.remove('visible');
+          setTimeout(() => {
+            if (searchResultsSection) searchResultsSection.style.display = 'none';
+          }, 300);
         }
-        
+
         // Wait for fade out animation, then show idle state
         setTimeout(() => {
-          if (searchSuggestions) searchSuggestions.classList.remove('hidden');
-          if (typingState) typingState.classList.remove('hidden');
-          if (initialFilters) initialFilters.classList.remove('hidden');
-        }, 300);
+          if (searchSuggestions) {
+            searchSuggestions.style.display = 'flex';
+            searchSuggestions.classList.remove('hidden');
+          }
+          if (typingState) {
+            typingState.style.display = 'block';
+            typingState.classList.remove('hidden');
+          }
+          if (initialFilters) {
+            initialFilters.style.display = 'block';
+            initialFilters.classList.remove('hidden');
+          }
+        }, 350);
       } else if (newState === 'active') {
         // Fade out idle state components
-        if (searchSuggestions) searchSuggestions.classList.add('hidden');
-        if (typingState) typingState.classList.add('hidden');
-        if (initialFilters) initialFilters.classList.add('hidden');
-        
+        if (searchSuggestions) {
+          searchSuggestions.classList.add('hidden');
+          setTimeout(() => {
+            if (searchSuggestions) searchSuggestions.style.display = 'none';
+          }, 300);
+        }
+        if (typingState) {
+          typingState.classList.add('hidden');
+          setTimeout(() => {
+            if (typingState) typingState.style.display = 'none';
+          }, 300);
+        }
+        if (initialFilters) {
+          initialFilters.classList.add('hidden');
+          setTimeout(() => {
+            if (initialFilters) initialFilters.style.display = 'none';
+          }, 300);
+        }
+
         // Wait for fade out animation, then show active state
         setTimeout(() => {
-          if (searchResultsSection) searchResultsSection.classList.add('visible');
-        }, 300);
+          if (searchResultsSection) {
+            searchResultsSection.style.display = 'flex';
+            searchResultsSection.classList.add('visible');
+          }
+        }, 350);
       }
     }
 
