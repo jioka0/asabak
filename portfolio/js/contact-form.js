@@ -3,10 +3,10 @@ class ContactFormHandler {
     constructor(formSelector = '#contact-form') {
         this.form = document.querySelector(formSelector);
         this.submitBtn = this.form?.querySelector('button[type="submit"]');
-        this.replyMessage = document.querySelector('.form__reply');
-        this.replyIcon = document.querySelector('.reply__icon');
-        this.replyTitle = document.querySelector('.reply__title');
-        this.replyText = document.querySelector('.reply__text');
+        this.replyMessage = document.getElementById('formReply');
+        this.replyIcon = document.getElementById('replyIcon');
+        this.replyTitle = document.getElementById('replyTitle');
+        this.replyText = document.getElementById('replyText');
 
         if (this.form) {
             this.init();
@@ -98,10 +98,10 @@ class ContactFormHandler {
                 try {
                     const error = await response.json();
                     console.log('[contact-form] error response body:', error);
-                    this.showError(`API Error: ${this.parseError(error)}`);
+                    this.showError('There was an error sending your message');
                 } catch (parseError) {
                     console.log('[contact-form] could not parse error response:', parseError);
-                    this.showError(`API Error: Server returned status ${response.status}`);
+                    this.showError('There was an error sending your message');
                 }
             }
         } catch (error) {
@@ -229,12 +229,10 @@ class ContactFormHandler {
             // Ensure the user actually sees the feedback
             try { this.replyMessage.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (_) {}
 
-            // Auto-hide success messages after 5 seconds
-            if (type === 'success') {
-                setTimeout(() => {
-                    this.replyMessage.style.display = 'none';
-                }, 5000);
-            }
+            // Auto-hide messages after 4 seconds
+            setTimeout(() => {
+                this.replyMessage.style.display = 'none';
+            }, 4000);
         }
     }
 
