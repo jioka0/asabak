@@ -498,7 +498,7 @@
     setInterval(nextSlide, 4000);
   }
 
-  // Search Modal Functionality
+  // Advanced Search Modal Functionality
   function initSearchModal() {
     const searchBtn = document.getElementById('searchToggle');
     const menuSearchBtn = document.getElementById('menuSearchToggle');
@@ -507,20 +507,66 @@
     const searchInput = document.getElementById('searchInput');
     const searchSubmit = document.getElementById('searchBtn');
     const searchResults = document.getElementById('searchResults');
+    const resultsCount = document.getElementById('resultsCount');
+    const searchStats = document.getElementById('searchStats');
+    const loadMoreContainer = document.getElementById('loadMoreContainer');
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
 
     if (!searchBtn || !searchOverlay) return;
 
+    // Search state
+    let currentQuery = '';
+    let currentFilters = {
+      section: 'all',
+      tags: [],
+      sort: 'relevance'
+    };
+    let currentResults = [];
+    let resultsOffset = 0;
+    const resultsPerPage = 10;
+
     function openSearch() {
       searchOverlay.classList.add('active');
-      if (searchInput) searchInput.focus();
+      document.body.style.overflow = 'hidden';
+      if (searchInput) {
+        searchInput.focus();
+        // Reset to initial state
+        resetSearchState();
+      }
     }
 
     function closeSearch() {
       searchOverlay.classList.remove('active');
-      if (searchInput) searchInput.value = '';
-      searchResults.innerHTML = '<div class="no-results"><i class="ph-bold ph-magnifying-glass"></i><p>Start typing to search articles...</p></div>';
+      document.body.style.overflow = '';
+      resetSearchState();
     }
 
+    function resetSearchState() {
+      currentQuery = '';
+      currentFilters = { section: 'all', tags: [], sort: 'relevance' };
+      currentResults = [];
+      resultsOffset = 0;
+      if (searchInput) searchInput.value = '';
+      updateUI();
+      showInitialState();
+    }
+
+    function showInitialState() {
+      resultsCount.textContent = 'Start typing to search...';
+      searchStats.innerHTML = '';
+      loadMoreContainer.style.display = 'none';
+      searchResults.innerHTML = `
+        <div class="no-results">
+          <div class="no-results-icon">
+            <i class="ph-bold ph-magnifying-glass"></i>
+          </div>
+          <h3>Discover Amazing Content</h3>
+          <p>Search through our collection of articles, tutorials, and insights</p>
+        </div>
+      `;
+    }
+
+    // Event listeners
     [searchBtn, menuSearchBtn].forEach(btn => {
       if (btn) btn.addEventListener('click', openSearch);
     });
@@ -530,46 +576,40 @@
       if (e.target === searchOverlay) closeSearch();
     });
 
-    // Search functionality
-    function performSearch(query) {
-      if (!query.trim()) {
-        searchResults.innerHTML = '<div class="no-results"><i class="ph-bold ph-magnifying-glass"></i><p>Start typing to search articles...</p></div>';
-        return;
-      }
+    // Filter event listeners
+    initFilterListeners();
 
-      // Mock search results - replace with real API call
-      const mockResults = [
-        { title: 'Latest AI Models: A Comprehensive Guide', excerpt: 'Explore the most advanced AI models...', category: 'AI' },
-        { title: 'Building Billion-Dollar Ideas', excerpt: 'Lessons from successful startups...', category: 'Innovation' },
-        { title: 'Modern Web Technologies', excerpt: 'What every developer should know...', category: 'Development' }
-      ].filter(item =>
-        item.title.toLowerCase().includes(query.toLowerCase()) ||
-        item.excerpt.toLowerCase().includes(query.toLowerCase())
-      );
-
-      if (mockResults.length === 0) {
-        searchResults.innerHTML = '<div class="no-results"><i class="ph-bold ph-magnifying-glass"></i><p>No articles found matching your search.</p></div>';
-        return;
-      }
-
-      searchResults.innerHTML = mockResults.map(result => `
-        <div class="search-result-item" style="padding: 1rem; border-bottom: 1px solid var(--stroke-elements); cursor: pointer;">
-          <div style="font-weight: 600; color: var(--t-bright); margin-bottom: 0.5rem;">${result.title}</div>
-          <div style="color: var(--t-medium); font-size: 0.9rem; margin-bottom: 0.5rem;">${result.excerpt}</div>
-          <div style="color: var(--accent); font-size: 0.8rem; font-weight: 600;">${result.category}</div>
-        </div>
-      `).join('');
-    }
-
+    // Search input handling
+    let searchTimeout;
     if (searchInput) {
       searchInput.addEventListener('input', (e) => {
-        performSearch(e.target.value);
+        clearTimeout(searchTimeout);
+        currentQuery = e.target.value.trim();
+
+        if (currentQuery.length === 0) {
+          showInitialState();
+          return;
+        }
+
+        // Debounced search
+        searchTimeout = setTimeout(() => {
+          performSearch();
+        }, 300);
       });
     }
 
     if (searchSubmit) {
       searchSubmit.addEventListener('click', () => {
-        performSearch(searchInput.value);
+        if (searchInput.value.trim()) {
+          performSearch();
+        }
+      });
+    }
+
+    // Load more functionality
+    if (loadMoreBtn) {
+      loadMoreBtn.addEventListener('click', () => {
+        loadMoreResults();
       });
     }
 
@@ -582,7 +622,304 @@
       if (e.key === 'Escape' && searchOverlay.classList.contains('active')) {
         closeSearch();
       }
+      if (e.key === 'Enter' && searchOverlay.classList.contains('active') && searchInput.value.trim()) {
+        performSearch();
+      }
     });
+
+    function initFilterListeners() {
+      // Section filters
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const section = btn.dataset.section;
+          currentFilters.section = section;
+
+          // Update active state
+          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          if (currentQuery) performSearch();
+        });
+      });
+
+      // Tag filters
+      document.querySelectorAll('.tag-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          const tag = chip.dataset.tag;
+          const index = currentFilters.tags.indexOf(tag);
+
+          if (index > -1) {
+            currentFilters.tags.splice(index, 1);
+            chip.classList.remove('active');
+          } else {
+            currentFilters.tags.push(tag);
+            chip.classList.add('active');
+          }
+
+          if (currentQuery) performSearch();
+        });
+      });
+
+      // Sort options
+      document.querySelectorAll('.sort-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const sort = btn.dataset.sort;
+          currentFilters.sort = sort;
+
+          // Update active state
+          document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          if (currentResults.length > 0) {
+            sortResults();
+            renderResults();
+          }
+        });
+      });
+    }
+
+    function performSearch() {
+      if (!currentQuery) return;
+
+      // Show loading state
+      resultsCount.textContent = 'Searching...';
+      searchResults.innerHTML = '<div class="loading">Searching...</div>';
+
+      // Simulate API call - replace with real implementation
+      setTimeout(() => {
+        const results = getMockResults(currentQuery, currentFilters);
+        currentResults = results;
+        resultsOffset = resultsPerPage;
+        renderSearchResults();
+      }, 500);
+    }
+
+    function loadMoreResults() {
+      const nextResults = getMockResults(currentQuery, currentFilters, resultsOffset, resultsPerPage);
+      currentResults = [...currentResults, ...nextResults];
+      resultsOffset += resultsPerPage;
+      renderResults(true); // Append mode
+
+      if (nextResults.length < resultsPerPage) {
+        loadMoreContainer.style.display = 'none';
+      }
+    }
+
+    function renderSearchResults() {
+      updateUI();
+      renderResults();
+    }
+
+    function updateUI() {
+      const totalResults = currentResults.length;
+      resultsCount.textContent = totalResults === 1 ? '1 result found' : `${totalResults} results found`;
+
+      // Show search stats
+      const searchTime = Math.random() * 0.5 + 0.1; // Simulate search time
+      searchStats.innerHTML = `<i class="ph-bold ph-clock"></i> ${searchTime.toFixed(2)}s`;
+
+      // Show load more if there are more results
+      loadMoreContainer.style.display = totalResults >= resultsPerPage ? 'block' : 'none';
+    }
+
+    function renderResults(append = false) {
+      if (!append) {
+        searchResults.innerHTML = '';
+      }
+
+      if (currentResults.length === 0) {
+        searchResults.innerHTML = `
+          <div class="no-results">
+            <div class="no-results-icon">
+              <i class="ph-bold ph-magnifying-glass"></i>
+            </div>
+            <h3>No Results Found</h3>
+            <p>Try adjusting your search terms or filters</p>
+          </div>
+        `;
+        return;
+      }
+
+      const resultsHTML = currentResults.map((result, index) => createResultCard(result, append ? index + (resultsOffset - resultsPerPage) : index)).join('');
+      if (append) {
+        searchResults.insertAdjacentHTML('beforeend', resultsHTML);
+      } else {
+        searchResults.innerHTML = resultsHTML;
+      }
+    }
+
+    function createResultCard(result, index) {
+      const delay = append ? 0 : index * 0.1;
+      return `
+        <div class="result-card" style="animation-delay: ${delay}s">
+          <div class="result-media">
+            ${result.image ? `<img src="${result.image}" alt="${result.title}" class="result-image">` :
+              `<div class="result-icon"><i class="ph-bold ${result.icon || 'ph-article'}"></i></div>`}
+          </div>
+          <div class="result-content">
+            <div class="result-category">${result.section || result.category}</div>
+            <h3 class="result-title">${highlightText(result.title, currentQuery)}</h3>
+            <p class="result-excerpt">${highlightText(result.excerpt, currentQuery)}</p>
+            <div class="result-meta">
+              <span class="result-author">${result.author || 'NekwasaR'}</span>
+              <span class="result-date">${result.date || 'Recently'}</span>
+              ${result.tags ? `<div class="result-tags">${result.tags.map(tag => `<span class="result-tag">${tag}</span>`).join('')}</div>` : ''}
+              <span class="result-stats">
+                <i class="ph-bold ph-eye"></i> ${result.views || Math.floor(Math.random() * 1000)}
+              </span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function highlightText(text, query) {
+      if (!query) return text;
+      const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+      return text.replace(regex, '<span class="highlight">$1</span>');
+    }
+
+    function sortResults() {
+      currentResults.sort((a, b) => {
+        switch (currentFilters.sort) {
+          case 'recent':
+            return new Date(b.date || 0) - new Date(a.date || 0);
+          case 'popular':
+            return (b.views || 0) - (a.views || 0);
+          case 'relevance':
+          default:
+            return 0; // Keep original order for relevance
+        }
+      });
+    }
+
+    function getMockResults(query, filters, offset = 0, limit = resultsPerPage) {
+      // Mock data - replace with real search implementation
+      const allResults = [
+        {
+          title: 'The Future of Artificial Intelligence: What\'s Next in 2025',
+          excerpt: 'Explore the cutting-edge developments in AI that will shape our world in the coming year, from quantum computing to advanced neural networks.',
+          section: 'AI',
+          category: 'AI & Technology',
+          author: 'NekwasaR',
+          date: 'Oct 30, 2025',
+          views: 2100,
+          tags: ['ai', 'technology', 'future'],
+          image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=250&fit=crop&crop=center',
+          icon: 'ph-cpu'
+        },
+        {
+          title: 'Building Billion-Dollar Ideas: Lessons from Successful Startups',
+          excerpt: 'Learn from the most successful entrepreneurs and their journey to building world-changing companies that started from humble beginnings.',
+          section: 'Business',
+          category: 'Innovation',
+          author: 'NekwasaR',
+          date: 'Oct 28, 2025',
+          views: 1800,
+          tags: ['startup', 'business', 'innovation'],
+          image: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=400&h=250&fit=crop&crop=center',
+          icon: 'ph-lightbulb'
+        },
+        {
+          title: 'Modern Web Technologies: What Every Developer Should Know',
+          excerpt: 'Stay ahead of the curve with the latest tools and frameworks that are revolutionizing web development and user experience.',
+          section: 'Tutorials',
+          category: 'Web Development',
+          author: 'NekwasaR',
+          date: 'Oct 25, 2025',
+          views: 1500,
+          tags: ['web-development', 'tutorial', 'technology'],
+          image: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=250&fit=crop&crop=center',
+          icon: 'ph-code'
+        },
+        {
+          title: 'Latest AI Models: A Comprehensive Guide',
+          excerpt: 'Explore the most advanced AI models available today and understand their capabilities, use cases, and implementation strategies.',
+          section: 'AI',
+          category: 'AI',
+          author: 'NekwasaR',
+          date: 'Oct 20, 2025',
+          views: 1200,
+          tags: ['ai', 'models', 'guide'],
+          image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=250&fit=crop&crop=center',
+          icon: 'ph-cpu'
+        },
+        {
+          title: 'Emerging Technologies Shaping 2025',
+          excerpt: 'Discover the breakthrough technologies that are set to transform industries and create new opportunities in the coming year.',
+          section: 'Trending',
+          category: 'Tech Trends',
+          author: 'NekwasaR',
+          date: 'Oct 18, 2025',
+          views: 950,
+          tags: ['technology', 'trends', 'future'],
+          image: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=250&fit=crop&crop=center',
+          icon: 'ph-trend-up'
+        }
+      ];
+
+      // Filter results
+      let filteredResults = allResults.filter(result => {
+        // Text search
+        const searchText = `${result.title} ${result.excerpt} ${result.tags.join(' ')}`.toLowerCase();
+        const matchesQuery = searchText.includes(query.toLowerCase());
+
+        // Section filter
+        const matchesSection = filters.section === 'all' || result.section.toLowerCase() === filters.section;
+
+        // Tag filter
+        const matchesTags = filters.tags.length === 0 || filters.tags.some(tag => result.tags.includes(tag));
+
+        return matchesQuery && matchesSection && matchesTags;
+      });
+
+      // Apply sorting
+      filteredResults.sort((a, b) => {
+        switch (filters.sort) {
+          case 'recent':
+            return new Date(b.date) - new Date(a.date);
+          case 'popular':
+            return b.views - a.views;
+          case 'relevance':
+          default:
+            return 0;
+        }
+      });
+
+      // Apply pagination
+      return filteredResults.slice(offset, offset + limit);
+    }
+
+    // Initialize suggestions
+    initSuggestions();
+
+    function initSuggestions() {
+      const suggestions = document.querySelectorAll('.suggestion-item');
+      suggestions.forEach(suggestion => {
+        suggestion.addEventListener('click', () => {
+          const type = suggestion.dataset.type;
+          let searchTerm = '';
+
+          switch (type) {
+            case 'trending':
+              searchTerm = 'AI ethics';
+              break;
+            case 'recent':
+              searchTerm = 'web development';
+              break;
+            case 'popular':
+              searchTerm = 'blockchain guide';
+              break;
+          }
+
+          if (searchInput) {
+            searchInput.value = searchTerm;
+            currentQuery = searchTerm;
+            performSearch();
+          }
+        });
+      });
+    }
   }
 
   // Mobile Menu Modal Functionality

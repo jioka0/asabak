@@ -692,24 +692,154 @@
     </footer>
 
     <!-- Modals -->
-    <!-- Search Modal -->
-    <div class="modal-overlay" id="searchOverlay">
-        <div class="modal-content search-modal">
-            <button class="modal-close" id="searchClose">
-                <i class="ph-bold ph-x"></i>
-            </button>
-            <div class="search-container">
-                <div class="search-input-container">
-                    <input type="text" placeholder="Search articles..." id="searchInput">
-                    <button class="search-btn" id="searchBtn">
-                        <i class="ph-bold ph-magnifying-glass"></i>
+    <!-- Advanced Search Modal -->
+    <div class="search-modal-overlay" id="searchOverlay">
+        <div class="search-modal-container">
+            <!-- Search Header -->
+            <div class="search-header">
+                <div class="search-title">
+                    <i class="ph-bold ph-magnifying-glass"></i>
+                    <span>Discover Content</span>
+                </div>
+                <button class="search-close" id="searchClose">
+                    <i class="ph-bold ph-x"></i>
+                </button>
+            </div>
+
+            <!-- Search Input Section -->
+            <div class="search-input-section">
+                <div class="search-input-wrapper">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search articles, topics, or authors...">
+                    <div class="search-input-accent"></div>
+                    <button class="search-submit" id="searchBtn">
+                        <i class="ph-bold ph-arrow-right"></i>
                     </button>
                 </div>
+
+                <!-- Smart Suggestions -->
+                <div class="search-suggestions" id="searchSuggestions">
+                    <div class="suggestion-item initial" data-type="trending">
+                        <i class="ph-bold ph-trend-up"></i>
+                        <span>Trending: AI Ethics</span>
+                    </div>
+                    <div class="suggestion-item initial" data-type="recent">
+                        <i class="ph-bold ph-clock"></i>
+                        <span>Recent: Web Development</span>
+                    </div>
+                    <div class="suggestion-item initial" data-type="popular">
+                        <i class="ph-bold ph-star"></i>
+                        <span>Popular: Blockchain Guide</span>
+                    </div>
+                </div>
+
+                <!-- Typing State Message -->
+                <div class="search-typing-state" id="typingState">
+                    <div class="typing-message">
+                        <i class="ph-bold ph-magnifying-glass"></i>
+                        <span>Start typing to search...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Filters -->
+            <div class="search-filters">
+                <!-- Section Filters -->
+                <div class="filter-group">
+                    <label class="filter-label">Sections</label>
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-section="all">
+                            <span>All</span>
+                        </button>
+                        <button class="filter-btn" data-section="trending">
+                            <i class="ph-bold ph-trend-up"></i>
+                            <span>Trending</span>
+                        </button>
+                        <button class="filter-btn" data-section="latest">
+                            <i class="ph-bold ph-clock"></i>
+                            <span>Latest</span>
+                        </button>
+                        <button class="filter-btn" data-section="ai">
+                            <i class="ph-bold ph-cpu"></i>
+                            <span>AI</span>
+                        </button>
+                        <button class="filter-btn" data-section="business">
+                            <i class="ph-bold ph-building"></i>
+                            <span>Business</span>
+                        </button>
+                        <button class="filter-btn" data-section="tutorials">
+                            <i class="ph-bold ph-graduation-cap"></i>
+                            <span>Tutorials</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tag Filters -->
+                <div class="filter-group">
+                    <label class="filter-label">Topics</label>
+                    <div class="tag-filters" id="tagFilters">
+                        <span class="tag-chip" data-tag="ai">
+                            <span>AI</span>
+                            <span class="tag-count">24</span>
+                        </span>
+                        <span class="tag-chip" data-tag="blockchain">
+                            <span>Blockchain</span>
+                            <span class="tag-count">18</span>
+                        </span>
+                        <span class="tag-chip" data-tag="startup">
+                            <span>Startup</span>
+                            <span class="tag-count">15</span>
+                        </span>
+                        <span class="tag-chip" data-tag="tutorial">
+                            <span>Tutorial</span>
+                            <span class="tag-count">12</span>
+                        </span>
+                        <span class="tag-chip" data-tag="innovation">
+                            <span>Innovation</span>
+                            <span class="tag-count">10</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Results -->
+            <div class="search-results-section">
+                <div class="results-header">
+                    <div class="results-meta">
+                        <span class="results-count" id="resultsCount">Start typing to search...</span>
+                        <div class="search-stats" id="searchStats"></div>
+                    </div>
+                    <div class="results-sort" id="resultsSort">
+                        <button class="sort-btn active" data-sort="relevance">
+                            <i class="ph-bold ph-target"></i>
+                            <span>Relevance</span>
+                        </button>
+                        <button class="sort-btn" data-sort="recent">
+                            <i class="ph-bold ph-clock"></i>
+                            <span>Recent</span>
+                        </button>
+                        <button class="sort-btn" data-sort="popular">
+                            <i class="ph-bold ph-heart"></i>
+                            <span>Popular</span>
+                        </button>
+                    </div>
+                </div>
+
                 <div class="search-results" id="searchResults">
                     <div class="no-results">
-                        <i class="ph-bold ph-magnifying-glass"></i>
-                        <p>Start typing to search articles...</p>
+                        <div class="no-results-icon">
+                            <i class="ph-bold ph-magnifying-glass"></i>
+                        </div>
+                        <h3>Discover Amazing Content</h3>
+                        <p>Search through our collection of articles, tutorials, and insights</p>
                     </div>
+                </div>
+
+                <!-- Load More -->
+                <div class="load-more-container" id="loadMoreContainer" style="display: none;">
+                    <button class="load-more-btn" id="loadMoreBtn">
+                        <span>Load More Results</span>
+                        <i class="ph-bold ph-arrow-down"></i>
+                    </button>
                 </div>
             </div>
         </div>
