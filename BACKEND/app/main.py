@@ -7,7 +7,7 @@ from pathlib import Path
 import uvicorn
 
 from database import create_tables
-from routes import contacts, blogs, products, auth, admin
+from routes import contacts, blogs, products, auth, admin, search
 from core.config import settings
 
 # Create FastAPI app
@@ -34,6 +34,7 @@ app.include_router(contacts.router, prefix="/api/contacts", tags=["contacts"])
 app.include_router(blogs.router, prefix="/api/blogs", tags=["blogs"])
 app.include_router(products.router, prefix="/api/products", tags=["products"])
 app.include_router(auth.router, prefix="/api/auth", tags=["authentication"])
+app.include_router(search.router, prefix="/api/search", tags=["search"])
 app.include_router(admin.router, tags=["admin"])
 
 # Mount static files for admin interface

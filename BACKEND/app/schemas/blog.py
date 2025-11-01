@@ -10,6 +10,10 @@ class BlogPostBase(BaseModel):
     featured_image: Optional[str] = None
     video_url: Optional[str] = None
     tags: Optional[List[str]] = None
+    section: Optional[str] = 'others'
+    slug: Optional[str] = None
+    priority: Optional[int] = 0
+    is_featured: Optional[bool] = False
 
 class BlogPostCreate(BlogPostBase):
     pass
@@ -20,9 +24,45 @@ class BlogPost(BlogPostBase):
     view_count: int
     like_count: int
     comment_count: int
+    share_count: int
 
     class Config:
         from_attributes = True
+
+class BlogPostSearchResult(BlogPost):
+    search_score: Optional[float] = None
+    matched_terms: Optional[List[str]] = None
+
+class SearchFilters(BaseModel):
+    sections: List[str] = ['latest', 'popular', 'others', 'featured']
+    tags: List[str] = ['ai', 'startup', 'innovation', 'opinions', 'business', 'software']
+
+class SearchRequest(BaseModel):
+    query: str = ""
+    section: Optional[str] = None
+    tags: Optional[List[str]] = None
+    sort: Optional[str] = "relevance"  # relevance, recent, popular
+    offset: Optional[int] = 0
+    limit: Optional[int] = 20
+
+class SearchResponse(BaseModel):
+    results: List[BlogPostSearchResult]
+    total: int
+    query: str
+    filters_applied: dict
+    search_time: float
+
+class SearchSuggestions(BaseModel):
+    suggestions: List[str]
+    popular: List[str]
+    trending: List[str]
+
+class SearchAnalyticsCreate(BaseModel):
+    query: str
+    results_count: int
+    filters_used: dict
+    user_identifier: str
+    user_agent: Optional[str] = None
 
 class CommentBase(BaseModel):
     author_name: str
