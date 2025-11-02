@@ -278,3 +278,205 @@ class AnalyticsReportRequest(BaseModel):
     date_range_end: datetime
     include_charts: bool = True
     export_format: Optional[str] = None  # pdf, csv, excel
+
+# Content Management Schemas
+class MediaFileBase(BaseModel):
+    filename: str
+    original_filename: str
+    file_path: str
+    file_url: str
+    file_type: Optional[str] = None
+    mime_type: Optional[str] = None
+    file_size: Optional[int] = None
+    dimensions: Optional[str] = None
+    alt_text: Optional[str] = None
+    caption: Optional[str] = None
+    is_featured: Optional[bool] = False
+
+class MediaFileCreate(MediaFileBase):
+    pass
+
+class MediaFile(MediaFileBase):
+    id: int
+    uploaded_by: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class ContentRevisionBase(BaseModel):
+    revision_number: int
+    title: Optional[str] = None
+    content: Optional[str] = None
+    excerpt: Optional[str] = None
+    tags: Optional[List[str]] = None
+    section: Optional[str] = None
+    featured_image: Optional[str] = None
+    revision_note: Optional[str] = None
+
+class ContentRevisionCreate(ContentRevisionBase):
+    pass
+
+class ContentRevision(ContentRevisionBase):
+    id: int
+    post_id: int
+    revised_by: Optional[str] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class ContentWorkflowBase(BaseModel):
+    status: str
+    priority: Optional[str] = "medium"
+    assigned_to: Optional[str] = None
+    due_date: Optional[datetime] = None
+    review_notes: Optional[str] = None
+    approval_notes: Optional[str] = None
+
+class ContentWorkflowCreate(ContentWorkflowBase):
+    pass
+
+class ContentWorkflow(ContentWorkflowBase):
+    id: int
+    post_id: int
+    assigned_by: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class SEOMetadataBase(BaseModel):
+    meta_title: Optional[str] = None
+    meta_description: Optional[str] = None
+    meta_keywords: Optional[str] = None
+    canonical_url: Optional[str] = None
+    og_title: Optional[str] = None
+    og_description: Optional[str] = None
+    og_image: Optional[str] = None
+    twitter_card: Optional[str] = "summary_large_image"
+    focus_keyword: Optional[str] = None
+
+class SEOMetadataCreate(SEOMetadataBase):
+    pass
+
+class SEOMetadata(SEOMetadataBase):
+    id: int
+    post_id: int
+    readability_score: Optional[float] = None
+    seo_score: Optional[float] = None
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class ContentTemplateBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+    template_type: str
+    content_structure: Optional[dict] = None
+    default_tags: Optional[List[str]] = None
+    default_section: Optional[str] = None
+    is_active: Optional[bool] = True
+
+class ContentTemplateCreate(ContentTemplateBase):
+    pass
+
+class ContentTemplate(ContentTemplateBase):
+    id: int
+    usage_count: int
+    created_by: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class ContentAnalyticsBase(BaseModel):
+    metric_type: str
+    metric_value: float
+    device_type: Optional[str] = None
+    referrer_type: Optional[str] = None
+    country: Optional[str] = None
+    source_url: Optional[str] = None
+
+class ContentAnalyticsCreate(ContentAnalyticsBase):
+    pass
+
+class ContentAnalytics(ContentAnalyticsBase):
+    id: int
+    post_id: Optional[int] = None
+    date: datetime
+
+    class Config:
+        from_attributes = True
+
+class BulkOperationBase(BaseModel):
+    operation_type: str
+    operation_data: dict
+    affected_posts: List[int]
+
+class BulkOperationCreate(BulkOperationBase):
+    pass
+
+class BulkOperation(BulkOperationBase):
+    id: int
+    status: str
+    initiated_by: Optional[str] = None
+    completed_at: Optional[datetime] = None
+    error_message: Optional[str] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+# Content Management API Schemas
+class ContentScheduleRequest(BaseModel):
+    post_id: int
+    publish_at: datetime
+    timezone: Optional[str] = "UTC"
+
+class ContentScheduleResponse(BaseModel):
+    success: bool
+    post_id: int
+    scheduled_at: datetime
+    message: str
+
+class SEOAnalysisRequest(BaseModel):
+    post_id: int
+    content: Optional[str] = None
+
+class SEOAnalysisResponse(BaseModel):
+    post_id: int
+    readability_score: float
+    seo_score: float
+    suggestions: List[dict]
+    keyword_analysis: dict
+    recommendations: List[str]
+
+class MediaUploadResponse(BaseModel):
+    success: bool
+    file_id: int
+    file_url: str
+    filename: str
+    file_size: int
+    message: str
+
+class ContentWorkflowUpdate(BaseModel):
+    status: Optional[str] = None
+    priority: Optional[str] = None
+    assigned_to: Optional[str] = None
+    due_date: Optional[datetime] = None
+    review_notes: Optional[str] = None
+    approval_notes: Optional[str] = None
+
+class BulkOperationStatus(BaseModel):
+    operation_id: int
+    status: str
+    progress: Optional[float] = None
+    completed_count: Optional[int] = None
+    total_count: Optional[int] = None
+    errors: Optional[List[str]] = None

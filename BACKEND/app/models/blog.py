@@ -141,6 +141,125 @@ class BlogPostFTS(Base):
     tags = Column(Text)
     section = Column(Text)
 
+# Content Management Models
+class MediaFile(Base):
+    """Media files uploaded for blog content"""
+    __tablename__ = "media_files"
+
+    id = Column(Integer, primary_key=True, index=True)
+    filename = Column(String(255), nullable=False)
+    original_filename = Column(String(255), nullable=False)
+    file_path = Column(String(500), nullable=False)
+    file_url = Column(String(500), nullable=False)
+    file_type = Column(String(50))  # image, video, document, etc.
+    mime_type = Column(String(100))
+    file_size = Column(Integer)  # bytes
+    dimensions = Column(String(50))  # widthxheight for images
+    alt_text = Column(String(255))
+    caption = Column(Text)
+    uploaded_by = Column(String(100))
+    is_featured = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+class ContentRevision(Base):
+    """Content revision history"""
+    __tablename__ = "content_revisions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    post_id = Column(Integer, ForeignKey("blog_posts.id", ondelete="CASCADE"))
+    revision_number = Column(Integer, nullable=False)
+    title = Column(String(255))
+    content = Column(Text)
+    excerpt = Column(Text)
+    tags = Column(JSON)
+    section = Column(String(50))
+    featured_image = Column(String(500))
+    revised_by = Column(String(100))
+    revision_note = Column(Text)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class ContentWorkflow(Base):
+    """Content workflow and approval system"""
+    __tablename__ = "content_workflow"
+
+    id = Column(Integer, primary_key=True, index=True)
+    post_id = Column(Integer, ForeignKey("blog_posts.id", ondelete="CASCADE"))
+    status = Column(String(50))  # draft, review, approved, published, archived
+    priority = Column(String(20))  # low, medium, high, urgent
+    assigned_to = Column(String(100))
+    assigned_by = Column(String(100))
+    due_date = Column(DateTime(timezone=True))
+    review_notes = Column(Text)
+    approval_notes = Column(Text)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+class SEOMetadata(Base):
+    """SEO metadata for content optimization"""
+    __tablename__ = "seo_metadata"
+
+    id = Column(Integer, primary_key=True, index=True)
+    post_id = Column(Integer, ForeignKey("blog_posts.id", ondelete="CASCADE"))
+    meta_title = Column(String(60))  # SEO-optimized title
+    meta_description = Column(String(160))  # SEO description
+    meta_keywords = Column(String(255))  # Comma-separated keywords
+    canonical_url = Column(String(500))
+    og_title = Column(String(95))  # Open Graph title
+    og_description = Column(String(200))  # Open Graph description
+    og_image = Column(String(500))  # Open Graph image URL
+    twitter_card = Column(String(20))  # summary, summary_large_image, etc.
+    focus_keyword = Column(String(100))
+    readability_score = Column(Float)  # Flesch reading ease score
+    seo_score = Column(Float)  # Overall SEO score
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+class ContentTemplate(Base):
+    """Reusable content templates"""
+    __tablename__ = "content_templates"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), nullable=False)
+    description = Column(Text)
+    template_type = Column(String(50))  # article, tutorial, case_study, etc.
+    content_structure = Column(JSON)  # Template structure definition
+    default_tags = Column(JSON)
+    default_section = Column(String(50))
+    is_active = Column(Boolean, default=True)
+    usage_count = Column(Integer, default=0)
+    created_by = Column(String(100))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+class ContentAnalytics(Base):
+    """Detailed content performance analytics"""
+    __tablename__ = "content_analytics"
+
+    id = Column(BigInteger, primary_key=True, index=True)
+    post_id = Column(Integer, ForeignKey("blog_posts.id"), nullable=True)
+    date = Column(DateTime(timezone=True), index=True)
+    metric_type = Column(String(50))  # page_views, unique_visitors, avg_time, bounce_rate, etc.
+    metric_value = Column(Float)
+    device_type = Column(String(20))  # desktop, mobile, tablet
+    referrer_type = Column(String(50))  # search, social, direct, referral
+    country = Column(String(100))
+    source_url = Column(Text)
+
+class BulkOperation(Base):
+    """Track bulk content operations"""
+    __tablename__ = "bulk_operations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    operation_type = Column(String(50))  # publish, unpublish, delete, tag_update, etc.
+    operation_data = Column(JSON)  # Operation parameters
+    affected_posts = Column(JSON)  # List of affected post IDs
+    status = Column(String(20))  # pending, processing, completed, failed
+    initiated_by = Column(String(100))
+    completed_at = Column(DateTime(timezone=True))
+    error_message = Column(Text)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
 # Analytics Models
 class PageViewAnalytics(Base):
     __tablename__ = "page_view_analytics"

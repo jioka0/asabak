@@ -7,7 +7,7 @@ from pathlib import Path
 import uvicorn
 
 from database import create_tables
-from routes import contacts, blogs, products, auth, admin, search, newsletter, analytics
+from routes import contacts, blogs, products, auth, admin, search, newsletter, analytics, content
 from core.config import settings
 from scheduler import init_scheduler, start_scheduler, stop_scheduler
 
@@ -38,6 +38,7 @@ app.include_router(auth.router, prefix="/api/auth", tags=["authentication"])
 app.include_router(search.router, prefix="/api/search", tags=["search"])
 app.include_router(newsletter.router, prefix="/api/newsletter", tags=["newsletter"])
 app.include_router(analytics.router, prefix="/api/analytics", tags=["analytics"])
+app.include_router(content.router, prefix="/api/content", tags=["content"])
 app.include_router(admin.router, tags=["admin"])
 
 # Mount static files for admin interface
