@@ -145,3 +145,136 @@ class Like(BaseModel):
 
     class Config:
         from_attributes = True
+
+# Analytics Schemas
+class PageViewAnalyticsBase(BaseModel):
+    post_id: Optional[int] = None
+    session_id: str
+    user_identifier: Optional[str] = None
+    user_agent: Optional[str] = None
+    ip_address: Optional[str] = None
+    device_type: Optional[str] = None
+    browser: Optional[str] = None
+    os: Optional[str] = None
+    screen_resolution: Optional[str] = None
+    country: Optional[str] = None
+    city: Optional[str] = None
+    timezone: Optional[str] = None
+    referrer: Optional[str] = None
+    referrer_domain: Optional[str] = None
+    utm_source: Optional[str] = None
+    utm_medium: Optional[str] = None
+    utm_campaign: Optional[str] = None
+    page_url: Optional[str] = None
+    time_on_page: Optional[int] = None
+    scroll_depth: Optional[float] = None
+
+class PageViewAnalyticsCreate(PageViewAnalyticsBase):
+    pass
+
+class PageViewAnalytics(PageViewAnalyticsBase):
+    id: int
+    timestamp: datetime
+
+    class Config:
+        from_attributes = True
+
+class ContentEngagementAnalyticsBase(BaseModel):
+    post_id: Optional[int] = None
+    session_id: str
+    user_identifier: Optional[str] = None
+    action_type: str
+    element_type: Optional[str] = None
+    element_id: Optional[str] = None
+    element_text: Optional[str] = None
+    page_url: Optional[str] = None
+    section_visible: Optional[str] = None
+    time_on_page: Optional[int] = None
+    action_metadata: Optional[dict] = None
+
+class ContentEngagementAnalyticsCreate(ContentEngagementAnalyticsBase):
+    pass
+
+class ContentEngagementAnalytics(ContentEngagementAnalyticsBase):
+    id: int
+    timestamp: datetime
+
+    class Config:
+        from_attributes = True
+
+class UserSessionAnalyticsBase(BaseModel):
+    session_id: str
+    user_identifier: Optional[str] = None
+    start_time: datetime
+    end_time: Optional[datetime] = None
+    duration: Optional[int] = None
+    page_views: int = 0
+    unique_pages: int = 0
+    actions_taken: int = 0
+    device_type: Optional[str] = None
+    browser: Optional[str] = None
+    os: Optional[str] = None
+    country: Optional[str] = None
+    city: Optional[str] = None
+    is_bounce: bool = False
+    has_search: bool = False
+    has_newsletter_signup: bool = False
+    has_social_share: bool = False
+    entry_page: Optional[str] = None
+    exit_page: Optional[str] = None
+
+class UserSessionAnalyticsCreate(UserSessionAnalyticsBase):
+    pass
+
+class UserSessionAnalytics(UserSessionAnalyticsBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+
+class ReferralAnalyticsBase(BaseModel):
+    session_id: str
+    referrer_url: Optional[str] = None
+    referrer_domain: Optional[str] = None
+    referrer_type: Optional[str] = None
+    utm_source: Optional[str] = None
+    utm_medium: Optional[str] = None
+    utm_campaign: Optional[str] = None
+    utm_term: Optional[str] = None
+    utm_content: Optional[str] = None
+    landing_page: Optional[str] = None
+    landing_page_title: Optional[str] = None
+    converted: bool = False
+    conversion_type: Optional[str] = None
+    conversion_value: float = 0
+
+class ReferralAnalyticsCreate(ReferralAnalyticsBase):
+    pass
+
+class ReferralAnalytics(ReferralAnalyticsBase):
+    id: int
+    timestamp: datetime
+
+    class Config:
+        from_attributes = True
+
+class AnalyticsDashboardResponse(BaseModel):
+    total_views: int
+    total_sessions: int
+    total_users: int
+    active_users: int
+    page_views_today: int
+    page_views_yesterday: int
+    top_content: List[dict]
+    popular_searches: List[dict]
+    device_breakdown: dict
+    geographic_data: List[dict]
+    referral_sources: List[dict]
+    real_time_metrics: dict
+
+class AnalyticsReportRequest(BaseModel):
+    report_type: str  # daily, weekly, monthly, custom
+    date_range_start: datetime
+    date_range_end: datetime
+    include_charts: bool = True
+    export_format: Optional[str] = None  # pdf, csv, excel
