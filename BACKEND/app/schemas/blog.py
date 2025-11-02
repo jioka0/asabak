@@ -64,6 +64,58 @@ class SearchAnalyticsCreate(BaseModel):
     user_identifier: str
     user_agent: Optional[str] = None
 
+# Newsletter Schemas
+class NewsletterSubscriberBase(BaseModel):
+    name: str
+    email: str
+    preferences: Optional[dict] = None
+
+class NewsletterSubscriberCreate(NewsletterSubscriberBase):
+    pass
+
+class NewsletterSubscriber(NewsletterSubscriberBase):
+    id: int
+    subscribed_at: datetime
+    is_active: bool
+
+    class Config:
+        from_attributes = True
+
+class NewsletterCampaignBase(BaseModel):
+    subject: str
+    content: str
+    template_type: Optional[str] = "weekly"
+
+class NewsletterCampaignCreate(NewsletterCampaignBase):
+    scheduled_at: Optional[datetime] = None
+
+class NewsletterCampaign(NewsletterCampaignBase):
+    id: int
+    status: str  # draft, scheduled, sent, failed
+    scheduled_at: Optional[datetime]
+    sent_at: Optional[datetime]
+    recipient_count: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class NewsletterTemplateBase(BaseModel):
+    name: str
+    subject_template: str
+    content_template: str
+
+class NewsletterTemplateCreate(NewsletterTemplateBase):
+    pass
+
+class NewsletterTemplate(NewsletterTemplateBase):
+    id: int
+    is_active: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
 class CommentBase(BaseModel):
     author_name: str
     author_email: Optional[str] = None

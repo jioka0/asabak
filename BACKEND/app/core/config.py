@@ -27,11 +27,13 @@ class Settings(BaseSettings):
     max_upload_size: int = 10 * 1024 * 1024  # 10MB
     upload_directory: str = "uploads"
 
-    # Email (for future newsletter)
+    # Email (newsletter system)
     smtp_server: Optional[str] = None
     smtp_port: Optional[int] = None
     smtp_username: Optional[str] = None
     smtp_password: Optional[str] = None
+    from_email: Optional[str] = None
+    from_name: Optional[str] = None
 
     # Analytics
     google_analytics_property_id: Optional[str] = None

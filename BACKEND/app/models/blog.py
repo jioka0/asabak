@@ -104,3 +104,26 @@ class SearchAnalytics(Base):
     user_identifier = Column(String(255))  # IP or session ID
     user_agent = Column(String(500))  # Browser info
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
+
+class NewsletterCampaign(Base):
+    __tablename__ = "newsletter_campaigns"
+
+    id = Column(Integer, primary_key=True, index=True)
+    subject = Column(String(255), nullable=False)
+    content = Column(Text, nullable=False)
+    template_type = Column(String(50), default="weekly")  # weekly, announcement, etc.
+    status = Column(String(20), default="draft")  # draft, scheduled, sent, failed
+    scheduled_at = Column(DateTime(timezone=True), nullable=True)
+    sent_at = Column(DateTime(timezone=True), nullable=True)
+    recipient_count = Column(Integer, default=0)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class NewsletterTemplate(Base):
+    __tablename__ = "newsletter_templates"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), nullable=False, unique=True)
+    subject_template = Column(String(255), nullable=False)
+    content_template = Column(Text, nullable=False)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

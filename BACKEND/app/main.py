@@ -7,8 +7,9 @@ from pathlib import Path
 import uvicorn
 
 from database import create_tables
-from routes import contacts, blogs, products, auth, admin, search
+from routes import contacts, blogs, products, auth, admin, search, newsletter
 from core.config import settings
+from scheduler import init_scheduler, start_scheduler, stop_scheduler
 
 # Create FastAPI app
 app = FastAPI(
@@ -35,6 +36,7 @@ app.include_router(blogs.router, prefix="/api/blogs", tags=["blogs"])
 app.include_router(products.router, prefix="/api/products", tags=["products"])
 app.include_router(auth.router, prefix="/api/auth", tags=["authentication"])
 app.include_router(search.router, prefix="/api/search", tags=["search"])
+app.include_router(newsletter.router, prefix="/api/newsletter", tags=["newsletter"])
 app.include_router(admin.router, tags=["admin"])
 
 # Mount static files for admin interface
@@ -42,8 +44,10 @@ app.mount("/static", StaticFiles(directory="../../portfolio"), name="static")
 
 @app.on_event("startup")
 async def startup_event():
-    """Create database tables on startup"""
+    """Create database tables and initialize scheduler on startup"""
     create_tables()
+    init_scheduler()
+    start_scheduler()
 
 @app.get("/", response_class=HTMLResponse)
 async def root():
