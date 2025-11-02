@@ -16,25 +16,27 @@ async def search_posts(
     request: Request,
     db: Session = Depends(get_db)
 ):
-    """Search blog posts with advanced filtering and ranking"""
+    """Advanced search with FTS5 full-text search and intelligent ranking"""
     try:
+        start_time = time.time()
         search_service = SearchService(db)
         results = search_service.search_posts(search_request)
 
-        # Log search analytics asynchronously
+        # Enhanced analytics logging
         analytics_data = {
             "query": search_request.query,
-            "results_count": len(results.results),
+            "results_count": results.total,
             "filters_used": results.filters_applied,
             "user_identifier": request.client.host if request.client else "unknown",
-            "user_agent": request.headers.get("user-agent", "")
+            "user_agent": request.headers.get("user-agent", ""),
+            "search_time": time.time() - start_time,
+            "has_results": results.total > 0
         }
 
-        # Log analytics (fire and forget)
+        # Log analytics asynchronously (fire and forget)
         try:
             search_service.log_search_analytics(analytics_data)
         except Exception as e:
-            # Don't fail the search if analytics logging fails
             print(f"Analytics logging failed: {e}")
 
         return results

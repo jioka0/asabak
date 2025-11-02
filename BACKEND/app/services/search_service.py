@@ -3,7 +3,7 @@ from sqlalchemy import func, text, desc, or_, and_
 from typing import List, Dict, Any, Optional, Tuple
 import time
 import re
-from models.blog import BlogPost, SearchAnalytics
+from models.blog import BlogPost, SearchAnalytics, BlogPostFTS
 from schemas.blog import SearchRequest, SearchResponse, BlogPostSearchResult, SearchSuggestions
 
 class SearchService:
@@ -11,15 +11,15 @@ class SearchService:
         self.db = db
 
     def search_posts(self, search_request: SearchRequest) -> SearchResponse:
-        """Main search function with full-text search and filtering"""
+        """Advanced search function with FTS5 full-text search and intelligent ranking"""
         start_time = time.time()
 
-        query = self.db.query(BlogPost)
-
-        # Apply text search if query provided
+        # Use FTS5 for full-text search if query provided
         if search_request.query.strip():
-            search_terms = self._parse_search_query(search_request.query)
-            query = self._apply_text_search(query, search_terms)
+            return self._fts_search(search_request, start_time)
+
+        # Regular search without text query
+        query = self.db.query(BlogPost)
 
         # Apply section filter
         if search_request.section and search_request.section != "all":
@@ -29,7 +29,6 @@ class SearchService:
         if search_request.tags:
             tag_filters = []
             for tag in search_request.tags:
-                # Check if tag is in the JSON array
                 tag_filters.append(
                     text("JSON_CONTAINS(tags, JSON_QUOTE(:tag))").bindparams(tag=tag)
                 )
@@ -41,13 +40,8 @@ class SearchService:
             query = query.order_by(desc(BlogPost.published_at))
         elif search_request.sort == "popular":
             query = query.order_by(desc(BlogPost.view_count + BlogPost.like_count * 2))
-        else:  # relevance (default)
-            if search_request.query.strip():
-                # For relevance sorting, we need to calculate match scores
-                # This is a simplified version - in production you'd use FTS ranking
-                query = query.order_by(desc(BlogPost.view_count))
-            else:
-                query = query.order_by(desc(BlogPost.published_at))
+        else:  # featured first, then by date
+            query = query.order_by(desc(BlogPost.is_featured), desc(BlogPost.priority), desc(BlogPost.published_at))
 
         # Get total count before pagination
         total = query.count()
@@ -55,15 +49,12 @@ class SearchService:
         # Apply pagination
         results = query.offset(search_request.offset).limit(search_request.limit).all()
 
-        # Convert to search results with scoring
+        # Convert to search results
         search_results = []
         for post in results:
-            score = self._calculate_relevance_score(post, search_request.query, search_request.tags or [])
-            matched_terms = self._find_matched_terms(post, search_request.query)
-
             result = BlogPostSearchResult.from_orm(post)
-            result.search_score = score
-            result.matched_terms = matched_terms
+            result.search_score = self._calculate_popularity_score(post)
+            result.matched_terms = []
             search_results.append(result)
 
         search_time = time.time() - start_time
@@ -79,6 +70,131 @@ class SearchService:
             },
             search_time=round(search_time, 3)
         )
+
+    def _fts_search(self, search_request: SearchRequest, start_time: float) -> SearchResponse:
+        """Full-text search using FTS5 with advanced ranking"""
+        try:
+            # Build FTS5 query
+            fts_query = self._build_fts_query(search_request.query)
+
+            # Execute FTS search with ranking
+            fts_results = self.db.execute(text(f"""
+                SELECT
+                    b.*,
+                    bm25(fts.rowid, 10.0, 5.0, 2.0, 1.0, 1.0) as score,
+                    highlight(fts, 0, '<mark>', '</mark>') as highlighted_title,
+                    highlight(fts, 1, '<mark>', '</mark>') as highlighted_content,
+                    snippet(fts, 1, '<mark>', '</mark>', '...', 50) as excerpt_snippet
+                FROM blog_posts_fts fts
+                JOIN blog_posts b ON b.id = fts.rowid
+                WHERE fts MATCH :query
+                ORDER BY bm25(fts.rowid, 10.0, 5.0, 2.0, 1.0, 1.0)
+                LIMIT :limit OFFSET :offset
+            """), {
+                'query': fts_query,
+                'limit': search_request.limit + 50,  # Get more for filtering
+                'offset': search_request.offset
+            }).fetchall()
+
+            # Apply additional filters
+            filtered_results = []
+            for row in fts_results:
+                post_data = dict(row)
+
+                # Apply section filter
+                if search_request.section and search_request.section != "all":
+                    if post_data.get('section') != search_request.section:
+                        continue
+
+                # Apply tag filters
+                if search_request.tags:
+                    post_tags = post_data.get('tags', [])
+                    if not any(tag in post_tags for tag in search_request.tags):
+                        continue
+
+                filtered_results.append(post_data)
+
+            # Limit results after filtering
+            filtered_results = filtered_results[:search_request.limit]
+
+            # Convert to BlogPostSearchResult objects
+            search_results = []
+            for post_data in filtered_results:
+                # Get full post object
+                post = self.db.query(BlogPost).filter(BlogPost.id == post_data['id']).first()
+                if post:
+                    result = BlogPostSearchResult.from_orm(post)
+                    result.search_score = round(post_data.get('score', 0), 2)
+                    result.matched_terms = self._extract_highlighted_terms(post_data)
+                    search_results.append(result)
+
+            # Get total count (approximate for performance)
+            total_count = self.db.execute(text("""
+                SELECT COUNT(*) FROM blog_posts_fts WHERE blog_posts_fts MATCH :query
+            """), {'query': fts_query}).scalar() or 0
+
+            search_time = time.time() - start_time
+
+            return SearchResponse(
+                results=search_results,
+                total=min(total_count, 1000),  # Cap for performance
+                query=search_request.query,
+                filters_applied={
+                    "section": search_request.section,
+                    "tags": search_request.tags,
+                    "sort": "relevance"
+                },
+                search_time=round(search_time, 3)
+            )
+
+        except Exception as e:
+            # Fallback to regular search if FTS fails
+            print(f"FTS search failed: {e}, falling back to regular search")
+            search_request.sort = "relevance"
+            return self.search_posts(search_request)
+
+    def _build_fts_query(self, query: str) -> str:
+        """Build FTS5 query with advanced operators"""
+        # Parse and enhance the query
+        terms = self._parse_search_query(query)
+
+        if not terms:
+            return query
+
+        # Build FTS query with NEAR operator for phrase matching
+        fts_parts = []
+
+        # Add individual terms
+        fts_parts.extend(terms)
+
+        # Add phrase matching for consecutive terms
+        if len(terms) > 1:
+            for i in range(len(terms) - 1):
+                if len(terms[i]) > 2 and len(terms[i + 1]) > 2:
+                    fts_parts.append(f'"{terms[i]} {terms[i + 1]}"')
+
+        # Add prefix matching for autocomplete
+        for term in terms:
+            if len(term) > 2:
+                fts_parts.append(f'{term}*')
+
+        return ' OR '.join(fts_parts)
+
+    def _extract_highlighted_terms(self, post_data: dict) -> List[str]:
+        """Extract highlighted terms from FTS results"""
+        highlighted_terms = set()
+
+        # Extract from highlighted title
+        if 'highlighted_title' in post_data:
+            highlights = re.findall(r'<mark>(.*?)</mark>', post_data['highlighted_title'], re.IGNORECASE)
+            highlighted_terms.update(highlights)
+
+        # Extract from highlighted content
+        if 'highlighted_content' in post_data:
+            highlights = re.findall(r'<mark>(.*?)</mark>', post_data['highlighted_content'], re.IGNORECASE)
+            highlighted_terms.update(highlights)
+
+        return list(highlighted_terms)
 
     def get_search_suggestions(self, query: str, limit: int = 5) -> SearchSuggestions:
         """Generate search suggestions based on existing content"""
@@ -183,37 +299,89 @@ class SearchService:
         return query.filter(and_(*search_conditions))
 
     def _calculate_relevance_score(self, post: BlogPost, query: str, tags: List[str]) -> float:
-        """Calculate relevance score for search results"""
+        """Calculate relevance score for search results (fallback method)"""
         score = 0.0
 
         if not query.strip():
             return score
 
         query_lower = query.lower()
+        search_terms = self._parse_search_query(query)
 
-        # Title matches (highest weight)
-        if query_lower in post.title.lower():
-            score += 10
-        elif any(term in post.title.lower() for term in query_lower.split()):
+        # Title matches (highest weight - 10 points)
+        title_lower = post.title.lower()
+        if query_lower in title_lower:
+            score += 15  # Exact phrase match in title
+        else:
+            title_matches = sum(1 for term in search_terms if term in title_lower)
+            score += title_matches * 8  # 8 points per term match in title
+
+        # Excerpt matches (medium weight - 5 points)
+        if post.excerpt:
+            excerpt_lower = post.excerpt.lower()
+            if query_lower in excerpt_lower:
+                score += 8
+            else:
+                excerpt_matches = sum(1 for term in search_terms if term in excerpt_lower)
+                score += excerpt_matches * 4
+
+        # Content matches (lower weight - 2 points)
+        if post.content:
+            content_lower = post.content.lower()
+            if query_lower in content_lower:
+                score += 5
+            else:
+                content_matches = sum(1 for term in search_terms if term in content_lower)
+                score += content_matches * 2
+
+        # Tag matches (high weight - 12 points)
+        if post.tags and isinstance(post.tags, list):
+            for search_tag in tags:
+                if search_tag.lower() in [tag.lower() for tag in post.tags]:
+                    score += 12
+
+        # Section relevance boost
+        if post.section == "featured":
+            score += 3
+        elif post.section == "popular":
+            score += 2
+
+        # Popularity boost (recency and engagement)
+        days_since_publish = (datetime.now() - post.published_at).days
+        recency_boost = max(0, 10 - days_since_publish)  # Newer posts get boost
+        score += recency_boost * 0.5
+
+        # Engagement boost
+        engagement_score = post.view_count * 0.01 + post.like_count * 0.1 + post.comment_count * 0.2
+        score += min(engagement_score, 8)  # Cap at 8 points
+
+        # Featured content boost
+        if post.is_featured:
             score += 5
 
-        # Excerpt matches
-        if post.excerpt and query_lower in post.excerpt.lower():
-            score += 3
+        return round(score, 2)
 
-        # Content matches
-        if post.content and query_lower in post.content.lower():
-            score += 1
+    def _calculate_popularity_score(self, post: BlogPost) -> float:
+        """Calculate popularity score for non-search results"""
+        score = 0.0
 
-        # Tag matches
-        if post.tags:
-            for tag in tags:
-                if tag in post.tags:
-                    score += 8
+        # Base popularity from engagement
+        score += post.view_count * 0.01
+        score += post.like_count * 0.1
+        score += post.comment_count * 0.2
+        score += post.share_count * 0.3
 
-        # Popularity boost
-        score += min(post.view_count / 100, 5)  # Max 5 points for views
-        score += min(post.like_count / 10, 3)   # Max 3 points for likes
+        # Recency boost
+        days_since_publish = (datetime.now() - post.published_at).days
+        recency_boost = max(0, 30 - days_since_publish)  # 30-day recency window
+        score += recency_boost
+
+        # Featured boost
+        if post.is_featured:
+            score += 20
+
+        # Priority boost
+        score += post.priority * 2
 
         return round(score, 2)
 

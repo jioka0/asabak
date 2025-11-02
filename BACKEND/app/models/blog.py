@@ -128,6 +128,19 @@ class NewsletterTemplate(Base):
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+# Search Models - Full-Text Search with FTS5
+class BlogPostFTS(Base):
+    """FTS5 virtual table for full-text search"""
+    __tablename__ = "blog_posts_fts"
+    __table_args__ = {'prefixes': ['VIRTUAL']}
+
+    rowid = Column(Integer, primary_key=True)
+    title = Column(Text)
+    content = Column(Text)
+    excerpt = Column(Text)
+    tags = Column(Text)
+    section = Column(Text)
+
 # Analytics Models
 class PageViewAnalytics(Base):
     __tablename__ = "page_view_analytics"
