@@ -129,17 +129,8 @@ class NewsletterTemplate(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 # Search Models - Full-Text Search with FTS5
-class BlogPostFTS(Base):
-    """FTS5 virtual table for full-text search"""
-    __tablename__ = "blog_posts_fts"
-    __table_args__ = {'prefixes': ['VIRTUAL']}
-
-    rowid = Column(Integer, primary_key=True)
-    title = Column(Text)
-    content = Column(Text)
-    excerpt = Column(Text)
-    tags = Column(Text)
-    section = Column(Text)
+# Note: FTS5 virtual tables need to be created manually in SQLite
+# We'll handle this in the database initialization
 
 # Content Management Models
 class MediaFile(Base):

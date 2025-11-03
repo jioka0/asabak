@@ -11,6 +11,7 @@ from schemas.blog import NewsletterSubscriberCreate, NewsletterCampaignCreate
 class NewsletterService:
     def __init__(self, db: Session):
         self.db = db
+        # Email configuration
         self.mail_config = ConnectionConfig(
             MAIL_USERNAME=os.getenv("SMTP_USERNAME"),
             MAIL_PASSWORD=os.getenv("SMTP_PASSWORD"),

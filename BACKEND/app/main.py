@@ -1,3 +1,4 @@
+import logging
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -5,11 +6,18 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
 import uvicorn
+import hashlib
+from sqlalchemy.orm import Session
 
-from database import create_tables
+from database import create_tables, SessionLocal
 from routes import contacts, blogs, products, auth, admin, search, newsletter, analytics, content
 from core.config import settings
 from scheduler import init_scheduler, start_scheduler, stop_scheduler
+from models.user import AdminUser
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Create FastAPI app
 app = FastAPI(
@@ -44,12 +52,57 @@ app.include_router(admin.router, tags=["admin"])
 # Mount static files for admin interface
 app.mount("/static", StaticFiles(directory="../../portfolio"), name="static")
 
+def create_default_admin_user():
+    """Create default admin user if it doesn't exist"""
+    db = SessionLocal()
+    try:
+        # Check if admin user already exists
+        admin_user = db.query(AdminUser).filter(AdminUser.username == "gojominitia").first()
+        
+        if admin_user:
+            logger.info("Admin user already exists, skipping creation")
+            return
+        
+        # Create default admin user
+        hashed_password = hashlib.sha256("gojominitiA@".encode()).hexdigest()
+        default_admin = AdminUser(
+            username="gojominitia",
+            email="gojominitia@nekwasar.com", 
+            hashed_password=hashed_password,
+            is_active=True,
+            is_superuser=True
+        )
+        db.add(default_admin)
+        db.commit()
+        logger.info("✅ Default admin user created successfully!")
+        logger.info("Username: gojominitia")
+        logger.info("Password: gojominitiA@")
+        
+    except Exception as e:
+        logger.error(f"❌ Error creating admin user: {str(e)}")
+        db.rollback()
+    finally:
+        db.close()
+
 @app.on_event("startup")
 async def startup_event():
     """Create database tables and initialize scheduler on startup"""
+    logger.info("🚀 Starting up application...")
+
+    # Create database tables
+    logger.info("📋 Creating database tables...")
     create_tables()
+
+    # Create default admin user
+    logger.info("👤 Creating default admin user...")
+    create_default_admin_user()
+
+    # Initialize scheduler
+    logger.info("⏰ Initializing scheduler...")
     init_scheduler()
     start_scheduler()
+
+    logger.info("✅ Application started successfully!")
 
 @app.get("/", response_class=HTMLResponse)
 async def root():

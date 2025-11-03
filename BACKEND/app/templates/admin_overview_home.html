@@ -1,0 +1,710 @@
+<!-- Dashboard Home Page -->
+<div class="dashboard-home">
+    <!-- KPI Cards Row -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-icon">
+                <i class="ph-bold ph-article"></i>
+            </div>
+            <div class="kpi-content">
+                <div class="kpi-value" id="totalPosts">--</div>
+                <div class="kpi-label">Total Posts</div>
+                <div class="kpi-change positive" id="postsChange">
+                    <i class="ph-bold ph-trend-up"></i>
+                    <span>+12%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon">
+                <i class="ph-bold ph-chat-circle"></i>
+            </div>
+            <div class="kpi-content">
+                <div class="kpi-value" id="totalComments">--</div>
+                <div class="kpi-label">Total Comments</div>
+                <div class="kpi-change positive" id="commentsChange">
+                    <i class="ph-bold ph-trend-up"></i>
+                    <span>+8%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon">
+                <i class="ph-bold ph-users"></i>
+            </div>
+            <div class="kpi-content">
+                <div class="kpi-value" id="totalSubscribers">--</div>
+                <div class="kpi-label">Newsletter Subscribers</div>
+                <div class="kpi-change positive" id="subscribersChange">
+                    <i class="ph-bold ph-trend-up"></i>
+                    <span>+15%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon">
+                <i class="ph-bold ph-eye"></i>
+            </div>
+            <div class="kpi-content">
+                <div class="kpi-value" id="totalViews">--</div>
+                <div class="kpi-label">Total Views</div>
+                <div class="kpi-change positive" id="viewsChange">
+                    <i class="ph-bold ph-trend-up"></i>
+                    <span>+25%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="charts-row">
+        <div class="chart-card traffic-chart">
+            <div class="chart-header">
+                <h3>Traffic Overview</h3>
+                <div class="chart-controls">
+                    <select id="trafficPeriod">
+                        <option value="7d">Last 7 days</option>
+                        <option value="30d">Last 30 days</option>
+                        <option value="90d">Last 90 days</option>
+                    </select>
+                </div>
+            </div>
+            <div class="chart-content">
+                <canvas id="trafficChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card popular-content">
+            <div class="chart-header">
+                <h3>Popular Content</h3>
+                <div class="content-filter">
+                    <button class="filter-btn active" data-filter="views">By Views</button>
+                    <button class="filter-btn" data-filter="comments">By Comments</button>
+                    <button class="filter-btn" data-filter="likes">By Likes</button>
+                </div>
+            </div>
+            <div class="content-list" id="popularContent">
+                <!-- Content items will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Row -->
+    <div class="bottom-row">
+        <div class="recent-activity">
+            <div class="section-header">
+                <h3>Recent Activity</h3>
+                <a href="#" class="view-all">View All</a>
+            </div>
+            <div class="activity-list" id="recentActivity">
+                <!-- Activity items will be populated here -->
+            </div>
+        </div>
+
+        <div class="quick-stats">
+            <div class="section-header">
+                <h3>Quick Stats</h3>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="ph-bold ph-magnifying-glass"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="searchQueries">--</div>
+                        <div class="stat-label">Search Queries Today</div>
+                    </div>
+                </div>
+
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="ph-bold ph-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="avgResponseTime">--ms</div>
+                        <div class="stat-label">Avg Response Time</div>
+                    </div>
+                </div>
+
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="ph-bold ph-shield-check"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="uptime">--%</div>
+                        <div class="stat-label">System Uptime</div>
+                    </div>
+                </div>
+
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="ph-bold ph-database"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="dbSize">--MB</div>
+                        <div class="stat-label">Database Size</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .dashboard-home {
+        padding: 2rem;
+    }
+
+    /* KPI Cards */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .kpi-card {
+        background: var(--admin-surface);
+        border: 1px solid var(--admin-border);
+        border-radius: var(--admin-radius-lg);
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: all 0.2s ease;
+    }
+
+    .kpi-card:hover {
+        box-shadow: var(--admin-shadow-lg);
+        transform: translateY(-2px);
+    }
+
+    .kpi-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: var(--admin-radius-lg);
+        background: linear-gradient(135deg, var(--admin-primary), var(--admin-secondary));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+    }
+
+    .kpi-content {
+        flex: 1;
+    }
+
+    .kpi-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--admin-text-primary);
+        margin-bottom: 0.25rem;
+    }
+
+    .kpi-label {
+        font-size: 0.875rem;
+        color: var(--admin-text-secondary);
+        margin-bottom: 0.5rem;
+    }
+
+    .kpi-change {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .kpi-change.positive {
+        color: var(--admin-success);
+    }
+
+    .kpi-change.negative {
+        color: var(--admin-error);
+    }
+
+    /* Charts Row */
+    .charts-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .chart-card {
+        background: var(--admin-surface);
+        border: 1px solid var(--admin-border);
+        border-radius: var(--admin-radius-lg);
+        overflow: hidden;
+    }
+
+    .chart-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--admin-border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .chart-header h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--admin-text-primary);
+        margin: 0;
+    }
+
+    .chart-controls select {
+        padding: 0.5rem;
+        border: 1px solid var(--admin-border);
+        border-radius: var(--admin-radius-md);
+        background: var(--admin-surface);
+        color: var(--admin-text-primary);
+        font-size: 0.875rem;
+    }
+
+    .chart-content {
+        padding: 1.5rem;
+        height: 300px;
+    }
+
+    /* Popular Content */
+    .content-filter {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .filter-btn {
+        padding: 0.375rem 0.75rem;
+        border: 1px solid var(--admin-border);
+        border-radius: var(--admin-radius-md);
+        background: var(--admin-surface);
+        color: var(--admin-text-secondary);
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .filter-btn.active {
+        background: var(--admin-primary);
+        color: white;
+        border-color: var(--admin-primary);
+    }
+
+    .content-list {
+        padding: 1.5rem;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .content-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--admin-border);
+    }
+
+    .content-item:last-child {
+        border-bottom: none;
+    }
+
+    .content-rank {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--admin-primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .content-info {
+        flex: 1;
+    }
+
+    .content-title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--admin-text-primary);
+        margin-bottom: 0.25rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .content-meta {
+        font-size: 0.75rem;
+        color: var(--admin-text-secondary);
+    }
+
+    .content-stats {
+        font-size: 0.75rem;
+        color: var(--admin-text-primary);
+        font-weight: 600;
+    }
+
+    /* Bottom Row */
+    .bottom-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .section-header h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--admin-text-primary);
+        margin: 0;
+    }
+
+    .view-all {
+        font-size: 0.875rem;
+        color: var(--admin-primary);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .view-all:hover {
+        text-decoration: underline;
+    }
+
+    /* Recent Activity */
+    .activity-list {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .activity-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--admin-border);
+    }
+
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--admin-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        flex-shrink: 0;
+    }
+
+    .activity-content {
+        flex: 1;
+    }
+
+    .activity-text {
+        font-size: 0.875rem;
+        color: var(--admin-text-primary);
+        margin-bottom: 0.25rem;
+    }
+
+    .activity-time {
+        font-size: 0.75rem;
+        color: var(--admin-text-secondary);
+    }
+
+    /* Quick Stats */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: var(--admin-surface);
+        border: 1px solid var(--admin-border);
+        border-radius: var(--admin-radius-md);
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--admin-radius-md);
+        background: var(--admin-secondary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+
+    .stat-content {
+        flex: 1;
+    }
+
+    .stat-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--admin-text-primary);
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        color: var(--admin-text-secondary);
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .charts-row {
+            grid-template-columns: 1fr;
+        }
+
+        .bottom-row {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .kpi-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .kpi-card {
+            padding: 1rem;
+        }
+
+        .kpi-icon {
+            width: 50px;
+            height: 50px;
+            font-size: 1.25rem;
+        }
+
+        .kpi-value {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<script>
+    // Dashboard Home Page Initialization
+    function initOverviewHome() {
+        loadDashboardData();
+        setupChart();
+        setupEventListeners();
+    }
+
+    async function loadDashboardData() {
+        try {
+            // Load KPI data
+            const kpiResponse = await fetch('/api/admin/dashboard/kpi');
+            if (kpiResponse.ok) {
+                const kpiData = await kpiResponse.json();
+                updateKPIs(kpiData);
+            }
+
+            // Load popular content
+            const contentResponse = await fetch('/api/admin/dashboard/popular-content');
+            if (contentResponse.ok) {
+                const contentData = await contentResponse.json();
+                updatePopularContent(contentData);
+            }
+
+            // Load recent activity
+            const activityResponse = await fetch('/api/admin/dashboard/recent-activity');
+            if (activityResponse.ok) {
+                const activityData = await activityResponse.json();
+                updateRecentActivity(activityData);
+            }
+
+            // Load quick stats
+            const statsResponse = await fetch('/api/admin/dashboard/quick-stats');
+            if (statsResponse.ok) {
+                const statsData = await statsResponse.json();
+                updateQuickStats(statsData);
+            }
+
+        } catch (error) {
+            console.error('Error loading dashboard data:', error);
+            showNotification('Failed to load dashboard data', 'error');
+        }
+    }
+
+    function updateKPIs(data) {
+        document.getElementById('totalPosts').textContent = formatNumber(data.totalPosts || 0);
+        document.getElementById('totalComments').textContent = formatNumber(data.totalComments || 0);
+        document.getElementById('totalSubscribers').textContent = formatNumber(data.totalSubscribers || 0);
+        document.getElementById('totalViews').textContent = formatNumber(data.totalViews || 0);
+
+        // Update change indicators
+        updateChangeIndicator('postsChange', data.postsChange);
+        updateChangeIndicator('commentsChange', data.commentsChange);
+        updateChangeIndicator('subscribersChange', data.subscribersChange);
+        updateChangeIndicator('viewsChange', data.viewsChange);
+    }
+
+    function updateChangeIndicator(elementId, change) {
+        const element = document.getElementById(elementId);
+        if (!change) return;
+
+        const isPositive = change > 0;
+        element.className = `kpi-change ${isPositive ? 'positive' : 'negative'}`;
+        element.innerHTML = `
+            <i class="ph-bold ph-trend-${isPositive ? 'up' : 'down'}"></i>
+            <span>${Math.abs(change)}%</span>
+        `;
+    }
+
+    function updatePopularContent(data) {
+        const container = document.getElementById('popularContent');
+        container.innerHTML = '';
+
+        (data || []).forEach((item, index) => {
+            const itemElement = document.createElement('div');
+            itemElement.className = 'content-item';
+            itemElement.innerHTML = `
+                <div class="content-rank">${index + 1}</div>
+                <div class="content-info">
+                    <div class="content-title">${item.title}</div>
+                    <div class="content-meta">${item.category} • ${formatDate(item.publishedAt)}</div>
+                </div>
+                <div class="content-stats">${formatNumber(item.views)} views</div>
+            `;
+            container.appendChild(itemElement);
+        });
+    }
+
+    function updateRecentActivity(data) {
+        const container = document.getElementById('recentActivity');
+        container.innerHTML = '';
+
+        (data || []).forEach(item => {
+            const itemElement = document.createElement('div');
+            itemElement.className = 'activity-item';
+            itemElement.innerHTML = `
+                <div class="activity-icon">
+                    <i class="ph-bold ${getActivityIcon(item.type)}"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-text">${item.description}</div>
+                    <div class="activity-time">${formatTimeAgo(item.timestamp)}</div>
+                </div>
+            `;
+            container.appendChild(itemElement);
+        });
+    }
+
+    function updateQuickStats(data) {
+        document.getElementById('searchQueries').textContent = formatNumber(data.searchQueries || 0);
+        document.getElementById('avgResponseTime').textContent = `${data.avgResponseTime || 0}ms`;
+        document.getElementById('uptime').textContent = `${data.uptime || 0}%`;
+        document.getElementById('dbSize').textContent = `${(data.dbSize || 0).toFixed(1)}MB`;
+    }
+
+    function getActivityIcon(type) {
+        const icons = {
+            'post_created': 'ph-plus',
+            'comment_added': 'ph-chat',
+            'user_registered': 'ph-user-plus',
+            'search_performed': 'ph-magnifying-glass',
+            'newsletter_sent': 'ph-paper-plane-tilt'
+        };
+        return icons[type] || 'ph-circle';
+    }
+
+    function formatTimeAgo(timestamp) {
+        const now = new Date();
+        const time = new Date(timestamp);
+        const diff = now - time;
+
+        const minutes = Math.floor(diff / 60000);
+        const hours = Math.floor(diff / 3600000);
+        const days = Math.floor(diff / 86400000);
+
+        if (minutes < 1) return 'Just now';
+        if (minutes < 60) return `${minutes}m ago`;
+        if (hours < 24) return `${hours}h ago`;
+        return `${days}d ago`;
+    }
+
+    function setupChart() {
+        // Simple chart setup - in production, use Chart.js or similar
+        const canvas = document.getElementById('trafficChart');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+
+        // Mock data - replace with real data
+        const data = [12, 19, 15, 25, 22, 30, 28];
+        const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+        // Simple bar chart
+        const width = canvas.width;
+        const height = canvas.height;
+        const barWidth = width / data.length - 10;
+        const maxValue = Math.max(...data);
+
+        ctx.clearRect(0, 0, width, height);
+
+        data.forEach((value, index) => {
+            const barHeight = (value / maxValue) * (height - 40);
+            const x = index * (width / data.length) + 5;
+            const y = height - barHeight - 20;
+
+            // Bar
+            ctx.fillStyle = 'var(--admin-primary)';
+            ctx.fillRect(x, y, barWidth, barHeight);
+
+            // Label
+            ctx.fillStyle = 'var(--admin-text-secondary)';
+            ctx.font = '12px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText(labels[index], x + barWidth / 2, height - 5);
+        });
+    }
+
+    function setupEventListeners() {
+        // Traffic period selector
+        const periodSelect = document.getElementById('trafficPeriod');
+        if (periodSelect) {
+            periodSelect.addEventListener('change', () => {
+                loadDashboardData(); // Reload data with new period
+            });
+        }
+
+        // Content filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                loadDashboardData(); // Reload with new filter
+            });
+        });
+    }
+
+    // Initialize when page loads
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initOverviewHome);
+    } else {
+        initOverviewHome();
+    }
+</script>

@@ -3,7 +3,7 @@ from sqlalchemy import func, text, desc, or_, and_
 from typing import List, Dict, Any, Optional, Tuple
 import time
 import re
-from models.blog import BlogPost, SearchAnalytics, BlogPostFTS
+from models.blog import BlogPost, SearchAnalytics
 from schemas.blog import SearchRequest, SearchResponse, BlogPostSearchResult, SearchSuggestions
 
 class SearchService:

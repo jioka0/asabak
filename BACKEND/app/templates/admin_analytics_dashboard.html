@@ -1,0 +1,626 @@
+<div class="analytics-dashboard">
+    <div class="analytics-header">
+        <h1 class="page-title">Analytics Dashboard</h1>
+        <p class="page-subtitle">Monitor your blog's performance and user engagement</p>
+    </div>
+
+    <!-- Key Metrics Cards -->
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-icon">
+                <i class="ph-bold ph-eye"></i>
+            </div>
+            <div class="metric-content">
+                <div class="metric-value" id="totalViews">0</div>
+                <div class="metric-label">Total Views</div>
+                <div class="metric-change" id="viewsChange">
+                    <span class="change-value">+12.5%</span>
+                    <span class="change-period">vs last month</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon">
+                <i class="ph-bold ph-users"></i>
+            </div>
+            <div class="metric-content">
+                <div class="metric-value" id="uniqueVisitors">0</div>
+                <div class="metric-label">Unique Visitors</div>
+                <div class="metric-change" id="visitorsChange">
+                    <span class="change-value">+8.2%</span>
+                    <span class="change-period">vs last month</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon">
+                <i class="ph-bold ph-clock"></i>
+            </div>
+            <div class="metric-content">
+                <div class="metric-value" id="avgSessionTime">0m</div>
+                <div class="metric-label">Avg. Session Time</div>
+                <div class="metric-change" id="sessionChange">
+                    <span class="change-value">+15.3%</span>
+                    <span class="change-period">vs last month</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon">
+                <i class="ph-bold ph-trend-up"></i>
+            </div>
+            <div class="metric-content">
+                <div class="metric-value" id="bounceRate">0%</div>
+                <div class="metric-label">Bounce Rate</div>
+                <div class="metric-change" id="bounceChange">
+                    <span class="change-value">-5.1%</span>
+                    <span class="change-period">vs last month</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="charts-row">
+        <!-- Traffic Overview Chart -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Traffic Overview</h3>
+                <div class="chart-controls">
+                    <button class="chart-btn active" data-period="7d">7D</button>
+                    <button class="chart-btn" data-period="30d">30D</button>
+                    <button class="chart-btn" data-period="90d">90D</button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="trafficChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Popular Content -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Popular Content</h3>
+                <div class="chart-controls">
+                    <button class="content-btn active" data-type="views">Views</button>
+                    <button class="content-btn" data-type="engagement">Engagement</button>
+                </div>
+            </div>
+            <div class="content-list" id="popularContent">
+                <!-- Content items will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Row -->
+    <div class="bottom-row">
+        <!-- Device Breakdown -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Device Breakdown</h3>
+            </div>
+            <div class="chart-container">
+                <canvas id="deviceChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Top Referrers -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Top Referrers</h3>
+            </div>
+            <div class="referrers-list" id="topReferrers">
+                <!-- Referrer items will be populated here -->
+            </div>
+        </div>
+
+        <!-- Search Analytics -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Search Analytics</h3>
+            </div>
+            <div class="search-stats">
+                <div class="search-metric">
+                    <div class="metric-value" id="totalSearches">0</div>
+                    <div class="metric-label">Total Searches</div>
+                </div>
+                <div class="search-metric">
+                    <div class="metric-value" id="searchSuccessRate">0%</div>
+                    <div class="metric-label">Success Rate</div>
+                </div>
+                <div class="search-metric">
+                    <div class="metric-value" id="popularSearchTerm">-</div>
+                    <div class="metric-label">Popular Term</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.analytics-dashboard {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.analytics-header {
+    margin-bottom: 3rem;
+    text-align: center;
+}
+
+.page-title {
+    font: normal 700 2.38rem/1.2 var(--_font-accent);
+    color: var(--t-accent);
+    background: var(--t-accent);
+    background: -webkit-linear-gradient(15deg, var(--t-accent) 0%, var(--t-secondary) 80%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+}
+
+.page-subtitle {
+    font: normal 400 1.26rem/1.4 var(--_font-default);
+    color: var(--t-medium);
+}
+
+/* Metrics Grid */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.metric-card {
+    background: var(--base);
+    border: 1px solid var(--stroke-elements);
+    border-radius: var(--_radius-l);
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    transition: all var(--_animspeed-medium) var(--_animbezier);
+}
+
+.metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.metric-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--accent);
+    background: -webkit-linear-gradient(315deg, var(--accent) 0%, var(--secondary) 100%);
+    background: linear-gradient(135deg, var(--accent) 0%, var(--secondary) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--t-opp-bright);
+    font-size: 2rem;
+}
+
+.metric-content {
+    flex: 1;
+}
+
+.metric-value {
+    font: normal 700 1.96rem/1.2 var(--_font-accent);
+    color: var(--t-bright);
+    margin-bottom: 0.5rem;
+}
+
+.metric-label {
+    font: normal 500 0.98rem/1.2 var(--_font-default);
+    color: var(--t-medium);
+    margin-bottom: 0.5rem;
+}
+
+.metric-change {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.84rem;
+}
+
+.change-value {
+    font-weight: 600;
+    color: var(--success, #10b981);
+}
+
+.change-value.negative {
+    color: var(--error, #ef4444);
+}
+
+.change-period {
+    color: var(--t-medium);
+}
+
+/* Charts Row */
+.charts-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.chart-card {
+    background: var(--base);
+    border: 1px solid var(--stroke-elements);
+    border-radius: var(--_radius-l);
+    padding: 2rem;
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.chart-header h3 {
+    font: normal 600 0.98rem/1.2 var(--_font-accent);
+    color: var(--t-bright);
+    margin: 0;
+}
+
+.chart-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.chart-btn, .content-btn {
+    background: none;
+    border: 1px solid var(--stroke-elements);
+    color: var(--t-medium);
+    padding: 0.5rem 1rem;
+    border-radius: var(--_radius-s);
+    cursor: pointer;
+    transition: all var(--_animspeed-medium) var(--_animbezier);
+    font: normal 500 0.98rem/1.2 var(--_font-default);
+}
+
+.chart-btn.active, .content-btn.active {
+    background: var(--accent);
+    color: var(--t-opp-bright);
+    border-color: var(--accent);
+}
+
+.chart-container {
+    height: 300px;
+    position: relative;
+}
+
+/* Content List */
+.content-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.content-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: var(--_radius-m);
+    transition: all var(--_animspeed-medium) var(--_animbezier);
+}
+
+.content-item:hover {
+    background: var(--stroke-elements);
+}
+
+.content-rank {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--t-opp-bright);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+.content-info {
+    flex: 1;
+}
+
+.content-title {
+    font: normal 500 0.69rem/1.2 var(--_font-default);
+    color: var(--t-bright);
+    margin-bottom: 0.25rem;
+}
+
+.content-stats {
+    font: normal 400 0.59rem/1.2 var(--_font-default);
+    color: var(--t-medium);
+}
+
+/* Bottom Row */
+.bottom-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+}
+
+/* Referrers List */
+.referrers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.referrer-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border-radius: var(--_radius-m);
+    transition: all var(--_animspeed-medium) var(--_animbezier);
+}
+
+.referrer-item:hover {
+    background: var(--stroke-elements);
+}
+
+.referrer-name {
+    font: normal 500 0.69rem/1.2 var(--_font-default);
+    color: var(--t-bright);
+}
+
+.referrer-count {
+    font: normal 600 0.69rem/1.2 var(--_font-default);
+    color: var(--accent);
+}
+
+/* Search Stats */
+.search-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.search-metric {
+    text-align: center;
+}
+
+.search-metric .metric-value {
+    font: normal 700 1.68rem/1.2 var(--_font-accent);
+    color: var(--t-bright);
+    margin-bottom: 0.5rem;
+}
+
+.search-metric .metric-label {
+    font: normal 400 0.98rem/1.2 var(--_font-default);
+    color: var(--t-medium);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .charts-row {
+        grid-template-columns: 1fr;
+    }
+
+    .metrics-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .analytics-dashboard {
+        padding: 1rem;
+    }
+
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .bottom-row {
+        grid-template-columns: 1fr;
+    }
+
+    .metric-card {
+        padding: 1.5rem;
+    }
+
+    .chart-card {
+        padding: 1.5rem;
+    }
+}
+</style>
+
+<script>
+// Analytics Dashboard JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    initAnalyticsDashboard();
+});
+
+function initAnalyticsDashboard() {
+    loadAnalyticsData();
+    initChartControls();
+    initContentTypeControls();
+}
+
+function loadAnalyticsData() {
+    // Load analytics data from API
+    fetch('/api/analytics/dashboard')
+        .then(response => response.json())
+        .then(data => {
+            updateMetrics(data.metrics);
+            updateTrafficChart(data.traffic);
+            updatePopularContent(data.content);
+            updateDeviceChart(data.devices);
+            updateTopReferrers(data.referrers);
+            updateSearchStats(data.search);
+        })
+        .catch(error => {
+            console.error('Error loading analytics data:', error);
+            showFallbackData();
+        });
+}
+
+function updateMetrics(metrics) {
+    document.getElementById('totalViews').textContent = metrics.totalViews.toLocaleString();
+    document.getElementById('uniqueVisitors').textContent = metrics.uniqueVisitors.toLocaleString();
+    document.getElementById('avgSessionTime').textContent = formatDuration(metrics.avgSessionTime);
+    document.getElementById('bounceRate').textContent = metrics.bounceRate + '%';
+
+    updateMetricChange('viewsChange', metrics.viewsChange);
+    updateMetricChange('visitorsChange', metrics.visitorsChange);
+    updateMetricChange('sessionChange', metrics.sessionChange);
+    updateMetricChange('bounceChange', metrics.bounceChange);
+}
+
+function updateMetricChange(elementId, change) {
+    const element = document.getElementById(elementId);
+    const valueElement = element.querySelector('.change-value');
+    valueElement.textContent = (change >= 0 ? '+' : '') + change.toFixed(1) + '%';
+    if (change < 0) {
+        valueElement.classList.add('negative');
+    }
+}
+
+function updateTrafficChart(trafficData) {
+    const ctx = document.getElementById('trafficChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: trafficData.labels,
+            datasets: [{
+                label: 'Page Views',
+                data: trafficData.views,
+                borderColor: 'var(--accent)',
+                backgroundColor: 'rgba(124, 58, 237, 0.1)',
+                tension: 0.4,
+                fill: true
+            }, {
+                label: 'Unique Visitors',
+                data: trafficData.visitors,
+                borderColor: 'var(--secondary)',
+                backgroundColor: 'rgba(236, 72, 153, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+function updatePopularContent(contentData) {
+    const container = document.getElementById('popularContent');
+    container.innerHTML = contentData.map((item, index) => `
+        <div class="content-item">
+            <div class="content-rank">${index + 1}</div>
+            <div class="content-info">
+                <div class="content-title">${item.title}</div>
+                <div class="content-stats">${item.views.toLocaleString()} views • ${item.engagement}% engagement</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function updateDeviceChart(deviceData) {
+    const ctx = document.getElementById('deviceChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: deviceData.labels,
+            datasets: [{
+                data: deviceData.values,
+                backgroundColor: [
+                    'var(--accent)',
+                    'var(--secondary)',
+                    'var(--success, #10b981)',
+                    'var(--warning, #f59e0b)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                }
+            }
+        }
+    });
+}
+
+function updateTopReferrers(referrerData) {
+    const container = document.getElementById('topReferrers');
+    container.innerHTML = referrerData.map(item => `
+        <div class="referrer-item">
+            <div class="referrer-name">${item.name}</div>
+            <div class="referrer-count">${item.count.toLocaleString()}</div>
+        </div>
+    `).join('');
+}
+
+function updateSearchStats(searchData) {
+    document.getElementById('totalSearches').textContent = searchData.total.toLocaleString();
+    document.getElementById('searchSuccessRate').textContent = searchData.successRate + '%';
+    document.getElementById('popularSearchTerm').textContent = searchData.popularTerm;
+}
+
+function initChartControls() {
+    document.querySelectorAll('.chart-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            loadAnalyticsData(this.dataset.period);
+        });
+    });
+}
+
+function initContentTypeControls() {
+    document.querySelectorAll('.content-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.content-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            loadPopularContent(this.dataset.type);
+        });
+    });
+}
+
+function formatDuration(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}m ${remainingSeconds}s`;
+}
+
+function showFallbackData() {
+    // Show sample data when API is not available
+    updateMetrics({
+        totalViews: 12543,
+        uniqueVisitors: 8921,
+        avgSessionTime: 184,
+        bounceRate: 42.3,
+        viewsChange: 12.5,
+        visitorsChange: 8.2,
+        sessionChange: 15.3,
+        bounceChange: -5.1
+    });
+}
+</script>
