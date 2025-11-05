@@ -1,0 +1,682 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Newsletter Automation - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div class="container mx-auto px-6 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-4xl font-bold text-white mb-2">Newsletter Automation</h1>
+                    <p class="text-slate-300">Create and manage automated email workflows</p>
+                </div>
+                <div class="flex gap-4">
+                    <button id="createWorkflowBtn" class="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl">
+                        <i class="fas fa-plus mr-2"></i>Create Workflow
+                    </button>
+                    <button id="importWorkflowBtn" class="bg-slate-700 text-white px-6 py-3 rounded-xl hover:bg-slate-600 transition-all duration-200">
+                        <i class="fas fa-download mr-2"></i>Import
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Automation Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-slate-300 text-sm">Active Workflows</p>
+                        <p class="text-2xl font-bold text-white" id="activeWorkflows">12</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-play text-green-400"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-slate-300 text-sm">This Month</p>
+                        <p class="text-2xl font-bold text-white" id="emailsSent">2,847</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-envelope text-blue-400"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-slate-300 text-sm">Conversion Rate</p>
+                        <p class="text-2xl font-bold text-white" id="conversionRate">8.4%</p>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-chart-line text-purple-400"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-slate-300 text-sm">Revenue Generated</p>
+                        <p class="text-2xl font-bold text-white" id="revenueGenerated">$24,580</p>
+                    </div>
+                    <div class="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-dollar-sign text-orange-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workflow Templates -->
+        <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-white">Workflow Templates</h3>
+                <div class="flex gap-2">
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">All</button>
+                    <button class="px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20">Welcome</button>
+                    <button class="px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20">Abandonment</button>
+                    <button class="px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20">Re-engagement</button>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-white/5 rounded-xl p-6 cursor-pointer hover:bg-white/10 transition-all duration-200">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-handshake text-green-400"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white font-semibold">Welcome Series</h4>
+                            <p class="text-slate-400 text-sm">5 emails • 7 days</p>
+                        </div>
+                    </div>
+                    <p class="text-slate-300 text-sm mb-4">Introduce new subscribers to your brand and offerings</p>
+                    <div class="flex items-center justify-between">
+                        <span class="px-3 py-1 bg-green-500/20 text-green-400 text-xs rounded-full">Popular</span>
+                        <button class="text-blue-400 hover:text-blue-300 text-sm font-medium">Use Template</button>
+                    </div>
+                </div>
+                <div class="bg-white/5 rounded-xl p-6 cursor-pointer hover:bg-white/10 transition-all duration-200">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 bg-orange-500/20 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-shopping-cart text-orange-400"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white font-semibold">Cart Abandonment</h4>
+                            <p class="text-slate-400 text-sm">3 emails • 5 days</p>
+                        </div>
+                    </div>
+                    <p class="text-slate-300 text-sm mb-4">Recover abandoned carts with timely reminders</p>
+                    <div class="flex items-center justify-between">
+                        <span class="px-3 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full">High ROI</span>
+                        <button class="text-blue-400 hover:text-blue-300 text-sm font-medium">Use Template</button>
+                    </div>
+                </div>
+                <div class="bg-white/5 rounded-xl p-6 cursor-pointer hover:bg-white/10 transition-all duration-200">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-heart text-purple-400"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white font-semibold">Re-engagement</h4>
+                            <p class="text-slate-400 text-sm">4 emails • 14 days</p>
+                        </div>
+                    </div>
+                    <p class="text-slate-300 text-sm mb-4">Win back inactive subscribers with special offers</p>
+                    <div class="flex items-center justify-between">
+                        <span class="px-3 py-1 bg-yellow-500/20 text-yellow-400 text-xs rounded-full">Effective</span>
+                        <button class="text-blue-400 hover:text-blue-300 text-sm font-medium">Use Template</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Workflows -->
+        <div class="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 overflow-hidden mb-8">
+            <div class="p-6 border-b border-white/20">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xl font-bold text-white">Active Workflows</h3>
+                    <div class="flex gap-4">
+                        <div class="relative">
+                            <input type="text" id="workflowSearch" placeholder="Search workflows..." class="bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <i class="fas fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                        </div>
+                        <select id="workflowStatusFilter" class="bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="paused">Paused</option>
+                            <option value="draft">Draft</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-white/5">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-sm font-medium text-slate-300">Workflow</th>
+                            <th class="px-6 py-4 text-left text-sm font-medium text-slate-300">Type</th>
+                            <th class="px-6 py-4 text-left text-sm font-medium text-slate-300">Status</th>
+                            <th class="px-6 py-4 text-left text-sm font-medium text-slate-300">Trigger</th>
+                            <th class="px-6 py-4 text-left text-sm font-medium text-slate-300">Subscribers</th>
+                            <th class="px-6 py-4 text-left text-sm font-medium text-slate-300">Sent This Month</th>
+                            <th class="px-6 py-4 text-left text-sm font-medium text-slate-300">Conversion</th>
+                            <th class="px-6 py-4 text-left text-sm font-medium text-slate-300">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="workflowTableBody">
+                        <!-- Workflow data will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Workflow Performance Chart -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold text-white">Workflow Performance</h3>
+                    <select id="performanceTimeframe" class="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="7">7 days</option>
+                        <option value="30" selected>30 days</option>
+                        <option value="90">90 days</option>
+                    </select>
+                </div>
+                <div class="h-64 relative">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+                <h3 class="text-xl font-bold text-white mb-6">Top Performing Workflows</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-handshake text-green-400 text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-white font-medium">Welcome Series</p>
+                                <p class="text-slate-400 text-sm">1,245 active subscribers</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-white font-semibold">12.8%</p>
+                            <p class="text-slate-400 text-sm">Conversion</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-orange-500/20 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-shopping-cart text-orange-400 text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-white font-medium">Cart Abandonment</p>
+                                <p class="text-slate-400 text-sm">567 active subscribers</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-white font-semibold">18.3%</p>
+                            <p class="text-slate-400 text-sm">Recovery</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-heart text-purple-400 text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-white font-medium">Re-engagement</p>
+                                <p class="text-slate-400 text-sm">892 active subscribers</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-white font-semibold">8.7%</p>
+                            <p class="text-slate-400 text-sm">Reactivation</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workflow Builder Modal -->
+        <div id="workflowBuilderModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden">
+            <div class="flex items-center justify-center min-h-screen p-4">
+                <div class="bg-slate-800 rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+                    <div class="p-6 border-b border-slate-700">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xl font-bold text-white">Workflow Builder</h3>
+                            <button id="closeBuilderBtn" class="text-slate-400 hover:text-white">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+                        <div id="workflowBuilderContent">
+                            <!-- Builder content will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Sample workflow data
+    let workflows = [
+        {
+            name: "Welcome Series",
+            type: "Onboarding",
+            status: "active",
+            trigger: "New subscriber",
+            subscribers: 1245,
+            sentThisMonth: 287,
+            conversion: "12.8%"
+        },
+        {
+            name: "Cart Abandonment",
+            type: "E-commerce",
+            status: "active",
+            trigger: "Cart abandoned",
+            subscribers: 567,
+            sentThisMonth: 123,
+            conversion: "18.3%"
+        },
+        {
+            name: "Re-engagement Campaign",
+            type: "Retention",
+            status: "active",
+            trigger: "30 days inactive",
+            subscribers: 892,
+            sentThisMonth: 156,
+            conversion: "8.7%"
+        },
+        {
+            name: "Birthday Emails",
+            type: "Personal",
+            status: "paused",
+            trigger: "Birthday",
+            subscribers: 234,
+            sentThisMonth: 0,
+            conversion: "24.1%"
+        },
+        {
+            name: "Post-Purchase Follow-up",
+            type: "Customer Success",
+            status: "active",
+            trigger: "Purchase completed",
+            subscribers: 678,
+            sentThisMonth: 198,
+            conversion: "15.6%"
+        },
+        {
+            name: "Win-Back Campaign",
+            type: "Retention",
+            status: "draft",
+            trigger: "60 days inactive",
+            subscribers: 0,
+            sentThisMonth: 0,
+            conversion: "-"
+        }
+    ];
+
+    let filteredWorkflows = [...workflows];
+
+    // Initialize
+    loadWorkflowTable();
+    initializePerformanceChart();
+
+    // Event listeners
+    document.getElementById('workflowSearch').addEventListener('input', filterWorkflows);
+    document.getElementById('workflowStatusFilter').addEventListener('change', filterWorkflows);
+    document.getElementById('createWorkflowBtn').addEventListener('click', openWorkflowBuilder);
+    document.getElementById('importWorkflowBtn').addEventListener('click', importWorkflow);
+    document.getElementById('closeBuilderBtn').addEventListener('click', closeWorkflowBuilder);
+    document.getElementById('performanceTimeframe').addEventListener('change', updatePerformanceChart);
+
+    function loadWorkflowTable() {
+        const tbody = document.getElementById('workflowTableBody');
+        tbody.innerHTML = '';
+
+        filteredWorkflows.forEach((workflow, index) => {
+            const row = document.createElement('tr');
+            row.className = 'border-b border-white/10 hover:bg-white/5 transition-colors';
+            row.innerHTML = `
+                <td class="px-6 py-4">
+                    <div>
+                        <p class="text-white font-medium">${workflow.name}</p>
+                    </div>
+                </td>
+                <td class="px-6 py-4">
+                    <span class="px-3 py-1 text-xs font-medium rounded-full bg-blue-500/20 text-blue-400">
+                        ${workflow.type}
+                    </span>
+                </td>
+                <td class="px-6 py-4">
+                    <span class="px-3 py-1 text-xs font-medium rounded-full ${
+                        workflow.status === 'active' ? 'bg-green-500/20 text-green-400' :
+                        workflow.status === 'paused' ? 'bg-yellow-500/20 text-yellow-400' :
+                        'bg-slate-500/20 text-slate-400'
+                    }">
+                        ${workflow.status}
+                    </span>
+                </td>
+                <td class="px-6 py-4 text-slate-300">${workflow.trigger}</td>
+                <td class="px-6 py-4 text-white">${workflow.subscribers.toLocaleString()}</td>
+                <td class="px-6 py-4 text-white">${workflow.sentThisMonth.toLocaleString()}</td>
+                <td class="px-6 py-4">
+                    <span class="text-white font-medium">${workflow.conversion}</span>
+                </td>
+                <td class="px-6 py-4">
+                    <div class="flex gap-2">
+                        <button onclick="editWorkflow(${index})" class="p-2 text-slate-400 hover:text-white transition-colors">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="toggleWorkflow(${index})" class="p-2 text-slate-400 hover:text-white transition-colors">
+                            <i class="fas fa-${workflow.status === 'active' ? 'pause' : 'play'}"></i>
+                        </button>
+                        <button onclick="duplicateWorkflow(${index})" class="p-2 text-slate-400 hover:text-white transition-colors">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button onclick="deleteWorkflow(${index})" class="p-2 text-slate-400 hover:text-red-400 transition-colors">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    function filterWorkflows() {
+        const searchTerm = document.getElementById('workflowSearch').value.toLowerCase();
+        const statusFilter = document.getElementById('workflowStatusFilter').value;
+
+        filteredWorkflows = workflows.filter(workflow => {
+            const matchesSearch = workflow.name.toLowerCase().includes(searchTerm) ||
+                                workflow.type.toLowerCase().includes(searchTerm);
+            const matchesStatus = !statusFilter || workflow.status === statusFilter;
+
+            return matchesSearch && matchesStatus;
+        });
+
+        loadWorkflowTable();
+    }
+
+    function openWorkflowBuilder(workflowIndex = null) {
+        const modal = document.getElementById('workflowBuilderModal');
+        const content = document.getElementById('workflowBuilderContent');
+        
+        if (workflowIndex !== null) {
+            const workflow = workflows[workflowIndex];
+            content.innerHTML = `
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-semibold text-white">Workflow Settings</h4>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2">Workflow Name</label>
+                                <input type="text" value="${workflow.name}" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2">Type</label>
+                                <select class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="Onboarding" ${workflow.type === 'Onboarding' ? 'selected' : ''}>Onboarding</option>
+                                    <option value="E-commerce" ${workflow.type === 'E-commerce' ? 'selected' : ''}>E-commerce</option>
+                                    <option value="Retention" ${workflow.type === 'Retention' ? 'selected' : ''}>Retention</option>
+                                    <option value="Personal" ${workflow.type === 'Personal' ? 'selected' : ''}>Personal</option>
+                                    <option value="Customer Success" ${workflow.type === 'Customer Success' ? 'selected' : ''}>Customer Success</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2">Trigger</label>
+                                <select class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="New subscriber" ${workflow.trigger === 'New subscriber' ? 'selected' : ''}>New subscriber</option>
+                                    <option value="Cart abandoned" ${workflow.trigger === 'Cart abandoned' ? 'selected' : ''}>Cart abandoned</option>
+                                    <option value="Purchase completed" ${workflow.trigger === 'Purchase completed' ? 'selected' : ''}>Purchase completed</option>
+                                    <option value="30 days inactive" ${workflow.trigger === '30 days inactive' ? 'selected' : ''}>30 days inactive</option>
+                                    <option value="Birthday" ${workflow.trigger === 'Birthday' ? 'selected' : ''}>Birthday</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-semibold text-white">Workflow Flow</h4>
+                            <div class="bg-white/5 rounded-xl p-4">
+                                <div class="flex items-center gap-4 mb-4">
+                                    <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold">1</div>
+                                    <div class="flex-1">
+                                        <p class="text-white font-medium">Trigger Event</p>
+                                        <p class="text-slate-400 text-sm">${workflow.trigger}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4 mb-4">
+                                    <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm font-bold">2</div>
+                                    <div class="flex-1">
+                                        <p class="text-white font-medium">Send Email</p>
+                                        <p class="text-slate-400 text-sm">Immediate</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white text-sm font-bold">3</div>
+                                    <div class="flex-1">
+                                        <p class="text-white font-medium">Wait</p>
+                                        <p class="text-slate-400 text-sm">1 day</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 justify-end">
+                        <button onclick="closeWorkflowBuilder()" class="px-6 py-3 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-colors">Cancel</button>
+                        <button class="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all">Save Workflow</button>
+                    </div>
+                </div>
+            `;
+        } else {
+            content.innerHTML = `
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-semibold text-white">Create New Workflow</h4>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2">Workflow Name</label>
+                                <input type="text" placeholder="Enter workflow name" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2">Type</label>
+                                <select class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Select Type</option>
+                                    <option value="Onboarding">Onboarding</option>
+                                    <option value="E-commerce">E-commerce</option>
+                                    <option value="Retention">Retention</option>
+                                    <option value="Personal">Personal</option>
+                                    <option value="Customer Success">Customer Success</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2">Trigger</label>
+                                <select class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Select Trigger</option>
+                                    <option value="New subscriber">New subscriber</option>
+                                    <option value="Cart abandoned">Cart abandoned</option>
+                                    <option value="Purchase completed">Purchase completed</option>
+                                    <option value="30 days inactive">30 days inactive</option>
+                                    <option value="Birthday">Birthday</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-semibold text-white">Quick Start Templates</h4>
+                            <div class="space-y-3">
+                                <div class="bg-white/5 rounded-lg p-3 cursor-pointer hover:bg-white/10 transition-colors">
+                                    <div class="flex items-center gap-3">
+                                        <i class="fas fa-handshake text-green-400"></i>
+                                        <div>
+                                            <p class="text-white font-medium">Welcome Series</p>
+                                            <p class="text-slate-400 text-sm">5 emails • 7 days</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="bg-white/5 rounded-lg p-3 cursor-pointer hover:bg-white/10 transition-colors">
+                                    <div class="flex items-center gap-3">
+                                        <i class="fas fa-shopping-cart text-orange-400"></i>
+                                        <div>
+                                            <p class="text-white font-medium">Cart Abandonment</p>
+                                            <p class="text-slate-400 text-sm">3 emails • 5 days</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="bg-white/5 rounded-lg p-3 cursor-pointer hover:bg-white/10 transition-colors">
+                                    <div class="flex items-center gap-3">
+                                        <i class="fas fa-heart text-purple-400"></i>
+                                        <div>
+                                            <p class="text-white font-medium">Re-engagement</p>
+                                            <p class="text-slate-400 text-sm">4 emails • 14 days</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 justify-end">
+                        <button onclick="closeWorkflowBuilder()" class="px-6 py-3 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-colors">Cancel</button>
+                        <button class="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all">Create Workflow</button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        modal.classList.remove('hidden');
+    }
+
+    function closeWorkflowBuilder() {
+        document.getElementById('workflowBuilderModal').classList.add('hidden');
+    }
+
+    function initializePerformanceChart() {
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                datasets: [{
+                    label: 'Emails Sent',
+                    data: [1200, 1900, 3000, 2500],
+                    borderColor: 'rgb(59, 130, 246)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.4
+                }, {
+                    label: 'Conversions',
+                    data: [150, 280, 420, 380],
+                    borderColor: 'rgb(34, 197, 94)',
+                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'white'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.7)'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.7)'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function updatePerformanceChart() {
+        // Simulate chart update
+        console.log('Updating performance chart');
+    }
+
+    function importWorkflow() {
+        // Simulate file upload
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        input.onchange = function(e) {
+            if (e.target.files[0]) {
+                showNotification('Workflow imported successfully!', 'success');
+            }
+        };
+        input.click();
+    }
+
+    // Global functions for workflow actions
+    window.editWorkflow = function(index) {
+        openWorkflowBuilder(index);
+    };
+
+    window.toggleWorkflow = function(index) {
+        const workflow = workflows[index];
+        workflow.status = workflow.status === 'active' ? 'paused' : 'active';
+        loadWorkflowTable();
+        showNotification(`Workflow ${workflow.status === 'active' ? 'activated' : 'paused'} successfully!`, 'success');
+    };
+
+    window.duplicateWorkflow = function(index) {
+        const workflow = workflows[index];
+        const newWorkflow = {
+            ...workflow,
+            name: workflow.name + ' (Copy)',
+            subscribers: 0,
+            sentThisMonth: 0,
+            status: 'draft'
+        };
+        workflows.push(newWorkflow);
+        loadWorkflowTable();
+        showNotification('Workflow duplicated successfully!', 'success');
+    };
+
+    window.deleteWorkflow = function(index) {
+        if (confirm('Are you sure you want to delete this workflow?')) {
+            workflows.splice(index, 1);
+            loadWorkflowTable();
+            showNotification('Workflow deleted successfully!', 'success');
+        }
+    };
+
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 px-6 py-4 rounded-xl shadow-lg ${
+            type === 'success' ? 'bg-green-600' : 
+            type === 'error' ? 'bg-red-600' : 
+            'bg-blue-600'
+        } text-white`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+});
+</script>
+{% endblock %}

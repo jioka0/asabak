@@ -1,439 +1,419 @@
-<div class="analytics-dashboard">
-    <div class="analytics-header">
-        <h1 class="page-title">Analytics Dashboard</h1>
-        <p class="page-subtitle">Monitor your blog's performance and user engagement</p>
-    </div>
+<!-- Tailwind Configuration Script -->
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      fontFamily: {
+        'syne': ['Syne', 'sans-serif'],
+      },
+      colors: {
+        'base': 'var(--base)',
+        'base-tint': 'var(--base-tint)',
+        'base-shade': 'var(--base-shade)',
+        'accent': 'var(--accent)',
+        'secondary': 'var(--secondary)',
+        'secondary-rgba': 'var(--secondary-rgba)',
+        'stroke-controls': 'var(--stroke-controls)',
+        'stroke-elements': 'var(--stroke-elements)',
+        't-bright': 'var(--t-bright)',
+        't-medium': 'var(--t-medium)',
+        't-muted': 'var(--t-muted)',
+        't-accent': 'var(--t-accent)',
+        't-secondary': 'var(--t-secondary)',
+        't-disabled': 'var(--t-disabled)',
+        't-placeholder': 'var(--t-placeholder)',
+        'base-opp': 'var(--base-opp)',
+        't-opp-bright': 'var(--t-opp-bright)',
+        't-opp-medium': 'var(--t-opp-medium)',
+        't-opp-muted': 'var(--t-opp-muted)',
+        'gradient-one': 'var(--gradient-one)',
+        'gradient-two': 'var(--gradient-two)',
+        'gradient-three': 'var(--gradient-three)',
+      },
+      borderRadius: {
+        's': 'var(--_radius-s)',
+        'm': 'var(--_radius-m)',
+        'l': 'var(--_radius-l)',
+        'xl': 'var(--_radius-xl)',
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.6s ease-out forwards',
+        'slide-up': 'slideUp 0.6s ease-out forwards',
+        'scale-in': 'scaleIn 0.4s ease-out forwards',
+      },
+      transitionTimingFunction: {
+        'bezier': 'var(--_animbezier)',
+      },
+      transitionDuration: {
+        'fast': 'var(--_animspeed-fast)',
+        'medium': 'var(--_animspeed-medium)',
+        'slow': 'var(--_animspeed-slow)',
+      },
+    },
+  },
+}
+</script>
 
-    <!-- Key Metrics Cards -->
-    <div class="metrics-grid">
-        <div class="metric-card">
-            <div class="metric-icon">
-                <i class="ph-bold ph-eye"></i>
-            </div>
-            <div class="metric-content">
-                <div class="metric-value" id="totalViews">0</div>
-                <div class="metric-label">Total Views</div>
-                <div class="metric-change" id="viewsChange">
-                    <span class="change-value">+12.5%</span>
-                    <span class="change-period">vs last month</span>
+<div class="min-h-screen bg-gradient-to-br from-gradient-one via-base to-gradient-two dark:from-base dark:via-base-tint dark:to-base-shade transition-all duration-medium">
+    <div class="p-6 md:p-8 lg:p-12">
+        <!-- Page Header -->
+        <div class="text-center mb-12 p-12 bg-gradient-to-r from-accent via-secondary to-t-accent rounded-xl text-t-opp-bright shadow-2xl hover:shadow-3xl transform hover:scale-[1.01] transition-all duration-medium relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-accent/20 via-transparent to-secondary/20 animate-pulse"></div>
+            <div class="relative z-10">
+                <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 tracking-tight font-syne bg-gradient-to-r from-t-opp-bright via-white to-t-opp-medium bg-clip-text text-transparent">Analytics Dashboard</h1>
+                <p class="text-xl md:text-2xl opacity-90 font-syne font-light">Monitor your blog's performance and user engagement</p>
+                <div class="mt-8 flex justify-center">
+                    <div class="w-24 h-1 bg-gradient-to-r from-transparent via-t-opp-bright to-transparent rounded-full"></div>
                 </div>
             </div>
         </div>
 
-        <div class="metric-card">
-            <div class="metric-icon">
-                <i class="ph-bold ph-users"></i>
+        <!-- Key Metrics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 mb-12">
+            <!-- Total Views Card -->
+            <div class="group relative bg-base/90 dark:bg-base-tint/90 backdrop-blur-xl border border-stroke-elements rounded-xl p-8 hover:scale-105 hover:-translate-y-2 transition-all duration-medium shadow-xl hover:shadow-2xl hover:shadow-accent/20 cursor-pointer overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-medium"></div>
+                <div class="relative z-10 flex items-center space-x-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-accent via-secondary to-t-accent rounded-xl flex items-center justify-center text-t-opp-bright text-2xl shadow-lg group-hover:shadow-xl transition-all duration-medium">
+                        <i class="ph-bold ph-eye"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-3xl font-bold text-t-bright font-syne mb-1" id="totalViews">0</div>
+                        <div class="text-base text-t-medium font-syne mb-3">Total Views</div>
+                        <div class="flex items-center space-x-2 text-sm font-semibold text-green-500 dark:text-green-400" id="viewsChange">
+                            <i class="ph-bold ph-trend-up text-base"></i>
+                            <span>+12.5%</span>
+                            <span class="text-t-muted font-syne">vs last month</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute -bottom-2 -right-2 w-20 h-20 bg-gradient-to-br from-accent/10 to-secondary/10 rounded-full blur-xl group-hover:blur-2xl transition-all duration-medium"></div>
             </div>
-            <div class="metric-content">
-                <div class="metric-value" id="uniqueVisitors">0</div>
-                <div class="metric-label">Unique Visitors</div>
-                <div class="metric-change" id="visitorsChange">
-                    <span class="change-value">+8.2%</span>
-                    <span class="change-period">vs last month</span>
+
+            <!-- Unique Visitors Card -->
+            <div class="group relative bg-base/90 dark:bg-base-tint/90 backdrop-blur-xl border border-stroke-elements rounded-xl p-8 hover:scale-105 hover:-translate-y-2 transition-all duration-medium shadow-xl hover:shadow-2xl hover:shadow-emerald-500/20 cursor-pointer overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-teal-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-medium"></div>
+                <div class="relative z-10 flex items-center space-x-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-emerald-500 via-teal-500 to-green-500 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg group-hover:shadow-xl transition-all duration-medium">
+                        <i class="ph-bold ph-users"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-3xl font-bold text-t-bright font-syne mb-1" id="uniqueVisitors">0</div>
+                        <div class="text-base text-t-medium font-syne mb-3">Unique Visitors</div>
+                        <div class="flex items-center space-x-2 text-sm font-semibold text-green-500 dark:text-green-400" id="visitorsChange">
+                            <i class="ph-bold ph-trend-up text-base"></i>
+                            <span>+8.2%</span>
+                            <span class="text-t-muted font-syne">vs last month</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute -bottom-2 -right-2 w-20 h-20 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 rounded-full blur-xl group-hover:blur-2xl transition-all duration-medium"></div>
+            </div>
+
+            <!-- Avg Session Time Card -->
+            <div class="group relative bg-base/90 dark:bg-base-tint/90 backdrop-blur-xl border border-stroke-elements rounded-xl p-8 hover:scale-105 hover:-translate-y-2 transition-all duration-medium shadow-xl hover:shadow-2xl hover:shadow-blue-500/20 cursor-pointer overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-medium"></div>
+                <div class="relative z-10 flex items-center space-x-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg group-hover:shadow-xl transition-all duration-medium">
+                        <i class="ph-bold ph-clock"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-3xl font-bold text-t-bright font-syne mb-1" id="avgSessionTime">0m</div>
+                        <div class="text-base text-t-medium font-syne mb-3">Avg. Session Time</div>
+                        <div class="flex items-center space-x-2 text-sm font-semibold text-green-500 dark:text-green-400" id="sessionChange">
+                            <i class="ph-bold ph-trend-up text-base"></i>
+                            <span>+15.3%</span>
+                            <span class="text-t-muted font-syne">vs last month</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute -bottom-2 -right-2 w-20 h-20 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full blur-xl group-hover:blur-2xl transition-all duration-medium"></div>
+            </div>
+
+            <!-- Bounce Rate Card -->
+            <div class="group relative bg-base/90 dark:bg-base-tint/90 backdrop-blur-xl border border-stroke-elements rounded-xl p-8 hover:scale-105 hover:-translate-y-2 transition-all duration-medium shadow-xl hover:shadow-2xl hover:shadow-yellow-500/20 cursor-pointer overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-yellow-500/5 via-transparent to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-medium"></div>
+                <div class="relative z-10 flex items-center space-x-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-yellow-500 via-amber-500 to-orange-500 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg group-hover:shadow-xl transition-all duration-medium">
+                        <i class="ph-bold ph-trend-up"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-3xl font-bold text-t-bright font-syne mb-1" id="bounceRate">0%</div>
+                        <div class="text-base text-t-medium font-syne mb-3">Bounce Rate</div>
+                        <div class="flex items-center space-x-2 text-sm font-semibold text-green-500 dark:text-green-400" id="bounceChange">
+                            <i class="ph-bold ph-trend-down text-base"></i>
+                            <span>-5.1%</span>
+                            <span class="text-t-muted font-syne">vs last month</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute -bottom-2 -right-2 w-20 h-20 bg-gradient-to-br from-yellow-500/10 to-amber-500/10 rounded-full blur-xl group-hover:blur-2xl transition-all duration-medium"></div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-12">
+            <!-- Traffic Overview Chart -->
+            <div class="xl:col-span-2 bg-base/90 dark:bg-base-tint/90 backdrop-blur-xl border border-stroke-elements rounded-xl shadow-2xl overflow-hidden hover:shadow-3xl transition-all duration-medium">
+                <div class="bg-gradient-to-r from-base-tint to-base-shade dark:from-base-shade dark:to-base p-8 border-b border-stroke-elements">
+                    <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between space-y-6 xl:space-y-0">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-gradient-to-br from-accent to-secondary rounded-xl flex items-center justify-center text-t-opp-bright shadow-lg">
+                                <i class="ph-bold ph-bar-chart text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-bold text-t-bright font-syne">Traffic Overview</h3>
+                                <p class="text-t-medium font-syne text-sm">Page views and unique visitors over time</p>
+                            </div>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button class="inline-flex items-center justify-center space-x-3 px-6 py-3 bg-accent/10 hover:bg-accent/20 text-accent font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-medium font-syne text-sm" data-period="7d">
+                                <span>7D</span>
+                            </button>
+                            <button class="inline-flex items-center justify-center space-x-3 px-6 py-3 bg-base-tint dark:bg-base-shade hover:bg-base-shade dark:hover:bg-base border border-stroke-elements text-t-bright font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-medium font-syne text-sm active" data-period="30d">
+                                <span>30D</span>
+                            </button>
+                            <button class="inline-flex items-center justify-center space-x-3 px-6 py-3 bg-base-tint dark:bg-base-shade hover:bg-base-shade dark:hover:bg-base border border-stroke-elements text-t-bright font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-medium font-syne text-sm" data-period="90d">
+                                <span>90D</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-8">
+                    <div class="h-80 relative">
+                        <canvas id="trafficChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Popular Content -->
+            <div class="bg-base/90 dark:bg-base-tint/90 backdrop-blur-xl border border-stroke-elements rounded-xl shadow-2xl overflow-hidden hover:shadow-3xl transition-all duration-medium">
+                <div class="bg-gradient-to-r from-base-tint to-base-shade dark:from-base-shade dark:to-base p-8 border-b border-stroke-elements">
+                    <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between space-y-6 xl:space-y-0">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-gradient-to-br from-accent to-secondary rounded-xl flex items-center justify-center text-t-opp-bright shadow-lg">
+                                <i class="ph-bold ph-star text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-bold text-t-bright font-syne">Popular Content</h3>
+                                <p class="text-t-medium font-syne text-sm">Top performing articles</p>
+                            </div>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button class="inline-flex items-center justify-center space-x-3 px-6 py-3 bg-accent/10 hover:bg-accent/20 text-accent font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-medium font-syne text-sm active" data-type="views">
+                                <span>Views</span>
+                            </button>
+                            <button class="inline-flex items-center justify-center space-x-3 px-6 py-3 bg-base-tint dark:bg-base-shade hover:bg-base-shade dark:hover:bg-base border border-stroke-elements text-t-bright font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-medium font-syne text-sm" data-type="engagement">
+                                <span>Engagement</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-8">
+                    <div class="space-y-4 max-h-80 overflow-y-auto" id="popularContent">
+                        <!-- Content items will be populated here -->
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="metric-card">
-            <div class="metric-icon">
-                <i class="ph-bold ph-clock"></i>
-            </div>
-            <div class="metric-content">
-                <div class="metric-value" id="avgSessionTime">0m</div>
-                <div class="metric-label">Avg. Session Time</div>
-                <div class="metric-change" id="sessionChange">
-                    <span class="change-value">+15.3%</span>
-                    <span class="change-period">vs last month</span>
+        <!-- Bottom Row -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+            <!-- Device Breakdown -->
+            <div class="bg-base/90 dark:bg-base-tint/90 backdrop-blur-xl border border-stroke-elements rounded-xl shadow-2xl overflow-hidden hover:shadow-3xl transition-all duration-medium">
+                <div class="bg-gradient-to-r from-base-tint to-base-shade dark:from-base-shade dark:to-base p-8 border-b border-stroke-elements">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-accent to-secondary rounded-xl flex items-center justify-center text-t-opp-bright shadow-lg">
+                            <i class="ph-bold ph-device-mobile text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-t-bright font-syne">Device Breakdown</h3>
+                            <p class="text-t-medium font-syne text-sm">Traffic by device type</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-8">
+                    <div class="h-64 relative">
+                        <canvas id="deviceChart"></canvas>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="metric-card">
-            <div class="metric-icon">
-                <i class="ph-bold ph-trend-up"></i>
-            </div>
-            <div class="metric-content">
-                <div class="metric-value" id="bounceRate">0%</div>
-                <div class="metric-label">Bounce Rate</div>
-                <div class="metric-change" id="bounceChange">
-                    <span class="change-value">-5.1%</span>
-                    <span class="change-period">vs last month</span>
+            <!-- Top Referrers -->
+            <div class="bg-base/90 dark:bg-base-tint/90 backdrop-blur-xl border border-stroke-elements rounded-xl shadow-2xl overflow-hidden hover:shadow-3xl transition-all duration-medium">
+                <div class="bg-gradient-to-r from-base-tint to-base-shade dark:from-base-shade dark:to-base p-8 border-b border-stroke-elements">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-accent to-secondary rounded-xl flex items-center justify-center text-t-opp-bright shadow-lg">
+                            <i class="ph-bold ph-link text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-t-bright font-syne">Top Referrers</h3>
+                            <p class="text-t-medium font-syne text-sm">Traffic sources</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-8">
+                    <div class="space-y-4 max-h-64 overflow-y-auto" id="topReferrers">
+                        <!-- Referrer items will be populated here -->
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Charts Row -->
-    <div class="charts-row">
-        <!-- Traffic Overview Chart -->
-        <div class="chart-card">
-            <div class="chart-header">
-                <h3>Traffic Overview</h3>
-                <div class="chart-controls">
-                    <button class="chart-btn active" data-period="7d">7D</button>
-                    <button class="chart-btn" data-period="30d">30D</button>
-                    <button class="chart-btn" data-period="90d">90D</button>
+            <!-- Search Analytics -->
+            <div class="bg-base/90 dark:bg-base-tint/90 backdrop-blur-xl border border-stroke-elements rounded-xl shadow-2xl overflow-hidden hover:shadow-3xl transition-all duration-medium">
+                <div class="bg-gradient-to-r from-base-tint to-base-shade dark:from-base-shade dark:to-base p-8 border-b border-stroke-elements">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-accent to-secondary rounded-xl flex items-center justify-center text-t-opp-bright shadow-lg">
+                            <i class="ph-bold ph-magnifying-glass text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-t-bright font-syne">Search Analytics</h3>
+                            <p class="text-t-medium font-syne text-sm">Search performance metrics</p>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="chart-container">
-                <canvas id="trafficChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Popular Content -->
-        <div class="chart-card">
-            <div class="chart-header">
-                <h3>Popular Content</h3>
-                <div class="chart-controls">
-                    <button class="content-btn active" data-type="views">Views</button>
-                    <button class="content-btn" data-type="engagement">Engagement</button>
-                </div>
-            </div>
-            <div class="content-list" id="popularContent">
-                <!-- Content items will be populated here -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Bottom Row -->
-    <div class="bottom-row">
-        <!-- Device Breakdown -->
-        <div class="chart-card">
-            <div class="chart-header">
-                <h3>Device Breakdown</h3>
-            </div>
-            <div class="chart-container">
-                <canvas id="deviceChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Top Referrers -->
-        <div class="chart-card">
-            <div class="chart-header">
-                <h3>Top Referrers</h3>
-            </div>
-            <div class="referrers-list" id="topReferrers">
-                <!-- Referrer items will be populated here -->
-            </div>
-        </div>
-
-        <!-- Search Analytics -->
-        <div class="chart-card">
-            <div class="chart-header">
-                <h3>Search Analytics</h3>
-            </div>
-            <div class="search-stats">
-                <div class="search-metric">
-                    <div class="metric-value" id="totalSearches">0</div>
-                    <div class="metric-label">Total Searches</div>
-                </div>
-                <div class="search-metric">
-                    <div class="metric-value" id="searchSuccessRate">0%</div>
-                    <div class="metric-label">Success Rate</div>
-                </div>
-                <div class="search-metric">
-                    <div class="metric-value" id="popularSearchTerm">-</div>
-                    <div class="metric-label">Popular Term</div>
+                <div class="p-8">
+                    <div class="space-y-6">
+                        <div class="text-center p-4 bg-base-tint/50 dark:bg-base-shade/50 rounded-xl border border-stroke-elements">
+                            <div class="text-3xl font-bold text-accent font-syne mb-2" id="totalSearches">0</div>
+                            <div class="text-sm text-t-medium font-syne">Total Searches</div>
+                        </div>
+                        <div class="text-center p-4 bg-base-tint/50 dark:bg-base-shade/50 rounded-xl border border-stroke-elements">
+                            <div class="text-3xl font-bold text-green-500 font-syne mb-2" id="searchSuccessRate">0%</div>
+                            <div class="text-sm text-t-medium font-syne">Success Rate</div>
+                        </div>
+                        <div class="text-center p-4 bg-base-tint/50 dark:bg-base-shade/50 rounded-xl border border-stroke-elements">
+                            <div class="text-3xl font-bold text-blue-500 font-syne mb-2" id="popularSearchTerm">-</div>
+                            <div class="text-sm text-t-medium font-syne">Popular Term</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Custom CSS for enhanced animations and effects -->
 <style>
-.analytics-dashboard {
-    padding: 2rem;
-    max-width: 1400px;
-    margin: 0 auto;
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.analytics-header {
-    margin-bottom: 3rem;
-    text-align: center;
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
-.page-title {
-    font: normal 700 2.38rem/1.2 var(--_font-accent);
-    color: var(--t-accent);
-    background: var(--t-accent);
-    background: -webkit-linear-gradient(15deg, var(--t-accent) 0%, var(--t-secondary) 80%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 0.5rem;
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(var(--accent), 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(var(--accent), 0.6);
+  }
 }
 
-.page-subtitle {
-    font: normal 400 1.26rem/1.4 var(--_font-default);
-    color: var(--t-medium);
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
 }
 
-/* Metrics Grid */
-.metrics-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 2rem;
-    margin-bottom: 3rem;
+.animate-scale-in {
+  animation: scaleIn 0.4s ease-out forwards;
 }
 
-.metric-card {
-    background: var(--base);
-    border: 1px solid var(--stroke-elements);
-    border-radius: var(--_radius-l);
-    padding: 2rem;
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    transition: all var(--_animspeed-medium) var(--_animbezier);
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
 }
 
-.metric-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+/* Enhanced scrollbar */
+.overflow-x-auto::-webkit-scrollbar,
+.overflow-y-auto::-webkit-scrollbar {
+  width: 8px;
 }
 
-.metric-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: var(--accent);
-    background: -webkit-linear-gradient(315deg, var(--accent) 0%, var(--secondary) 100%);
-    background: linear-gradient(135deg, var(--accent) 0%, var(--secondary) 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--t-opp-bright);
-    font-size: 2rem;
+.overflow-x-auto::-webkit-scrollbar-track,
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: var(--base-tint);
+  border-radius: 4px;
 }
 
-.metric-content {
-    flex: 1;
+.overflow-x-auto::-webkit-scrollbar-thumb,
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 4px;
 }
 
-.metric-value {
-    font: normal 700 1.96rem/1.2 var(--_font-accent);
-    color: var(--t-bright);
-    margin-bottom: 0.5rem;
+.overflow-x-auto::-webkit-scrollbar-thumb:hover,
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary);
 }
 
-.metric-label {
-    font: normal 500 0.98rem/1.2 var(--_font-default);
-    color: var(--t-medium);
-    margin-bottom: 0.5rem;
+/* Enhanced focus states */
+.focus\:ring-accent:focus {
+  --tw-ring-color: var(--accent);
 }
 
-.metric-change {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.84rem;
+/* Smooth transitions for all interactive elements */
+button, input, select, .cursor-pointer {
+  transition: all var(--_animspeed-medium) var(--_animbezier);
 }
 
-.change-value {
-    font-weight: 600;
-    color: var(--success, #10b981);
+/* Enhanced hover effects */
+.hover\:glow:hover {
+  animation: glow 0.6s ease-out;
 }
 
-.change-value.negative {
-    color: var(--error, #ef4444);
-}
-
-.change-period {
-    color: var(--t-medium);
-}
-
-/* Charts Row */
-.charts-row {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 2rem;
-    margin-bottom: 3rem;
-}
-
-.chart-card {
-    background: var(--base);
-    border: 1px solid var(--stroke-elements);
-    border-radius: var(--_radius-l);
-    padding: 2rem;
-}
-
-.chart-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-}
-
-.chart-header h3 {
-    font: normal 600 0.98rem/1.2 var(--_font-accent);
-    color: var(--t-bright);
-    margin: 0;
-}
-
-.chart-controls {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.chart-btn, .content-btn {
-    background: none;
-    border: 1px solid var(--stroke-elements);
-    color: var(--t-medium);
-    padding: 0.5rem 1rem;
-    border-radius: var(--_radius-s);
-    cursor: pointer;
-    transition: all var(--_animspeed-medium) var(--_animbezier);
-    font: normal 500 0.98rem/1.2 var(--_font-default);
-}
-
-.chart-btn.active, .content-btn.active {
-    background: var(--accent);
-    color: var(--t-opp-bright);
-    border-color: var(--accent);
-}
-
-.chart-container {
-    height: 300px;
-    position: relative;
-}
-
-/* Content List */
-.content-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
+/* Content item styles */
 .content-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem;
-    border-radius: var(--_radius-m);
-    transition: all var(--_animspeed-medium) var(--_animbezier);
-}
-
-.content-item:hover {
-    background: var(--stroke-elements);
+  @apply flex items-center gap-4 p-4 rounded-xl transition-all duration-medium hover:bg-base-tint/30 dark:hover:bg-base-shade/30;
 }
 
 .content-rank {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: var(--accent);
-    color: var(--t-opp-bright);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 1.2rem;
+  @apply w-8 h-8 rounded-full bg-gradient-to-br from-accent to-secondary text-t-opp-bright flex items-center justify-center font-bold text-sm shadow-lg;
 }
 
 .content-info {
-    flex: 1;
+  @apply flex-1;
 }
 
 .content-title {
-    font: normal 500 0.69rem/1.2 var(--_font-default);
-    color: var(--t-bright);
-    margin-bottom: 0.25rem;
+  @apply text-sm font-semibold text-t-bright font-syne mb-1 group-hover:text-accent transition-colors duration-medium;
 }
 
 .content-stats {
-    font: normal 400 0.59rem/1.2 var(--_font-default);
-    color: var(--t-medium);
+  @apply text-xs text-t-medium font-syne;
 }
 
-/* Bottom Row */
-.bottom-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 2rem;
-}
-
-/* Referrers List */
-.referrers-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
+/* Referrer item styles */
 .referrer-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem;
-    border-radius: var(--_radius-m);
-    transition: all var(--_animspeed-medium) var(--_animbezier);
-}
-
-.referrer-item:hover {
-    background: var(--stroke-elements);
+  @apply flex items-center justify-between p-4 rounded-xl transition-all duration-medium hover:bg-base-tint/30 dark:hover:bg-base-shade/30;
 }
 
 .referrer-name {
-    font: normal 500 0.69rem/1.2 var(--_font-default);
-    color: var(--t-bright);
+  @apply text-sm font-semibold text-t-bright font-syne group-hover:text-accent transition-colors duration-medium;
 }
 
 .referrer-count {
-    font: normal 600 0.69rem/1.2 var(--_font-default);
-    color: var(--accent);
+  @apply text-sm font-bold text-accent font-syne;
 }
 
-/* Search Stats */
-.search-stats {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-}
-
-.search-metric {
-    text-align: center;
-}
-
-.search-metric .metric-value {
-    font: normal 700 1.68rem/1.2 var(--_font-accent);
-    color: var(--t-bright);
-    margin-bottom: 0.5rem;
-}
-
-.search-metric .metric-label {
-    font: normal 400 0.98rem/1.2 var(--_font-default);
-    color: var(--t-medium);
-}
-
-/* Responsive Design */
-@media (max-width: 1024px) {
-    .charts-row {
-        grid-template-columns: 1fr;
-    }
-
-    .metrics-grid {
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    }
-}
-
-@media (max-width: 768px) {
-    .analytics-dashboard {
-        padding: 1rem;
-    }
-
-    .metrics-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .bottom-row {
-        grid-template-columns: 1fr;
-    }
-
-    .metric-card {
-        padding: 1.5rem;
-    }
-
-    .chart-card {
-        padding: 1.5rem;
-    }
+/* Button active states */
+.active {
+  @apply bg-accent/10 text-accent;
 }
 </style>
 

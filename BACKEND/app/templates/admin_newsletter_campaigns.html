@@ -1,0 +1,827 @@
+<!-- Tailwind Configuration Script -->
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      fontFamily: {
+        'syne': ['Syne', 'sans-serif'],
+      },
+      colors: {
+        'base': 'var(--base)',
+        'base-tint': 'var(--base-tint)',
+        'base-shade': 'var(--base-shade)',
+        'accent': 'var(--accent)',
+        'secondary': 'var(--secondary)',
+        'secondary-rgba': 'var(--secondary-rgba)',
+        'stroke-controls': 'var(--stroke-controls)',
+        'stroke-elements': 'var(--stroke-elements)',
+        't-bright': 'var(--t-bright)',
+        't-medium': 'var(--t-medium)',
+        't-muted': 'var(--t-muted)',
+        't-accent': 'var(--t-accent)',
+        't-secondary': 'var(--t-secondary)',
+        't-disabled': 'var(--t-disabled)',
+        't-placeholder': 'var(--t-placeholder)',
+        'base-opp': 'var(--base-opp)',
+        't-opp-bright': 'var(--t-opp-bright)',
+        't-opp-medium': 'var(--t-opp-medium)',
+        't-opp-muted': 'var(--t-opp-muted)',
+        'gradient-one': 'var(--gradient-one)',
+        'gradient-two': 'var(--gradient-two)',
+        'gradient-three': 'var(--gradient-three)',
+      },
+      borderRadius: {
+        's': 'var(--_radius-s)',
+        'm': 'var(--_radius-m)',
+        'l': 'var(--_radius-l)',
+        'xl': 'var(--_radius-xl)',
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.6s ease-out forwards',
+        'slide-up': 'slideUp 0.6s ease-out forwards',
+        'scale-in': 'scaleIn 0.4s ease-out forwards',
+      },
+      transitionTimingFunction: {
+        'bezier': 'var(--_animbezier)',
+      },
+      transitionDuration: {
+        'fast': 'var(--_animspeed-fast)',
+        'medium': 'var(--_animspeed-medium)',
+        'slow': 'var(--_animspeed-slow)',
+      },
+    },
+  },
+}
+</script>
+
+<div class="min-h-screen bg-gradient-to-br from-gradient-one via-base to-gradient-two dark:from-base dark:via-base-tint dark:to-base-shade transition-all duration-medium overflow-x-hidden">
+    <div class="p-4 md:p-6 lg:p-8 max-w-full">
+        <!-- Page Header -->
+        <div class="text-center mb-12 p-12 bg-gradient-to-r from-accent via-secondary to-t-accent rounded-xl text-t-opp-bright shadow-2xl hover:shadow-3xl transform hover:scale-[1.01] transition-all duration-medium relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-accent/20 via-transparent to-secondary/20 animate-pulse"></div>
+            <div class="relative z-10">
+                <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 tracking-tight font-syne bg-gradient-to-r from-t-opp-bright via-white to-t-opp-medium bg-clip-text text-transparent">Campaign Management</h1>
+                <p class="text-xl md:text-2xl opacity-90 font-syne font-light">Create, schedule, and manage your email campaigns with advanced automation</p>
+                <div class="mt-8 flex justify-center">
+                    <div class="w-24 h-1 bg-gradient-to-r from-transparent via-t-opp-bright to-transparent rounded-full"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Campaign Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 mb-12">
+            <!-- Total Campaigns Card -->
+            <div class="group relative bg-base/90 dark:bg-base-tint/90 backdrop-blur-xl border border-stroke-elements rounded-xl p-8 hover:scale-105 hover:-translate-y-2 transition-all duration-medium shadow-xl hover:shadow-2xl hover:shadow-accent/20 cursor-pointer overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-medium"></div>
+                <div class="relative z-10 flex items-center space-x-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-accent via-secondary to-t-accent rounded-xl flex items-center justify-center text-t-opp-bright text-2xl shadow-lg group-hover:shadow-xl transition-all duration-medium">
+                        <i class="ph-bold ph-envelope"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-3xl font-bold text-t-bright font-syne mb-1" id="totalCampaigns">0</div>
+                        <div class="text-base text-t-medium font-syne mb-3">Total Campaigns</div>
+                        <div class="flex items-center space-x-2 text-sm font-semibold text-green-500 dark:text-green-400">
+                            <i class="ph-bold ph-trend-up text-base"></i>
+                            <span>+12.5%</span>
+                            <span class="text-t-muted font-syne">this month</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute -bottom-2 -right-2 w-20 h-20 bg-gradient-to-br from-accent/10 to-secondary/10 rounded-full blur-xl group-hover:blur-2xl transition-all duration-medium"></div>
+            </div>
+
+            <!-- Active Campaigns Card -->
+            <div class="group relative bg-base/90 dark:bg-base-tint/90 backdrop-blur-xl border border-stroke-elements rounded-xl p-8 hover:scale-105 hover:-translate-y-2 transition-all duration-medium shadow-xl hover:shadow-2xl hover:shadow-emerald-500/20 cursor-pointer overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-teal-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-medium"></div>
+                <div class="relative z-10 flex items-center space-x-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-emerald-500 via-teal-500 to-green-500 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg group-hover:shadow-xl transition-all duration-medium">
+                        <i class="ph-bold ph-play-circle"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-3xl font-bold text-t-bright font-syne mb-1" id="activeCampaigns">0</div>
+                        <div class="text-base text-t-medium font-syne mb-3">Active Campaigns</div>
+                        <div class="flex items-center space-x-2 text-sm font-semibold text-green-500 dark:text-green-400">
+                            <i class="ph-bold ph-trend-up text-base"></i>
+                            <span>+8.2%</span>
+                            <span class="text-t-muted font-syne">this month</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute -bottom-2 -right-2 w-20 h-20 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 rounded-full blur-xl group-hover:blur-2xl transition-all duration-medium"></div>
+            </div>
+
+            <!-- Scheduled Campaigns Card -->
+            <div class="group relative bg-base/90 dark:bg-base-tint/90 backdrop-blur-xl border border-stroke-elements rounded-xl p-8 hover:scale-105 hover:-translate-y-2 transition-all duration-medium shadow-xl hover:shadow-2xl hover:shadow-blue-500/20 cursor-pointer overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-medium"></div>
+                <div class="relative z-10 flex items-center space-x-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg group-hover:shadow-xl transition-all duration-medium">
+                        <i class="ph-bold ph-clock"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-3xl font-bold text-t-bright font-syne mb-1" id="scheduledCampaigns">0</div>
+                        <div class="text-base text-t-medium font-syne mb-3">Scheduled</div>
+                        <div class="flex items-center space-x-2 text-sm font-semibold text-blue-500 dark:text-blue-400">
+                            <i class="ph-bold ph-calendar text-base"></i>
+                            <span>Next: 2h</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute -bottom-2 -right-2 w-20 h-20 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full blur-xl group-hover:blur-2xl transition-all duration-medium"></div>
+            </div>
+
+            <!-- Average Open Rate Card -->
+            <div class="group relative bg-base/90 dark:bg-base-tint/90 backdrop-blur-xl border border-stroke-elements rounded-xl p-8 hover:scale-105 hover:-translate-y-2 transition-all duration-medium shadow-xl hover:shadow-2xl hover:shadow-yellow-500/20 cursor-pointer overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-yellow-500/5 via-transparent to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-medium"></div>
+                <div class="relative z-10 flex items-center space-x-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-yellow-500 via-amber-500 to-orange-500 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg group-hover:shadow-xl transition-all duration-medium">
+                        <i class="ph-bold ph-chart-bar"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-3xl font-bold text-t-bright font-syne mb-1" id="avgOpenRate">0%</div>
+                        <div class="text-base text-t-medium font-syne mb-3">Avg. Open Rate</div>
+                        <div class="flex items-center space-x-2 text-sm font-semibold text-green-500 dark:text-green-400">
+                            <i class="ph-bold ph-trend-up text-base"></i>
+                            <span>+5.7%</span>
+                            <span class="text-t-muted font-syne">vs last month</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute -bottom-2 -right-2 w-20 h-20 bg-gradient-to-br from-yellow-500/10 to-amber-500/10 rounded-full blur-xl group-hover:blur-2xl transition-all duration-medium"></div>
+            </div>
+        </div>
+
+        <!-- Campaign Management -->
+        <div class="bg-base/90 dark:bg-base-tint/90 backdrop-blur-xl border border-stroke-elements rounded-xl shadow-2xl mb-12 overflow-hidden hover:shadow-3xl transition-all duration-medium">
+            <div class="bg-gradient-to-r from-base-tint to-base-shade dark:from-base-shade dark:to-base p-8 border-b border-stroke-elements">
+                <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between space-y-6 xl:space-y-0">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-accent to-secondary rounded-xl flex items-center justify-center text-t-opp-bright shadow-lg">
+                            <i class="ph-bold ph-megaphone text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-t-bright font-syne">Campaign Management</h3>
+                            <p class="text-t-medium font-syne text-sm">Create, edit, and monitor your email campaigns</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+                        <button class="inline-flex items-center justify-center space-x-3 px-8 py-4 bg-gradient-to-r from-accent via-secondary to-t-accent hover:from-accent/90 hover:via-secondary/90 hover:to-t-accent/90 text-t-opp-bright font-semibold rounded-xl shadow-xl hover:shadow-2xl transform hover:-translate-y-1 hover:scale-105 transition-all duration-medium font-syne" id="createCampaignBtn">
+                            <i class="ph-bold ph-plus text-lg"></i>
+                            <span>Create Campaign</span>
+                        </button>
+                        <button class="inline-flex items-center justify-center space-x-3 px-8 py-4 bg-base-tint dark:bg-base-shade hover:bg-base-shade dark:hover:bg-base border border-stroke-elements text-t-bright font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 transition-all duration-medium font-syne" id="importCampaignsBtn">
+                            <i class="ph-bold ph-upload text-lg"></i>
+                            <span>Import</span>
+                        </button>
+                        <button class="inline-flex items-center justify-center space-x-3 px-8 py-4 bg-base-tint dark:bg-base-shade hover:bg-base-shade dark:hover:bg-base border border-stroke-elements text-t-bright font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 transition-all duration-medium font-syne" id="exportCampaignsBtn">
+                            <i class="ph-bold ph-download text-lg"></i>
+                            <span>Export</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters and Search -->
+            <div class="p-4 md:p-6 lg:p-8 border-b border-stroke-elements">
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-t-bright font-syne">Search Campaigns</label>
+                        <div class="relative">
+                            <input type="text" class="w-full pl-10 pr-4 py-3 bg-base dark:bg-base-tint border border-stroke-elements rounded-xl focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-medium text-t-bright placeholder-t-muted" id="searchCampaigns" placeholder="Search by name, subject...">
+                            <i class="ph-bold ph-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-t-muted"></i>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-t-bright font-syne">Status</label>
+                        <div class="relative">
+                            <select class="w-full pl-10 pr-10 py-3 bg-base dark:bg-base-tint border border-stroke-elements rounded-xl focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-medium text-t-bright appearance-none cursor-pointer" id="statusFilter">
+                                <option value="">All Statuses</option>
+                                <option value="draft">Draft</option>
+                                <option value="scheduled">Scheduled</option>
+                                <option value="sending">Sending</option>
+                                <option value="sent">Sent</option>
+                                <option value="paused">Paused</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                            <i class="ph-bold ph-check-circle absolute left-3 top-1/2 transform -translate-y-1/2 text-t-muted"></i>
+                            <i class="ph-bold ph-caret-down absolute right-3 top-1/2 transform -translate-y-1/2 text-t-muted pointer-events-none"></i>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-t-bright font-syne">Type</label>
+                        <div class="relative">
+                            <select class="w-full pl-10 pr-10 py-3 bg-base dark:bg-base-tint border border-stroke-elements rounded-xl focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-medium text-t-bright appearance-none cursor-pointer" id="typeFilter">
+                                <option value="">All Types</option>
+                                <option value="newsletter">Newsletter</option>
+                                <option value="promotional">Promotional</option>
+                                <option value="transactional">Transactional</option>
+                                <option value="welcome">Welcome</option>
+                                <option value="reengagement">Re-engagement</option>
+                            </select>
+                            <i class="ph-bold ph-tag absolute left-3 top-1/2 transform -translate-y-1/2 text-t-muted"></i>
+                            <i class="ph-bold ph-caret-down absolute right-3 top-1/2 transform -translate-y-1/2 text-t-muted pointer-events-none"></i>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-t-bright font-syne">Date Range</label>
+                        <div class="relative">
+                            <select class="w-full pl-10 pr-10 py-3 bg-base dark:bg-base-tint border border-stroke-elements rounded-xl focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-medium text-t-bright appearance-none cursor-pointer" id="dateFilter">
+                                <option value="">All Dates</option>
+                                <option value="today">Today</option>
+                                <option value="week">This Week</option>
+                                <option value="month">This Month</option>
+                                <option value="quarter">This Quarter</option>
+                                <option value="year">This Year</option>
+                            </select>
+                            <i class="ph-bold ph-calendar absolute left-3 top-1/2 transform -translate-y-1/2 text-t-muted"></i>
+                            <i class="ph-bold ph-caret-down absolute right-3 top-1/2 transform -translate-y-1/2 text-t-muted pointer-events-none"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Campaigns Table -->
+            <div class="overflow-x-auto w-full">
+                <table class="w-full table-fixed min-w-[600px]" id="campaignsTable">
+                    <thead class="bg-base-tint/50 dark:bg-base-shade/50">
+                        <tr class="border-b border-stroke-elements">
+                            <th class="w-12 px-2 md:px-4 py-3 md:py-4 text-left">
+                                <input type="checkbox" id="selectAllCampaigns" class="w-4 h-4 text-accent bg-base dark:bg-base-tint border-2 border-stroke-elements rounded focus:ring-2 focus:ring-accent focus:ring-offset-0 cursor-pointer">
+                            </th>
+                            <th class="w-40 md:w-48 px-2 md:px-4 py-3 md:py-4 text-left text-xs font-bold text-t-bright uppercase tracking-wider font-syne">Campaign</th>
+                            <th class="w-24 md:w-28 px-2 md:px-4 py-3 md:py-4 text-left text-xs font-bold text-t-bright uppercase tracking-wider font-syne">Status</th>
+                            <th class="w-20 md:w-24 px-2 md:px-4 py-3 md:py-4 text-left text-xs font-bold text-t-bright uppercase tracking-wider font-syne">Type</th>
+                            <th class="w-20 md:w-24 px-2 md:px-4 py-3 md:py-4 text-left text-xs font-bold text-t-bright uppercase tracking-wider font-syne">Recipients</th>
+                            <th class="w-20 md:w-24 px-2 md:px-4 py-3 md:py-4 text-left text-xs font-bold text-t-bright uppercase tracking-wider font-syne">Sent</th>
+                            <th class="w-20 md:w-24 px-2 md:px-4 py-3 md:py-4 text-left text-xs font-bold text-t-bright uppercase tracking-wider font-syne">Open Rate</th>
+                            <th class="w-20 md:w-24 px-2 md:px-4 py-3 md:py-4 text-left text-xs font-bold text-t-bright uppercase tracking-wider font-syne">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="campaignsTableBody" class="divide-y divide-stroke-elements">
+                        <!-- Campaign data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="px-4 md:px-6 lg:px-8 py-4 md:py-6 bg-base-tint/30 dark:bg-base-shade/30 border-t border-stroke-elements">
+                <div class="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
+                    <div class="text-xs md:text-sm text-t-medium font-syne">
+                        Showing <span id="showingStart">1</span> to <span id="showingEnd">10</span> of <span id="totalRecords">0</span> campaigns
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button class="px-3 md:px-4 py-2 bg-base-tint dark:bg-base-shade border border-stroke-elements rounded-lg text-t-bright hover:bg-base-shade dark:hover:bg-base transition-all duration-medium disabled:opacity-50 disabled:cursor-not-allowed text-sm" id="prevPage" disabled>
+                            <i class="ph-bold ph-caret-left"></i>
+                        </button>
+                        <span class="px-3 md:px-4 py-2 text-t-bright font-syne text-sm" id="currentPage">1</span>
+                        <button class="px-3 md:px-4 py-2 bg-base-tint dark:bg-base-shade border border-stroke-elements rounded-lg text-t-bright hover:bg-base-shade dark:hover:bg-base transition-all duration-medium disabled:opacity-50 disabled:cursor-not-allowed text-sm" id="nextPage">
+                            <i class="ph-bold ph-caret-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bulk Actions Panel (Hidden by default) -->
+        <div class="bg-accent/10 border border-accent/20 rounded-xl p-6 mb-8 hidden" id="bulkActionsPanel">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <i class="ph-bold ph-stack text-accent text-xl"></i>
+                    <span class="text-t-bright font-syne font-semibold" id="selectedCount">0 campaigns selected</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button class="inline-flex items-center justify-center space-x-2 px-4 py-2 bg-accent/20 hover:bg-accent/30 text-accent font-semibold rounded-lg transition-all duration-medium font-syne text-sm" id="bulkDuplicateBtn">
+                        <i class="ph-bold ph-copy text-sm"></i>
+                        <span>Duplicate</span>
+                    </button>
+                    <button class="inline-flex items-center justify-center space-x-2 px-4 py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-500 font-semibold rounded-lg transition-all duration-medium font-syne text-sm" id="bulkScheduleBtn">
+                        <i class="ph-bold ph-clock text-sm"></i>
+                        <span>Schedule</span>
+                    </button>
+                    <button class="inline-flex items-center justify-center space-x-2 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-500 font-semibold rounded-lg transition-all duration-medium font-syne text-sm" id="bulkDeleteBtn">
+                        <i class="ph-bold ph-trash text-sm"></i>
+                        <span>Delete</span>
+                    </button>
+                    <button class="inline-flex items-center justify-center space-x-2 px-4 py-2 bg-base-tint dark:bg-base-shade border border-stroke-elements text-t-bright font-semibold rounded-lg transition-all duration-medium font-syne text-sm" id="clearSelectionBtn">
+                        <i class="ph-bold ph-x text-sm"></i>
+                        <span>Clear</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom CSS for enhanced animations and effects -->
+<style>
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(var(--accent), 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(var(--accent), 0.6);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.4s ease-out forwards;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+/* Enhanced scrollbar */
+.overflow-x-auto::-webkit-scrollbar,
+.overflow-y-auto::-webkit-scrollbar {
+  width: 8px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track,
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: var(--base-tint);
+  border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb,
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover,
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary);
+}
+
+/* Enhanced focus states */
+.focus\:ring-accent:focus {
+  --tw-ring-color: var(--accent);
+}
+
+/* Smooth transitions for all interactive elements */
+button, input, select, .cursor-pointer {
+  transition: all var(--_animspeed-medium) var(--_animbezier);
+}
+
+/* Enhanced hover effects */
+.hover\:glow:hover {
+  animation: glow 0.6s ease-out;
+}
+
+/* Campaign status badges */
+.status-draft {
+  @apply bg-gray-500/10 text-gray-500 border-gray-500/20;
+}
+
+.status-scheduled {
+  @apply bg-blue-500/10 text-blue-500 border-blue-500/20;
+}
+
+.status-sending {
+  @apply bg-yellow-500/10 text-yellow-500 border-yellow-500/20;
+}
+
+.status-sent {
+  @apply bg-green-500/10 text-green-500 border-green-500/20;
+}
+
+.status-paused {
+  @apply bg-orange-500/10 text-orange-500 border-orange-500/20;
+}
+
+.status-cancelled {
+  @apply bg-red-500/10 text-red-500 border-red-500/20;
+}
+
+/* Campaign type badges */
+.type-newsletter {
+  @apply bg-purple-500/10 text-purple-500 border-purple-500/20;
+}
+
+.type-promotional {
+  @apply bg-pink-500/10 text-pink-500 border-pink-500/20;
+}
+
+.type-transactional {
+  @apply bg-indigo-500/10 text-indigo-500 border-indigo-500/20;
+}
+
+.type-welcome {
+  @apply bg-emerald-500/10 text-emerald-500 border-emerald-500/20;
+}
+
+.type-reengagement {
+  @apply bg-amber-500/10 text-amber-500 border-amber-500/20;
+}
+</style>
+
+<script>
+// Newsletter Campaigns Page
+let allCampaigns = [];
+let currentPage = 1;
+let pageSize = 25;
+let selectedCampaigns = new Set();
+
+function initNewsletterCampaigns() {
+    loadCampaignData();
+    setupEventListeners();
+    setupBulkActions();
+}
+
+async function loadCampaignData() {
+    try {
+        const response = await fetch('/api/admin/newsletter/campaigns');
+        if (response.ok) {
+            const data = await response.json();
+            allCampaigns = data.campaigns || [];
+            updateCampaignStats(data.stats);
+            renderCampaigns();
+        } else {
+            showFallbackCampaignData();
+        }
+    } catch (error) {
+        console.error('Error loading campaign data:', error);
+        showFallbackCampaignData();
+    }
+}
+
+function updateCampaignStats(stats) {
+    document.getElementById('totalCampaigns').textContent = stats.totalCampaigns || 0;
+    document.getElementById('activeCampaigns').textContent = stats.activeCampaigns || 0;
+    document.getElementById('scheduledCampaigns').textContent = stats.scheduledCampaigns || 0;
+    document.getElementById('avgOpenRate').textContent = stats.avgOpenRate || '0%';
+}
+
+function renderCampaigns() {
+    const tbody = document.getElementById('campaignsTableBody');
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const campaignsToShow = allCampaigns.slice(startIndex, endIndex);
+
+    if (campaignsToShow.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="px-4 md:px-8 py-8 md:py-16 text-center">
+                    <div class="flex flex-col items-center space-y-4 md:space-y-6">
+                        <div class="w-16 h-16 md:w-20 md:h-20 bg-base-tint dark:bg-base-shade rounded-2xl flex items-center justify-center shadow-xl mx-auto">
+                            <i class="ph-bold ph-megaphone text-3xl md:text-5xl text-t-muted opacity-60"></i>
+                        </div>
+                        <div class="text-center space-y-2">
+                            <h3 class="text-lg md:text-2xl font-bold text-t-bright font-syne">No campaigns found</h3>
+                            <p class="text-sm md:text-base text-t-medium font-syne max-w-md">No campaigns match your current filters. Create your first campaign to get started.</p>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = campaignsToShow.map(campaign => `
+        <tr class="hover:bg-base-tint/30 dark:hover:bg-base-shade/30 transition-all duration-medium group">
+            <td class="w-12 px-2 md:px-4 py-3 md:py-4">
+                <input type="checkbox" class="campaign-checkbox w-4 h-4 text-accent bg-base dark:bg-base-tint border-2 border-stroke-elements rounded focus:ring-2 focus:ring-accent focus:ring-offset-0 cursor-pointer" value="${campaign.id}" ${selectedCampaigns.has(campaign.id) ? 'checked' : ''}>
+            </td>
+            <td class="w-40 md:w-48 px-2 md:px-4 py-3 md:py-4">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-gradient-to-br from-accent to-secondary rounded-lg flex items-center justify-center text-t-opp-bright text-xs font-bold shadow-lg flex-shrink-0">
+                        ${getCampaignInitials(campaign.name)}
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <div class="text-xs font-semibold text-t-bright group-hover:text-accent transition-colors font-syne truncate">
+                            ${campaign.name}
+                        </div>
+                        <div class="text-xs text-t-muted font-syne truncate">${campaign.subject}</div>
+                    </div>
+                </div>
+            </td>
+            <td class="w-24 md:w-28 px-2 md:px-4 py-3 md:py-4">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold uppercase tracking-wide font-syne ${getStatusClass(campaign.status)} border">
+                    ${formatStatus(campaign.status)}
+                </span>
+            </td>
+            <td class="w-20 md:w-24 px-2 md:px-4 py-3 md:py-4">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold uppercase tracking-wide font-syne ${getTypeClass(campaign.type)} border">
+                    ${formatType(campaign.type)}
+                </span>
+            </td>
+            <td class="w-20 md:w-24 px-2 md:px-4 py-3 md:py-4 text-xs text-t-medium font-medium font-syne whitespace-nowrap">${formatNumber(campaign.recipientCount || 0)}</td>
+            <td class="w-20 md:w-24 px-2 md:px-4 py-3 md:py-4 text-xs text-t-medium font-medium font-syne whitespace-nowrap">${campaign.sentAt ? formatDate(campaign.sentAt) : '-'}</td>
+            <td class="w-20 md:w-24 px-2 md:px-4 py-3 md:py-4 text-xs text-t-medium font-medium font-syne whitespace-nowrap">${campaign.openRate || 0}%</td>
+            <td class="w-20 md:w-24 px-2 md:px-4 py-3 md:py-4">
+                <div class="flex items-center space-x-1">
+                    <button class="w-6 h-6 bg-accent/10 hover:bg-accent/20 text-accent rounded flex items-center justify-center transition-all duration-medium hover:scale-110 hover:shadow-lg" title="Edit Campaign" onclick="editCampaign('${campaign.id}')">
+                        <i class="ph-bold ph-pencil text-xs"></i>
+                    </button>
+                    <button class="w-6 h-6 bg-blue-500/10 hover:bg-blue-500/20 text-blue-500 rounded flex items-center justify-center transition-all duration-medium hover:scale-110 hover:shadow-lg" title="View Analytics" onclick="viewCampaignAnalytics('${campaign.id}')">
+                        <i class="ph-bold ph-chart-bar text-xs"></i>
+                    </button>
+                    <button class="w-6 h-6 bg-green-500/10 hover:bg-green-500/20 text-green-500 rounded flex items-center justify-center transition-all duration-medium hover:scale-110 hover:shadow-lg" title="Duplicate" onclick="duplicateCampaign('${campaign.id}')">
+                        <i class="ph-bold ph-copy text-xs"></i>
+                    </button>
+                    <button class="w-6 h-6 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded flex items-center justify-center transition-all duration-medium hover:scale-110 hover:shadow-lg" title="Delete Campaign" onclick="deleteCampaign('${campaign.id}')">
+                        <i class="ph-bold ph-trash text-xs"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+
+    updatePagination();
+}
+
+function getCampaignInitials(name) {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+}
+
+function getStatusClass(status) {
+    switch (status) {
+        case 'draft': return 'status-draft';
+        case 'scheduled': return 'status-scheduled';
+        case 'sending': return 'status-sending';
+        case 'sent': return 'status-sent';
+        case 'paused': return 'status-paused';
+        case 'cancelled': return 'status-cancelled';
+        default: return 'status-draft';
+    }
+}
+
+function getTypeClass(type) {
+    switch (type) {
+        case 'newsletter': return 'type-newsletter';
+        case 'promotional': return 'type-promotional';
+        case 'transactional': return 'type-transactional';
+        case 'welcome': return 'type-welcome';
+        case 'reengagement': return 'type-reengagement';
+        default: return 'type-newsletter';
+    }
+}
+
+function formatStatus(status) {
+    return status.charAt(0).toUpperCase() + status.slice(1);
+}
+
+function formatType(type) {
+    return type.charAt(0).toUpperCase() + type.slice(1);
+}
+
+function formatNumber(num) {
+    return new Intl.NumberFormat().format(num);
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+function updatePagination() {
+    const totalRecords = allCampaigns.length;
+    const totalPages = Math.ceil(totalRecords / pageSize);
+    const startRecord = (currentPage - 1) * pageSize + 1;
+    const endRecord = Math.min(currentPage * pageSize, totalRecords);
+
+    document.getElementById('showingStart').textContent = startRecord;
+    document.getElementById('showingEnd').textContent = endRecord;
+    document.getElementById('totalRecords').textContent = totalRecords;
+    document.getElementById('currentPage').textContent = currentPage;
+
+    const prevBtn = document.getElementById('prevPage');
+    const nextBtn = document.getElementById('nextPage');
+
+    prevBtn.disabled = currentPage === 1;
+    nextBtn.disabled = currentPage === totalPages;
+}
+
+function setupEventListeners() {
+    // Search and filters
+    document.getElementById('searchCampaigns').oninput = debounce(filterCampaigns, 300);
+    document.getElementById('statusFilter').onchange = filterCampaigns;
+    document.getElementById('typeFilter').onchange = filterCampaigns;
+    document.getElementById('dateFilter').onchange = filterCampaigns;
+
+    // Pagination
+    document.getElementById('prevPage').onclick = () => {
+        if (currentPage > 1) {
+            currentPage--;
+            renderCampaigns();
+        }
+    };
+
+    document.getElementById('nextPage').onclick = () => {
+        const totalPages = Math.ceil(allCampaigns.length / pageSize);
+        if (currentPage < totalPages) {
+            currentPage++;
+            renderCampaigns();
+        }
+    };
+
+    // Action buttons
+    document.getElementById('createCampaignBtn').onclick = () => createCampaign();
+    document.getElementById('importCampaignsBtn').onclick = () => importCampaigns();
+    document.getElementById('exportCampaignsBtn').onclick = () => exportCampaigns();
+
+    // Select all checkbox
+    document.getElementById('selectAllCampaigns').onchange = toggleSelectAll;
+}
+
+function setupBulkActions() {
+    document.addEventListener('change', (e) => {
+        if (e.target.classList.contains('campaign-checkbox')) {
+            updateBulkActionsState();
+        }
+    });
+
+    // Bulk action buttons
+    document.getElementById('bulkDuplicateBtn').onclick = () => bulkDuplicate();
+    document.getElementById('bulkScheduleBtn').onclick = () => bulkSchedule();
+    document.getElementById('bulkDeleteBtn').onclick = () => bulkDelete();
+    document.getElementById('clearSelectionBtn').onclick = () => clearSelection();
+}
+
+function toggleSelectAll() {
+    const selectAll = document.getElementById('selectAllCampaigns');
+    const checkboxes = document.querySelectorAll('.campaign-checkbox');
+
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+        if (selectAll.checked) {
+            selectedCampaigns.add(checkbox.value);
+        } else {
+            selectedCampaigns.delete(checkbox.value);
+        }
+    });
+
+    updateBulkActionsState();
+}
+
+function updateBulkActionsState() {
+    const checkboxes = document.querySelectorAll('.campaign-checkbox:checked');
+    selectedCampaigns.clear();
+
+    checkboxes.forEach(checkbox => {
+        selectedCampaigns.add(checkbox.value);
+    });
+
+    const bulkPanel = document.getElementById('bulkActionsPanel');
+    const selectedCount = document.getElementById('selectedCount');
+
+    if (selectedCampaigns.size > 0) {
+        bulkPanel.classList.remove('hidden');
+        selectedCount.textContent = `${selectedCampaigns.size} campaign${selectedCampaigns.size > 1 ? 's' : ''} selected`;
+    } else {
+        bulkPanel.classList.add('hidden');
+    }
+}
+
+function filterCampaigns() {
+    const searchTerm = document.getElementById('searchCampaigns').value.toLowerCase();
+    const statusFilter = document.getElementById('statusFilter').value;
+    const typeFilter = document.getElementById('typeFilter').value;
+    const dateFilter = document.getElementById('dateFilter').value;
+
+    // Apply filters (simplified implementation)
+    currentPage = 1;
+    renderCampaigns();
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+function showFallbackCampaignData() {
+    // Show sample data when API is not available
+    updateCampaignStats({
+        totalCampaigns: 24,
+        activeCampaigns: 3,
+        scheduledCampaigns: 5,
+        avgOpenRate: '24.5%'
+    });
+
+    // Sample campaigns
+    allCampaigns = [
+        {
+            id: '1',
+            name: 'Weekly Newsletter',
+            subject: 'Your Weekly Tech Digest',
+            status: 'sent',
+            type: 'newsletter',
+            recipientCount: 12543,
+            sentAt: '2024-01-15T10:30:00Z',
+            openRate: 24.5
+        },
+        {
+            id: '2',
+            name: 'Product Launch',
+            subject: 'Introducing Our New Feature',
+            status: 'scheduled',
+            type: 'promotional',
+            recipientCount: 8756,
+            sentAt: null,
+            openRate: 0
+        }
+    ];
+
+    renderCampaigns();
+}
+
+function createCampaign() {
+    showNotification('Create campaign modal would open here', 'info');
+}
+
+function importCampaigns() {
+    showNotification('Import campaigns modal would open here', 'info');
+}
+
+function exportCampaigns() {
+    showNotification('Exporting campaigns...', 'info');
+}
+
+function editCampaign(campaignId) {
+    showNotification(`Editing campaign ${campaignId}`, 'info');
+}
+
+function viewCampaignAnalytics(campaignId) {
+    showNotification(`Viewing analytics for campaign ${campaignId}`, 'info');
+}
+
+function duplicateCampaign(campaignId) {
+    showNotification(`Duplicating campaign ${campaignId}`, 'info');
+}
+
+function deleteCampaign(campaignId) {
+    if (confirm('Are you sure you want to delete this campaign? This action cannot be undone.')) {
+        showNotification(`Deleting campaign ${campaignId}`, 'info');
+    }
+}
+
+function bulkDuplicate() {
+    showNotification(`Duplicating ${selectedCampaigns.size} campaigns`, 'info');
+}
+
+function bulkSchedule() {
+    showNotification(`Scheduling ${selectedCampaigns.size} campaigns`, 'info');
+}
+
+function bulkDelete() {
+    if (confirm(`Are you sure you want to delete ${selectedCampaigns.size} campaigns? This action cannot be undone.`)) {
+        showNotification(`Deleting ${selectedCampaigns.size} campaigns`, 'info');
+    }
+}
+
+function clearSelection() {
+    selectedCampaigns.clear();
+    document.querySelectorAll('.campaign-checkbox').forEach(cb => cb.checked = false);
+    document.getElementById('selectAllCampaigns').checked = false;
+    updateBulkActionsState();
+}
+
+function showNotification(message, type = 'info') {
+    // TODO: Implement notification system
+    console.log(`${type.toUpperCase()}: ${message}`);
+}
+
+// Initialize when page loads
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initNewsletterCampaigns);
+} else {
+    initNewsletterCampaigns();
+}
+</script>

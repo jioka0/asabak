@@ -1,0 +1,953 @@
+<!-- Tailwind Configuration Script -->
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      fontFamily: {
+        'syne': ['Syne', 'sans-serif'],
+      },
+      colors: {
+        'base': 'var(--base)',
+        'base-tint': 'var(--base-tint)',
+        'base-shade': 'var(--base-shade)',
+        'accent': 'var(--accent)',
+        'secondary': 'var(--secondary)',
+        'secondary-rgba': 'var(--secondary-rgba)',
+        'stroke-controls': 'var(--stroke-controls)',
+        'stroke-elements': 'var(--stroke-elements)',
+        't-bright': 'var(--t-bright)',
+        't-medium': 'var(--t-medium)',
+        't-muted': 'var(--t-muted)',
+        't-accent': 'var(--t-accent)',
+        't-secondary': 'var(--t-secondary)',
+        't-disabled': 'var(--t-disabled)',
+        't-placeholder': 'var(--t-placeholder)',
+        'base-opp': 'var(--base-opp)',
+        't-opp-bright': 'var(--t-opp-bright)',
+        't-opp-medium': 'var(--t-opp-medium)',
+        't-opp-muted': 'var(--t-opp-muted)',
+        'gradient-one': 'var(--gradient-one)',
+        'gradient-two': 'var(--gradient-two)',
+        'gradient-three': 'var(--gradient-three)',
+      },
+      borderRadius: {
+        's': 'var(--_radius-s)',
+        'm': 'var(--_radius-m)',
+        'l': 'var(--_radius-l)',
+        'xl': 'var(--_radius-xl)',
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.6s ease-out forwards',
+        'slide-up': 'slideUp 0.6s ease-out forwards',
+        'scale-in': 'scaleIn 0.4s ease-out forwards',
+        'bounce-in': 'bounceIn 0.4s ease-out forwards',
+      },
+      transitionTimingFunction: {
+        'bezier': 'var(--_animbezier)',
+      },
+      transitionDuration: {
+        'fast': 'var(--_animspeed-fast)',
+        'medium': 'var(--_animspeed-medium)',
+        'slow': 'var(--_animspeed-slow)',
+      },
+    },
+  },
+}
+</script>
+
+<div class="min-h-screen bg-gradient-to-br from-gradient-one via-base to-gradient-two dark:from-base dark:via-base-tint dark:to-base-shade transition-all duration-medium overflow-x-hidden">
+    <div class="p-4 md:p-6 lg:p-8 max-w-full">
+        <!-- Page Header -->
+        <div class="text-center mb-12 p-12 bg-gradient-to-r from-accent via-secondary to-t-accent rounded-xl text-t-opp-bright shadow-2xl hover:shadow-3xl transform hover:scale-[1.01] transition-all duration-medium relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-accent/20 via-transparent to-secondary/20 animate-pulse"></div>
+            <div class="relative z-10">
+                <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 tracking-tight font-syne bg-gradient-to-r from-t-opp-bright via-white to-t-opp-medium bg-clip-text text-transparent">Blog Comments</h1>
+                <p class="text-xl md:text-2xl opacity-90 font-syne font-light">Manage and moderate comments from all blog posts</p>
+                <div class="mt-8 flex justify-center">
+                    <div class="w-24 h-1 bg-gradient-to-r from-transparent via-t-opp-bright to-transparent rounded-full"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comments Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 mb-12">
+            <!-- Total Comments Card -->
+            <div class="group relative bg-base/90 dark:bg-base-tint/90 backdrop-blur-xl border border-stroke-elements rounded-xl p-8 hover:scale-105 hover:-translate-y-2 transition-all duration-medium shadow-xl hover:shadow-2xl hover:shadow-accent/20 cursor-pointer overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-medium"></div>
+                <div class="relative z-10 flex items-center space-x-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-accent via-secondary to-t-accent rounded-xl flex items-center justify-center text-t-opp-bright text-2xl shadow-lg group-hover:shadow-xl transition-all duration-medium">
+                        <i class="ph-bold ph-chat-circle"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-3xl font-bold text-t-bright font-syne mb-1" id="totalComments">0</div>
+                        <div class="text-base text-t-medium font-syne mb-3">Total Comments</div>
+                        <div class="flex items-center space-x-2 text-sm font-semibold text-green-500 dark:text-green-400">
+                            <i class="ph-bold ph-trend-up text-base"></i>
+                            <span>+12</span>
+                            <span class="text-t-muted font-syne">this week</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute -bottom-2 -right-2 w-20 h-20 bg-gradient-to-br from-accent/10 to-secondary/10 rounded-full blur-xl group-hover:blur-2xl transition-all duration-medium"></div>
+            </div>
+
+            <!-- Pending Comments Card -->
+            <div class="group relative bg-base/90 dark:bg-base-tint/90 backdrop-blur-xl border border-stroke-elements rounded-xl p-8 hover:scale-105 hover:-translate-y-2 transition-all duration-medium shadow-xl hover:shadow-2xl hover:shadow-yellow-500/20 cursor-pointer overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-yellow-500/5 via-transparent to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-medium"></div>
+                <div class="relative z-10 flex items-center space-x-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-yellow-500 via-amber-500 to-orange-500 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg group-hover:shadow-xl transition-all duration-medium">
+                        <i class="ph-bold ph-clock"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-3xl font-bold text-t-bright font-syne mb-1" id="pendingComments">0</div>
+                        <div class="text-base text-t-medium font-syne mb-3">Pending Approval</div>
+                        <div class="flex items-center space-x-2 text-sm font-semibold text-yellow-500 dark:text-yellow-400">
+                            <i class="ph-bold ph-exclamation-triangle text-base"></i>
+                            <span>Needs Review</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute -bottom-2 -right-2 w-20 h-20 bg-gradient-to-br from-yellow-500/10 to-amber-500/10 rounded-full blur-xl group-hover:blur-2xl transition-all duration-medium"></div>
+            </div>
+
+            <!-- Approved Comments Card -->
+            <div class="group relative bg-base/90 dark:bg-base-tint/90 backdrop-blur-xl border border-stroke-elements rounded-xl p-8 hover:scale-105 hover:-translate-y-2 transition-all duration-medium shadow-xl hover:shadow-2xl hover:shadow-emerald-500/20 cursor-pointer overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-teal-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-medium"></div>
+                <div class="relative z-10 flex items-center space-x-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-emerald-500 via-teal-500 to-green-500 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg group-hover:shadow-xl transition-all duration-medium">
+                        <i class="ph-bold ph-check-circle"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-3xl font-bold text-t-bright font-syne mb-1" id="approvedComments">0</div>
+                        <div class="text-base text-t-medium font-syne mb-3">Approved</div>
+                        <div class="flex items-center space-x-2 text-sm font-semibold text-emerald-500 dark:text-emerald-400">
+                            <i class="ph-bold ph-thumbs-up text-base"></i>
+                            <span>Published</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute -bottom-2 -right-2 w-20 h-20 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 rounded-full blur-xl group-hover:blur-2xl transition-all duration-medium"></div>
+            </div>
+
+            <!-- Spam Comments Card -->
+            <div class="group relative bg-base/90 dark:bg-base-tint/90 backdrop-blur-xl border border-stroke-elements rounded-xl p-8 hover:scale-105 hover:-translate-y-2 transition-all duration-medium shadow-xl hover:shadow-2xl hover:shadow-red-500/20 cursor-pointer overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-red-500/5 via-transparent to-rose-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-medium"></div>
+                <div class="relative z-10 flex items-center space-x-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-red-500 via-rose-500 to-pink-500 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg group-hover:shadow-xl transition-all duration-medium">
+                        <i class="ph-bold ph-shield-x"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-3xl font-bold text-t-bright font-syne mb-1" id="spamComments">0</div>
+                        <div class="text-base text-t-medium font-syne mb-3">Spam/Blocked</div>
+                        <div class="flex items-center space-x-2 text-sm font-semibold text-red-500 dark:text-red-400">
+                            <i class="ph-bold ph-x-circle text-base"></i>
+                            <span>Filtered</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute -bottom-2 -right-2 w-20 h-20 bg-gradient-to-br from-red-500/10 to-rose-500/10 rounded-full blur-xl group-hover:blur-2xl transition-all duration-medium"></div>
+            </div>
+        </div>
+
+        <!-- Comments Management -->
+        <div class="bg-base/90 dark:bg-base-tint/90 backdrop-blur-xl border border-stroke-elements rounded-xl shadow-2xl mb-12 overflow-hidden hover:shadow-3xl transition-all duration-medium">
+            <div class="bg-gradient-to-r from-base-tint to-base-shade dark:from-base-shade dark:to-base p-8 border-b border-stroke-elements">
+                <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between space-y-6 xl:space-y-0">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-accent to-secondary rounded-xl flex items-center justify-center text-t-opp-bright shadow-lg">
+                            <i class="ph-bold ph-chat-circle text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-t-bright font-syne">Comments Management</h3>
+                            <p class="text-t-medium font-syne text-sm">Moderate, reply, and manage all blog comments</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+                        <button class="inline-flex items-center justify-center space-x-3 px-8 py-4 bg-gradient-to-r from-accent via-secondary to-t-accent hover:from-accent/90 hover:via-secondary/90 hover:to-t-accent/90 text-t-opp-bright font-semibold rounded-xl shadow-xl hover:shadow-2xl transform hover:-translate-y-1 hover:scale-105 transition-all duration-medium font-syne" id="bulkApproveBtn">
+                            <i class="ph-bold ph-check text-lg"></i>
+                            <span>Bulk Approve</span>
+                        </button>
+                        <button class="inline-flex items-center justify-center space-x-3 px-8 py-4 bg-base-tint dark:bg-base-shade hover:bg-base-shade dark:hover:bg-base border border-stroke-elements text-t-bright font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 transition-all duration-medium font-syne" id="bulkSpamBtn">
+                            <i class="ph-bold ph-shield-x text-lg"></i>
+                            <span>Mark as Spam</span>
+                        </button>
+                        <button class="inline-flex items-center justify-center space-x-3 px-8 py-4 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 transition-all duration-medium font-syne" id="bulkDeleteBtn">
+                            <i class="ph-bold ph-trash text-lg"></i>
+                            <span>Bulk Delete</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comments Filters -->
+            <div class="p-4 md:p-6 lg:p-8 border-b border-stroke-elements">
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-t-bright font-syne">Search Comments</label>
+                        <div class="relative">
+                            <input type="text" class="w-full pl-10 pr-4 py-3 bg-base dark:bg-base-tint border border-stroke-elements rounded-xl focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-medium text-t-bright placeholder-t-muted" id="searchComments" placeholder="Search by content, author...">
+                            <i class="ph-bold ph-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-t-muted"></i>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-t-bright font-syne">Status</label>
+                        <div class="relative">
+                            <select class="w-full pl-10 pr-10 py-3 bg-base dark:bg-base-tint border border-stroke-elements rounded-xl focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-medium text-t-bright appearance-none cursor-pointer" id="statusFilter">
+                                <option value="">All Statuses</option>
+                                <option value="pending">Pending</option>
+                                <option value="approved">Approved</option>
+                                <option value="spam">Spam</option>
+                                <option value="blocked">Blocked</option>
+                            </select>
+                            <i class="ph-bold ph-check-circle absolute left-3 top-1/2 transform -translate-y-1/2 text-t-muted"></i>
+                            <i class="ph-bold ph-caret-down absolute right-3 top-1/2 transform -translate-y-1/2 text-t-muted pointer-events-none"></i>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-t-bright font-syne">Post</label>
+                        <div class="relative">
+                            <select class="w-full pl-10 pr-10 py-3 bg-base dark:bg-base-tint border border-stroke-elements rounded-xl focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-medium text-t-bright appearance-none cursor-pointer" id="postFilter">
+                                <option value="">All Posts</option>
+                                <!-- Posts will be populated here -->
+                            </select>
+                            <i class="ph-bold ph-article absolute left-3 top-1/2 transform -translate-y-1/2 text-t-muted"></i>
+                            <i class="ph-bold ph-caret-down absolute right-3 top-1/2 transform -translate-y-1/2 text-t-muted pointer-events-none"></i>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-t-bright font-syne">Sort By</label>
+                        <div class="relative">
+                            <select class="w-full pl-10 pr-10 py-3 bg-base dark:bg-base-tint border border-stroke-elements rounded-xl focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-medium text-t-bright appearance-none cursor-pointer" id="sortFilter">
+                                <option value="newest">Newest First</option>
+                                <option value="oldest">Oldest First</option>
+                                <option value="post">By Post</option>
+                                <option value="author">By Author</option>
+                            </select>
+                            <i class="ph-bold ph-sort-ascending absolute left-3 top-1/2 transform -translate-y-1/2 text-t-muted"></i>
+                            <i class="ph-bold ph-caret-down absolute right-3 top-1/2 transform -translate-y-1/2 text-t-muted pointer-events-none"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comments List -->
+            <div class="p-4 md:p-6 lg:p-8">
+                <div class="space-y-6" id="commentsList">
+                    <!-- Comments will be populated here -->
+                </div>
+
+                <!-- Empty State -->
+                <div class="text-center py-12 hidden" id="emptyState">
+                    <div class="w-20 h-20 bg-base-tint dark:bg-base-shade rounded-2xl flex items-center justify-center shadow-xl mx-auto mb-6">
+                        <i class="ph-bold ph-chat-circle text-5xl text-t-muted opacity-60"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-t-bright font-syne mb-4">No comments found</h3>
+                    <p class="text-base text-t-medium font-syne max-w-md mx-auto mb-6">No comments match your current filters. Try adjusting your search criteria or check back later for new comments.</p>
+                </div>
+
+                <!-- Load More -->
+                <div class="text-center pt-8" id="loadMoreContainer">
+                    <button class="inline-flex items-center justify-center space-x-3 px-8 py-4 bg-base-tint dark:bg-base-shade hover:bg-base-shade dark:hover:bg-base border border-stroke-elements text-t-bright font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-medium font-syne" id="loadMoreBtn">
+                        <i class="ph-bold ph-arrow-down text-lg"></i>
+                        <span>Load More Comments</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Comment Reply Modal -->
+<div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden" id="replyModal">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-base/95 dark:bg-base-tint/95 backdrop-blur-xl border border-stroke-elements rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div class="flex items-center justify-between p-6 border-b border-stroke-elements">
+                <h3 class="text-xl font-bold text-t-bright font-syne" id="replyModalTitle">Reply to Comment</h3>
+                <button class="w-8 h-8 bg-base-tint dark:bg-base-shade hover:bg-base-shade dark:hover:bg-base border border-stroke-elements text-t-bright rounded-lg flex items-center justify-center transition-all duration-medium" onclick="closeReplyModal()">
+                    <i class="ph-bold ph-x"></i>
+                </button>
+            </div>
+            <div class="p-6 max-h-[70vh] overflow-y-auto">
+                <!-- Original Comment -->
+                <div class="bg-base-tint/30 dark:bg-base-shade/30 rounded-xl p-6 mb-6" id="originalComment">
+                    <!-- Original comment will be loaded here -->
+                </div>
+
+                <!-- Reply Form -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-t-bright font-syne mb-2">Your Reply</label>
+                        <textarea class="w-full px-4 py-3 bg-base dark:bg-base-tint border border-stroke-elements rounded-xl focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-medium text-t-bright resize-none" id="replyContent" rows="6" placeholder="Write your reply..."></textarea>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" class="w-4 h-4 text-accent bg-base dark:bg-base-tint border-2 border-stroke-elements rounded focus:ring-2 focus:ring-accent focus:ring-offset-0" id="notifyAuthor">
+                            <span class="text-sm text-t-bright font-syne">Notify comment author</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" class="w-4 h-4 text-accent bg-base dark:bg-base-tint border-2 border-stroke-elements rounded focus:ring-2 focus:ring-accent focus:ring-offset-0" id="publishImmediately" checked>
+                            <span class="text-sm text-t-bright font-syne">Publish immediately</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center justify-end space-x-3 p-6 border-t border-stroke-elements">
+                <button class="px-6 py-3 bg-base-tint dark:bg-base-shade border border-stroke-elements text-t-bright rounded-lg hover:bg-base-shade dark:hover:bg-base transition-all duration-medium font-syne" onclick="closeReplyModal()">Cancel</button>
+                <button class="px-6 py-3 bg-gradient-to-r from-accent to-secondary hover:from-accent/90 hover:to-secondary/90 text-t-opp-bright rounded-lg transition-all duration-medium font-syne" id="sendReplyBtn">Send Reply</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Comment Details Modal -->
+<div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden" id="commentModal">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-base/95 dark:bg-base-tint/95 backdrop-blur-xl border border-stroke-elements rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div class="flex items-center justify-between p-6 border-b border-stroke-elements">
+                <h3 class="text-xl font-bold text-t-bright font-syne">Comment Details</h3>
+                <button class="w-8 h-8 bg-base-tint dark:bg-base-shade hover:bg-base-shade dark:hover:bg-base border border-stroke-elements text-t-bright rounded-lg flex items-center justify-center transition-all duration-medium" onclick="closeCommentModal()">
+                    <i class="ph-bold ph-x"></i>
+                </button>
+            </div>
+            <div class="p-6 max-h-[70vh] overflow-y-auto" id="commentDetails">
+                <!-- Comment details will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom CSS for enhanced animations and effects -->
+<style>
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.4s ease-out forwards;
+}
+
+.animate-bounce-in {
+  animation: bounceIn 0.6s ease-out forwards;
+}
+
+/* Enhanced scrollbar */
+.overflow-x-auto::-webkit-scrollbar,
+.overflow-y-auto::-webkit-scrollbar {
+  width: 8px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track,
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: var(--base-tint);
+  border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb,
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover,
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary);
+}
+
+/* Enhanced focus states */
+.focus\:ring-accent:focus {
+  --tw-ring-color: var(--accent);
+}
+
+/* Smooth transitions for all interactive elements */
+button, input, select, .cursor-pointer {
+  transition: all var(--_animspeed-medium) var(--_animbezier);
+}
+
+/* Enhanced hover effects */
+.hover\:glow:hover {
+  animation: glow 0.6s ease-out;
+}
+
+/* Comment card styles */
+.comment-card {
+  @apply bg-base/90 dark:bg-base-tint/90 backdrop-blur-xl border border-stroke-elements rounded-xl overflow-hidden hover:scale-[1.02] hover:-translate-y-1 transition-all duration-medium shadow-lg hover:shadow-xl cursor-pointer group;
+}
+
+.comment-header {
+  @apply flex items-start justify-between p-6 border-b border-stroke-elements;
+}
+
+.comment-author {
+  @apply flex items-center space-x-3 flex-1;
+}
+
+.comment-avatar {
+  @apply w-10 h-10 bg-gradient-to-br from-accent to-secondary rounded-full flex items-center justify-center text-t-opp-bright font-bold text-sm shadow-lg;
+}
+
+.comment-meta {
+  @apply flex-1 min-w-0;
+}
+
+.comment-name {
+  @apply text-sm font-bold text-t-bright font-syne truncate;
+}
+
+.comment-email {
+  @apply text-xs text-t-medium font-syne truncate;
+}
+
+.comment-date {
+  @apply text-xs text-t-muted font-syne;
+}
+
+.comment-actions {
+  @apply flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-all duration-medium;
+}
+
+.comment-content {
+  @apply p-6;
+}
+
+.comment-text {
+  @apply text-sm text-t-bright font-syne leading-relaxed;
+}
+
+.comment-footer {
+  @apply flex items-center justify-between px-6 py-4 bg-base-tint/30 dark:bg-base-shade/30 border-t border-stroke-elements;
+}
+
+.comment-post-info {
+  @apply text-xs text-t-medium font-syne;
+}
+
+.comment-status {
+  @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold uppercase tracking-wide font-syne;
+}
+
+.status-pending {
+  @apply bg-yellow-500/10 text-yellow-500 border border-yellow-500/20;
+}
+
+.status-approved {
+  @apply bg-green-500/10 text-green-500 border border-green-500/20;
+}
+
+.status-spam {
+  @apply bg-red-500/10 text-red-500 border border-red-500/20;
+}
+
+.status-blocked {
+  @apply bg-gray-500/10 text-gray-500 border border-gray-500/20;
+}
+
+/* Reply thread styling */
+.comment-thread {
+  @apply ml-8 border-l-2 border-accent/30 pl-6 relative;
+}
+
+.comment-thread::before {
+  content: '';
+  @apply absolute -left-2 top-6 w-4 h-0.5 bg-accent/30;
+}
+
+/* Selection states */
+.comment-selected {
+  @apply ring-2 ring-accent ring-offset-2 ring-offset-base;
+}
+
+/* Bulk action indicators */
+.bulk-selected {
+  @apply bg-accent/10 border-accent/50;
+}
+</style>
+
+<script>
+// Blog Comments Management Page
+let allComments = [];
+let selectedComments = new Set();
+let currentPage = 1;
+let hasMoreComments = true;
+
+function initBlogComments() {
+    loadCommentsData();
+    setupEventListeners();
+}
+
+async function loadCommentsData(page = 1) {
+    try {
+        const response = await fetch(`/api/admin/blog/comments?page=${page}`);
+        if (response.ok) {
+            const data = await response.json();
+            if (page === 1) {
+                allComments = data.comments || [];
+            } else {
+                allComments = [...allComments, ...(data.comments || [])];
+            }
+
+            updateCommentStats(data.stats);
+            renderComments(data.comments || [], page === 1);
+            hasMoreComments = data.hasMore || false;
+            currentPage = page;
+
+            if (!hasMoreComments) {
+                document.getElementById('loadMoreContainer').classList.add('hidden');
+            }
+        } else {
+            showFallbackCommentsData();
+        }
+    } catch (error) {
+        console.error('Error loading comments data:', error);
+        showFallbackCommentsData();
+    }
+}
+
+function updateCommentStats(stats) {
+    document.getElementById('totalComments').textContent = formatNumber(stats.totalComments || 0);
+    document.getElementById('pendingComments').textContent = formatNumber(stats.pendingComments || 0);
+    document.getElementById('approvedComments').textContent = formatNumber(stats.approvedComments || 0);
+    document.getElementById('spamComments').textContent = formatNumber(stats.spamComments || 0);
+}
+
+function renderComments(comments, replace = true) {
+    const container = document.getElementById('commentsList');
+    const emptyState = document.getElementById('emptyState');
+
+    if (allComments.length === 0) {
+        container.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+    }
+
+    emptyState.classList.add('hidden');
+
+    if (replace) {
+        container.innerHTML = '';
+    }
+
+    comments.forEach(comment => {
+        const commentElement = createCommentElement(comment);
+        container.appendChild(commentElement);
+    });
+}
+
+function createCommentElement(comment) {
+    const commentDiv = document.createElement('div');
+    commentDiv.className = `comment-card ${selectedComments.has(comment.id) ? 'comment-selected' : ''}`;
+    commentDiv.dataset.commentId = comment.id;
+
+    commentDiv.innerHTML = `
+        <div class="comment-header">
+            <div class="comment-author">
+                <div class="comment-avatar">
+                    ${getInitials(comment.author)}
+                </div>
+                <div class="comment-meta">
+                    <div class="comment-name">${comment.author}</div>
+                    <div class="comment-email">${comment.email}</div>
+                    <div class="comment-date">${formatDate(comment.createdAt)}</div>
+                </div>
+            </div>
+            <div class="comment-actions">
+                <input type="checkbox" class="comment-checkbox" ${selectedComments.has(comment.id) ? 'checked' : ''} onchange="toggleCommentSelection('${comment.id}')">
+                <button class="w-8 h-8 bg-blue-500/10 hover:bg-blue-500/20 text-blue-500 rounded-lg flex items-center justify-center transition-all duration-medium" onclick="replyToComment('${comment.id}', event)" title="Reply">
+                    <i class="ph-bold ph-arrow-bend-up-left text-sm"></i>
+                </button>
+                <button class="w-8 h-8 bg-green-500/10 hover:bg-green-500/20 text-green-500 rounded-lg flex items-center justify-center transition-all duration-medium" onclick="approveComment('${comment.id}', event)" title="Approve">
+                    <i class="ph-bold ph-check text-sm"></i>
+                </button>
+                <button class="w-8 h-8 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-500 rounded-lg flex items-center justify-center transition-all duration-medium" onclick="markAsSpam('${comment.id}', event)" title="Mark as Spam">
+                    <i class="ph-bold ph-shield-x text-sm"></i>
+                </button>
+                <button class="w-8 h-8 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg flex items-center justify-center transition-all duration-medium" onclick="deleteComment('${comment.id}', event)" title="Delete">
+                    <i class="ph-bold ph-trash text-sm"></i>
+                </button>
+                <button class="w-8 h-8 bg-gray-500/10 hover:bg-gray-500/20 text-gray-500 rounded-lg flex items-center justify-center transition-all duration-medium" onclick="viewCommentDetails('${comment.id}', event)" title="Details">
+                    <i class="ph-bold ph-info text-sm"></i>
+                </button>
+            </div>
+        </div>
+        <div class="comment-content">
+            <p class="comment-text">${escapeHtml(comment.content)}</p>
+            ${comment.replies && comment.replies.length > 0 ? `
+                <div class="comment-thread mt-4">
+                    ${comment.replies.map(reply => `
+                        <div class="comment-card">
+                            <div class="comment-header">
+                                <div class="comment-author">
+                                    <div class="comment-avatar bg-secondary">
+                                        A
+                                    </div>
+                                    <div class="comment-meta">
+                                        <div class="comment-name">Admin Reply</div>
+                                        <div class="comment-date">${formatDate(reply.createdAt)}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="comment-content">
+                                <p class="comment-text">${escapeHtml(reply.content)}</p>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : ''}
+        </div>
+        <div class="comment-footer">
+            <div class="comment-post-info">
+                On: <a href="#" class="text-accent hover:text-secondary transition-colors font-syne" onclick="viewPost('${comment.postId}', event)">${comment.postTitle}</a>
+            </div>
+            <div class="comment-status status-${comment.status}">
+                ${formatStatus(comment.status)}
+            </div>
+        </div>
+    `;
+
+    return commentDiv;
+}
+
+function setupEventListeners() {
+    // Search
+    document.getElementById('searchComments').oninput = debounce((e) => {
+        filterComments();
+    }, 300);
+
+    // Filters
+    document.getElementById('statusFilter').onchange = filterComments;
+    document.getElementById('postFilter').onchange = filterComments;
+    document.getElementById('sortFilter').onchange = filterComments;
+
+    // Bulk actions
+    document.getElementById('bulkApproveBtn').onclick = () => bulkAction('approve');
+    document.getElementById('bulkSpamBtn').onclick = () => bulkAction('spam');
+    document.getElementById('bulkDeleteBtn').onclick = () => bulkAction('delete');
+
+    // Load more
+    document.getElementById('loadMoreBtn').onclick = () => loadCommentsData(currentPage + 1);
+
+    // Modal actions
+    document.getElementById('sendReplyBtn').onclick = () => sendReply();
+}
+
+function filterComments() {
+    const searchTerm = document.getElementById('searchComments').value.toLowerCase();
+    const statusFilter = document.getElementById('statusFilter').value;
+    const postFilter = document.getElementById('postFilter').value;
+    const sortFilter = document.getElementById('sortFilter').value;
+
+    let filtered = allComments.filter(comment => {
+        const matchesSearch = !searchTerm ||
+            comment.content.toLowerCase().includes(searchTerm) ||
+            comment.author.toLowerCase().includes(searchTerm) ||
+            comment.email.toLowerCase().includes(searchTerm);
+
+        const matchesStatus = !statusFilter || comment.status === statusFilter;
+        const matchesPost = !postFilter || comment.postId === postFilter;
+
+        return matchesSearch && matchesStatus && matchesPost;
+    });
+
+    // Sort
+    filtered.sort((a, b) => {
+        switch (sortFilter) {
+            case 'oldest':
+                return new Date(a.createdAt) - new Date(b.createdAt);
+            case 'post':
+                return a.postTitle.localeCompare(b.postTitle);
+            case 'author':
+                return a.author.localeCompare(b.author);
+            default: // newest
+                return new Date(b.createdAt) - new Date(a.createdAt);
+        }
+    });
+
+    renderComments(filtered, true);
+}
+
+function toggleCommentSelection(commentId) {
+    if (selectedComments.has(commentId)) {
+        selectedComments.delete(commentId);
+    } else {
+        selectedComments.add(commentId);
+    }
+    updateSelectionUI();
+}
+
+function updateSelectionUI() {
+    document.querySelectorAll('.comment-card').forEach(card => {
+        const commentId = card.dataset.commentId;
+        const checkbox = card.querySelector('.comment-checkbox');
+
+        if (selectedComments.has(commentId)) {
+            card.classList.add('comment-selected');
+            if (checkbox) checkbox.checked = true;
+        } else {
+            card.classList.remove('comment-selected');
+            if (checkbox) checkbox.checked = false;
+        }
+    });
+}
+
+function bulkAction(action) {
+    if (selectedComments.size === 0) {
+        showNotification('Please select comments first', 'warning');
+        return;
+    }
+
+    const actionText = {
+        'approve': 'approve',
+        'spam': 'mark as spam',
+        'delete': 'delete'
+    };
+
+    if (confirm(`Are you sure you want to ${actionText[action]} ${selectedComments.size} comment${selectedComments.size > 1 ? 's' : ''}?`)) {
+        showNotification(`${actionText[action].charAt(0).toUpperCase() + actionText[action].slice(1)} ${selectedComments.size} comment${selectedComments.size > 1 ? 's' : ''}`, 'success');
+        selectedComments.clear();
+        updateSelectionUI();
+        loadCommentsData(1); // Refresh
+    }
+}
+
+function replyToComment(commentId, event) {
+    event.stopPropagation();
+    const comment = allComments.find(c => c.id === commentId);
+    if (comment) {
+        document.getElementById('replyModalTitle').textContent = `Reply to ${comment.author}`;
+        document.getElementById('originalComment').innerHTML = `
+            <div class="flex items-start space-x-3">
+                <div class="comment-avatar">
+                    ${getInitials(comment.author)}
+                </div>
+                <div class="flex-1">
+                    <div class="comment-name">${comment.author}</div>
+                    <div class="comment-date">${formatDate(comment.createdAt)}</div>
+                    <p class="comment-text mt-2">${escapeHtml(comment.content)}</p>
+                </div>
+            </div>
+        `;
+        document.getElementById('replyContent').value = '';
+        document.getElementById('replyModal').dataset.commentId = commentId;
+        document.getElementById('replyModal').classList.remove('hidden');
+    }
+}
+
+function closeReplyModal() {
+    document.getElementById('replyModal').classList.add('hidden');
+}
+
+function sendReply() {
+    const commentId = document.getElementById('replyModal').dataset.commentId;
+    const content = document.getElementById('replyContent').value.trim();
+    const notifyAuthor = document.getElementById('notifyAuthor').checked;
+    const publishImmediately = document.getElementById('publishImmediately').checked;
+
+    if (!content) {
+        showNotification('Please enter a reply', 'error');
+        return;
+    }
+
+    showNotification('Reply sent successfully', 'success');
+    closeReplyModal();
+    loadCommentsData(1); // Refresh
+}
+
+function approveComment(commentId, event) {
+    event.stopPropagation();
+    showNotification(`Comment ${commentId} approved`, 'success');
+    loadCommentsData(1);
+}
+
+function markAsSpam(commentId, event) {
+    event.stopPropagation();
+    showNotification(`Comment ${commentId} marked as spam`, 'warning');
+    loadCommentsData(1);
+}
+
+function deleteComment(commentId, event) {
+    event.stopPropagation();
+    if (confirm('Are you sure you want to delete this comment?')) {
+        showNotification(`Comment ${commentId} deleted`, 'error');
+        loadCommentsData(1);
+    }
+}
+
+function viewCommentDetails(commentId, event) {
+    event.stopPropagation();
+    const comment = allComments.find(c => c.id === commentId);
+    if (comment) {
+        document.getElementById('commentDetails').innerHTML = `
+            <div class="space-y-6">
+                <div>
+                    <h4 class="text-lg font-semibold text-t-bright font-syne mb-4">Comment Information</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-t-medium font-syne mb-1">Author</label>
+                            <p class="text-t-bright font-syne">${comment.author}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-t-medium font-syne mb-1">Email</label>
+                            <p class="text-t-bright font-syne">${comment.email}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-t-medium font-syne mb-1">IP Address</label>
+                            <p class="text-t-bright font-syne">${comment.ipAddress || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-t-medium font-syne mb-1">User Agent</label>
+                            <p class="text-t-bright font-syne text-sm">${comment.userAgent || 'N/A'}</p>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-t-bright font-syne mb-4">Comment Content</h4>
+                    <div class="bg-base-tint/30 dark:bg-base-shade/30 rounded-lg p-4">
+                        <p class="text-t-bright font-syne">${escapeHtml(comment.content)}</p>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-t-bright font-syne mb-4">Post Information</h4>
+                    <p class="text-t-bright font-syne">Posted on: <a href="#" class="text-accent hover:text-secondary" onclick="viewPost('${comment.postId}')">${comment.postTitle}</a></p>
+                </div>
+            </div>
+        `;
+        document.getElementById('commentModal').classList.remove('hidden');
+    }
+}
+
+function closeCommentModal() {
+    document.getElementById('commentModal').classList.add('hidden');
+}
+
+function viewPost(postId, event) {
+    if (event) event.preventDefault();
+    showNotification(`Viewing post ${postId}`, 'info');
+}
+
+function getInitials(name) {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+}
+
+function formatStatus(status) {
+    return status.charAt(0).toUpperCase() + status.slice(1);
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function formatNumber(num) {
+    return new Intl.NumberFormat().format(num);
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+function showFallbackCommentsData() {
+    // Show sample data when API is not available
+    updateCommentStats({
+        totalComments: 247,
+        pendingComments: 12,
+        approvedComments: 218,
+        spamComments: 17
+    });
+
+    // Sample comments
+    allComments = [
+        {
+            id: '1',
+            author: 'John Doe',
+            email: 'john@example.com',
+            content: 'Great article! This really helped me understand the topic better. Looking forward to more content like this.',
+            status: 'approved',
+            createdAt: '2024-01-15T10:30:00Z',
+            postId: 'post-1',
+            postTitle: 'Getting Started with React',
+            replies: []
+        },
+        {
+            id: '2',
+            author: 'Jane Smith',
+            email: 'jane@example.com',
+            content: 'I disagree with some points in this article. The approach mentioned might not work for larger scale applications.',
+            status: 'pending',
+            createdAt: '2024-01-14T15:45:00Z',
+            postId: 'post-2',
+            postTitle: 'Advanced CSS Techniques',
+            replies: []
+        },
+        {
+            id: '3',
+            author: 'Spam Bot',
+            email: 'spam@bot.com',
+            content: 'Buy cheap viagra now!!! Special offer only today!!!',
+            status: 'spam',
+            createdAt: '2024-01-14T12:00:00Z',
+            postId: 'post-1',
+            postTitle: 'Getting Started with React',
+            replies: []
+        }
+    ];
+
+    renderComments

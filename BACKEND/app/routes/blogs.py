@@ -1,10 +1,22 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from pathlib import Path
 from sqlalchemy.orm import Session
 from database import get_db
 from models.blog import BlogPost, BlogComment, BlogLike
 from schemas import BlogPost, BlogPostCreate, Comment, CommentCreate, Like, LikeCreate
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+# Templates directory
+templates_dir = Path(__file__).parent.parent / "templates"
+templates = Jinja2Templates(directory=str(templates_dir))
 
 @router.get("/", response_model=list[BlogPost])
 async def get_blog_posts(limit: int = 10, db: Session = Depends(get_db)):
@@ -106,3 +118,21 @@ async def delete_blog_post(post_id: int, db: Session = Depends(get_db)):
     db.delete(post)
     db.commit()
     return {"message": "Blog post deleted"}
+
+@router.get("/blog/media", response_class=HTMLResponse)
+@router.get("/blog/media/", response_class=HTMLResponse)
+async def blog_media(request: Request):
+    """Serve blog media library page"""
+    logger.info(f"📚 BLOG MEDIA: Media page accessed - Method: {request.method}, URL: {request.url}")
+    logger.info(f"📚 BLOG MEDIA: Request headers: {dict(request.headers)}")
+    logger.info(f"📚 BLOG MEDIA: Template path exists: {(templates_dir / 'admin_media_library.html').exists()}")
+    
+    try:
+        response = templates.TemplateResponse("admin_media_library.html", {"request": request})
+        logger.info(f"📚 BLOG MEDIA: Template response created successfully")
+        return response
+    except Exception as e:
+        logger.error(f"📚 BLOG MEDIA: Error creating template response: {type(e).__name__}: {str(e)}")
+        import traceback
+        logger.error(f"📚 BLOG MEDIA: Traceback: {traceback.format_exc()}")
+        raise

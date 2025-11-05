@@ -1,0 +1,584 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Newsletter Templates - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div class="container mx-auto px-6 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-4xl font-bold text-white mb-2">Newsletter Templates</h1>
+                    <p class="text-slate-300">Create and manage professional email templates</p>
+                </div>
+                <div class="flex gap-4">
+                    <button id="createTemplateBtn" class="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl">
+                        <i class="fas fa-plus mr-2"></i>Create Template
+                    </button>
+                    <button id="importTemplateBtn" class="bg-slate-700 text-white px-6 py-3 rounded-xl hover:bg-slate-600 transition-all duration-200">
+                        <i class="fas fa-download mr-2"></i>Import
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Template Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-slate-300 text-sm">Total Templates</p>
+                        <p class="text-2xl font-bold text-white" id="totalTemplates">24</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-file-alt text-blue-400"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-slate-300 text-sm">Custom Templates</p>
+                        <p class="text-2xl font-bold text-white" id="customTemplates">8</p>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-palette text-purple-400"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-slate-300 text-sm">Used This Month</p>
+                        <p class="text-2xl font-bold text-white" id="usedThisMonth">12</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-chart-line text-green-400"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-slate-300 text-sm">Avg. Open Rate</p>
+                        <p class="text-2xl font-bold text-white" id="avgOpenRate">28.5%</p>
+                    </div>
+                    <div class="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-envelope-open text-orange-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter and Search -->
+        <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 mb-8">
+            <div class="flex flex-col lg:flex-row gap-4 items-center justify-between">
+                <div class="flex gap-4 flex-1">
+                    <div class="relative flex-1 max-w-md">
+                        <input type="text" id="templateSearch" placeholder="Search templates..." class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <i class="fas fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                    </div>
+                    <select id="categoryFilter" class="bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Categories</option>
+                        <option value="newsletter">Newsletter</option>
+                        <option value="promotion">Promotion</option>
+                        <option value="announcement">Announcement</option>
+                        <option value="welcome">Welcome</option>
+                        <option value="product">Product</option>
+                    </select>
+                    <select id="statusFilter" class="bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="draft">Draft</option>
+                        <option value="archived">Archived</option>
+                    </select>
+                </div>
+                <div class="flex gap-2">
+                    <button id="gridViewBtn" class="p-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-th"></i>
+                    </button>
+                    <button id="listViewBtn" class="p-3 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-colors">
+                        <i class="fas fa-list"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Template Library Grid -->
+        <div id="templateGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Templates will be loaded here by JavaScript -->
+        </div>
+
+        <!-- Template Editor Modal -->
+        <div id="templateEditorModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden">
+            <div class="flex items-center justify-center min-h-screen p-4">
+                <div class="bg-slate-800 rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+                    <div class="p-6 border-b border-slate-700">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xl font-bold text-white">Template Editor</h3>
+                            <button id="closeEditorBtn" class="text-slate-400 hover:text-white">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+                        <div id="templateEditorContent">
+                            <!-- Editor content will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Sample template data
+    let templates = [
+        {
+            id: 1,
+            name: "Welcome Series",
+            category: "welcome",
+            status: "active",
+            thumbnail: "https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=300&h=200&fit=crop",
+            description: "Perfect for welcoming new subscribers",
+            usageCount: 45,
+            openRate: "32.1%",
+            clickRate: "8.7%"
+        },
+        {
+            id: 2,
+            name: "Product Launch",
+            category: "product",
+            status: "active",
+            thumbnail: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=300&h=200&fit=crop",
+            description: "Professional product announcement template",
+            usageCount: 23,
+            openRate: "28.9%",
+            clickRate: "12.3%"
+        },
+        {
+            id: 3,
+            name: "Weekly Newsletter",
+            category: "newsletter",
+            status: "active",
+            thumbnail: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=300&h=200&fit=crop",
+            description: "Clean and modern newsletter layout",
+            usageCount: 89,
+            openRate: "25.4%",
+            clickRate: "6.1%"
+        },
+        {
+            id: 4,
+            name: "Flash Sale",
+            category: "promotion",
+            status: "active",
+            thumbnail: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=300&h=200&fit=crop",
+            description: "Eye-catching promotional template",
+            usageCount: 67,
+            openRate: "35.8%",
+            clickRate: "15.2%"
+        },
+        {
+            id: 5,
+            name: "Company Update",
+            category: "announcement",
+            status: "draft",
+            thumbnail: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop",
+            description: "Professional announcement template",
+            usageCount: 12,
+            openRate: "29.3%",
+            clickRate: "7.8%"
+        },
+        {
+            id: 6,
+            name: "Holiday Special",
+            category: "promotion",
+            status: "active",
+            thumbnail: "https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=300&h=200&fit=crop",
+            description: "Festive promotional design",
+            usageCount: 34,
+            openRate: "41.2%",
+            clickRate: "18.9%"
+        },
+        {
+            id: 7,
+            name: "Event Invitation",
+            category: "announcement",
+            status: "active",
+            thumbnail: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=300&h=200&fit=crop",
+            description: "Elegant event invitation template",
+            usageCount: 28,
+            openRate: "38.7%",
+            clickRate: "22.1%"
+        },
+        {
+            id: 8,
+            name: "Thank You",
+            category: "welcome",
+            status: "active",
+            thumbnail: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=300&h=200&fit=crop",
+            description: "Gratitude and appreciation template",
+            usageCount: 56,
+            openRate: "44.6%",
+            clickRate: "11.4%"
+        }
+    ];
+
+    let filteredTemplates = [...templates];
+    let currentView = 'grid';
+
+    // Initialize
+    loadTemplates();
+
+    // Event listeners
+    document.getElementById('templateSearch').addEventListener('input', filterTemplates);
+    document.getElementById('categoryFilter').addEventListener('change', filterTemplates);
+    document.getElementById('statusFilter').addEventListener('change', filterTemplates);
+    document.getElementById('gridViewBtn').addEventListener('click', () => switchView('grid'));
+    document.getElementById('listViewBtn').addEventListener('click', () => switchView('list'));
+    document.getElementById('createTemplateBtn').addEventListener('click', openTemplateEditor);
+    document.getElementById('importTemplateBtn').addEventListener('click', importTemplate);
+    document.getElementById('closeEditorBtn').addEventListener('click', closeTemplateEditor);
+
+    function loadTemplates() {
+        const grid = document.getElementById('templateGrid');
+        grid.innerHTML = '';
+
+        filteredTemplates.forEach(template => {
+            const templateCard = createTemplateCard(template);
+            grid.appendChild(templateCard);
+        });
+    }
+
+    function createTemplateCard(template) {
+        const card = document.createElement('div');
+        card.className = 'bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 overflow-hidden hover:bg-white/15 transition-all duration-200 cursor-pointer';
+        
+        if (currentView === 'grid') {
+            card.innerHTML = `
+                <div class="aspect-video relative overflow-hidden">
+                    <img src="${template.thumbnail}" alt="${template.name}" class="w-full h-full object-cover">
+                    <div class="absolute top-3 right-3">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full ${
+                            template.status === 'active' ? 'bg-green-500/20 text-green-400' :
+                            template.status === 'draft' ? 'bg-yellow-500/20 text-yellow-400' :
+                            'bg-slate-500/20 text-slate-400'
+                        }">
+                            ${template.status}
+                        </span>
+                    </div>
+                    <div class="absolute bottom-3 left-3 right-3">
+                        <h3 class="text-white font-semibold text-lg mb-1">${template.name}</h3>
+                        <p class="text-slate-300 text-sm">${template.description}</p>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="px-3 py-1 text-xs font-medium bg-blue-500/20 text-blue-400 rounded-full">
+                            ${template.category}
+                        </span>
+                        <div class="flex gap-2">
+                            <button onclick="editTemplate(${template.id})" class="p-2 text-slate-400 hover:text-white transition-colors">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="duplicateTemplate(${template.id})" class="p-2 text-slate-400 hover:text-white transition-colors">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button onclick="deleteTemplate(${template.id})" class="p-2 text-slate-400 hover:text-red-400 transition-colors">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 text-center">
+                        <div>
+                            <p class="text-slate-400 text-xs">Used</p>
+                            <p class="text-white font-semibold">${template.usageCount}</p>
+                        </div>
+                        <div>
+                            <p class="text-slate-400 text-xs">Opens</p>
+                            <p class="text-white font-semibold">${template.openRate}</p>
+                        </div>
+                        <div>
+                            <p class="text-slate-400 text-xs">Clicks</p>
+                            <p class="text-white font-semibold">${template.clickRate}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else {
+            card.innerHTML = `
+                <div class="flex items-center p-4 gap-4">
+                    <img src="${template.thumbnail}" alt="${template.name}" class="w-16 h-16 object-cover rounded-lg">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-2">
+                            <h3 class="text-white font-semibold">${template.name}</h3>
+                            <span class="px-2 py-1 text-xs font-medium rounded-full ${
+                                template.status === 'active' ? 'bg-green-500/20 text-green-400' :
+                                template.status === 'draft' ? 'bg-yellow-500/20 text-yellow-400' :
+                                'bg-slate-500/20 text-slate-400'
+                            }">
+                                ${template.status}
+                            </span>
+                            <span class="px-2 py-1 text-xs font-medium bg-blue-500/20 text-blue-400 rounded-full">
+                                ${template.category}
+                            </span>
+                        </div>
+                        <p class="text-slate-300 text-sm mb-2">${template.description}</p>
+                        <div class="flex items-center gap-6 text-sm">
+                            <span class="text-slate-400">Used: <span class="text-white">${template.usageCount}</span></span>
+                            <span class="text-slate-400">Opens: <span class="text-white">${template.openRate}</span></span>
+                            <span class="text-slate-400">Clicks: <span class="text-white">${template.clickRate}</span></span>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="editTemplate(${template.id})" class="p-2 text-slate-400 hover:text-white transition-colors">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="duplicateTemplate(${template.id})" class="p-2 text-slate-400 hover:text-white transition-colors">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button onclick="deleteTemplate(${template.id})" class="p-2 text-slate-400 hover:text-red-400 transition-colors">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        return card;
+    }
+
+    function filterTemplates() {
+        const searchTerm = document.getElementById('templateSearch').value.toLowerCase();
+        const categoryFilter = document.getElementById('categoryFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+
+        filteredTemplates = templates.filter(template => {
+            const matchesSearch = template.name.toLowerCase().includes(searchTerm) ||
+                                template.description.toLowerCase().includes(searchTerm);
+            const matchesCategory = !categoryFilter || template.category === categoryFilter;
+            const matchesStatus = !statusFilter || template.status === statusFilter;
+
+            return matchesSearch && matchesCategory && matchesStatus;
+        });
+
+        loadTemplates();
+    }
+
+    function switchView(view) {
+        currentView = view;
+        
+        if (view === 'grid') {
+            document.getElementById('gridViewBtn').classList.add('bg-blue-600');
+            document.getElementById('gridViewBtn').classList.remove('bg-white/10');
+            document.getElementById('listViewBtn').classList.remove('bg-blue-600');
+            document.getElementById('listViewBtn').classList.add('bg-white/10');
+        } else {
+            document.getElementById('listViewBtn').classList.add('bg-blue-600');
+            document.getElementById('listViewBtn').classList.remove('bg-white/10');
+            document.getElementById('gridViewBtn').classList.remove('bg-blue-600');
+            document.getElementById('gridViewBtn').classList.add('bg-white/10');
+        }
+
+        loadTemplates();
+    }
+
+    function openTemplateEditor(templateId = null) {
+        const modal = document.getElementById('templateEditorModal');
+        const content = document.getElementById('templateEditorContent');
+        
+        if (templateId) {
+            const template = templates.find(t => t.id === templateId);
+            content.innerHTML = `
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-semibold text-white">Template Details</h4>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2">Template Name</label>
+                                <input type="text" value="${template.name}" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2">Category</label>
+                                <select class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="newsletter" ${template.category === 'newsletter' ? 'selected' : ''}>Newsletter</option>
+                                    <option value="promotion" ${template.category === 'promotion' ? 'selected' : ''}>Promotion</option>
+                                    <option value="announcement" ${template.category === 'announcement' ? 'selected' : ''}>Announcement</option>
+                                    <option value="welcome" ${template.category === 'welcome' ? 'selected' : ''}>Welcome</option>
+                                    <option value="product" ${template.category === 'product' ? 'selected' : ''}>Product</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2">Description</label>
+                                <textarea rows="3" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">${template.description}</textarea>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-semibold text-white">Template Preview</h4>
+                            <div class="bg-white rounded-lg p-4 aspect-video">
+                                <img src="${template.thumbnail}" alt="Preview" class="w-full h-full object-cover rounded">
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold text-white mb-4">Template Editor</h4>
+                        <div class="bg-white/5 rounded-xl p-4">
+                            <div class="flex gap-2 mb-4">
+                                <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Design</button>
+                                <button class="px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20">HTML</button>
+                                <button class="px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20">Variables</button>
+                            </div>
+                            <textarea rows="20" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Start designing your template..."><!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${template.name}</title>
+</head>
+<body style="margin: 0; padding: 20px; font-family: Arial, sans-serif; background-color: #f5f5f5;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        <header style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center;">
+            <h1 style="color: white; margin: 0; font-size: 28px; font-weight: bold;">${template.name}</h1>
+        </header>
+        <div style="padding: 40px 20px;">
+            <p style="color: #666; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">${template.description}</p>
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="#" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold;">Call to Action</a>
+            </div>
+        </div>
+        <footer style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #e9ecef;">
+            <p style="color: #6c757d; font-size: 14px; margin: 0;">© 2024 Your Company. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html></textarea>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 justify-end">
+                        <button onclick="closeTemplateEditor()" class="px-6 py-3 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-colors">Cancel</button>
+                        <button class="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all">Save Template</button>
+                    </div>
+                </div>
+            `;
+        } else {
+            content.innerHTML = `
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-semibold text-white">Create New Template</h4>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2">Template Name</label>
+                                <input type="text" placeholder="Enter template name" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2">Category</label>
+                                <select class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Select Category</option>
+                                    <option value="newsletter">Newsletter</option>
+                                    <option value="promotion">Promotion</option>
+                                    <option value="announcement">Announcement</option>
+                                    <option value="welcome">Welcome</option>
+                                    <option value="product">Product</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2">Description</label>
+                                <textarea rows="3" placeholder="Template description" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-semibold text-white">Start from Template</h4>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="bg-white/5 rounded-lg p-3 cursor-pointer hover:bg-white/10 transition-colors">
+                                    <img src="https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=100&h=60&fit=crop" alt="Blank" class="w-full h-12 object-cover rounded mb-2">
+                                    <p class="text-white text-sm">Blank Template</p>
+                                </div>
+                                <div class="bg-white/5 rounded-lg p-3 cursor-pointer hover:bg-white/10 transition-colors">
+                                    <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=100&h=60&fit=crop" alt="Newsletter" class="w-full h-12 object-cover rounded mb-2">
+                                    <p class="text-white text-sm">Newsletter</p>
+                                </div>
+                                <div class="bg-white/5 rounded-lg p-3 cursor-pointer hover:bg-white/10 transition-colors">
+                                    <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=100&h=60&fit=crop" alt="Promotion" class="w-full h-12 object-cover rounded mb-2">
+                                    <p class="text-white text-sm">Promotion</p>
+                                </div>
+                                <div class="bg-white/5 rounded-lg p-3 cursor-pointer hover:bg-white/10 transition-colors">
+                                    <img src="https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=100&h=60&fit=crop" alt="Event" class="w-full h-12 object-cover rounded mb-2">
+                                    <p class="text-white text-sm">Event</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 justify-end">
+                        <button onclick="closeTemplateEditor()" class="px-6 py-3 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-colors">Cancel</button>
+                        <button class="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all">Create Template</button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        modal.classList.remove('hidden');
+    }
+
+    function closeTemplateEditor() {
+        document.getElementById('templateEditorModal').classList.add('hidden');
+    }
+
+    function importTemplate() {
+        // Simulate file upload
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.html,.zip';
+        input.onchange = function(e) {
+            if (e.target.files[0]) {
+                showNotification('Template imported successfully!', 'success');
+            }
+        };
+        input.click();
+    }
+
+    // Global functions for template actions
+    window.editTemplate = function(id) {
+        openTemplateEditor(id);
+    };
+
+    window.duplicateTemplate = function(id) {
+        const template = templates.find(t => t.id === id);
+        const newTemplate = {
+            ...template,
+            id: Math.max(...templates.map(t => t.id)) + 1,
+            name: template.name + ' (Copy)',
+            usageCount: 0
+        };
+        templates.push(newTemplate);
+        loadTemplates();
+        showNotification('Template duplicated successfully!', 'success');
+    };
+
+    window.deleteTemplate = function(id) {
+        if (confirm('Are you sure you want to delete this template?')) {
+            templates = templates.filter(t => t.id !== id);
+            loadTemplates();
+            showNotification('Template deleted successfully!', 'success');
+        }
+    };
+
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 px-6 py-4 rounded-xl shadow-lg ${
+            type === 'success' ? 'bg-green-600' : 
+            type === 'error' ? 'bg-red-600' : 
+            'bg-blue-600'
+        } text-white`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+});
+</script>
+{% endblock %}

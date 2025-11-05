@@ -21,11 +21,6 @@ async def admin_login(request: Request):
     """Serve admin login page"""
     return templates.TemplateResponse("admin_login.html", {"request": request})
 
-@router.get("/admin/{section}/{page}", response_class=HTMLResponse)
-async def admin_section_page(request: Request, section: str, page: str):
-    """Serve admin section pages dynamically"""
-    return templates.TemplateResponse("admin_base.html", {"request": request})
-
 @router.get("/admin/dashboard", response_class=HTMLResponse)
 @router.get("/admin/dashboard/", response_class=HTMLResponse)
 async def admin_dashboard(request: Request):
@@ -37,6 +32,11 @@ async def admin_dashboard(request: Request):
 async def admin_contact(request: Request):
     """Serve admin contact management"""
     return templates.TemplateResponse("admin_contact.html", {"request": request})
+
+@router.get("/admin/{section}/{page}", response_class=HTMLResponse)
+async def admin_section_page(request: Request, section: str, page: str):
+    """Serve admin section pages dynamically"""
+    return templates.TemplateResponse("admin_base.html", {"request": request})
 
 # API endpoints for dynamic page loading
 @router.get("/templates/{template_name}")

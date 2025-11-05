@@ -10,6 +10,9 @@
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/bold/style.css">
 
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
     <!-- Admin Styles -->
     <style>
         :root {
@@ -783,9 +786,9 @@
 
                 <div class="page-content" id="pageContent">
                     <!-- Page content will be loaded here -->
-                    <div class="page-loading">
-                        <div class="loading-spinner"></div>
-                        <div class="loading-text">Loading dashboard...</div>
+                    <!-- Content will be loaded here -->
+                    <div class="flex items-center justify-center min-h-96">
+                        <p class="text-slate-500">Select a section from the sidebar to begin.</p>
                     </div>
                 </div>
             </div>
@@ -852,14 +855,12 @@
                 icon: "ph-newspaper",
                 children: {
                     posts: { label: "Posts", icon: "ph-article" },
-                    drafts: { label: "Drafts", icon: "ph-file-text" },
-                    scheduled: { label: "Scheduled", icon: "ph-calendar" },
-                    categories: { label: "Categories", icon: "ph-tag" },
-                    tags: { label: "Tags", icon: "ph-hash" },
                     comments: { label: "Comments", icon: "ph-chat" },
-                    media: { label: "Media Library", icon: "ph-images" },
-                    seo: { label: "SEO Settings", icon: "ph-search" },
-                    import_export: { label: "Import/Export", icon: "ph-arrow-left-right" }
+                    drafts: { label: "Drafts", icon: "ph-file" },
+                    scheduled: { label: "Scheduled", icon: "ph-clock" },
+                    categories: { label: "Categories", icon: "ph-tag" },
+                    tags: { label: "Tags", icon: "ph-hashtag" },
+                    media: { label: "Media", icon: "ph-images" }
                 }
             },
             newsletter: {
@@ -1015,11 +1016,10 @@
             async loadPage(section, page) {
                 const contentContainer = document.getElementById('pageContent');
 
-                // Show loading state
+                // Show loading placeholder
                 contentContainer.innerHTML = `
-                    <div class="page-loading">
-                        <div class="loading-spinner"></div>
-                        <div class="loading-text">Loading ${navigationConfig[section].children[page].label}...</div>
+                    <div class="flex items-center justify-center min-h-96">
+                        <p class="text-slate-500">${navigationConfig[section].children[page].label} content will be displayed here.</p>
                     </div>
                 `;
 
