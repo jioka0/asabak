@@ -160,6 +160,12 @@
                         <i class="ph-bold ph-eye text-base"></i>
                         1.3k Views
                     </span>
+                    <span class="flex items-center gap-2 like-section" data-post-id="1">
+                        <button onclick="toggleLike()" class="flex items-center gap-2 hover:text-red-500 transition-colors">
+                            <i class="ph-bold ph-heart text-base like-icon"></i>
+                            <span class="like-count">127</span> Likes
+                        </button>
+                    </span>
                     <span class="flex items-center gap-2">
                         <i class="ph-bold ph-share-network text-base"></i>
                         Share
@@ -468,10 +474,10 @@
                             <!-- Comment Form -->
                             <div class="mb-8">
                                 <div class="mb-4">
-                                    <textarea placeholder="Share your thoughts..." rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-vertical"></textarea>
+                                    <textarea placeholder="Share your thoughts..." rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-vertical comment-textarea"></textarea>
                                 </div>
                                 <div class="text-right">
-                                    <button class="inline-flex items-center gap-2 px-6 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors">
+                                    <button onclick="openCommentModal()" class="inline-flex items-center gap-2 px-6 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors">
                                         Post Comment
                                     </button>
                                 </div>
@@ -480,7 +486,7 @@
                             <!-- Comments List -->
                             <div class="space-y-6">
                                 <!-- Comment 1 -->
-                                <div class="flex gap-4">
+                                <div class="flex gap-4 comment-item" data-comment-id="1">
                                     <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face" alt="User" class="w-10 h-10 rounded-full flex-shrink-0">
                                     <div class="flex-1">
                                         <div class="flex items-center gap-2 mb-2">
@@ -488,12 +494,18 @@
                                             <span class="text-gray-500 text-sm">2 hours ago</span>
                                         </div>
                                         <p class="text-gray-700 mb-3">Great analysis! I was surprised to see some of these rankings.</p>
-                                        <button class="text-sm text-gray-600 hover:text-gray-900 transition-colors">Reply</button>
+                                        <div class="flex items-center gap-4">
+                                            <button onclick="toggleCommentLike(1)" class="flex items-center gap-1 text-sm text-gray-600 hover:text-red-500 transition-colors comment-like-btn">
+                                                <i class="ph-bold ph-heart text-xs"></i>
+                                                <span class="comment-like-count">12</span>
+                                            </button>
+                                            <button onclick="replyToComment(1)" class="text-sm text-gray-600 hover:text-gray-900 transition-colors">Reply</button>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <!-- Reply Comment -->
-                                <div class="flex gap-4 ml-12">
+                                <div class="flex gap-4 ml-12 comment-item" data-comment-id="2">
                                     <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face" alt="User" class="w-10 h-10 rounded-full flex-shrink-0">
                                     <div class="flex-1">
                                         <div class="flex items-center gap-2 mb-2">
@@ -501,6 +513,12 @@
                                             <span class="text-gray-500 text-sm">1 hour ago</span>
                                         </div>
                                         <p class="text-gray-700 mb-3">Agreed! The tech sector dominance is really interesting.</p>
+                                        <div class="flex items-center gap-4">
+                                            <button onclick="toggleCommentLike(2)" class="flex items-center gap-1 text-sm text-gray-600 hover:text-red-500 transition-colors comment-like-btn">
+                                                <i class="ph-bold ph-heart text-xs"></i>
+                                                <span class="comment-like-count">8</span>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -620,6 +638,89 @@
         </div>
     </footer>
 
+    <!-- Comment Modal -->
+    <div id="commentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-md w-full p-6">
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold">Join the Discussion</h3>
+                    <button onclick="closeCommentModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="ph-bold ph-x text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- Modal Content -->
+                <div id="modalContent">
+                    <!-- Step 1: Choice -->
+                    <div id="choiceStep">
+                        <p class="text-gray-600 mb-4">How would you like to comment?</p>
+                        <button onclick="showSubscribeForm()" class="w-full mb-2 px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                            <i class="ph-bold ph-envelope text-sm mr-2"></i>
+                            Subscribe & Comment
+                        </button>
+                        <button onclick="showAnonymousForm()" class="w-full px-4 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                            <i class="ph-bold ph-user text-sm mr-2"></i>
+                            Comment Anonymously
+                        </button>
+                    </div>
+
+                    <!-- Step 2: Subscribe Form -->
+                    <div id="subscribeForm" class="hidden">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Email Address *</label>
+                                <input type="email" id="subscribeEmail" placeholder="your@email.com" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Name *</label>
+                                <input type="text" id="subscribeName" placeholder="Your name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="newsletterSubscribe" class="mr-2">
+                                <label for="newsletterSubscribe" class="text-sm text-gray-600">Subscribe to newsletter for updates</label>
+                            </div>
+                            <button onclick="submitSubscribeComment()" class="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                                Subscribe & Post Comment
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Anonymous Form -->
+                    <div id="anonymousForm" class="hidden">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Display Name *</label>
+                                <input type="text" id="anonymousName" placeholder="Your name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            </div>
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                <p class="text-xs text-blue-800">
+                                    <i class="ph-bold ph-info text-sm mr-1"></i>
+                                    Comments are moderated. Anonymous comments may have limited features.
+                                </p>
+                            </div>
+                            <button onclick="submitAnonymousComment()" class="w-full px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                                Post Anonymous Comment
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div id="loadingState" class="hidden text-center py-4">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+                        <p class="text-sm text-gray-600 mt-2">Processing...</p>
+                    </div>
+
+                    <!-- Success State -->
+                    <div id="successState" class="hidden text-center py-4">
+                        <i class="ph-bold ph-check-circle text-2xl text-green-600 mb-2"></i>
+                        <p class="text-sm text-gray-600">Comment submitted successfully!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Mobile Bottom Toolbar -->
     <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 z-50">
         <div class="flex justify-around items-center">
@@ -632,7 +733,7 @@
                 <span class="text-xs">Share</span>
             </button>
             <button onclick="toggleLike()" class="flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 transition-colors">
-                <i class="ph-bold ph-heart text-lg"></i>
+                <i class="ph-bold ph-heart text-lg like-icon"></i>
                 <span class="text-xs">Like</span>
             </button>
         </div>
@@ -698,15 +799,286 @@
             alert('Quick comment feature coming soon!');
         }
 
-        // Mobile toolbar functions
+        // Like functionality
         function toggleLike() {
-            alert('Like feature coming soon!');
+            const likeSection = document.querySelector('.like-section');
+            const likeIcon = document.querySelector('.like-icon');
+            const likeCount = document.querySelector('.like-count');
+            const postId = likeSection.dataset.postId;
+
+            // Toggle liked state
+            const isLiked = likeIcon.classList.contains('text-red-500');
+            const newCount = isLiked ?
+                parseInt(likeCount.textContent) - 1 :
+                parseInt(likeCount.textContent) + 1;
+
+            // Update UI
+            if (isLiked) {
+                likeIcon.classList.remove('text-red-500', 'ph-fill');
+                likeIcon.classList.add('ph-bold');
+            } else {
+                likeIcon.classList.add('text-red-500', 'ph-fill');
+                likeIcon.classList.remove('ph-bold');
+            }
+
+            likeCount.textContent = newCount;
+
+            // Store in localStorage
+            const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '[]');
+            if (isLiked) {
+                const index = likedPosts.indexOf(postId);
+                if (index > -1) likedPosts.splice(index, 1);
+            } else {
+                likedPosts.push(postId);
+            }
+            localStorage.setItem('likedPosts', JSON.stringify(likedPosts));
+
+            // TODO: Send to backend API
+            console.log(`${isLiked ? 'Unliked' : 'Liked'} post ${postId}`);
         }
 
-        // Initialize all features
+        // Comment like functionality
+        function toggleCommentLike(commentId) {
+            const commentItem = document.querySelector(`[data-comment-id="${commentId}"]`);
+            const likeBtn = commentItem.querySelector('.comment-like-btn');
+            const likeIcon = likeBtn.querySelector('i');
+            const likeCount = commentItem.querySelector('.comment-like-count');
+
+            const isLiked = likeIcon.classList.contains('text-red-500');
+            const newCount = isLiked ?
+                parseInt(likeCount.textContent) - 1 :
+                parseInt(likeCount.textContent) + 1;
+
+            if (isLiked) {
+                likeIcon.classList.remove('text-red-500', 'ph-fill');
+                likeIcon.classList.add('ph-bold');
+            } else {
+                likeIcon.classList.add('text-red-500', 'ph-fill');
+                likeIcon.classList.remove('ph-bold');
+            }
+
+            likeCount.textContent = newCount;
+
+            // Store in localStorage
+            const likedComments = JSON.parse(localStorage.getItem('likedComments') || '[]');
+            if (isLiked) {
+                const index = likedComments.indexOf(commentId.toString());
+                if (index > -1) likedComments.splice(index, 1);
+            } else {
+                likedComments.push(commentId.toString());
+            }
+            localStorage.setItem('likedComments', JSON.stringify(likedComments));
+
+            console.log(`${isLiked ? 'Unliked' : 'Liked'} comment ${commentId}`);
+        }
+
+        // Comment modal functionality
+        function openCommentModal() {
+            const modal = document.getElementById('commentModal');
+            const textarea = document.querySelector('.comment-textarea');
+            const commentText = textarea.value.trim();
+
+            if (!commentText) {
+                alert('Please write a comment first.');
+                textarea.focus();
+                return;
+            }
+
+            // Store comment text for later use
+            localStorage.setItem('pendingComment', commentText);
+
+            modal.classList.remove('hidden');
+            showChoiceStep();
+        }
+
+        function closeCommentModal() {
+            const modal = document.getElementById('commentModal');
+            modal.classList.add('hidden');
+            resetModal();
+        }
+
+        function showChoiceStep() {
+            document.getElementById('choiceStep').classList.remove('hidden');
+            document.getElementById('subscribeForm').classList.add('hidden');
+            document.getElementById('anonymousForm').classList.add('hidden');
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('successState').classList.add('hidden');
+        }
+
+        function showSubscribeForm() {
+            document.getElementById('choiceStep').classList.add('hidden');
+            document.getElementById('subscribeForm').classList.remove('hidden');
+        }
+
+        function showAnonymousForm() {
+            document.getElementById('choiceStep').classList.add('hidden');
+            document.getElementById('anonymousForm').classList.remove('hidden');
+        }
+
+        function resetModal() {
+            showChoiceStep();
+            // Clear form fields
+            document.getElementById('subscribeEmail').value = '';
+            document.getElementById('subscribeName').value = '';
+            document.getElementById('anonymousName').value = '';
+            document.getElementById('newsletterSubscribe').checked = false;
+        }
+
+        // Device fingerprinting for anonymous users
+        function generateDeviceFingerprint() {
+            const fingerprint = {
+                userAgent: navigator.userAgent,
+                language: navigator.language,
+                platform: navigator.platform,
+                screenResolution: `${screen.width}x${screen.height}`,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                cookieEnabled: navigator.cookieEnabled,
+                timestamp: Date.now()
+            };
+
+            // Simple hash function
+            let hash = 0;
+            const str = JSON.stringify(fingerprint);
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32-bit integer
+            }
+
+            return Math.abs(hash).toString(36);
+        }
+
+        function submitSubscribeComment() {
+            const email = document.getElementById('subscribeEmail').value.trim();
+            const name = document.getElementById('subscribeName').value.trim();
+            const subscribeNewsletter = document.getElementById('newsletterSubscribe').checked;
+            const commentText = localStorage.getItem('pendingComment');
+
+            if (!email || !name) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+
+            if (!isValidEmail(email)) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('subscribeForm').classList.add('hidden');
+            document.getElementById('loadingState').classList.remove('hidden');
+
+            // Simulate API call
+            setTimeout(() => {
+                // TODO: Send to backend API
+                console.log('Submitting subscriber comment:', {
+                    email,
+                    name,
+                    commentText,
+                    subscribeNewsletter,
+                    type: 'subscriber'
+                });
+
+                // Store user data
+                const userData = { email, name, type: 'subscriber' };
+                localStorage.setItem('userData', JSON.stringify(userData));
+
+                // Show success
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('successState').classList.remove('hidden');
+
+                // Clear textarea and close modal after delay
+                setTimeout(() => {
+                    document.querySelector('.comment-textarea').value = '';
+                    localStorage.removeItem('pendingComment');
+                    closeCommentModal();
+                    // TODO: Refresh comments list
+                }, 2000);
+
+            }, 1500);
+        }
+
+        function submitAnonymousComment() {
+            const name = document.getElementById('anonymousName').value.trim();
+            const commentText = localStorage.getItem('pendingComment');
+
+            if (!name) {
+                alert('Please enter a display name.');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('anonymousForm').classList.add('hidden');
+            document.getElementById('loadingState').classList.remove('hidden');
+
+            // Generate device fingerprint
+            const fingerprint = generateDeviceFingerprint();
+
+            // Simulate API call
+            setTimeout(() => {
+                // TODO: Send to backend API
+                console.log('Submitting anonymous comment:', {
+                    name,
+                    commentText,
+                    fingerprint,
+                    type: 'anonymous'
+                });
+
+                // Store fingerprint and name association
+                const anonymousUsers = JSON.parse(localStorage.getItem('anonymousUsers') || '{}');
+                anonymousUsers[fingerprint] = name;
+                localStorage.setItem('anonymousUsers', JSON.stringify(anonymousUsers));
+
+                // Show success
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('successState').classList.remove('hidden');
+
+                // Clear textarea and close modal after delay
+                setTimeout(() => {
+                    document.querySelector('.comment-textarea').value = '';
+                    localStorage.removeItem('pendingComment');
+                    closeCommentModal();
+                    // TODO: Refresh comments list
+                }, 2000);
+
+            }, 1500);
+        }
+
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        function replyToComment(commentId) {
+            // TODO: Implement reply functionality
+            alert(`Reply to comment ${commentId} - Coming soon!`);
+        }
+
+        // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize scroll progress bar
             initScrollProgress();
+
+            // Load liked state from localStorage
+            const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '[]');
+            const likeSection = document.querySelector('.like-section');
+            if (likeSection && likedPosts.includes(likeSection.dataset.postId)) {
+                const likeIcon = document.querySelector('.like-icon');
+                likeIcon.classList.add('text-red-500', 'ph-fill');
+                likeIcon.classList.remove('ph-bold');
+            }
+
+            // Load liked comments from localStorage
+            const likedComments = JSON.parse(localStorage.getItem('likedComments') || '[]');
+            likedComments.forEach(commentId => {
+                const commentItem = document.querySelector(`[data-comment-id="${commentId}"]`);
+                if (commentItem) {
+                    const likeBtn = commentItem.querySelector('.comment-like-btn');
+                    const likeIcon = likeBtn.querySelector('i');
+                    likeIcon.classList.add('text-red-500', 'ph-fill');
+                    likeIcon.classList.remove('ph-bold');
+                }
+            });
         });
     </script>
 </body>
