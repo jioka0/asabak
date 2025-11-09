@@ -487,7 +487,9 @@
                             <div class="space-y-6">
                                 <!-- Comment 1 -->
                                 <div class="flex gap-4 comment-item" data-comment-id="1">
-                                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face" alt="User" class="w-10 h-10 rounded-full flex-shrink-0">
+                                    <div class="w-10 h-10 rounded-full flex-shrink-0 bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
+                                        J
+                                    </div>
                                     <div class="flex-1">
                                         <div class="flex items-center gap-2 mb-2">
                                             <span class="font-semibold text-gray-900">John Smith</span>
@@ -506,7 +508,9 @@
 
                                 <!-- Reply Comment -->
                                 <div class="flex gap-4 ml-12 comment-item" data-comment-id="2">
-                                    <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face" alt="User" class="w-10 h-10 rounded-full flex-shrink-0">
+                                    <div class="w-10 h-10 rounded-full flex-shrink-0 bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold text-sm">
+                                        S
+                                    </div>
                                     <div class="flex-1">
                                         <div class="flex items-center gap-2 mb-2">
                                             <span class="font-semibold text-gray-900">Sarah Johnson</span>
@@ -560,7 +564,7 @@
                         <!-- Follow Button -->
                         <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
                             <h4 class="text-sm font-semibold text-gray-900 mb-3">Follow NekwasaR</h4>
-                            <button class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors">
+                            <button onclick="openFollowModal()" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors">
                                 <i class="ph-bold ph-user-plus text-base"></i>
                                 Follow
                             </button>
@@ -639,9 +643,9 @@
     </footer>
 
     <!-- Comment Modal -->
-    <div id="commentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div id="commentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50" onclick="closeCommentModal()">
         <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg max-w-md w-full p-6">
+            <div class="bg-white rounded-lg max-w-md w-full p-6 relative" onclick="event.stopPropagation()">
                 <!-- Header -->
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-semibold">Join the Discussion</h3>
@@ -677,8 +681,8 @@
                                 <input type="text" id="subscribeName" placeholder="Your name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
                             </div>
                             <div class="flex items-center">
-                                <input type="checkbox" id="newsletterSubscribe" class="mr-2">
-                                <label for="newsletterSubscribe" class="text-sm text-gray-600">Subscribe to newsletter for updates</label>
+                                <input type="checkbox" id="newsletterSubscribe" class="mr-2 w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 focus:ring-2" required>
+                                <label for="newsletterSubscribe" class="text-sm text-gray-600 ml-2">Subscribe to newsletter for updates *</label>
                             </div>
                             <button onclick="submitSubscribeComment()" class="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
                                 Subscribe & Post Comment
@@ -715,6 +719,50 @@
                     <div id="successState" class="hidden text-center py-4">
                         <i class="ph-bold ph-check-circle text-2xl text-green-600 mb-2"></i>
                         <p class="text-sm text-gray-600">Comment submitted successfully!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Follow Modal -->
+    <div id="followModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50" onclick="closeFollowModal()">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-md w-full p-6 relative" onclick="event.stopPropagation()">
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-semibold text-gray-900">Follow NekwasaR</h3>
+                    <button onclick="closeFollowModal()" class="text-gray-400 hover:text-gray-600 p-1">
+                        <i class="ph-bold ph-x text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- Content -->
+                <div class="text-center mb-6">
+                    <p class="text-gray-600 mb-4">Choose your preferred platform to follow me and stay updated with my latest content.</p>
+
+                    <!-- Social Links -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <a href="https://www.reddit.com/user/nekwasar/" target="_blank" class="flex items-center justify-center gap-3 p-4 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-100 transition-colors">
+                            <i class="ph-bold ph-reddit-logo text-2xl text-orange-600"></i>
+                            <span class="text-sm font-medium text-gray-900">Reddit</span>
+                        </a>
+                        <a href="https://www.facebook.com/nekwasar" target="_blank" class="flex items-center justify-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
+                            <i class="ph-bold ph-facebook-logo text-2xl text-blue-600"></i>
+                            <span class="text-sm font-medium text-gray-900">Facebook</span>
+                        </a>
+                        <a href="https://www.instagram.com/nekwasar" target="_blank" class="flex items-center justify-center gap-3 p-4 bg-pink-50 border border-pink-200 rounded-lg hover:bg-pink-100 transition-colors">
+                            <i class="ph-bold ph-instagram-logo text-2xl text-pink-600"></i>
+                            <span class="text-sm font-medium text-gray-900">Instagram</span>
+                        </a>
+                        <a href="https://wa.me/2348164806578" target="_blank" class="flex items-center justify-center gap-3 p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors">
+                            <i class="ph-bold ph-whatsapp-logo text-2xl text-green-600"></i>
+                            <span class="text-sm font-medium text-gray-900">WhatsApp</span>
+                        </a>
+                        <a href="https://x.com/nekwasar" target="_blank" class="flex items-center justify-center gap-3 p-4 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors col-span-2">
+                            <i class="ph-bold ph-x-logo text-2xl text-gray-900"></i>
+                            <span class="text-sm font-medium text-gray-900">X (Twitter)</span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -796,7 +844,7 @@
 
         // Quick comment modal
         function openQuickComment() {
-            alert('Quick comment feature coming soon!');
+            scrollToComments();
         }
 
         // Like functionality
@@ -1053,6 +1101,26 @@
             // TODO: Implement reply functionality
             alert(`Reply to comment ${commentId} - Coming soon!`);
         }
+
+        // Follow modal functionality
+        function openFollowModal() {
+            const modal = document.getElementById('followModal');
+            modal.classList.remove('hidden');
+        }
+
+        function closeFollowModal() {
+            const modal = document.getElementById('followModal');
+            modal.classList.add('hidden');
+        }
+
+        // Add keyboard accessibility
+        document.addEventListener('keydown', function(event) {
+            // Close modals with Escape key
+            if (event.key === 'Escape') {
+                closeCommentModal();
+                closeFollowModal();
+            }
+        });
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
