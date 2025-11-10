@@ -9,6 +9,11 @@ from database import get_db
 from models.user import AdminUser
 from schemas import TokenData
 from core.config import settings
+import logging
+
+# Set up dedicated auth logging
+auth_logger = logging.getLogger('auth_flow')
+auth_logger.setLevel(logging.DEBUG)
 
 # Security configuration
 SECRET_KEY = settings.secret_key
@@ -40,15 +45,29 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
         expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    auth_logger.info(f"🔐 JWT CREATED - User: {data.get('sub')}, Expires: {expire}, Token length: {len(encoded_jwt)}")
     return encoded_jwt
 
 def authenticate_user(db: Session, username: str, password: str):
     """Authenticate user with username and password"""
+    auth_logger.info(f"🔍 AUTH ATTEMPT - Username: {username}, Time: {datetime.now()}")
     user = db.query(AdminUser).filter(AdminUser.username == username).first()
+    
     if not user:
+        auth_logger.warning(f"❌ AUTH FAILED - User not found: {username}")
         return False
+    
+    auth_logger.info(f"👤 USER FOUND - ID: {user.id}, Username: {user.username}, Active: {user.is_active}")
+    
     if not verify_password(password, user.hashed_password):
+        auth_logger.warning(f"❌ AUTH FAILED - Wrong password for: {username}")
         return False
+    
+    if not user.is_active:
+        auth_logger.warning(f"❌ AUTH FAILED - User inactive: {username}")
+        return False
+        
+    auth_logger.info(f"✅ AUTH SUCCESS - User authenticated: {username}")
     return user
 
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security), db: Session = Depends(get_db)):
@@ -59,17 +78,28 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
+        auth_logger.info(f"🔍 JWT DECODE ATTEMPT - Token: {credentials.credentials[:50]}...")
         payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
+        auth_logger.info(f"🔍 JWT DECODED - Username from token: {username}")
+        auth_logger.info(f"🔍 Token payload: {payload}")
+        
         if username is None:
+            auth_logger.warning(f"❌ JWT VALIDATION FAILED - No username in token")
             raise credentials_exception
         token_data = TokenData(username=username)
-    except JWTError:
+        auth_logger.info(f"🔑 TOKEN DATA CREATED - Username: {token_data.username}")
+    except JWTError as e:
+        auth_logger.error(f"❌ JWT DECODE ERROR - {e}")
+        auth_logger.error(f"❌ TOKEN INVALID - Error type: {type(e).__name__}")
         raise credentials_exception
 
     user = db.query(AdminUser).filter(AdminUser.username == token_data.username).first()
     if user is None:
+        auth_logger.error(f"❌ USER NOT FOUND - Username: {token_data.username}")
         raise credentials_exception
+    
+    auth_logger.info(f"✅ USER RETRIEVED - ID: {user.id}, Username: {user.username}, Active: {user.is_active}, Superuser: {user.is_superuser}")
     return user
 
 def get_current_active_user(current_user: AdminUser = Depends(get_current_user)):

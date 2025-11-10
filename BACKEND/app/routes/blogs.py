@@ -125,14 +125,68 @@ async def blog_media(request: Request):
     """Serve blog media library page"""
     logger.info(f"📚 BLOG MEDIA: Media page accessed - Method: {request.method}, URL: {request.url}")
     logger.info(f"📚 BLOG MEDIA: Request headers: {dict(request.headers)}")
-    logger.info(f"📚 BLOG MEDIA: Template path exists: {(templates_dir / 'admin_media_library.html').exists()}")
+    logger.info(f"📚 BLOG MEDIA: Template path exists: {(templates_dir / 'admin_blog_media.html').exists()}")
     
     try:
-        response = templates.TemplateResponse("admin_media_library.html", {"request": request})
+        response = templates.TemplateResponse("admin_blog_media.html", {"request": request})
         logger.info(f"📚 BLOG MEDIA: Template response created successfully")
         return response
     except Exception as e:
         logger.error(f"📚 BLOG MEDIA: Error creating template response: {type(e).__name__}: {str(e)}")
         import traceback
         logger.error(f"📚 BLOG MEDIA: Traceback: {traceback.format_exc()}")
+        raise
+
+@router.get("/blog/drafts", response_class=HTMLResponse)
+@router.get("/blog/drafts/", response_class=HTMLResponse)
+async def blog_drafts(request: Request):
+    """Serve blog drafts management page"""
+    logger.info(f"📝 BLOG DRAFTS: Drafts page accessed - Method: {request.method}, URL: {request.url}")
+    logger.info(f"📝 BLOG DRAFTS: Request headers: {dict(request.headers)}")
+    logger.info(f"📝 BLOG DRAFTS: Template path exists: {(templates_dir / 'admin_blog_drafts.html').exists()}")
+    
+    try:
+        response = templates.TemplateResponse("admin_blog_drafts.html", {"request": request})
+        logger.info(f"📝 BLOG DRAFTS: Template response created successfully")
+        return response
+    except Exception as e:
+        logger.error(f"📝 BLOG DRAFTS: Error creating template response: {type(e).__name__}: {str(e)}")
+        import traceback
+        logger.error(f"📝 BLOG DRAFTS: Traceback: {traceback.format_exc()}")
+        raise
+
+@router.get("/blog/categories", response_class=HTMLResponse)
+@router.get("/blog/categories/", response_class=HTMLResponse)
+async def blog_categories(request: Request):
+    """Serve blog categories management page"""
+    logger.info(f"🏷️ BLOG CATEGORIES: Categories page accessed - Method: {request.method}, URL: {request.url}")
+    logger.info(f"🏷️ BLOG CATEGORIES: Request headers: {dict(request.headers)}")
+    logger.info(f"🏷️ BLOG CATEGORIES: Template path exists: {(templates_dir / 'admin_blog_categories.html').exists()}")
+    
+    try:
+        response = templates.TemplateResponse("admin_blog_categories.html", {"request": request})
+        logger.info(f"🏷️ BLOG CATEGORIES: Template response created successfully")
+        return response
+    except Exception as e:
+        logger.error(f"🏷️ BLOG CATEGORIES: Error creating template response: {type(e).__name__}: {str(e)}")
+        import traceback
+        logger.error(f"🏷️ BLOG CATEGORIES: Traceback: {traceback.format_exc()}")
+        raise
+
+@router.get("/blog/tags", response_class=HTMLResponse)
+@router.get("/blog/tags/", response_class=HTMLResponse)
+async def blog_tags(request: Request):
+    """Serve blog tags management page"""
+    logger.info(f"🏷️ BLOG TAGS: Tags page accessed - Method: {request.method}, URL: {request.url}")
+    logger.info(f"🏷️ BLOG TAGS: Request headers: {dict(request.headers)}")
+    logger.info(f"🏷️ BLOG TAGS: Template path exists: {(templates_dir / 'admin_blog_tags.html').exists()}")
+    
+    try:
+        response = templates.TemplateResponse("admin_blog_tags.html", {"request": request})
+        logger.info(f"🏷️ BLOG TAGS: Template response created successfully")
+        return response
+    except Exception as e:
+        logger.error(f"🏷️ BLOG TAGS: Error creating template response: {type(e).__name__}: {str(e)}")
+        import traceback
+        logger.error(f"🏷️ BLOG TAGS: Traceback: {traceback.format_exc()}")
         raise

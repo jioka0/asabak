@@ -757,7 +757,7 @@
                     </div>
 
                     <div class="user-menu" id="userMenu">
-                        <div class="user-avatar">N</div>
+                        <div class="user-avatar">A</div>
                         <div class="user-info">
                             <div class="user-name">Admin User</div>
                             <div class="user-role">Administrator</div>
@@ -1015,6 +1015,8 @@
 
             async loadPage(section, page) {
                 const contentContainer = document.getElementById('pageContent');
+                
+                console.log(`🗓️ LOADING PAGE - Section: ${section}, Page: ${page}`);
 
                 // Show loading placeholder
                 contentContainer.innerHTML = `
@@ -1026,10 +1028,25 @@
                 try {
                     // Load page template
                     const templateName = `admin_${section}_${page}.html`;
-                    const response = await fetch(`/templates/${templateName}`);
+                    const token = localStorage.getItem('token');
+                    
+                    console.log(`📄 TEMPLATE REQUEST - Template: ${templateName}, Token available: ${!!token}`);
+                    console.log(`🔐 TEMPLATE REQUEST - Authorization header: ${token ? 'Bearer ' + token.substring(0, 20) + '...' : 'No token'}`);
+                    
+                    const response = await fetch(`/templates/${templateName}`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    console.log(`📡 TEMPLATE RESPONSE - Status: ${response.status}, OK: ${response.ok}`);
+                    console.log(`📡 TEMPLATE RESPONSE - Headers:`, [...response.headers.entries()]);
 
                     if (response.ok) {
                         const html = await response.text();
+                        console.log(`✅ TEMPLATE LOADED - Content length: ${html.length} characters`);
                         contentContainer.innerHTML = html;
 
                         // Update header and breadcrumb
@@ -1038,11 +1055,25 @@
 
                         // Initialize page-specific functionality
                         this.initPage(section, page);
+                        
+                        console.log(`🎉 PAGE LOADED SUCCESSFULLY - ${section}/${page}`);
+                    } else if (response.status === 401) {
+                        console.log(`❌ TEMPLATE REQUEST FAILED - 401 Unauthorized`);
+                        console.log(`❌ TOKEN EXPIRED OR INVALID - Clearing token and redirecting to login`);
+                        
+                        // Token expired or invalid
+                        localStorage.removeItem('token');
+                        window.location.href = '/admin/login';
+                        return;
                     } else {
+                        console.log(`❌ TEMPLATE LOAD ERROR - Status: ${response.status}`);
+                        console.log(`❌ ERROR BODY:`, await response.text());
                         throw new Error(`Template not found: ${templateName}`);
                     }
                 } catch (error) {
-                    console.error('Error loading page:', error);
+                    console.error('💥 PAGE LOAD ERROR:', error);
+                    console.error('💥 ERROR TYPE:', error.constructor.name);
+                    console.error('💥 ERROR MESSAGE:', error.message);
                     contentContainer.innerHTML = `
                         <div class="page-loading">
                             <div class="loading-text" style="color: var(--admin-error);">
@@ -1115,7 +1146,8 @@
 
                 // User menu
                 document.getElementById('userMenu').onclick = () => {
-                    // TODO: Implement user menu dropdown
+                    // Show logout option
+                    this.showUserMenu();
                 };
 
                 // Handle browser back/forward
@@ -1182,12 +1214,146 @@
                 // Load overview/home by default
                 this.loadPage('overview', 'home');
             }
+
+            showUserMenu() {
+                // Simple logout confirmation
+                if (confirm('Do you want to logout?')) {
+                    this.logout();
+                }
+            }
+
+            async logout() {
+                try {
+                    const token = localStorage.getItem('token');
+                    if (token) {
+                        await fetch('/admin/logout', {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                    }
+                } catch (error) {
+                    console.error('Logout error:', error);
+                } finally {
+                    // Clear local token and redirect
+                    localStorage.removeItem('token');
+                    window.location.href = '/admin';
+                }
+            }
         }
 
         // Initialize admin app when DOM is ready
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🚀 ADMIN BASE LOADED - Starting authentication check');
+            
+            // Check authentication status on page load
+            try {
+                const token = localStorage.getItem('token');
+                console.log('🔍 TOKEN CHECK - Token found:', !!token);
+                console.log('🔍 TOKEN PREVIEW - First 20 chars:', token ? token.substring(0, 20) + '...' : 'No token');
+                
+                if (!token) {
+                    console.log('❌ NO TOKEN FOUND - Redirecting to login');
+                    redirectToLogin();
+                    return;
+                }
+
+                console.log('🔐 SENDING AUTH CHECK REQUEST - URL: /admin/check-auth');
+                const response = await fetch('/admin/check-auth', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log('📡 AUTH CHECK RESPONSE - Status:', response.status, 'OK:', response.ok);
+                
+                if (!response.ok) {
+                    console.log('❌ AUTH CHECK FAILED - Status:', response.status, 'Redirecting to login');
+                    console.log('📋 Response headers:', [...response.headers.entries()]);
+                    
+                    // Try to get response text for debugging
+                    try {
+                        const errorText = await response.text();
+                        console.log('❌ Response body:', errorText);
+                    } catch (e) {
+                        console.log('❌ Could not read error response body');
+                    }
+                    
+                    localStorage.removeItem('token'); // Clear invalid token
+                    console.log('🗑️ Token cleared due to authentication failure');
+                    redirectToLogin();
+                    return;
+                }
+                
+                const authData = await response.json();
+                console.log('✅ AUTH CHECK SUCCESS - User authenticated:', authData.user.username);
+                console.log('👤 User data:', authData.user);
+                console.log('🔓 Authentication flow completed successfully');
+                
+                // Set up session timeout (2 hours)
+                setupSessionTimeout();
+                
+            } catch (error) {
+                console.error('💥 AUTH CHECK ERROR - Exception:', error);
+                console.error('💥 Error type:', error.constructor.name);
+                console.error('💥 Error message:', error.message);
+                
+                localStorage.removeItem('token'); // Clear invalid token
+                console.log('🗑️ Token cleared due to error');
+                redirectToLogin();
+                return;
+            }
+            
+            console.log('🎯 INITIALIZING ADMIN APP');
             window.adminApp = new AdminApp();
         });
+        
+        function redirectToLogin() {
+            // Show session expired message
+            alert('Session expired. Please login again.');
+            window.location.href = '/admin';
+        }
+        
+        function setupSessionTimeout() {
+            console.log('⏰ SETTING UP SESSION TIMEOUT - 2 hours');
+            
+            // Set timeout for 2 hours (7200000 ms)
+            const sessionTimeout = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
+            
+            setTimeout(() => {
+                console.log('⏰ SESSION TIMEOUT REACHED - Clearing session');
+                localStorage.removeItem('token');
+                alert('Your session has expired. Please login again.');
+                redirectToLogin();
+            }, sessionTimeout);
+            
+            // Also check for activity and refresh session if needed
+            let lastActivity = Date.now();
+            const activityThreshold = 30 * 60 * 1000; // 30 minutes
+            
+            const checkActivity = () => {
+                const now = Date.now();
+                if (now - lastActivity > activityThreshold) {
+                    console.log('🔄 REFRESHING SESSION - User activity detected');
+                    // Could implement session refresh here
+                    lastActivity = now;
+                }
+                setTimeout(checkActivity, 60000); // Check every minute
+            };
+            
+            // Track user activity
+            ['click', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+                document.addEventListener(event, () => {
+                    lastActivity = Date.now();
+                }, true);
+            });
+            
+            checkActivity();
+        }
 
         // Global utility functions
         function formatNumber(num) {

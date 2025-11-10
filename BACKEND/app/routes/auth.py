@@ -6,6 +6,11 @@ from database import get_db
 from auth import authenticate_user, create_access_token, get_current_active_user, get_current_superuser
 from models.user import AdminUser as DBAdminUser
 from schemas import AdminUserCreate, AdminUser as AdminUserSchema, Token, AdminLogin
+import logging
+
+# Set up dedicated auth route logging
+auth_route_logger = logging.getLogger('auth_routes')
+auth_route_logger.setLevel(logging.DEBUG)
 
 router = APIRouter()
 
@@ -44,17 +49,21 @@ async def register_admin(user: AdminUserCreate, db: Session = Depends(get_db)):
 @router.post("/login", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     """Login and get access token"""
+    auth_route_logger.info(f"🚀 LOGIN REQUEST - Username: {form_data.username}, Grant type: {form_data.grant_type}")
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
+        auth_route_logger.error(f"❌ LOGIN FAILED - Authentication failed for: {form_data.username}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token_expires = timedelta(minutes=30)
+    auth_route_logger.info(f"🔐 USER AUTHENTICATED - ID: {user.id}, Username: {user.username}")
+    access_token_expires = timedelta(minutes=120)  # 2 hours
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
+    auth_route_logger.info(f"✅ LOGIN SUCCESS - Token created for: {form_data.username}, Token length: {len(access_token)}")
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.get("/me", response_model=AdminUserSchema)

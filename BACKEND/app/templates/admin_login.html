@@ -81,7 +81,10 @@
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
+            console.log('🚀 LOGIN ATTEMPT - Username:', username, 'Password length:', password.length);
+
             try {
+                console.log('📡 SENDING LOGIN REQUEST - URL: /api/auth/login');
                 const response = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: {
@@ -93,15 +96,31 @@
                     })
                 });
 
+                console.log('📡 LOGIN RESPONSE - Status:', response.status, 'OK:', response.ok);
+                console.log('📡 LOGIN RESPONSE - Headers:', [...response.headers.entries()]);
+
                 if (response.ok) {
                     const data = await response.json();
+                    console.log('✅ LOGIN SUCCESS - Token received');
+                    console.log('🔐 TOKEN PREVIEW:', data.access_token.substring(0, 20) + '...');
+                    console.log('🔐 TOKEN LENGTH:', data.access_token.length);
+                    console.log('🔐 TOKEN TYPE:', data.token_type);
+                    
                     localStorage.setItem('token', data.access_token);
-                    window.location.href = '/admin/dashboard';
+                    console.log('💾 TOKEN STORED - Loading dashboard with JavaScript');
+                    
+                    // Load dashboard content with JavaScript instead of page redirect
+                    loadDashboardWithToken(data.access_token);
                 } else {
                     const error = await response.json();
+                    console.log('❌ LOGIN FAILED - Status:', response.status);
+                    console.log('❌ LOGIN ERROR DETAIL:', error.detail);
                     showError(error.detail || 'Login failed');
                 }
             } catch (error) {
+                console.error('💥 LOGIN EXCEPTION:', error);
+                console.error('💥 ERROR TYPE:', error.constructor.name);
+                console.error('💥 ERROR MESSAGE:', error.message);
                 showError('Network error. Please try again.');
             }
         });
@@ -112,6 +131,41 @@
             setTimeout(() => {
                 errorMessage.style.display = 'none';
             }, 5000);
+        }
+
+        async function loadDashboardWithToken(token) {
+            console.log('🖥️ LOADING DASHBOARD - Making JavaScript request with token');
+            
+            try {
+                // Get the dashboard template
+                const response = await fetch('/templates/admin_base.html', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                console.log('📡 DASHBOARD RESPONSE - Status:', response.status, 'OK:', response.ok);
+
+                if (response.ok) {
+                    const dashboardHTML = await response.text();
+                    
+                    // Replace the entire page content with the dashboard
+                    document.open();
+                    document.write(dashboardHTML);
+                    document.close();
+                    
+                    console.log('🎉 DASHBOARD LOADED SUCCESSFULLY');
+                } else {
+                    console.log('❌ DASHBOARD LOAD FAILED - Status:', response.status);
+                    throw new Error(`Dashboard load failed: ${response.status}`);
+                }
+            } catch (error) {
+                console.error('💥 DASHBOARD LOAD ERROR:', error);
+                console.error('💥 ERROR MESSAGE:', error.message);
+                showError('Failed to load dashboard. Please try again.');
+            }
         }
     </script>
 </body>

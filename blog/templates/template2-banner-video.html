@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" color-scheme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template 2: Banner Video + Text - NekwasaR Blog</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Dynamic blog post template featuring a hero video background with engaging content overlay. Perfect for showcasing processes, demonstrations, and immersive storytelling.">
+    <meta name="author" content="NekwasaR">
+    <meta name="keywords" content="blog template, banner video, dynamic design, video content, storytelling">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Dynamic Blog Template with Video Hero">
+    <meta property="og:description" content="An immersive blog template featuring a stunning video hero section with professional overlay content and interactive video controls.">
+    <meta property="og:image" content="https://nekwasar.com/blog-templates/images/template2-video-preview.jpg">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Dynamic Blog Template with Video Hero">
+    <meta name="twitter:description" content="An immersive blog template featuring a stunning video hero section with professional overlay content and interactive video controls.">
+    <meta name="twitter:image" content="https://nekwasar.com/blog-templates/images/template2-video-preview.jpg">
+    
+    <!-- Fonts - Portfolio Consistent -->
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400..800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/bold/style.css">
+    
+    <!-- Template Styles -->
+    <link rel="stylesheet" href="css/blog-templates.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="https://nekwasar.com/favicon.png" sizes="any">
+</head>
+<body>
+    <div class="blog-post template-banner-video">
+        <!-- Hero Banner Video -->
+        <div class="banner-video-hero">
+            <video id="heroVideo" autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1920&h=1080&fit=crop&crop=center">
+                <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+                <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.webm" type="video/webm">
+                Your browser does not support the video tag.
+            </video>
+            <div class="banner-video-overlay"></div>
+        </div>
+        
+        <!-- Video Controls -->
+        <div class="video-controls">
+            <button class="video-control-btn" id="playPauseBtn" title="Play/Pause">
+                <i class="ph-bold ph-pause"></i>
+            </button>
+            <button class="video-control-btn" id="muteBtn" title="Mute/Unmute">
+                <i class="ph-bold ph-speaker-simple-x"></i>
+            </button>
+            <button class="video-control-btn" id="fullscreenBtn" title="Fullscreen">
+                <i class="ph-bold ph-expand"></i>
+            </button>
+        </div>
+        
+        <!-- Banner Content -->
+        <div class="banner-content">
+            <div class="banner-meta">
+                <span>
+                    <i class="ph-bold ph-calendar"></i>
+                    November 6, 2025
+                </span>
+                <span>
+                    <i class="ph-bold ph-user"></i>
+                    NekwasaR
+                </span>
+                <span>
+                    <i class="ph-bold ph-clock"></i>
+                    12 min read
+                </span>
+            </div>
+            
+            <h1>Building the Future: A Journey Through Innovation</h1>
+            
+            <p style="font-size: 1.8rem; line-height: 1.6; margin-bottom: 3rem; opacity: 0.95;">
+                Watch as we explore the cutting-edge technologies and visionary thinking that are reshaping our world, one breakthrough at a time.
+            </p>
+            
+            <a href="#content" class="banner-cta">
+                <span>Start the Journey</span>
+                <i class="ph-bold ph-arrow-down"></i>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Main Content Section -->
+    <section class="content-section" id="content">
+        <div class="content-wrapper">
+            <!-- Video Introduction Section -->
+            <div class="blog-card" style="background: linear-gradient(135deg, var(--gradient-one), var(--gradient-two)); color: var(--t-opp-bright); border: none;">
+                <h2 style="color: var(--t-opp-bright);">The Power of Visual Storytelling</h2>
+                <p style="color: var(--t-opp-bright); opacity: 0.95; font-size: 1.8rem; line-height: 1.6;">
+                    Video content has revolutionized how we communicate complex ideas. In this article, we dive deep into the methodologies and thought processes that drive innovation in the digital age.
+                </p>
+                
+                <div style="margin: 3rem 0;">
+                    <video controls poster="https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&h=450&fit=crop&crop=center" 
+                           style="width: 100%; border-radius: var(--_radius-l); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);">
+                        <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+            
+            <!-- Table of Contents -->
+            <div class="toc">
+                <h3 class="toc-title">Chapter Overview</h3>
+                <ul class="toc-list">
+                    <li class="toc-item">
+                        <a href="#vision" class="toc-link">The Visionary's Perspective</a>
+                    </li>
+                    <li class="toc-item">
+                        <a href="#process" class="toc-link">Innovation in Action</a>
+                    </li>
+                    <li class="toc-item">
+                        <a href="#collaboration" class="toc-link level-2">Team Dynamics</a>
+                    </li>
+                    <li class="toc-item">
+                        <a href="#collaboration" class="toc-link level-2">Creative Process</a>
+                    </li>
+                    <li class="toc-item">
+                        <a href="#results" class="toc-link">Measuring Success</a>
+                    </li>
+                    <li class="toc-item">
+                        <a href="#next-steps" class="toc-link">The Next Chapter</a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Content Blocks -->
+            <div class="blog-content">
+                <h2 id="vision">The Visionary's Perspective</h2>
+                
+                <p>Innovation begins with vision—the ability to see beyond the present constraints and imagine what could be. In our fast-paced digital world, the most successful innovators are those who can combine technical expertise with creative thinking and a deep understanding of human needs.</p>
+                
+                <p>Through extensive research and countless conversations with industry leaders, we've identified the key characteristics that define the most impactful innovators of our time. These are individuals who don't just adapt to change—they drive it.</p>
+                
+                <div class="blog-card">
+                    <h3>What Sets Great Innovators Apart</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin: 2rem 0;">
+                        <div style="text-align: center;">
+                            <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--accent), var(--secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                                <i class="ph-bold ph-lightbulb" style="color: var(--t-opp-bright); font-size: 2rem;"></i>
+                            </div>
+                            <h4>Creative Thinking</h4>
+                            <p style="font-size: 1.4rem; color: var(--t-medium);">The ability to connect disparate ideas in novel ways</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--accent), var(--secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                                <i class="ph-bold ph-users" style="color: var(--t-opp-bright); font-size: 2rem;"></i>
+                            </div>
+                            <h4>Collaboration</h4>
+                            <p style="font-size: 1.4rem; color: var(--t-medium);">Building diverse teams that amplify each other's strengths</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--accent), var(--secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                                <i class="ph-bold ph-target" style="color: var(--t-opp-bright); font-size: 2rem;"></i>
+                            </div>
+                            <h4>Focus</h4>
+                            <p style="font-size: 1.4rem; color: var(--t-medium);">Maintaining clarity of purpose amid endless distractions</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <blockquote>
+                    "Innovation is not about having the best technology—it's about understanding people and solving their real problems in ways they've never imagined."
+                </blockquote>
+                
+                <h2 id="process">Innovation in Action</h2>
+                
+                <p>To truly understand innovation, we must observe it in practice. The following case study reveals the messy, iterative process behind what appears to be seamless breakthrough moments.</p>
+                
+                <h3>The Genesis of a Game-Changing Idea</h3>
+                <p>Every great innovation starts with a problem that matters. In our featured case study, a team of engineers noticed that despite advances in automation, manufacturing processes still relied heavily on manual quality control—a bottleneck that limited productivity and introduced human error.</p>
+                
+                <div style="margin: 3rem 0;">
+                    <div style="background: var(--base-tint); border: 1px solid var(--stroke-elements); border-radius: var(--_radius-xl); padding: 2rem;">
+                        <h4 style="color: var(--t-bright); margin-bottom: 1rem;">The Challenge</h4>
+                        <p style="margin-bottom: 1.5rem;">Traditional quality control in manufacturing:</p>
+                        <ul style="padding-left: 2rem; margin-bottom: 1.5rem;">
+                            <li>Limited to 2D inspection methods</li>
+                            <li>Time-consuming manual processes</li>
+                            <li>Inconsistent accuracy rates</li>
+                            <li>High cost of specialized equipment</li>
+                        </ul>
+                        <h4 style="color: var(--t-bright); margin-bottom: 1rem;">Our Approach</h4>
+                        <ul style="padding-left: 2rem;">
+                            <li>3D scanning technology integration</li>
+                            <li>Real-time AI analysis</li>
+                            <li>Automated quality reporting</li>
+                            <li>Scalable cloud infrastructure</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h3>Lessons from the Trenches</h3>
+                <p>The journey from concept to implementation rarely follows a straight line. Our research revealed several key insights about navigating the complex landscape of innovation:</p>
+                
+                <div class="blog-card">
+                    <div class="card-header">
+                        <span class="card-category">Expert Insight</span>
+                        <span class="card-date">Field Research</span>
+                    </div>
+                    <h3 class="card-title">The Paradox of Innovation</h3>
+                    <p class="card-excerpt">The most innovative companies understand that breakthrough ideas often come from embracing failure as a learning opportunity rather than avoiding it altogether.</p>
+                    <div class="card-footer">
+                        <div class="card-author">
+                            <i class="ph-bold ph-user-circle"></i>
+                            <span>Innovation Research Team</span>
+                        </div>
+                        <div class="card-stats">
+                            <span><i class="ph-bold ph-heart"></i> 189</span>
+                            <span><i class="ph-bold ph-chat-circle"></i> 24</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <h2 id="collaboration">The Human Element</h2>
+                
+                <h3>Building High-Performance Teams</h3>
+                <p>Innovation is fundamentally a team sport. The most successful innovations emerge from diverse groups of people who bring different perspectives, skills, and experiences to the table. But diversity alone is not enough—teams need the right structure, culture, and processes to harness that diversity effectively.</p>
+                
+                <p>Our analysis of high-performing innovation teams revealed several key characteristics:</p>
+                
+                <ul style="padding-left: 2rem; margin: 2rem 0; font-size: 1.6rem; line-height: 1.6;">
+                    <li style="margin-bottom: 1rem;"><strong>Psychological Safety:</strong> Team members feel comfortable taking risks and sharing unconventional ideas</li>
+                    <li style="margin-bottom: 1rem;"><strong>Clear Purpose:</strong> Everyone understands how their work contributes to the larger mission</li>
+                    <li style="margin-bottom: 1rem;"><strong>Rapid Iteration:</strong> Quick feedback loops that enable fast learning and adaptation</li>
+                    <li style="margin-bottom: 1rem;"><strong>Resource Flexibility:</strong> Ability to reallocate resources based on emerging opportunities</li>
+                </ul>
+                
+                <div style="margin: 3rem 0;">
+                    <video controls poster="https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=450&fit=crop&crop=center" 
+                           style="width: 100%; border-radius: var(--_radius-l); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);">
+                        <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <p style="text-align: center; margin-top: 1rem; font-size: 1.4rem; color: var(--t-muted);">
+                        <em>Behind the scenes: How innovation teams collaborate in practice</em>
+                    </p>
+                </div>
+                
+                <h2 id="results">Measuring Impact</h2>
+                
+                <p>The true test of innovation lies not in its cleverness, but in its impact. How do we measure whether our innovations are making a meaningful difference? The answer requires looking beyond traditional metrics to consider both quantitative and qualitative indicators of success.</p>
+                
+                <h3>Beyond the Numbers</h3>
+                <p>While ROI, efficiency gains, and market share are important, the most meaningful innovations also create positive externalities that ripple throughout society. These might include:</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin: 3rem 0;">
+                    <div class="blog-card">
+                        <h4>Social Impact</h4>
+                        <p>How the innovation improves lives and creates opportunities for underserved communities</p>
+                    </div>
+                    <div class="blog-card">
+                        <h4>Environmental Benefits</h4>
+                        <p>Contributions to sustainability and reducing environmental footprint</p>
+                    </div>
+                    <div class="blog-card">
+                        <h4>Knowledge Creation</h4>
+                        <p>New insights and capabilities that enable future innovations</p>
+                    </div>
+                </div>
+                
+                <h2 id="next-steps">Charting the Future</h2>
+                
+                <p>As we look to the future, several trends are emerging that will shape the next wave of innovation. Artificial intelligence, quantum computing, biotechnology, and sustainable technology are converging to create unprecedented opportunities for solving humanity's greatest challenges.</p>
+                
+                <p>But technology alone is not the answer. The innovations that will define the coming decades will be those that successfully blend technological capability with deep human understanding, creating solutions that are not just technically sophisticated, but also socially responsible and environmentally sustainable.</p>
+                
+                <div class="blog-card" style="background: linear-gradient(135deg, var(--gradient-one), var(--gradient-two)); color: var(--t-opp-bright); border: none; text-align: center;">
+                    <h3 style="color: var(--t-opp-bright); margin-bottom: 1.5rem;">The Journey Continues</h3>
+                    <p style="color: var(--t-opp-bright); opacity: 0.9; font-size: 1.6rem; margin-bottom: 2.5rem;">
+                        Innovation is not a destination—it's a continuous journey of discovery, experimentation, and growth. Join us as we explore the technologies and ideas that will shape our future.
+                    </p>
+                    <a href="#" class="banner-cta" style="background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.3);">
+                        <span>Explore More Innovations</span>
+                        <i class="ph-bold ph-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Social Share -->
+    <div class="social-share">
+        <a href="#" class="social-share-btn" title="Share on Twitter">
+            <i class="ph-bold ph-twitter-logo"></i>
+        </a>
+        <a href="#" class="social-share-btn" title="Share on LinkedIn">
+            <i class="ph-bold ph-linkedin-logo"></i>
+        </a>
+        <a href="#" class="social-share-btn" title="Share on Facebook">
+            <i class="ph-bold ph-facebook-logo"></i>
+        </a>
+        <a href="#" class="social-share-btn" title="Copy Link">
+            <i class="ph-bold ph-link"></i>
+        </a>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="js/blog-templates.js"></script>
+    <script>
+        // Video Controls Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const video = document.getElementById('heroVideo');
+            const playPauseBtn = document.getElementById('playPauseBtn');
+            const muteBtn = document.getElementById('muteBtn');
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
+            
+            // Play/Pause toggle
+            playPauseBtn.addEventListener('click', function() {
+                if (video.paused) {
+                    video.play();
+                    playPauseBtn.innerHTML = '<i class="ph-bold ph-pause"></i>';
+                } else {
+                    video.pause();
+                    playPauseBtn.innerHTML = '<i class="ph-bold ph-play"></i>';
+                }
+            });
+            
+            // Mute/Unmute toggle
+            muteBtn.addEventListener('click', function() {
+                if (video.muted) {
+                    video.muted = false;
+                    muteBtn.innerHTML = '<i class="ph-bold ph-speaker-simple-high"></i>';
+                } else {
+                    video.muted = true;
+                    muteBtn.innerHTML = '<i class="ph-bold ph-speaker-simple-x"></i>';
+                }
+            });
+            
+            // Fullscreen toggle
+            fullscreenBtn.addEventListener('click', function() {
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                } else {
+                    video.requestFullscreen();
+                }
+            });
+            
+            // Update button states based on video state
+            video.addEventListener('play', function() {
+                playPauseBtn.innerHTML = '<i class="ph-bold ph-pause"></i>';
+            });
+            
+            video.addEventListener('pause', function() {
+                playPauseBtn.innerHTML = '<i class="ph-bold ph-play"></i>';
+            });
+            
+            video.addEventListener('volumechange', function() {
+                if (video.muted) {
+                    muteBtn.innerHTML = '<i class="ph-bold ph-speaker-simple-x"></i>';
+                } else {
+                    muteBtn.innerHTML = '<i class="ph-bold ph-speaker-simple-high"></i>';
+                }
+            });
+        });
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

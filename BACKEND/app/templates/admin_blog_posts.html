@@ -55,506 +55,954 @@ tailwind.config = {
 }
 </script>
 
-<div class="min-h-screen bg-gradient-to-br from-gradient-one via-base to-gradient-two dark:from-base dark:via-base-tint dark:to-base-shade transition-all duration-medium overflow-hidden">
-    <!-- Windows Explorer Style Layout -->
-    <div class="flex flex-col h-screen">
-        <!-- Title Bar -->
-        <div class="bg-gradient-to-r from-accent via-secondary to-t-accent text-t-opp-bright px-6 py-3 shadow-lg">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <i class="ph-bold ph-article text-xl"></i>
-                    <h1 class="text-xl font-bold font-syne">Blog Posts</h1>
+<!-- Retro Blog Posts Explorer - Windows File Explorer with Retro CRT Style -->
+<div class="retro-posts-container">
+    <!-- Retro CRT Header -->
+    <div class="retro-header">
+        <div class="retro-title-bar">
+            <div class="retro-title-left">
+                <div class="retro-title-icon">📁</div>
+                <h2 class="retro-title">BLOG POSTS EXPLORER v2.1</h2>
+            </div>
+            <div class="retro-title-right">
+                <button class="retro-window-btn retro-minimize" onclick="minimizeWindow()" title="Minimize">
+                    <span>_</span>
+                </button>
+                <button class="retro-window-btn retro-maximize" onclick="maximizeWindow()" title="Maximize">
+                    <span>□</span>
+                </button>
+                <button class="retro-window-btn retro-close" onclick="closeWindow()" title="Close">
+                    <span>×</span>
+                </button>
+            </div>
+        </div>
+        <div class="retro-menu-bar">
+            <div class="retro-menu-item active">FILE</div>
+            <div class="retro-menu-item">EDIT</div>
+            <div class="retro-menu-item">VIEW</div>
+            <div class="retro-menu-item">TOOLS</div>
+            <div class="retro-menu-item">HELP</div>
+        </div>
+    </div>
+
+    <!-- Retro Toolbar -->
+    <div class="retro-toolbar">
+        <div class="retro-toolbar-section">
+            <button class="retro-toolbar-btn" onclick="newPost()">NEW POST</button>
+            <button class="retro-toolbar-btn" onclick="openPost()">OPEN</button>
+            <button class="retro-toolbar-btn" onclick="deleteSelected()">DELETE</button>
+        </div>
+        <div class="retro-toolbar-separator"></div>
+        <div class="retro-toolbar-section">
+            <button class="retro-toolbar-btn" onclick="cutItems()">CUT</button>
+            <button class="retro-toolbar-btn" onclick="copyItems()">COPY</button>
+            <button class="retro-toolbar-btn" onclick="pasteItems()">PASTE</button>
+        </div>
+        <div class="retro-toolbar-separator"></div>
+        <div class="retro-toolbar-section">
+            <button class="retro-toolbar-btn" onclick="refreshView()">REFRESH</button>
+            <button class="retro-toolbar-btn" onclick="showProperties()">PROPERTIES</button>
+        </div>
+    </div>
+
+    <!-- Retro Navigation Bar -->
+    <div class="retro-nav-bar">
+        <div class="retro-nav-controls">
+            <button class="retro-nav-btn" onclick="goBack()" title="Back">◀</button>
+            <button class="retro-nav-btn" onclick="goForward()" title="Forward">▶</button>
+            <button class="retro-nav-btn" onclick="goUp()" title="Up">↑</button>
+            <div class="retro-nav-separator"></div>
+            <div class="retro-path-bar">
+                <span class="retro-path-text">BLOG POSTS</span>
+                <span class="retro-path-separator">\\</span>
+                <span class="retro-path-text">ALL POSTS</span>
+            </div>
+        </div>
+        <div class="retro-nav-controls">
+            <input type="text" class="retro-search-input" placeholder="SEARCH POSTS..." id="searchInput">
+            <div class="retro-view-controls">
+                <button class="retro-view-btn" onclick="setViewMode('large-icons')" title="Large Icons">L</button>
+                <button class="retro-view-btn" onclick="setViewMode('medium-icons')" title="Medium Icons">M</button>
+                <button class="retro-view-btn active" onclick="setViewMode('list')" title="List">S</button>
+                <button class="retro-view-btn" onclick="setViewMode('details')" title="Details">D</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Retro Interface -->
+    <div class="retro-main-panel">
+        <!-- Left Sidebar - Quick Actions -->
+        <div class="retro-sidebar">
+            <div class="retro-panel-title">FOLDERS</div>
+            <div class="retro-tree-view">
+                <!-- All Posts -->
+                <div class="retro-tree-item active" data-folder="all">
+                    <div class="retro-tree-content">
+                        <i class="retro-tree-icon">📄</i>
+                        <span class="retro-tree-text">ALL POSTS</span>
+                        <span class="retro-tree-count" id="allPostsCount">24</span>
+                    </div>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <button class="w-8 h-8 bg-t-opp-bright/20 hover:bg-t-opp-bright/30 rounded flex items-center justify-center transition-all duration-medium" onclick="minimizeWindow()">
-                        <i class="ph-bold ph-minus text-sm"></i>
-                    </button>
-                    <button class="w-8 h-8 bg-t-opp-bright/20 hover:bg-t-opp-bright/30 rounded flex items-center justify-center transition-all duration-medium" onclick="maximizeWindow()">
-                        <i class="ph-bold ph-square text-sm"></i>
-                    </button>
-                    <button class="w-8 h-8 bg-red-500/80 hover:bg-red-600/80 rounded flex items-center justify-center transition-all duration-medium" onclick="closeWindow()">
-                        <i class="ph-bold ph-x text-sm"></i>
-                    </button>
+
+                <!-- Categories -->
+                <div class="retro-tree-item" onclick="toggleTreeItem(this)">
+                    <div class="retro-tree-content">
+                        <i class="retro-tree-icon">📂</i>
+                        <span class="retro-tree-text">CATEGORIES</span>
+                        <i class="retro-tree-arrow">▶</i>
+                    </div>
+                    <div class="retro-tree-children hidden" id="categoriesTree">
+                        <!-- Categories will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Tags -->
+                <div class="retro-tree-item" onclick="toggleTreeItem(this)">
+                    <div class="retro-tree-content">
+                        <i class="retro-tree-icon">🏷️</i>
+                        <span class="retro-tree-text">TAGS</span>
+                        <i class="retro-tree-arrow">▶</i>
+                    </div>
+                    <div class="retro-tree-children hidden" id="tagsTree">
+                        <!-- Tags will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Status -->
+                <div class="retro-tree-item" onclick="toggleTreeItem(this)">
+                    <div class="retro-tree-content">
+                        <i class="retro-tree-icon">⚙️</i>
+                        <span class="retro-tree-text">STATUS</span>
+                        <i class="retro-tree-arrow">▶</i>
+                    </div>
+                    <div class="retro-tree-children" id="statusTree">
+                        <div class="retro-tree-item" data-filter="status-published">
+                            <div class="retro-tree-content">
+                                <i class="retro-tree-icon">✅</i>
+                                <span class="retro-tree-text">PUBLISHED</span>
+                                <span class="retro-tree-count" id="publishedCount">18</span>
+                            </div>
+                        </div>
+                        <div class="retro-tree-item" data-filter="status-draft">
+                            <div class="retro-tree-content">
+                                <i class="retro-tree-icon">📝</i>
+                                <span class="retro-tree-text">DRAFT</span>
+                                <span class="retro-tree-count" id="draftCount">4</span>
+                            </div>
+                        </div>
+                        <div class="retro-tree-item" data-filter="status-scheduled">
+                            <div class="retro-tree-content">
+                                <i class="retro-tree-icon">⏰</i>
+                                <span class="retro-tree-text">SCHEDULED</span>
+                                <span class="retro-tree-count" id="scheduledCount">2</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar Footer -->
+            <div class="retro-sidebar-footer">
+                <div class="retro-stats-item">
+                    <span class="retro-stats-label">TOTAL POSTS:</span>
+                    <span class="retro-stats-value" id="totalPostsCount">24</span>
+                </div>
+                <div class="retro-stats-item">
+                    <span class="retro-stats-label">SELECTED:</span>
+                    <span class="retro-stats-value" id="selectedCount">0</span>
                 </div>
             </div>
         </div>
 
-        <!-- Menu Bar -->
-        <div class="bg-base-tint dark:bg-base-shade border-b border-stroke-elements px-6 py-2">
-            <div class="flex items-center space-x-6">
-                <div class="flex items-center space-x-4">
-                    <button class="px-3 py-1 text-t-bright hover:bg-accent/20 rounded text-sm font-syne transition-all duration-medium" onclick="newPost()">New</button>
-                    <button class="px-3 py-1 text-t-bright hover:bg-accent/20 rounded text-sm font-syne transition-all duration-medium" onclick="openPost()">Open</button>
-                    <button class="px-3 py-1 text-t-bright hover:bg-accent/20 rounded text-sm font-syne transition-all duration-medium" onclick="deleteSelected()">Delete</button>
+        <!-- Right Panel - Posts List -->
+        <div class="retro-content-panel">
+            <!-- Status Bar -->
+            <div class="retro-status-bar">
+                <div class="retro-status-left">
+                    <span id="itemsCount">24 items</span>
+                    <span id="selectedItemsInfo">0 selected</span>
                 </div>
-                <div class="h-4 w-px bg-stroke-elements"></div>
-                <div class="flex items-center space-x-4">
-                    <button class="px-3 py-1 text-t-bright hover:bg-accent/20 rounded text-sm font-syne transition-all duration-medium" onclick="cutItems()">Cut</button>
-                    <button class="px-3 py-1 text-t-bright hover:bg-accent/20 rounded text-sm font-syne transition-all duration-medium" onclick="copyItems()">Copy</button>
-                    <button class="px-3 py-1 text-t-bright hover:bg-accent/20 rounded text-sm font-syne transition-all duration-medium" onclick="pasteItems()">Paste</button>
-                </div>
-                <div class="h-4 w-px bg-stroke-elements"></div>
-                <div class="flex items-center space-x-4">
-                    <button class="px-3 py-1 text-t-bright hover:bg-accent/20 rounded text-sm font-syne transition-all duration-medium" onclick="refreshView()">Refresh</button>
-                    <button class="px-3 py-1 text-t-bright hover:bg-accent/20 rounded text-sm font-syne transition-all duration-medium" onclick="showProperties()">Properties</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Toolbar -->
-        <div class="bg-base dark:bg-base-tint border-b border-stroke-elements px-6 py-3">
-            <div class="flex items-center justify-between">
-                <!-- Navigation -->
-                <div class="flex items-center space-x-2">
-                    <button class="w-8 h-8 bg-base-tint dark:bg-base-shade hover:bg-base-shade dark:hover:bg-base border border-stroke-elements rounded flex items-center justify-center transition-all duration-medium" onclick="goBack()" title="Back">
-                        <i class="ph-bold ph-caret-left"></i>
-                    </button>
-                    <button class="w-8 h-8 bg-base-tint dark:bg-base-shade hover:bg-base-shade dark:hover:bg-base border border-stroke-elements rounded flex items-center justify-center transition-all duration-medium" onclick="goForward()" title="Forward">
-                        <i class="ph-bold ph-caret-right"></i>
-                    </button>
-                    <button class="w-8 h-8 bg-base-tint dark:bg-base-shade hover:bg-base-shade dark:hover:bg-base border border-stroke-elements rounded flex items-center justify-center transition-all duration-medium" onclick="goUp()" title="Up">
-                        <i class="ph-bold ph-arrow-up"></i>
-                    </button>
-                    <div class="h-6 w-px bg-stroke-elements mx-2"></div>
-                    <div class="flex items-center space-x-1 text-sm text-t-medium font-syne" id="breadcrumb">
-                        <span>Blog Posts</span>
-                        <i class="ph-bold ph-caret-right text-xs"></i>
-                        <span class="text-t-bright">All Posts</span>
-                    </div>
-                </div>
-
-                <!-- Search and View Controls -->
-                <div class="flex items-center space-x-4">
-                    <!-- Search -->
-                    <div class="relative">
-                        <input type="text" class="pl-8 pr-4 py-2 bg-base dark:bg-base-tint border border-stroke-elements rounded-lg focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-medium text-t-bright text-sm w-64" placeholder="Search posts..." id="searchInput">
-                        <i class="ph-bold ph-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-t-muted"></i>
-                    </div>
-
-                    <!-- View Mode Toggle -->
-                    <div class="flex items-center bg-base-tint dark:bg-base-shade border border-stroke-elements rounded-lg p-1">
-                        <button class="w-8 h-8 rounded text-t-medium hover:text-t-bright hover:bg-accent/20 transition-all duration-medium" onclick="setViewMode('large-icons')" title="Large Icons" id="viewLargeIcons">
-                            <i class="ph-bold ph-squares-four text-sm"></i>
-                        </button>
-                        <button class="w-8 h-8 rounded text-t-medium hover:text-t-bright hover:bg-accent/20 transition-all duration-medium" onclick="setViewMode('medium-icons')" title="Medium Icons" id="viewMediumIcons">
-                            <i class="ph-bold ph-grid-four text-sm"></i>
-                        </button>
-                        <button class="w-8 h-8 rounded text-t-bright bg-accent/20 transition-all duration-medium" onclick="setViewMode('list')" title="List" id="viewList">
-                            <i class="ph-bold ph-list text-sm"></i>
-                        </button>
-                        <button class="w-8 h-8 rounded text-t-medium hover:text-t-bright hover:bg-accent/20 transition-all duration-medium" onclick="setViewMode('details')" title="Details" id="viewDetails">
-                            <i class="ph-bold ph-table text-sm"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Main Content Area -->
-        <div class="flex flex-1 overflow-hidden">
-            <!-- Left Sidebar (Folders/Tree) -->
-            <div class="w-64 bg-base-tint dark:bg-base-shade border-r border-stroke-elements flex flex-col">
-                <!-- Sidebar Header -->
-                <div class="p-4 border-b border-stroke-elements">
-                    <h3 class="text-sm font-bold text-t-bright font-syne mb-2">Folders</h3>
-                </div>
-
-                <!-- Tree View -->
-                <div class="flex-1 overflow-y-auto">
-                    <div class="tree-view">
-                        <!-- All Posts -->
-                        <div class="tree-item active" data-folder="all">
-                            <div class="tree-item-content">
-                                <i class="ph-bold ph-article text-t-accent"></i>
-                                <span class="text-sm text-t-bright font-syne">All Posts</span>
-                                <span class="text-xs text-t-muted ml-auto" id="allPostsCount">0</span>
-                            </div>
-                        </div>
-
-                        <!-- Categories -->
-                        <div class="tree-item" onclick="toggleTreeItem(this)">
-                            <div class="tree-item-content">
-                                <i class="ph-bold ph-folder text-t-accent"></i>
-                                <span class="text-sm text-t-bright font-syne">Categories</span>
-                                <i class="ph-bold ph-caret-right text-xs text-t-muted ml-auto tree-arrow"></i>
-                            </div>
-                            <div class="tree-children hidden" id="categoriesTree">
-                                <!-- Categories will be populated here -->
-                            </div>
-                        </div>
-
-                        <!-- Tags -->
-                        <div class="tree-item" onclick="toggleTreeItem(this)">
-                            <div class="tree-item-content">
-                                <i class="ph-bold ph-tag text-t-accent"></i>
-                                <span class="text-sm text-t-bright font-syne">Tags</span>
-                                <i class="ph-bold ph-caret-right text-xs text-t-muted ml-auto tree-arrow"></i>
-                            </div>
-                            <div class="tree-children hidden" id="tagsTree">
-                                <!-- Tags will be populated here -->
-                            </div>
-                        </div>
-
-                        <!-- Status -->
-                        <div class="tree-item" onclick="toggleTreeItem(this)">
-                            <div class="tree-item-content">
-                                <i class="ph-bold ph-check-circle text-t-accent"></i>
-                                <span class="text-sm text-t-bright font-syne">Status</span>
-                                <i class="ph-bold ph-caret-right text-xs text-t-muted ml-auto tree-arrow"></i>
-                            </div>
-                            <div class="tree-children hidden" id="statusTree">
-                                <div class="tree-item" data-filter="status-published">
-                                    <div class="tree-item-content">
-                                        <i class="ph-bold ph-check text-green-500"></i>
-                                        <span class="text-sm text-t-bright font-syne">Published</span>
-                                        <span class="text-xs text-t-muted ml-auto" id="publishedCount">0</span>
-                                    </div>
-                                </div>
-                                <div class="tree-item" data-filter="status-draft">
-                                    <div class="tree-item-content">
-                                        <i class="ph-bold ph-file-text text-yellow-500"></i>
-                                        <span class="text-sm text-t-bright font-syne">Draft</span>
-                                        <span class="text-xs text-t-muted ml-auto" id="draftCount">0</span>
-                                    </div>
-                                </div>
-                                <div class="tree-item" data-filter="status-scheduled">
-                                    <div class="tree-item-content">
-                                        <i class="ph-bold ph-clock text-blue-500"></i>
-                                        <span class="text-sm text-t-bright font-syne">Scheduled</span>
-                                        <span class="text-xs text-t-muted ml-auto" id="scheduledCount">0</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sidebar Footer -->
-                <div class="p-4 border-t border-stroke-elements">
-                    <div class="text-xs text-t-muted font-syne">
-                        <div class="flex justify-between">
-                            <span>Total Posts:</span>
-                            <span id="totalPostsCount">0</span>
-                        </div>
-                        <div class="flex justify-between mt-1">
-                            <span>Selected:</span>
-                            <span id="selectedCount">0</span>
-                        </div>
-                    </div>
+                <div class="retro-status-right">
+                    <span id="sortInfo">SORTED BY NAME</span>
+                    <span id="viewInfo">LIST VIEW</span>
                 </div>
             </div>
 
-            <!-- Main Content Area -->
-            <div class="flex-1 flex flex-col">
-                <!-- Status Bar -->
-                <div class="bg-base-tint dark:bg-base-shade border-b border-stroke-elements px-4 py-2">
-                    <div class="flex items-center justify-between text-sm text-t-medium font-syne">
-                        <div class="flex items-center space-x-4">
-                            <span id="itemsCount">0 items</span>
-                            <span id="selectedItemsInfo">0 selected</span>
-                        </div>
-                        <div class="flex items-center space-x-4">
-                            <span id="sortInfo">Sorted by Name</span>
-                            <span id="viewInfo">List view</span>
-                        </div>
+            <!-- Posts List -->
+            <div class="retro-posts-list">
+                <!-- Header -->
+                <div class="retro-list-header">
+                    <div class="retro-col-select">
+                        <input type="checkbox" class="retro-checkbox" id="selectAll">
+                        <label for="selectAll" class="retro-checkbox-label"></label>
                     </div>
+                    <div class="retro-col-title">NAME</div>
+                    <div class="retro-col-status">STATUS</div>
+                    <div class="retro-col-modified">MODIFIED</div>
+                    <div class="retro-col-size">SIZE</div>
                 </div>
 
-                <!-- Content View -->
-                <div class="flex-1 overflow-hidden">
-                    <!-- List View -->
-                    <div class="view-mode list-view h-full overflow-y-auto" id="listView">
-                        <div class="p-4">
-                            <!-- Column Headers -->
-                            <div class="grid grid-cols-12 gap-4 px-4 py-2 bg-base-tint/50 dark:bg-base-shade/50 border-b border-stroke-elements text-sm font-bold text-t-bright font-syne mb-2">
-                                <div class="col-span-1"></div>
-                                <div class="col-span-6">Name</div>
-                                <div class="col-span-2">Status</div>
-                                <div class="col-span-2">Modified</div>
-                                <div class="col-span-1">Size</div>
-                            </div>
+                <!-- Posts Items -->
+                <div id="postsList" class="retro-posts-items">
+                    <!-- Posts will be populated here -->
+                </div>
+            </div>
 
-                            <!-- Posts List -->
-                            <div id="postsList" class="space-y-1">
-                                <!-- Posts will be populated here -->
-                            </div>
-                        </div>
+            <!-- Other view modes (hidden by default) -->
+            <div class="retro-posts-grid large-icons-view hidden" id="largeIconsView">
+                <div class="retro-grid-container" id="largeIconsGrid">
+                    <!-- Large icons will be populated here -->
+                </div>
+            </div>
+
+            <div class="retro-posts-grid medium-icons-view hidden" id="mediumIconsView">
+                <div class="retro-grid-container" id="mediumIconsGrid">
+                    <!-- Medium icons will be populated here -->
+                </div>
+            </div>
+
+            <div class="retro-posts-list details-view hidden" id="detailsView">
+                <!-- Details view header -->
+                <div class="retro-list-header">
+                    <div class="retro-col-select">
+                        <input type="checkbox" class="retro-checkbox">
+                        <label class="retro-checkbox-label"></label>
                     </div>
-
-                    <!-- Large Icons View -->
-                    <div class="view-mode large-icons-view h-full overflow-y-auto hidden" id="largeIconsView">
-                        <div class="p-6">
-                            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6" id="largeIconsGrid">
-                                <!-- Large icons will be populated here -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Medium Icons View -->
-                    <div class="view-mode medium-icons-view h-full overflow-y-auto hidden" id="mediumIconsView">
-                        <div class="p-6">
-                            <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4" id="mediumIconsGrid">
-                                <!-- Medium icons will be populated here -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Details View -->
-                    <div class="view-mode details-view h-full overflow-y-auto hidden" id="detailsView">
-                        <div class="p-4">
-                            <!-- Column Headers -->
-                            <div class="grid grid-cols-12 gap-4 px-4 py-2 bg-base-tint/50 dark:bg-base-shade/50 border-b border-stroke-elements text-sm font-bold text-t-bright font-syne mb-2 cursor-pointer">
-                                <div class="col-span-1"></div>
-                                <div class="col-span-3">Name</div>
-                                <div class="col-span-2">Status</div>
-                                <div class="col-span-2">Category</div>
-                                <div class="col-span-2">Author</div>
-                                <div class="col-span-1">Views</div>
-                                <div class="col-span-1">Modified</div>
-                            </div>
-
-                            <!-- Posts Details -->
-                            <div id="postsDetails" class="space-y-1">
-                                <!-- Posts will be populated here -->
-                            </div>
-                        </div>
-                    </div>
+                    <div class="retro-col-name">NAME</div>
+                    <div class="retro-col-status">STATUS</div>
+                    <div class="retro-col-category">CATEGORY</div>
+                    <div class="retro-col-author">AUTHOR</div>
+                    <div class="retro-col-views">VIEWS</div>
+                    <div class="retro-col-modified">MODIFIED</div>
+                </div>
+                <div id="postsDetails" class="retro-posts-items">
+                    <!-- Details will be populated here -->
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Context Menu -->
-<div class="context-menu fixed z-50 bg-base dark:bg-base-tint border border-stroke-elements rounded-lg shadow-xl py-2 hidden" id="contextMenu">
-    <div class="px-4 py-2 text-xs font-bold text-t-bright font-syne border-b border-stroke-elements">Post Options</div>
-    <button class="w-full px-4 py-2 text-left text-sm text-t-bright hover:bg-accent/20 transition-all duration-medium font-syne flex items-center space-x-3" onclick="openPost()">
-        <i class="ph-bold ph-pencil text-accent"></i>
-        <span>Open</span>
-    </button>
-    <button class="w-full px-4 py-2 text-left text-sm text-t-bright hover:bg-accent/20 transition-all duration-medium font-syne flex items-center space-x-3" onclick="editPost()">
-        <i class="ph-bold ph-note-pencil text-accent"></i>
-        <span>Edit</span>
-    </button>
-    <button class="w-full px-4 py-2 text-left text-sm text-t-bright hover:bg-accent/20 transition-all duration-medium font-syne flex items-center space-x-3" onclick="duplicatePost()">
-        <i class="ph-bold ph-copy text-accent"></i>
-        <span>Duplicate</span>
-    </button>
-    <div class="border-t border-stroke-elements my-1"></div>
-    <button class="w-full px-4 py-2 text-left text-sm text-t-bright hover:bg-accent/20 transition-all duration-medium font-syne flex items-center space-x-3" onclick="cutItems()">
-        <i class="ph-bold ph-scissors text-accent"></i>
-        <span>Cut</span>
-    </button>
-    <button class="w-full px-4 py-2 text-left text-sm text-t-bright hover:bg-accent/20 transition-all duration-medium font-syne flex items-center space-x-3" onclick="copyItems()">
-        <i class="ph-bold ph-copy text-accent"></i>
-        <span>Copy</span>
-    </button>
-    <div class="border-t border-stroke-elements my-1"></div>
-    <button class="w-full px-4 py-2 text-left text-sm text-t-bright hover:bg-accent/20 transition-all duration-medium font-syne flex items-center space-x-3" onclick="deleteSelected()">
-        <i class="ph-bold ph-trash text-red-500"></i>
-        <span>Delete</span>
-    </button>
-    <button class="w-full px-4 py-2 text-left text-sm text-t-bright hover:bg-accent/20 transition-all duration-medium font-syne flex items-center space-x-3" onclick="showProperties()">
-        <i class="ph-bold ph-info text-accent"></i>
-        <span>Properties</span>
-    </button>
+<!-- Retro Context Menu -->
+<div class="retro-context-menu hidden" id="contextMenu">
+    <div class="retro-context-header">POST OPTIONS</div>
+    <div class="retro-context-item" onclick="openPost()">
+        <span class="retro-context-icon">📂</span>
+        <span class="retro-context-text">OPEN</span>
+    </div>
+    <div class="retro-context-item" onclick="editPost()">
+        <span class="retro-context-icon">✏️</span>
+        <span class="retro-context-text">EDIT</span>
+    </div>
+    <div class="retro-context-item" onclick="duplicatePost()">
+        <span class="retro-context-icon">📋</span>
+        <span class="retro-context-text">DUPLICATE</span>
+    </div>
+    <div class="retro-context-separator"></div>
+    <div class="retro-context-item" onclick="cutItems()">
+        <span class="retro-context-icon">✂️</span>
+        <span class="retro-context-text">CUT</span>
+    </div>
+    <div class="retro-context-item" onclick="copyItems()">
+        <span class="retro-context-icon">📋</span>
+        <span class="retro-context-text">COPY</span>
+    </div>
+    <div class="retro-context-separator"></div>
+    <div class="retro-context-item retro-context-danger" onclick="deleteSelected()">
+        <span class="retro-context-icon">🗑️</span>
+        <span class="retro-context-text">DELETE</span>
+    </div>
+    <div class="retro-context-item" onclick="showProperties()">
+        <span class="retro-context-icon">ℹ️</span>
+        <span class="retro-context-text">PROPERTIES</span>
+    </div>
 </div>
 
-<!-- Custom CSS for Windows Explorer styling -->
+<!-- Retro CSS Styles - Scoped to posts page only -->
 <style>
-/* Tree View Styles */
-.tree-view {
-  @apply space-y-1;
+/* Retro Posts Container */
+.retro-posts-container {
+    font-family: 'Courier New', monospace;
+    background: linear-gradient(145deg, #0a0a0a, #1a1a1a);
+    color: #00ff00;
+    padding: 0;
+    margin: 0;
+    border: 2px solid #00ff00;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+    overflow: hidden;
+    min-height: 600px;
+    font-size: 14px;
+    line-height: 1.4;
+    position: relative;
 }
 
-.tree-item {
-  @apply cursor-pointer;
+/* Retro CRT Effects */
+.retro-posts-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(transparent 50%, rgba(0, 255, 0, 0.03) 50%);
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 1;
 }
 
-.tree-item.active {
-  @apply bg-accent/20;
+.retro-posts-container * {
+    box-sizing: border-box;
+    position: relative;
+    z-index: 2;
 }
 
-.tree-item:hover {
-  @apply bg-base-shade/50 dark:bg-base-tint/50;
+/* Retro Header */
+.retro-header {
+    background: linear-gradient(90deg, #0f0f0f, #1f1f1f);
+    border-bottom: 1px solid #00ff00;
+    padding: 8px 12px;
 }
 
-.tree-item-content {
-  @apply flex items-center space-x-3 px-4 py-2 text-sm;
+.retro-title-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
 }
 
-.tree-arrow {
-  @apply transition-transform duration-medium;
+.retro-title-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-.tree-item.expanded .tree-arrow {
-  @apply rotate-90;
+.retro-title-icon {
+    font-size: 16px;
 }
 
-.tree-children {
-  @apply ml-6 space-y-1;
+.retro-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #00ff00;
+    text-shadow: 0 0 8px #00ff00;
+    margin: 0;
 }
 
-.tree-children .tree-item-content {
-  @apply px-3 py-1;
+.retro-title-right {
+    display: flex;
+    gap: 4px;
 }
 
-/* View Modes */
-.view-mode {
-  @apply w-full;
+.retro-window-btn {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #333;
+    background: #0a0a0a;
+    color: #00ff00;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    transition: all 0.2s;
 }
 
-/* List View Item */
-.list-item {
-  @apply grid grid-cols-12 gap-4 px-4 py-3 hover:bg-base-tint/30 dark:hover:bg-base-shade/30 rounded-lg cursor-pointer transition-all duration-medium border border-transparent hover:border-stroke-elements;
+.retro-window-btn:hover {
+    background: #00ff00;
+    color: #000;
 }
 
-.list-item.selected {
-  @apply bg-accent/20 border-accent/50;
+.retro-close:hover {
+    background: #ff0000;
+    color: #fff;
 }
 
-.list-item-checkbox {
-  @apply w-4 h-4 text-accent bg-base dark:bg-base-tint border-2 border-stroke-elements rounded focus:ring-2 focus:ring-accent focus:ring-offset-0 cursor-pointer;
+.retro-menu-bar {
+    display: flex;
+    gap: 16px;
 }
 
-.list-item-icon {
-  @apply w-6 h-6 text-accent flex-shrink-0;
+.retro-menu-item {
+    font-size: 12px;
+    color: #888;
+    cursor: pointer;
+    padding: 4px 8px;
+    border: 1px solid transparent;
+    transition: all 0.2s;
 }
 
-.list-item-name {
-  @apply text-sm text-t-bright font-syne truncate;
+.retro-menu-item:hover,
+.retro-menu-item.active {
+    color: #00ff00;
+    border-color: #00ff00;
+    background: rgba(0, 255, 0, 0.1);
 }
 
-.list-item-status {
-  @apply text-xs font-semibold uppercase tracking-wide font-syne;
+/* Retro Toolbar */
+.retro-toolbar {
+    display: flex;
+    align-items: center;
+    background: #0a0a0a;
+    border-bottom: 1px solid #00ff00;
+    padding: 8px 12px;
+    gap: 12px;
 }
 
-.status-published {
-  @apply text-green-500;
+.retro-toolbar-section {
+    display: flex;
+    gap: 4px;
 }
 
-.status-draft {
-  @apply text-yellow-500;
+.retro-toolbar-btn {
+    background: transparent;
+    border: 1px solid #333;
+    color: #00ff00;
+    padding: 4px 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 11px;
+    transition: all 0.2s;
 }
 
-.status-scheduled {
-  @apply text-blue-500;
+.retro-toolbar-btn:hover {
+    border-color: #00ff00;
+    background: rgba(0, 255, 0, 0.1);
+}
+
+.retro-toolbar-separator {
+    width: 1px;
+    height: 20px;
+    background: #333;
+}
+
+/* Retro Navigation Bar */
+.retro-nav-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #0f0f0f;
+    border-bottom: 1px solid #333;
+    padding: 8px 12px;
+}
+
+.retro-nav-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.retro-nav-btn {
+    width: 24px;
+    height: 24px;
+    background: #0a0a0a;
+    border: 1px solid #333;
+    color: #00ff00;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    transition: all 0.2s;
+}
+
+.retro-nav-btn:hover {
+    border-color: #00ff00;
+    background: rgba(0, 255, 0, 0.1);
+}
+
+.retro-nav-separator {
+    width: 1px;
+    height: 20px;
+    background: #333;
+    margin: 0 8px;
+}
+
+.retro-path-bar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: #00ff00;
+}
+
+.retro-path-separator {
+    color: #888;
+}
+
+.retro-search-input {
+    background: #0a0a0a;
+    border: 1px solid #333;
+    color: #00ff00;
+    padding: 4px 8px;
+    font-family: inherit;
+    font-size: 11px;
+    width: 200px;
+}
+
+.retro-search-input:focus {
+    border-color: #00ff00;
+    outline: none;
+}
+
+.retro-view-controls {
+    display: flex;
+    border: 1px solid #333;
+}
+
+.retro-view-btn {
+    width: 24px;
+    height: 24px;
+    background: #0a0a0a;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+    transition: all 0.2s;
+}
+
+.retro-view-btn:hover,
+.retro-view-btn.active {
+    color: #00ff00;
+    background: rgba(0, 255, 0, 0.1);
+}
+
+/* Main Panel */
+.retro-main-panel {
+    display: flex;
+    min-height: 500px;
+}
+
+/* Sidebar */
+.retro-sidebar {
+    width: 220px;
+    background: #0a0a0a;
+    border-right: 1px solid #00ff00;
+    display: flex;
+    flex-direction: column;
+}
+
+.retro-panel-title {
+    font-size: 11px;
+    color: #00ff00;
+    font-weight: bold;
+    padding: 8px 12px;
+    border-bottom: 1px solid #00ff00;
+    text-transform: uppercase;
+}
+
+.retro-tree-view {
+    flex: 1;
+    padding: 8px;
+    overflow-y: auto;
+}
+
+.retro-tree-item {
+    cursor: pointer;
+    margin-bottom: 2px;
+}
+
+.retro-tree-item.active {
+    background: rgba(0, 255, 0, 0.1);
+}
+
+.retro-tree-item:hover {
+    background: rgba(0, 255, 0, 0.05);
+}
+
+.retro-tree-content {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px;
+    font-size: 11px;
+}
+
+.retro-tree-icon {
+    font-size: 12px;
+    width: 12px;
+    text-align: center;
+}
+
+.retro-tree-text {
+    color: #00ff00;
+    flex: 1;
+}
+
+.retro-tree-arrow {
+    font-size: 8px;
+    color: #888;
+    transition: transform 0.2s;
+}
+
+.retro-tree-item.expanded .retro-tree-arrow {
+    transform: rotate(90deg);
+}
+
+.retro-tree-count {
+    font-size: 10px;
+    color: #888;
+}
+
+.retro-tree-children {
+    margin-left: 16px;
+    margin-top: 2px;
+}
+
+.retro-tree-children.hidden {
+    display: none;
+}
+
+.retro-tree-children .retro-tree-content {
+    padding: 2px 4px;
+}
+
+.retro-sidebar-footer {
+    padding: 8px 12px;
+    border-top: 1px solid #333;
+    font-size: 10px;
+}
+
+.retro-stats-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2px;
+}
+
+.retro-stats-label {
+    color: #888;
+}
+
+.retro-stats-value {
+    color: #00ff00;
+    font-weight: bold;
+}
+
+/* Content Panel */
+.retro-content-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Status Bar */
+.retro-status-bar {
+    background: #1a1a1a;
+    border-bottom: 1px solid #333;
+    padding: 4px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10px;
+    color: #888;
+}
+
+.retro-status-left,
+.retro-status-right {
+    display: flex;
+    gap: 16px;
+}
+
+/* Posts List */
+.retro-posts-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.retro-list-header {
+    display: grid;
+    grid-template-columns: 30px 2fr 1fr 1fr 80px;
+    gap: 8px;
+    background: #1a1a1a;
+    padding: 8px;
+    border-bottom: 1px solid #00ff00;
+    font-size: 10px;
+    font-weight: bold;
+    color: #00ff00;
+    text-transform: uppercase;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.retro-posts-items {
+    padding: 4px;
+}
+
+.retro-post-item {
+    display: grid;
+    grid-template-columns: 30px 2fr 1fr 1fr 80px;
+    gap: 8px;
+    padding: 6px 8px;
+    border-bottom: 1px solid #222;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 11px;
+}
+
+.retro-post-item:hover {
+    background: rgba(0, 255, 0, 0.05);
+}
+
+.retro-post-item.selected {
+    background: rgba(0, 255, 0, 0.15);
+    border-color: #00ff00;
+}
+
+/* Checkbox */
+.retro-checkbox {
+    width: 14px;
+    height: 14px;
+    border: 1px solid #333;
+    background: #0a0a0a;
+    cursor: pointer;
+}
+
+.retro-checkbox:checked {
+    background: #00ff00;
+    border-color: #00ff00;
+}
+
+/* Post Item Details */
+.retro-post-title {
+    color: #00ff00;
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.retro-post-meta {
+    font-size: 9px;
+    color: #888;
+    margin-top: 1px;
+}
+
+.retro-post-status {
+    font-size: 9px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.retro-status-published {
+    color: #00ff00;
+}
+
+.retro-status-draft {
+    color: #ffaa00;
+}
+
+.retro-status-scheduled {
+    color: #00aaff;
+}
+
+.retro-post-modified,
+.retro-post-size {
+    font-size: 9px;
+    color: #888;
+}
+
+/* Grid Views */
+.retro-posts-grid {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+}
+
+.retro-grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+}
+
+.retro-grid-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px;
+    border: 1px solid #333;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #0a0a0a;
+}
+
+.retro-grid-item:hover {
+    border-color: #00ff00;
+    background: rgba(0, 255, 0, 0.05);
+}
+
+.retro-grid-item.selected {
+    border-color: #00ff00;
+    background: rgba(0, 255, 0, 0.1);
+}
+
+.retro-grid-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+.retro-grid-name {
+    font-size: 10px;
+    color: #00ff00;
+    text-align: center;
+    word-break: break-all;
+}
+
+.retro-grid-meta {
+    font-size: 8px;
+    color: #888;
+    margin-top: 2px;
 }
 
 /* Large Icons View */
-.large-icon-item {
-  @apply flex flex-col items-center space-y-3 p-4 hover:bg-base-tint/30 dark:hover:bg-base-shade/30 rounded-lg cursor-pointer transition-all duration-medium border border-transparent hover:border-stroke-elements;
-}
-
-.large-icon-item.selected {
-  @apply bg-accent/20 border-accent/50;
-}
-
-.large-icon-image {
-  @apply w-16 h-16 bg-gradient-to-br from-accent/20 to-secondary/20 rounded-lg flex items-center justify-center text-2xl text-accent;
-}
-
-.large-icon-name {
-  @apply text-sm text-t-bright font-syne text-center truncate w-full;
+.large-icons-view .retro-grid-container {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
 }
 
 /* Medium Icons View */
-.medium-icon-item {
-  @apply flex flex-col items-center space-y-2 p-3 hover:bg-base-tint/30 dark:hover:bg-base-shade/30 rounded-lg cursor-pointer transition-all duration-medium border border-transparent hover:border-stroke-elements;
+.medium-icons-view .retro-grid-container {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
 }
 
-.medium-icon-item.selected {
-  @apply bg-accent/20 border-accent/50;
-}
-
-.medium-icon-image {
-  @apply w-12 h-12 bg-gradient-to-br from-accent/20 to-secondary/20 rounded-lg flex items-center justify-center text-xl text-accent;
-}
-
-.medium-icon-name {
-  @apply text-xs text-t-bright font-syne text-center truncate w-full;
+.medium-icons-view .retro-grid-icon {
+    font-size: 24px;
 }
 
 /* Details View */
-.details-item {
-  @apply grid grid-cols-12 gap-4 px-4 py-3 hover:bg-base-tint/30 dark:hover:bg-base-shade/30 rounded-lg cursor-pointer transition-all duration-medium border border-transparent hover:border-stroke-elements;
+.details-view .retro-list-header {
+    grid-template-columns: 30px 2fr 1fr 1fr 1fr 60px 1fr;
 }
 
-.details-item.selected {
-  @apply bg-accent/20 border-accent/50;
+.details-view .retro-post-item {
+    grid-template-columns: 30px 2fr 1fr 1fr 1fr 60px 1fr;
 }
 
-.details-item-checkbox {
-  @apply w-4 h-4 text-accent bg-base dark:bg-base-tint border-2 border-stroke-elements rounded focus:ring-2 focus:ring-accent focus:ring-offset-0 cursor-pointer;
-}
-
-.details-item-icon {
-  @apply w-5 h-5 text-accent flex-shrink-0;
-}
-
-.details-item-name {
-  @apply text-sm text-t-bright font-syne truncate;
-}
-
-.details-item-category {
-  @apply text-xs text-t-medium font-syne truncate;
-}
-
-.details-item-author {
-  @apply text-xs text-t-medium font-syne truncate;
+.retro-post-category,
+.retro-post-author,
+.retro-post-views {
+    font-size: 9px;
+    color: #888;
 }
 
 /* Context Menu */
-.context-menu {
-  @apply min-w-48;
+.retro-context-menu {
+    position: absolute;
+    background: #0a0a0a;
+    border: 1px solid #00ff00;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    min-width: 150px;
+    z-index: 1000;
+    font-size: 11px;
 }
 
-/* Selection and Drag States */
-.item-selected {
-  @apply bg-accent/20 border-accent/50;
+.retro-context-header {
+    background: #1a1a1a;
+    padding: 4px 8px;
+    color: #00ff00;
+    font-weight: bold;
+    border-bottom: 1px solid #00ff00;
 }
 
-.item-dragging {
-  @apply opacity-50 transform rotate-2;
+.retro-context-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    cursor: pointer;
+    color: #00ff00;
+    transition: background 0.2s;
+}
+
+.retro-context-item:hover {
+    background: rgba(0, 255, 0, 0.1);
+}
+
+.retro-context-danger:hover {
+    background: rgba(255, 0, 0, 0.1);
+    color: #ff4444;
+}
+
+.retro-context-icon {
+    width: 16px;
+    text-align: center;
+}
+
+.retro-context-text {
+    flex: 1;
+}
+
+.retro-context-separator {
+    height: 1px;
+    background: #333;
+    margin: 2px 0;
+}
+
+/* Utility Classes */
+.hidden {
+    display: none !important;
 }
 
 /* Scrollbar Styling */
-.overflow-y-auto::-webkit-scrollbar,
-.overflow-x-auto::-webkit-scrollbar {
-  width: 12px;
+.retro-posts-container::-webkit-scrollbar,
+.retro-tree-view::-webkit-scrollbar,
+.retro-posts-list::-webkit-scrollbar,
+.retro-posts-grid::-webkit-scrollbar {
+    width: 8px;
 }
 
-.overflow-y-auto::-webkit-scrollbar-track,
-.overflow-x-auto::-webkit-scrollbar-track {
-  background: var(--base-tint);
-  border-radius: 6px;
+.retro-posts-container::-webkit-scrollbar-track,
+.retro-tree-view::-webkit-scrollbar-track,
+.retro-posts-list::-webkit-scrollbar-track,
+.retro-posts-grid::-webkit-scrollbar-track {
+    background: #0a0a0a;
 }
 
-.overflow-y-auto::-webkit-scrollbar-thumb,
-.overflow-x-auto::-webkit-scrollbar-thumb {
-  background: var(--accent);
-  border-radius: 6px;
+.retro-posts-container::-webkit-scrollbar-thumb,
+.retro-tree-view::-webkit-scrollbar-thumb,
+.retro-posts-list::-webkit-scrollbar-thumb,
+.retro-posts-grid::-webkit-scrollbar-thumb {
+    background: #00ff00;
+    border-radius: 4px;
 }
 
-.overflow-y-auto::-webkit-scrollbar-thumb:hover,
-.overflow-x-auto::-webkit-scrollbar-thumb:hover {
-  background: var(--secondary);
+.retro-posts-container::-webkit-scrollbar-thumb:hover,
+.retro-tree-view::-webkit-scrollbar-thumb:hover,
+.retro-posts-list::-webkit-scrollbar-thumb:hover,
+.retro-posts-grid::-webkit-scrollbar-thumb:hover {
+    background: #88ff88;
 }
 
-/* Animations */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-in {
-  animation: fadeInUp 0.3s ease-out forwards;
+/* Responsive Design */
+@media (max-width: 768px) {
+    .retro-main-panel {
+        flex-direction: column;
+    }
+    
+    .retro-sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #00ff00;
+    }
+    
+    .retro-list-header,
+    .retro-post-item {
+        grid-template-columns: 25px 2fr 1fr 1fr 60px;
+        font-size: 9px;
+    }
+    
+    .retro-nav-bar {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .retro-search-input {
+        width: 150px;
+    }
 }
 </style>
 
@@ -605,11 +1053,11 @@ function updateSidebarCounts(stats) {
 function renderCategoriesTree(categories) {
     const container = document.getElementById('categoriesTree');
     container.innerHTML = categories.map(category => `
-        <div class="tree-item" data-filter="category-${category.id}">
-            <div class="tree-item-content">
-                <i class="ph-bold ph-folder text-blue-500"></i>
-                <span class="text-sm text-t-bright font-syne">${category.name}</span>
-                <span class="text-xs text-t-muted ml-auto">${category.count}</span>
+        <div class="retro-tree-item" data-filter="category-${category.id}">
+            <div class="retro-tree-content">
+                <i class="retro-tree-icon">📂</i>
+                <span class="retro-tree-text">${category.name}</span>
+                <span class="retro-tree-count">${category.count}</span>
             </div>
         </div>
     `).join('');
@@ -618,11 +1066,11 @@ function renderCategoriesTree(categories) {
 function renderTagsTree(tags) {
     const container = document.getElementById('tagsTree');
     container.innerHTML = tags.map(tag => `
-        <div class="tree-item" data-filter="tag-${tag.id}">
-            <div class="tree-item-content">
-                <i class="ph-bold ph-tag text-purple-500"></i>
-                <span class="text-sm text-t-bright font-syne">${tag.name}</span>
-                <span class="text-xs text-t-muted ml-auto">${tag.count}</span>
+        <div class="retro-tree-item" data-filter="tag-${tag.id}">
+            <div class="retro-tree-content">
+                <i class="retro-tree-icon">🏷️</i>
+                <span class="retro-tree-text">${tag.name}</span>
+                <span class="retro-tree-count">${tag.count}</span>
             </div>
         </div>
     `).join('');
@@ -680,24 +1128,24 @@ function filterPosts() {
 function renderListView(posts) {
     const container = document.getElementById('postsList');
     container.innerHTML = posts.map(post => `
-        <div class="list-item ${selectedItems.has(post.id) ? 'selected' : ''}" data-post-id="${post.id}" onclick="selectItem('${post.id}', event)" ondblclick="openPost('${post.id}')" oncontextmenu="showContextMenu(event, '${post.id}')">
-            <div class="col-span-1 flex items-center">
-                <input type="checkbox" class="list-item-checkbox" ${selectedItems.has(post.id) ? 'checked' : ''} onchange="toggleSelection('${post.id}')">
+        <div class="retro-post-item ${selectedItems.has(post.id) ? 'selected' : ''}" data-post-id="${post.id}" onclick="selectItem('${post.id}', event)" ondblclick="openPost('${post.id}')" oncontextmenu="showContextMenu(event, '${post.id}')">
+            <div>
+                <input type="checkbox" class="retro-checkbox" ${selectedItems.has(post.id) ? 'checked' : ''} onchange="toggleSelection('${post.id}')">
             </div>
-            <div class="col-span-6 flex items-center space-x-3">
-                <i class="ph-bold ph-article list-item-icon"></i>
-                <div class="min-w-0 flex-1">
-                    <div class="list-item-name">${post.title}</div>
-                    <div class="text-xs text-t-muted font-syne truncate">${post.excerpt || 'No excerpt'}</div>
+            <div>
+                <i class="retro-tree-icon">📄</i>
+                <div style="display: inline-block; margin-left: 6px; vertical-align: top;">
+                    <div class="retro-post-title">${post.title}</div>
+                    <div class="retro-post-meta">${post.excerpt || 'No excerpt'}</div>
                 </div>
             </div>
-            <div class="col-span-2 flex items-center">
-                <span class="list-item-status status-${post.status}">${formatStatus(post.status)}</span>
+            <div>
+                <span class="retro-post-status status-${post.status}">${formatStatus(post.status)}</span>
             </div>
-            <div class="col-span-2 flex items-center text-xs text-t-medium font-syne">
+            <div class="retro-post-modified">
                 ${formatDate(post.updatedAt)}
             </div>
-            <div class="col-span-1 flex items-center text-xs text-t-medium font-syne">
+            <div class="retro-post-size">
                 ${formatFileSize(post.contentLength || 0)}
             </div>
         </div>
@@ -707,12 +1155,10 @@ function renderListView(posts) {
 function renderLargeIconsView(posts) {
     const container = document.getElementById('largeIconsGrid');
     container.innerHTML = posts.map(post => `
-        <div class="large-icon-item ${selectedItems.has(post.id) ? 'selected' : ''}" data-post-id="${post.id}" onclick="selectItem('${post.id}', event)" ondblclick="openPost('${post.id}')" oncontextmenu="showContextMenu(event, '${post.id}')">
-            <div class="large-icon-image">
-                <i class="ph-bold ph-article"></i>
-            </div>
-            <div class="large-icon-name">${post.title}</div>
-            <div class="text-xs text-t-muted font-syne text-center">${formatStatus(post.status)}</div>
+        <div class="retro-grid-item ${selectedItems.has(post.id) ? 'selected' : ''}" data-post-id="${post.id}" onclick="selectItem('${post.id}', event)" ondblclick="openPost('${post.id}')" oncontextmenu="showContextMenu(event, '${post.id}')">
+            <div class="retro-grid-icon">📄</div>
+            <div class="retro-grid-name">${post.title}</div>
+            <div class="retro-grid-meta">${formatStatus(post.status)}</div>
         </div>
     `).join('');
 }
@@ -720,11 +1166,9 @@ function renderLargeIconsView(posts) {
 function renderMediumIconsView(posts) {
     const container = document.getElementById('mediumIconsGrid');
     container.innerHTML = posts.map(post => `
-        <div class="medium-icon-item ${selectedItems.has(post.id) ? 'selected' : ''}" data-post-id="${post.id}" onclick="selectItem('${post.id}', event)" ondblclick="openPost('${post.id}')" oncontextmenu="showContextMenu(event, '${post.id}')">
-            <div class="medium-icon-image">
-                <i class="ph-bold ph-article"></i>
-            </div>
-            <div class="medium-icon-name">${post.title}</div>
+        <div class="retro-grid-item ${selectedItems.has(post.id) ? 'selected' : ''}" data-post-id="${post.id}" onclick="selectItem('${post.id}', event)" ondblclick="openPost('${post.id}')" oncontextmenu="showContextMenu(event, '${post.id}')">
+            <div class="retro-grid-icon">📄</div>
+            <div class="retro-grid-name">${post.title}</div>
         </div>
     `).join('');
 }
@@ -732,29 +1176,29 @@ function renderMediumIconsView(posts) {
 function renderDetailsView(posts) {
     const container = document.getElementById('postsDetails');
     container.innerHTML = posts.map(post => `
-        <div class="details-item ${selectedItems.has(post.id) ? 'selected' : ''}" data-post-id="${post.id}" onclick="selectItem('${post.id}', event)" ondblclick="openPost('${post.id}')" oncontextmenu="showContextMenu(event, '${post.id}')">
-            <div class="col-span-1 flex items-center">
-                <input type="checkbox" class="details-item-checkbox" ${selectedItems.has(post.id) ? 'checked' : ''} onchange="toggleSelection('${post.id}')">
+        <div class="retro-post-item ${selectedItems.has(post.id) ? 'selected' : ''}" data-post-id="${post.id}" onclick="selectItem('${post.id}', event)" ondblclick="openPost('${post.id}')" oncontextmenu="showContextMenu(event, '${post.id}')">
+            <div>
+                <input type="checkbox" class="retro-checkbox" ${selectedItems.has(post.id) ? 'checked' : ''} onchange="toggleSelection('${post.id}')">
             </div>
-            <div class="col-span-3 flex items-center space-x-3">
-                <i class="ph-bold ph-article details-item-icon"></i>
-                <div class="min-w-0 flex-1">
-                    <div class="details-item-name">${post.title}</div>
+            <div>
+                <i class="retro-tree-icon">📄</i>
+                <div style="display: inline-block; margin-left: 6px; vertical-align: top;">
+                    <div class="retro-post-title">${post.title}</div>
                 </div>
             </div>
-            <div class="col-span-2 flex items-center">
-                <span class="list-item-status status-${post.status}">${formatStatus(post.status)}</span>
+            <div>
+                <span class="retro-post-status status-${post.status}">${formatStatus(post.status)}</span>
             </div>
-            <div class="col-span-2 flex items-center">
-                <span class="details-item-category">${post.category || 'Uncategorized'}</span>
+            <div class="retro-post-category">
+                ${post.category || 'Uncategorized'}
             </div>
-            <div class="col-span-2 flex items-center">
-                <span class="details-item-author">${post.author || 'Unknown'}</span>
+            <div class="retro-post-author">
+                ${post.author || 'Unknown'}
             </div>
-            <div class="col-span-1 flex items-center text-xs text-t-medium font-syne">
+            <div class="retro-post-views">
                 ${post.views || 0}
             </div>
-            <div class="col-span-1 flex items-center text-xs text-t-medium font-syne">
+            <div class="retro-post-modified">
                 ${formatDate(post.updatedAt)}
             </div>
         </div>
@@ -763,20 +1207,27 @@ function renderDetailsView(posts) {
 
 function setViewMode(mode) {
     // Update view mode buttons
-    document.querySelectorAll('[id^="view"]').forEach(btn => {
-        btn.classList.remove('text-t-bright', 'bg-accent/20');
-        btn.classList.add('text-t-medium');
+    document.querySelectorAll('.retro-view-btn').forEach(btn => {
+        btn.classList.remove('active');
     });
 
-    const activeBtn = document.getElementById(`view${mode.charAt(0).toUpperCase() + mode.slice(1).replace('-', '')}`);
-    activeBtn.classList.remove('text-t-medium');
-    activeBtn.classList.add('text-t-bright', 'bg-accent/20');
+    const activeBtn = document.querySelector(`.retro-view-btn[onclick="setViewMode('${mode}')"]`);
+    if (activeBtn) {
+        activeBtn.classList.add('active');
+    }
 
     // Hide all views
-    document.querySelectorAll('.view-mode').forEach(view => view.classList.add('hidden'));
+    document.querySelectorAll('.large-icons-view, .medium-icons-view, .details-view').forEach(view => {
+        view.classList.add('hidden');
+    });
 
     // Show selected view
-    document.getElementById(`${mode}View`).classList.remove('hidden');
+    if (mode === 'list') {
+        document.querySelector('.retro-posts-list').classList.remove('hidden');
+    } else {
+        document.querySelector('.retro-posts-list').classList.add('hidden');
+        document.getElementById(`${mode}View`).classList.remove('hidden');
+    }
 
     currentViewMode = mode;
     updateStatusBarText();
@@ -873,7 +1324,7 @@ function setupEventListeners() {
 
     // Tree navigation
     document.addEventListener('click', (e) => {
-        const treeItem = e.target.closest('.tree-item[data-filter]');
+        const treeItem = e.target.closest('.retro-tree-item[data-filter]');
         if (treeItem) {
             const filter = treeItem.dataset.filter;
             navigateToFolder(filter);
@@ -885,34 +1336,35 @@ function navigateToFolder(folder) {
     currentFolder = folder;
 
     // Update active tree item
-    document.querySelectorAll('.tree-item').forEach(item => item.classList.remove('active'));
+    document.querySelectorAll('.retro-tree-item').forEach(item => item.classList.remove('active'));
     document.querySelector(`[data-filter="${folder}"]`)?.classList.add('active');
 
-    // Update breadcrumb
-    updateBreadcrumb(folder);
+    // Update path display
+    updatePathDisplay(folder);
 
     renderCurrentView();
 }
 
-function updateBreadcrumb(folder) {
-    const breadcrumb = document.getElementById('breadcrumb');
-    let path = 'Blog Posts';
+function updatePathDisplay(folder) {
+    const pathBar = document.querySelector('.retro-path-bar');
+    let pathText = 'BLOG POSTS\\ALL POSTS';
 
     if (folder.startsWith('category-')) {
-        path = `Blog Posts > Categories > ${folder.replace('category-', '')}`;
+        const categoryName = folder.replace('category-', '');
+        pathText = `BLOG POSTS\\CATEGORIES\\${categoryName}`;
     } else if (folder.startsWith('tag-')) {
-        path = `Blog Posts > Tags > ${folder.replace('tag-', '')}`;
+        const tagName = folder.replace('tag-', '');
+        pathText = `BLOG POSTS\\TAGS\\${tagName}`;
     } else if (folder.startsWith('status-')) {
-        path = `Blog Posts > Status > ${folder.replace('status-', '').charAt(0).toUpperCase() + folder.replace('status-', '').slice(1)}`;
-    } else {
-        path = 'Blog Posts > All Posts';
+        const statusName = folder.replace('status-', '').charAt(0).toUpperCase() + folder.replace('status-', '').slice(1);
+        pathText = `BLOG POSTS\\STATUS\\${statusName}`;
     }
 
-    breadcrumb.innerHTML = path.split(' > ').map((part, index) => {
-        if (index === path.split(' > ').length - 1) {
-            return `<span class="text-t-bright">${part}</span>`;
+    pathBar.innerHTML = pathText.split('\\\\').map((part, index) => {
+        if (index === pathText.split('\\\\').length - 1) {
+            return `<span class="retro-path-text" style="color: #00ff00; font-weight: bold;">${part}</span>`;
         }
-        return `<span>${part}</span><i class="ph-bold ph-caret-right text-xs mx-1"></i>`;
+        return `<span class="retro-path-text">${part}</span><span class="retro-path-separator">\\\\</span>`;
     }).join('');
 }
 

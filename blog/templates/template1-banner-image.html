@@ -65,19 +65,19 @@
     </div>
 
     <!-- Header -->
-    <header class="bg-white border-b border-gray-200">
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <!-- Logo -->
                 <div class="flex items-center">
                     <a href="/" class="flex items-center space-x-2">
-                        <div class="text-xl font-bold text-gray-900">NekwasaR</div>
-                        <span class="text-sm text-gray-500 font-medium">Blog</span>
+                        <div class="text-lg sm:text-xl font-bold text-gray-900">NekwasaR</div>
+                        <span class="text-xs sm:text-sm text-gray-500 font-medium">Blog</span>
                     </a>
                 </div>
 
                 <!-- Desktop Navigation -->
-                <nav class="hidden md:flex items-center space-x-8">
+                <nav class="hidden md:flex items-center space-x-6 lg:space-x-8">
                     <a href="http://localhost:8000" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Back to Portfolio</a>
                     <a href="#latest" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Latest</a>
                     <a href="#popular" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Popular</a>
@@ -87,23 +87,43 @@
                 </nav>
 
                 <!-- Header Actions -->
-                <div class="flex items-center space-x-4">
-                    <button class="p-2 text-gray-600 hover:text-gray-900 transition-colors">
+                <div class="flex items-center space-x-2 sm:space-x-4">
+                    <button class="p-2 text-gray-600 hover:text-gray-900 transition-colors hidden sm:block">
                         <i class="ph-bold ph-moon-stars text-lg"></i>
                     </button>
-                    <button class="p-2 text-gray-600 hover:text-gray-900 transition-colors">
+                    <button class="p-2 text-gray-600 hover:text-gray-900 transition-colors hidden sm:block">
                         <i class="ph-bold ph-magnifying-glass text-lg"></i>
                     </button>
-                    <button class="md:hidden p-2 text-gray-600 hover:text-gray-900 transition-colors">
+                    <button id="mobile-menu-btn" class="md:hidden p-2 text-gray-600 hover:text-gray-900 transition-colors">
                         <i class="ph-bold ph-list text-lg"></i>
                     </button>
                 </div>
+            </div>
+
+            <!-- Mobile Navigation Menu -->
+            <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
+                <nav class="px-4 py-4 space-y-3">
+                    <a href="http://localhost:8000" class="block text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors py-2">Back to Portfolio</a>
+                    <a href="#latest" class="block text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors py-2">Latest</a>
+                    <a href="#popular" class="block text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors py-2">Popular</a>
+                    <a href="#others" class="block text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors py-2">Others</a>
+                    <a href="#featured" class="block text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors py-2">Featured</a>
+                    <a href="#tags" class="block text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors py-2">Topics</a>
+                    <div class="flex items-center space-x-4 pt-2 border-t border-gray-100">
+                        <button class="p-2 text-gray-600 hover:text-gray-900 transition-colors">
+                            <i class="ph-bold ph-moon-stars text-lg"></i>
+                        </button>
+                        <button class="p-2 text-gray-600 hover:text-gray-900 transition-colors">
+                            <i class="ph-bold ph-magnifying-glass text-lg"></i>
+                        </button>
+                    </div>
+                </nav>
             </div>
         </div>
     </header>
 
     <!-- Hero Section -->
-    <section class="relative h-[70vh] min-h-[500px] overflow-hidden">
+    <section class="relative h-[60vh] sm:h-[70vh] min-h-[400px] sm:min-h-[500px] overflow-hidden">
         <div class="absolute inset-0">
             <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1920&h=1080&fit=crop&crop=center"
                  alt="AI and Technology Innovation"
@@ -112,30 +132,30 @@
         </div>
 
         <div class="relative z-10 flex items-end h-full">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 w-full">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 sm:pb-16 w-full">
                 <div class="max-w-4xl">
                     <!-- Category Tag -->
-                    <div class="inline-flex items-center px-3 py-1 rounded-full bg-purple-600 text-white text-xs font-medium mb-4">
+                    <div class="inline-flex items-center px-3 py-1 rounded-full bg-purple-600 text-white text-xs font-medium mb-3 sm:mb-4">
                         Technology
                     </div>
 
                     <!-- Title -->
-                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
+                    <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4 sm:mb-6">
                         The Future of Artificial Intelligence: Transforming Our World
                     </h1>
 
                     <!-- Meta Information -->
-                    <div class="flex flex-wrap items-center gap-4 text-white/90 text-sm">
+                    <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-white/90 text-xs sm:text-sm">
                         <span class="flex items-center gap-2">
                             <i class="ph-bold ph-user text-xs"></i>
                             By NekwasaR
                         </span>
-                        <span class="text-white/60">•</span>
+                        <span class="text-white/60 hidden sm:inline">•</span>
                         <span class="flex items-center gap-2">
                             <i class="ph-bold ph-calendar text-xs"></i>
                             November 6, 2025
                         </span>
-                        <span class="text-white/60">•</span>
+                        <span class="text-white/60 hidden sm:inline">•</span>
                         <span class="flex items-center gap-2">
                             <i class="ph-bold ph-clock text-xs"></i>
                             8 min read
@@ -148,36 +168,41 @@
 
     <!-- Engagement Header Area -->
     <section class="bg-gray-50 border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
                 <!-- Engagement Stats -->
-                <div class="flex items-center gap-6 text-sm text-gray-600">
+                <div class="flex flex-wrap items-center gap-4 sm:gap-6 text-xs sm:text-sm text-gray-600">
                     <span class="flex items-center gap-2">
-                        <i class="ph-bold ph-chat-circle text-base"></i>
-                        47 Comments
+                        <i class="ph-bold ph-chat-circle text-sm sm:text-base"></i>
+                        <span class="hidden sm:inline">47 Comments</span>
+                        <span class="sm:hidden">47</span>
                     </span>
                     <span class="flex items-center gap-2">
-                        <i class="ph-bold ph-eye text-base"></i>
-                        1.3k Views
+                        <i class="ph-bold ph-eye text-sm sm:text-base"></i>
+                        <span class="hidden sm:inline">1.3k Views</span>
+                        <span class="sm:hidden">1.3k</span>
                     </span>
                     <span class="flex items-center gap-2 like-section" data-post-id="1">
                         <button onclick="toggleLike()" class="flex items-center gap-2 hover:text-red-500 transition-colors">
-                            <i class="ph-bold ph-heart text-base like-icon"></i>
-                            <span class="like-count">127</span> Likes
+                            <i class="ph-bold ph-heart text-sm sm:text-base like-icon"></i>
+                            <span class="like-count hidden sm:inline">127</span>
+                            <span class="like-count sm:hidden">127</span>
+                            <span class="hidden sm:inline">Likes</span>
                         </button>
                     </span>
                     <span class="flex items-center gap-2">
                         <button onclick="openShareModal()" class="flex items-center gap-2 hover:text-purple-600 transition-colors">
-                            <i class="ph-bold ph-share-network text-base"></i>
-                            Share
+                            <i class="ph-bold ph-share-network text-sm sm:text-base"></i>
+                            <span class="hidden sm:inline">Share</span>
                         </button>
                     </span>
                 </div>
 
                 <!-- Join Conversation Button -->
-                <button onclick="scrollToComments()" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors">
-                    <i class="ph-bold ph-chat-circle-dots text-base"></i>
-                    Join the Conversation
+                <button onclick="scrollToComments()" class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-purple-600 text-white text-xs sm:text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors w-full sm:w-auto justify-center">
+                    <i class="ph-bold ph-chat-circle-dots text-sm sm:text-base"></i>
+                    <span class="hidden sm:inline">Join the Conversation</span>
+                    <span class="sm:hidden">Comment</span>
                 </button>
             </div>
         </div>
@@ -220,12 +245,12 @@
     </section>
 
     <!-- Main Content Layout -->
-    <section class="py-16 bg-gray-50">
+    <section class="py-8 sm:py-12 lg:py-16 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
                 <!-- Left Sidebar -->
-                <aside class="lg:col-span-3">
-                    <div class="sticky top-24">
+                <aside class="lg:col-span-3 order-2 lg:order-1">
+                    <div class="sticky top-20 sm:top-24">
                         <!-- Related Posts -->
                         <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
                             <h3 class="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
@@ -317,9 +342,9 @@
                 </aside>
 
                 <!-- Main Column -->
-                <main class="lg:col-span-6">
+                <main class="lg:col-span-6 order-1 lg:order-2">
                     <article class="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                        <div class="p-8 lg:p-12">
+                        <div class="p-4 sm:p-6 lg:p-8 xl:p-12">
                             <!-- Article Content -->
                             <h2 class="text-2xl font-bold text-gray-900 mb-6">The Evolution of Wealth in 2025</h2>
 
@@ -464,63 +489,63 @@
                     </article>
 
                     <!-- Comments Section -->
-                    <section id="comments" class="bg-white rounded-lg border border-gray-200 mt-8">
-                        <div class="p-8">
-                            <div class="flex items-center justify-between mb-8">
-                                <h2 class="text-2xl font-bold text-gray-900">Join the Discussion</h2>
-                                <div class="bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    <section id="comments" class="bg-white rounded-lg border border-gray-200 mt-6 sm:mt-8">
+                        <div class="p-4 sm:p-6 lg:p-8">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8 gap-3">
+                                <h2 class="text-xl sm:text-2xl font-bold text-gray-900">Join the Discussion</h2>
+                                <div class="bg-purple-600 text-white px-3 py-1 rounded-full text-xs sm:text-sm font-medium self-start sm:self-auto">
                                     47 Comments
                                 </div>
                             </div>
 
                             <!-- Comment Form -->
-                            <div class="mb-8">
+                            <div class="mb-6 sm:mb-8">
                                 <div class="mb-4">
-                                    <textarea placeholder="Share your thoughts..." rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-vertical comment-textarea"></textarea>
+                                    <textarea placeholder="Share your thoughts..." rows="4" class="w-full px-3 sm:px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-vertical comment-textarea text-sm sm:text-base"></textarea>
                                 </div>
                                 <div class="text-right">
-                                    <button onclick="openCommentModal()" class="inline-flex items-center gap-2 px-6 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors">
+                                    <button onclick="openCommentModal()" class="inline-flex items-center gap-2 px-4 sm:px-6 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors">
                                         Post Comment
                                     </button>
                                 </div>
                             </div>
 
                             <!-- Comments List -->
-                            <div class="space-y-6">
+                            <div class="space-y-4 sm:space-y-6">
                                 <!-- Comment 1 -->
-                                <div class="flex gap-4 comment-item" data-comment-id="1">
-                                    <div class="w-10 h-10 rounded-full flex-shrink-0 bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
+                                <div class="flex gap-3 sm:gap-4 comment-item" data-comment-id="1">
+                                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex-shrink-0 bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white font-semibold text-xs sm:text-sm">
                                         J
                                     </div>
-                                    <div class="flex-1">
-                                        <div class="flex items-center gap-2 mb-2">
-                                            <span class="font-semibold text-gray-900">John Smith</span>
-                                            <span class="text-gray-500 text-sm">2 hours ago</span>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-2">
+                                            <span class="font-semibold text-gray-900 text-sm sm:text-base">John Smith</span>
+                                            <span class="text-gray-500 text-xs sm:text-sm">2 hours ago</span>
                                         </div>
-                                        <p class="text-gray-700 mb-3">Great analysis! I was surprised to see some of these rankings.</p>
-                                        <div class="flex items-center gap-4">
-                                            <button onclick="toggleCommentLike(1)" class="flex items-center gap-1 text-sm text-gray-600 hover:text-red-500 transition-colors comment-like-btn">
+                                        <p class="text-gray-700 mb-3 text-sm sm:text-base">Great analysis! I was surprised to see some of these rankings.</p>
+                                        <div class="flex items-center gap-3 sm:gap-4">
+                                            <button onclick="toggleCommentLike(1)" class="flex items-center gap-1 text-xs sm:text-sm text-gray-600 hover:text-red-500 transition-colors comment-like-btn">
                                                 <i class="ph-bold ph-heart text-xs"></i>
                                                 <span class="comment-like-count">12</span>
                                             </button>
-                                            <button onclick="replyToComment(1)" class="text-sm text-gray-600 hover:text-gray-900 transition-colors">Reply</button>
+                                            <button onclick="replyToComment(1)" class="text-xs sm:text-sm text-gray-600 hover:text-gray-900 transition-colors">Reply</button>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Reply Comment -->
-                                <div class="flex gap-4 ml-12 comment-item" data-comment-id="2">
-                                    <div class="w-10 h-10 rounded-full flex-shrink-0 bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold text-sm">
+                                <div class="flex gap-3 sm:gap-4 ml-8 sm:ml-12 comment-item" data-comment-id="2">
+                                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex-shrink-0 bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold text-xs sm:text-sm">
                                         S
                                     </div>
-                                    <div class="flex-1">
-                                        <div class="flex items-center gap-2 mb-2">
-                                            <span class="font-semibold text-gray-900">Sarah Johnson</span>
-                                            <span class="text-gray-500 text-sm">1 hour ago</span>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-2">
+                                            <span class="font-semibold text-gray-900 text-sm sm:text-base">Sarah Johnson</span>
+                                            <span class="text-gray-500 text-xs sm:text-sm">1 hour ago</span>
                                         </div>
-                                        <p class="text-gray-700 mb-3">Agreed! The tech sector dominance is really interesting.</p>
-                                        <div class="flex items-center gap-4">
-                                            <button onclick="toggleCommentLike(2)" class="flex items-center gap-1 text-sm text-gray-600 hover:text-red-500 transition-colors comment-like-btn">
+                                        <p class="text-gray-700 mb-3 text-sm sm:text-base">Agreed! The tech sector dominance is really interesting.</p>
+                                        <div class="flex items-center gap-3 sm:gap-4">
+                                            <button onclick="toggleCommentLike(2)" class="flex items-center gap-1 text-xs sm:text-sm text-gray-600 hover:text-red-500 transition-colors comment-like-btn">
                                                 <i class="ph-bold ph-heart text-xs"></i>
                                                 <span class="comment-like-count">8</span>
                                             </button>
@@ -533,8 +558,8 @@
                 </main>
 
                 <!-- Right Sidebar -->
-                <aside class="lg:col-span-3">
-                    <div class="sticky top-24">
+                <aside class="lg:col-span-3 order-3">
+                    <div class="sticky top-20 sm:top-24">
                         <!-- Floating Social Icons -->
                         <div class="flex flex-col gap-3 mb-8">
                             <a href="#" onclick="shareOnTwitter()" class="flex items-center justify-center w-12 h-12 bg-white border border-gray-200 rounded-full text-gray-600 hover:text-purple-600 hover:border-purple-600 transition-colors shadow-sm">
@@ -647,7 +672,7 @@
     <!-- Comment Modal -->
     <div id="commentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50" onclick="closeCommentModal()">
         <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg max-w-md w-full p-6 relative" onclick="event.stopPropagation()">
+            <div class="bg-white rounded-lg max-w-sm sm:max-w-md w-full mx-4 p-4 sm:p-6 relative" onclick="event.stopPropagation()">
                 <!-- Header -->
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-semibold">Join the Discussion</h3>
@@ -730,58 +755,58 @@
     <!-- Share Modal -->
     <div id="shareModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50" onclick="closeShareModal()">
         <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg max-w-lg w-full p-6 relative" onclick="event.stopPropagation()">
+            <div class="bg-white rounded-lg max-w-sm sm:max-w-lg w-full mx-4 p-4 sm:p-6 relative" onclick="event.stopPropagation()">
                 <!-- Header -->
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-semibold text-gray-900">Share this article</h3>
+                <div class="flex justify-between items-center mb-4 sm:mb-6">
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-900">Share this article</h3>
                     <button onclick="closeShareModal()" class="text-gray-400 hover:text-gray-600 p-1">
-                        <i class="ph-bold ph-x text-xl"></i>
+                        <i class="ph-bold ph-x text-lg sm:text-xl"></i>
                     </button>
                 </div>
 
                 <!-- Content -->
-                <div class="text-center mb-6">
-                    <p class="text-gray-600 mb-4">Share this article with your network</p>
+                <div class="text-center mb-4 sm:mb-6">
+                    <p class="text-gray-600 mb-3 sm:mb-4 text-sm sm:text-base">Share this article with your network</p>
 
                     <!-- Social Links -->
-                    <div class="grid grid-cols-2 gap-3 mb-4">
-                        <button onclick="shareOnTwitter()" class="flex items-center justify-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
-                            <i class="ph-bold ph-twitter-logo text-2xl text-blue-600"></i>
-                            <span class="text-sm font-medium text-gray-900">Twitter</span>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-3 sm:mb-4">
+                        <button onclick="shareOnTwitter()" class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3 p-3 sm:p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
+                            <i class="ph-bold ph-twitter-logo text-xl sm:text-2xl text-blue-600"></i>
+                            <span class="text-xs sm:text-sm font-medium text-gray-900">Twitter</span>
                         </button>
-                        <button onclick="shareOnLinkedIn()" class="flex items-center justify-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
-                            <i class="ph-bold ph-linkedin-logo text-2xl text-blue-700"></i>
-                            <span class="text-sm font-medium text-gray-900">LinkedIn</span>
+                        <button onclick="shareOnLinkedIn()" class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3 p-3 sm:p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
+                            <i class="ph-bold ph-linkedin-logo text-xl sm:text-2xl text-blue-700"></i>
+                            <span class="text-xs sm:text-sm font-medium text-gray-900">LinkedIn</span>
                         </button>
-                        <button onclick="shareOnFacebook()" class="flex items-center justify-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
-                            <i class="ph-bold ph-facebook-logo text-2xl text-blue-800"></i>
-                            <span class="text-sm font-medium text-gray-900">Facebook</span>
+                        <button onclick="shareOnFacebook()" class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3 p-3 sm:p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
+                            <i class="ph-bold ph-facebook-logo text-xl sm:text-2xl text-blue-800"></i>
+                            <span class="text-xs sm:text-sm font-medium text-gray-900">Facebook</span>
                         </button>
-                        <button onclick="shareOnWhatsApp()" class="flex items-center justify-center gap-3 p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors">
-                            <i class="ph-bold ph-whatsapp-logo text-2xl text-green-600"></i>
-                            <span class="text-sm font-medium text-gray-900">WhatsApp</span>
+                        <button onclick="shareOnWhatsApp()" class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3 p-3 sm:p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors">
+                            <i class="ph-bold ph-whatsapp-logo text-xl sm:text-2xl text-green-600"></i>
+                            <span class="text-xs sm:text-sm font-medium text-gray-900">WhatsApp</span>
                         </button>
-                        <button onclick="shareOnReddit()" class="flex items-center justify-center gap-3 p-4 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-100 transition-colors">
-                            <i class="ph-bold ph-reddit-logo text-2xl text-orange-600"></i>
-                            <span class="text-sm font-medium text-gray-900">Reddit</span>
+                        <button onclick="shareOnReddit()" class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3 p-3 sm:p-4 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-100 transition-colors">
+                            <i class="ph-bold ph-reddit-logo text-xl sm:text-2xl text-orange-600"></i>
+                            <span class="text-xs sm:text-sm font-medium text-gray-900">Reddit</span>
                         </button>
-                        <button onclick="shareOnTelegram()" class="flex items-center justify-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
-                            <i class="ph-bold ph-telegram-logo text-2xl text-blue-500"></i>
-                            <span class="text-sm font-medium text-gray-900">Telegram</span>
+                        <button onclick="shareOnTelegram()" class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3 p-3 sm:p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
+                            <i class="ph-bold ph-telegram-logo text-xl sm:text-2xl text-blue-500"></i>
+                            <span class="text-xs sm:text-sm font-medium text-gray-900">Telegram</span>
                         </button>
-                        <button onclick="shareOnPinterest()" class="flex items-center justify-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors">
-                            <i class="ph-bold ph-pinterest-logo text-2xl text-red-600"></i>
-                            <span class="text-sm font-medium text-gray-900">Pinterest</span>
+                        <button onclick="shareOnPinterest()" class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors">
+                            <i class="ph-bold ph-pinterest-logo text-xl sm:text-2xl text-red-600"></i>
+                            <span class="text-xs sm:text-sm font-medium text-gray-900">Pinterest</span>
                         </button>
-                        <button onclick="shareOnTumblr()" class="flex items-center justify-center gap-3 p-4 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
-                            <i class="ph-bold ph-tumblr-logo text-2xl text-gray-700"></i>
-                            <span class="text-sm font-medium text-gray-900">Tumblr</span>
+                        <button onclick="shareOnTumblr()" class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3 p-3 sm:p-4 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
+                            <i class="ph-bold ph-tumblr-logo text-xl sm:text-2xl text-gray-700"></i>
+                            <span class="text-xs sm:text-sm font-medium text-gray-900">Tumblr</span>
                         </button>
                     </div>
 
                     <!-- Copy Link -->
-                    <button onclick="copyLink()" class="w-full flex items-center justify-center gap-3 p-4 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
-                        <i class="ph-bold ph-copy text-2xl text-gray-600"></i>
+                    <button onclick="copyLink()" class="w-full flex items-center justify-center gap-3 p-3 sm:p-4 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
+                        <i class="ph-bold ph-copy text-xl sm:text-2xl text-gray-600"></i>
                         <span class="text-sm font-medium text-gray-900">Copy Link</span>
                     </button>
                 </div>
@@ -792,52 +817,52 @@
     <!-- Follow Modal -->
     <div id="followModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50" onclick="closeFollowModal()">
         <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg max-w-md w-full p-6 relative" onclick="event.stopPropagation()">
+            <div class="bg-white rounded-lg max-w-sm sm:max-w-md w-full mx-4 p-4 sm:p-6 relative" onclick="event.stopPropagation()">
                 <!-- Header -->
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-semibold text-gray-900">Follow NekwasaR</h3>
+                <div class="flex justify-between items-center mb-4 sm:mb-6">
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-900">Follow NekwasaR</h3>
                     <button onclick="closeFollowModal()" class="text-gray-400 hover:text-gray-600 p-1">
-                        <i class="ph-bold ph-x text-xl"></i>
+                        <i class="ph-bold ph-x text-lg sm:text-xl"></i>
                     </button>
                 </div>
 
                 <!-- Content -->
-                <div class="text-center mb-6">
-                    <p class="text-gray-600 mb-4">Choose your preferred platform to follow me and stay updated with my latest content.</p>
+                <div class="text-center mb-4 sm:mb-6">
+                    <p class="text-gray-600 mb-3 sm:mb-4 text-sm sm:text-base">Choose your preferred platform to follow me and stay updated with my latest content.</p>
 
                     <!-- Social Links -->
-                    <div class="grid grid-cols-2 gap-3">
-                        <a href="https://www.reddit.com/user/nekwasar/" target="_blank" class="flex items-center justify-center gap-3 p-4 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-100 transition-colors">
-                            <i class="ph-bold ph-reddit-logo text-2xl text-orange-600"></i>
-                            <span class="text-sm font-medium text-gray-900">Reddit</span>
+                    <div class="grid grid-cols-2 gap-2 sm:gap-3">
+                        <a href="https://www.reddit.com/user/nekwasar/" target="_blank" class="flex items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-100 transition-colors">
+                            <i class="ph-bold ph-reddit-logo text-xl sm:text-2xl text-orange-600"></i>
+                            <span class="text-xs sm:text-sm font-medium text-gray-900">Reddit</span>
                         </a>
-                        <a href="https://www.facebook.com/nekwasar" target="_blank" class="flex items-center justify-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
-                            <i class="ph-bold ph-facebook-logo text-2xl text-blue-600"></i>
-                            <span class="text-sm font-medium text-gray-900">Facebook</span>
+                        <a href="https://www.facebook.com/nekwasar" target="_blank" class="flex items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
+                            <i class="ph-bold ph-facebook-logo text-xl sm:text-2xl text-blue-600"></i>
+                            <span class="text-xs sm:text-sm font-medium text-gray-900">Facebook</span>
                         </a>
-                        <a href="https://www.instagram.com/nekwasar" target="_blank" class="flex items-center justify-center gap-3 p-4 bg-pink-50 border border-pink-200 rounded-lg hover:bg-pink-100 transition-colors">
-                            <i class="ph-bold ph-instagram-logo text-2xl text-pink-600"></i>
-                            <span class="text-sm font-medium text-gray-900">Instagram</span>
+                        <a href="https://www.instagram.com/nekwasar" target="_blank" class="flex items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 bg-pink-50 border border-pink-200 rounded-lg hover:bg-pink-100 transition-colors">
+                            <i class="ph-bold ph-instagram-logo text-xl sm:text-2xl text-pink-600"></i>
+                            <span class="text-xs sm:text-sm font-medium text-gray-900">Instagram</span>
                         </a>
-                        <a href="https://wa.me/2348164806578" target="_blank" class="flex items-center justify-center gap-3 p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors">
-                            <i class="ph-bold ph-whatsapp-logo text-2xl text-green-600"></i>
-                            <span class="text-sm font-medium text-gray-900">WhatsApp</span>
+                        <a href="https://wa.me/2348164806578" target="_blank" class="flex items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors">
+                            <i class="ph-bold ph-whatsapp-logo text-xl sm:text-2xl text-green-600"></i>
+                            <span class="text-xs sm:text-sm font-medium text-gray-900">WhatsApp</span>
                         </a>
-                        <a href="https://x.com/nekwasar" target="_blank" class="flex items-center justify-center gap-3 p-4 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
-                            <i class="ph-bold ph-x-logo text-2xl text-gray-900"></i>
-                            <span class="text-sm font-medium text-gray-900">X (Twitter)</span>
+                        <a href="https://x.com/nekwasar" target="_blank" class="flex items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
+                            <i class="ph-bold ph-x-logo text-xl sm:text-2xl text-gray-900"></i>
+                            <span class="text-xs sm:text-sm font-medium text-gray-900">X (Twitter)</span>
                         </a>
-                        <a href="https://linkedin.com/in/nekwasar" target="_blank" class="flex items-center justify-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
-                            <i class="ph-bold ph-linkedin-logo text-2xl text-blue-700"></i>
-                            <span class="text-sm font-medium text-gray-900">LinkedIn</span>
+                        <a href="https://linkedin.com/in/nekwasar" target="_blank" class="flex items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
+                            <i class="ph-bold ph-linkedin-logo text-xl sm:text-2xl text-blue-700"></i>
+                            <span class="text-xs sm:text-sm font-medium text-gray-900">LinkedIn</span>
                         </a>
-                        <a href="https://github.com/nekwasar" target="_blank" class="flex items-center justify-center gap-3 p-4 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
-                            <i class="ph-bold ph-github-logo text-2xl text-gray-900"></i>
-                            <span class="text-sm font-medium text-gray-900">GitHub</span>
+                        <a href="https://github.com/nekwasar" target="_blank" class="flex items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
+                            <i class="ph-bold ph-github-logo text-xl sm:text-2xl text-gray-900"></i>
+                            <span class="text-xs sm:text-sm font-medium text-gray-900">GitHub</span>
                         </a>
-                        <a href="https://spacehey.com/nekwasar" target="_blank" class="flex items-center justify-center gap-3 p-4 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors">
-                            <i class="ph-bold ph-globe text-2xl text-purple-600"></i>
-                            <span class="text-sm font-medium text-gray-900">SpaceHey</span>
+                        <a href="https://spacehey.com/nekwasar" target="_blank" class="flex items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors">
+                            <i class="ph-bold ph-globe text-xl sm:text-2xl text-purple-600"></i>
+                            <span class="text-xs sm:text-sm font-medium text-gray-900">SpaceHey</span>
                         </a>
                     </div>
                 </div>
@@ -1267,6 +1292,19 @@
                     likeIcon.classList.remove('ph-bold');
                 }
             });
+
+            // Add mobile-specific enhancements
+            if (window.innerWidth < 768) {
+                // Add padding to body for mobile bottom toolbar
+                document.body.style.paddingBottom = '80px';
+
+                // Improve touch interactions
+                const touchElements = document.querySelectorAll('button, a, [role="button"]');
+                touchElements.forEach(element => {
+                    element.style.minHeight = '44px';
+                    element.style.minWidth = '44px';
+                });
+            }
         });
     </script>
 </body>

@@ -1,5 +1,5 @@
 import logging
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
@@ -51,6 +51,21 @@ app.include_router(admin.router, tags=["admin"])
 
 # Mount static files for admin interface
 app.mount("/static", StaticFiles(directory="../../portfolio"), name="static")
+
+# Add custom exception handler for 401/403 errors to show custom 403 page
+from fastapi.responses import HTMLResponse
+from fastapi.exception_handlers import http_exception_handler
+from routes.admin import templates
+
+async def custom_403_handler(request: Request, exc: HTTPException):
+    """Custom handler for 401/403 errors to show custom 403 page"""
+    if exc.status_code in [403, 401]:
+        logger.info(f"🔐 {exc.status_code} ERROR - Returning custom 403 error page for unauthenticated access")
+        return templates.TemplateResponse("admin_403_error.html", {"request": request})
+    # Fall back to default handler for other HTTP errors
+    return await http_exception_handler(request, exc)
+
+app.add_exception_handler(HTTPException, custom_403_handler)
 
 def create_default_admin_user():
     """Create default admin user if it doesn't exist"""
