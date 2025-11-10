@@ -88,10 +88,10 @@
 
                 <!-- Header Actions -->
                 <div class="flex items-center space-x-2 sm:space-x-4">
-                    <button class="p-2 text-gray-600 hover:text-gray-900 transition-colors hidden sm:block">
+                    <button class="p-2 text-gray-600 hover:text-gray-900 transition-colors">
                         <i class="ph-bold ph-moon-stars text-lg"></i>
                     </button>
-                    <button class="p-2 text-gray-600 hover:text-gray-900 transition-colors hidden sm:block">
+                    <button class="p-2 text-gray-600 hover:text-gray-900 transition-colors">
                         <i class="ph-bold ph-magnifying-glass text-lg"></i>
                     </button>
                     <button id="mobile-menu-btn" class="md:hidden p-2 text-gray-600 hover:text-gray-900 transition-colors">
@@ -877,7 +877,7 @@
                 <i class="ph-bold ph-chat-circle text-lg"></i>
                 <span class="text-xs">Comment</span>
             </button>
-            <button onclick="shareOnTwitter()" class="flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 transition-colors">
+            <button onclick="openShareModal()" class="flex flex-col items-center gap-1 text-gray-600 hover:text-gray-900 transition-colors">
                 <i class="ph-bold ph-share-network text-lg"></i>
                 <span class="text-xs">Share</span>
             </button>
@@ -972,6 +972,9 @@
 
             likeCount.textContent = newCount;
 
+            // Show notification
+            showLikeNotification(isLiked ? 'unliked' : 'liked');
+
             // Store in localStorage
             const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '[]');
             if (isLiked) {
@@ -984,6 +987,43 @@
 
             // TODO: Send to backend API
             console.log(`${isLiked ? 'Unliked' : 'Liked'} post ${postId}`);
+        }
+
+        // Show like notification
+        function showLikeNotification(action) {
+            // Remove existing notification
+            const existingNotification = document.querySelector('.like-notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+
+            // Create notification
+            const notification = document.createElement('div');
+            notification.className = 'like-notification fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+            notification.textContent = `Post ${action}! ❤️`;
+
+            // Add to page
+            document.body.appendChild(notification);
+
+            // Animate in
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateX(-50%) translateY(-20px)';
+            setTimeout(() => {
+                notification.style.transition = 'all 0.3s ease-out';
+                notification.style.opacity = '1';
+                notification.style.transform = 'translateX(-50%) translateY(0)';
+            }, 10);
+
+            // Remove after 4 seconds
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(-50%) translateY(-20px)';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 4000);
         }
 
         // Comment like functionality
