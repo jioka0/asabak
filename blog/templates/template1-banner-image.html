@@ -167,8 +167,10 @@
                         </button>
                     </span>
                     <span class="flex items-center gap-2">
-                        <i class="ph-bold ph-share-network text-base"></i>
-                        Share
+                        <button onclick="openShareModal()" class="flex items-center gap-2 hover:text-purple-600 transition-colors">
+                            <i class="ph-bold ph-share-network text-base"></i>
+                            Share
+                        </button>
                     </span>
                 </div>
 
@@ -725,6 +727,68 @@
         </div>
     </div>
 
+    <!-- Share Modal -->
+    <div id="shareModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50" onclick="closeShareModal()">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-lg w-full p-6 relative" onclick="event.stopPropagation()">
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-semibold text-gray-900">Share this article</h3>
+                    <button onclick="closeShareModal()" class="text-gray-400 hover:text-gray-600 p-1">
+                        <i class="ph-bold ph-x text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- Content -->
+                <div class="text-center mb-6">
+                    <p class="text-gray-600 mb-4">Share this article with your network</p>
+
+                    <!-- Social Links -->
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <button onclick="shareOnTwitter()" class="flex items-center justify-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
+                            <i class="ph-bold ph-twitter-logo text-2xl text-blue-600"></i>
+                            <span class="text-sm font-medium text-gray-900">Twitter</span>
+                        </button>
+                        <button onclick="shareOnLinkedIn()" class="flex items-center justify-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
+                            <i class="ph-bold ph-linkedin-logo text-2xl text-blue-700"></i>
+                            <span class="text-sm font-medium text-gray-900">LinkedIn</span>
+                        </button>
+                        <button onclick="shareOnFacebook()" class="flex items-center justify-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
+                            <i class="ph-bold ph-facebook-logo text-2xl text-blue-800"></i>
+                            <span class="text-sm font-medium text-gray-900">Facebook</span>
+                        </button>
+                        <button onclick="shareOnWhatsApp()" class="flex items-center justify-center gap-3 p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors">
+                            <i class="ph-bold ph-whatsapp-logo text-2xl text-green-600"></i>
+                            <span class="text-sm font-medium text-gray-900">WhatsApp</span>
+                        </button>
+                        <button onclick="shareOnReddit()" class="flex items-center justify-center gap-3 p-4 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-100 transition-colors">
+                            <i class="ph-bold ph-reddit-logo text-2xl text-orange-600"></i>
+                            <span class="text-sm font-medium text-gray-900">Reddit</span>
+                        </button>
+                        <button onclick="shareOnTelegram()" class="flex items-center justify-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
+                            <i class="ph-bold ph-telegram-logo text-2xl text-blue-500"></i>
+                            <span class="text-sm font-medium text-gray-900">Telegram</span>
+                        </button>
+                        <button onclick="shareOnPinterest()" class="flex items-center justify-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors">
+                            <i class="ph-bold ph-pinterest-logo text-2xl text-red-600"></i>
+                            <span class="text-sm font-medium text-gray-900">Pinterest</span>
+                        </button>
+                        <button onclick="shareOnTumblr()" class="flex items-center justify-center gap-3 p-4 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
+                            <i class="ph-bold ph-tumblr-logo text-2xl text-gray-700"></i>
+                            <span class="text-sm font-medium text-gray-900">Tumblr</span>
+                        </button>
+                    </div>
+
+                    <!-- Copy Link -->
+                    <button onclick="copyLink()" class="w-full flex items-center justify-center gap-3 p-4 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
+                        <i class="ph-bold ph-copy text-2xl text-gray-600"></i>
+                        <span class="text-sm font-medium text-gray-900">Copy Link</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Follow Modal -->
     <div id="followModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50" onclick="closeFollowModal()">
         <div class="flex items-center justify-center min-h-screen p-4">
@@ -759,9 +823,21 @@
                             <i class="ph-bold ph-whatsapp-logo text-2xl text-green-600"></i>
                             <span class="text-sm font-medium text-gray-900">WhatsApp</span>
                         </a>
-                        <a href="https://x.com/nekwasar" target="_blank" class="flex items-center justify-center gap-3 p-4 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors col-span-2">
+                        <a href="https://x.com/nekwasar" target="_blank" class="flex items-center justify-center gap-3 p-4 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
                             <i class="ph-bold ph-x-logo text-2xl text-gray-900"></i>
                             <span class="text-sm font-medium text-gray-900">X (Twitter)</span>
+                        </a>
+                        <a href="https://linkedin.com/in/nekwasar" target="_blank" class="flex items-center justify-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
+                            <i class="ph-bold ph-linkedin-logo text-2xl text-blue-700"></i>
+                            <span class="text-sm font-medium text-gray-900">LinkedIn</span>
+                        </a>
+                        <a href="https://github.com/nekwasar" target="_blank" class="flex items-center justify-center gap-3 p-4 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
+                            <i class="ph-bold ph-github-logo text-2xl text-gray-900"></i>
+                            <span class="text-sm font-medium text-gray-900">GitHub</span>
+                        </a>
+                        <a href="https://spacehey.com/nekwasar" target="_blank" class="flex items-center justify-center gap-3 p-4 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors">
+                            <i class="ph-bold ph-globe text-2xl text-purple-600"></i>
+                            <span class="text-sm font-medium text-gray-900">SpaceHey</span>
                         </a>
                     </div>
                 </div>
@@ -1012,6 +1088,12 @@
                 return;
             }
 
+            if (!subscribeNewsletter) {
+                alert('Please check the newsletter subscription box to continue.');
+                document.getElementById('newsletterSubscribe').focus();
+                return;
+            }
+
             // Show loading
             document.getElementById('subscribeForm').classList.add('hidden');
             document.getElementById('loadingState').classList.remove('hidden');
@@ -1102,6 +1184,17 @@
             alert(`Reply to comment ${commentId} - Coming soon!`);
         }
 
+        // Share modal functionality
+        function openShareModal() {
+            const modal = document.getElementById('shareModal');
+            modal.classList.remove('hidden');
+        }
+
+        function closeShareModal() {
+            const modal = document.getElementById('shareModal');
+            modal.classList.add('hidden');
+        }
+
         // Follow modal functionality
         function openFollowModal() {
             const modal = document.getElementById('followModal');
@@ -1113,11 +1206,38 @@
             modal.classList.add('hidden');
         }
 
+        // Additional share functions
+        function shareOnReddit() {
+            const url = encodeURIComponent(window.location.href);
+            const title = encodeURIComponent(document.title);
+            window.open(`https://reddit.com/submit?url=${url}&title=${title}`, '_blank');
+        }
+
+        function shareOnTelegram() {
+            const url = encodeURIComponent(window.location.href);
+            const text = encodeURIComponent(document.title);
+            window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank');
+        }
+
+        function shareOnPinterest() {
+            const url = encodeURIComponent(window.location.href);
+            const description = encodeURIComponent(document.title);
+            const image = encodeURIComponent('https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&h=630&fit=crop');
+            window.open(`https://pinterest.com/pin/create/button/?url=${url}&description=${description}&media=${image}`, '_blank');
+        }
+
+        function shareOnTumblr() {
+            const url = encodeURIComponent(window.location.href);
+            const title = encodeURIComponent(document.title);
+            window.open(`https://www.tumblr.com/widgets/share/tool?canonicalUrl=${url}&title=${title}`, '_blank');
+        }
+
         // Add keyboard accessibility
         document.addEventListener('keydown', function(event) {
             // Close modals with Escape key
             if (event.key === 'Escape') {
                 closeCommentModal();
+                closeShareModal();
                 closeFollowModal();
             }
         });
