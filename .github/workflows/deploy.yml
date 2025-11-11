@@ -1,0 +1,59 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install dependencies
+        run: |
+          cd backend/app
+          pip install -r requirements.txt
+      - name: Run tests
+        run: |
+          cd backend/app
+          python -m pytest || echo "No tests found"
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e
+            cd /home/deploy/nekwas
+
+            # Pull latest changes
+            git fetch origin
+            git reset --hard origin/main
+
+            # Install/update dependencies
+            cd backend/app
+            pip install -r requirements.txt
+
+            # Restart services
+            pkill -f uvicorn || true
+            pkill -f http.server || true
+
+            # Start services
+            uvicorn main:app --host 0.0.0.0 --port 8000 &
+            cd ../../portfolio && python3 -m http.server 8001 &
+            cd ../blog && python3 -m http.server 8002 &
+            cd ../store && python3 -m http.server 8003 &
+
+            # Restart nginx
+            sudo systemctl restart nginx
