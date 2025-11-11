@@ -120,12 +120,25 @@ async def startup_event():
     logger.info("✅ Application started successfully!")
 
 @app.get("/", response_class=HTMLResponse)
-async def root():
-    """Redirect to main portfolio site"""
-    return """
+async def root(request: Request):
+    """Redirect to main portfolio site based on port"""
+    if request.url.port == 8000:
+        redirect_url = "http://127.0.0.1:8001"
+    else:
+        # For other ports, serve API info or no redirect
+        return """
+        <html>
+            <body>
+                <h1>NekwasaR Backend API</h1>
+                <p>Visit <a href="/docs">/docs</a> for API documentation.</p>
+            </body>
+        </html>
+        """
+
+    return f"""
     <html>
         <head>
-            <meta http-equiv="refresh" content="0; url=http://127.0.0.1:8000" />
+            <meta http-equiv="refresh" content="0; url={redirect_url}" />
         </head>
         <body>
             <p>Redirecting to portfolio site...</p>

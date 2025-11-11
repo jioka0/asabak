@@ -88,10 +88,10 @@
 
                 <!-- Header Actions -->
                 <div class="flex items-center space-x-2 sm:space-x-4">
-                    <button class="p-2 text-gray-600 hover:text-gray-900 transition-colors">
+                    <button onclick="toggleTheme()" class="p-2 text-gray-600 hover:text-gray-900 transition-colors">
                         <i class="ph-bold ph-moon-stars text-lg"></i>
                     </button>
-                    <button class="p-2 text-gray-600 hover:text-gray-900 transition-colors">
+                    <button onclick="openSearchModal()" class="p-2 text-gray-600 hover:text-gray-900 transition-colors">
                         <i class="ph-bold ph-magnifying-glass text-lg"></i>
                     </button>
                     <button id="mobile-menu-btn" class="md:hidden p-2 text-gray-600 hover:text-gray-900 transition-colors">
@@ -110,10 +110,10 @@
                     <a href="#featured" class="block text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors py-2">Featured</a>
                     <a href="#tags" class="block text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors py-2">Topics</a>
                     <div class="flex items-center space-x-4 pt-2 border-t border-gray-100">
-                        <button class="p-2 text-gray-600 hover:text-gray-900 transition-colors">
+                        <button onclick="toggleTheme()" class="p-2 text-gray-600 hover:text-gray-900 transition-colors">
                             <i class="ph-bold ph-moon-stars text-lg"></i>
                         </button>
-                        <button class="p-2 text-gray-600 hover:text-gray-900 transition-colors">
+                        <button onclick="openSearchModal()" class="p-2 text-gray-600 hover:text-gray-900 transition-colors">
                             <i class="ph-bold ph-magnifying-glass text-lg"></i>
                         </button>
                     </div>
@@ -1347,5 +1347,76 @@
             }
         });
     </script>
+
+    <!-- Search Modal -->
+    <div id="search-modal" class="search-modal-overlay">
+        <div class="search-modal-container">
+            <!-- Header -->
+            <div class="search-modal-header">
+                <div class="search-modal-input-wrapper">
+                    <i class="ph-bold ph-magnifying-glass search-modal-icon"></i>
+                    <input type="text" class="search-modal-input" placeholder="Search articles, topics, or keywords..." autocomplete="off">
+                    <button class="search-modal-close">
+                        <i class="ph-bold ph-x"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="search-modal-content">
+                <!-- Suggestions -->
+                <div class="search-modal-section">
+                    <h4 class="search-modal-section-title">Trending Searches</h4>
+                    <div class="search-modal-suggestions">
+                        <button class="search-modal-suggestion">Artificial Intelligence</button>
+                        <button class="search-modal-suggestion">Machine Learning</button>
+                        <button class="search-modal-suggestion">Technology Trends</button>
+                        <button class="search-modal-suggestion">Innovation</button>
+                        <button class="search-modal-suggestion">Future of Work</button>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="search-modal-section">
+                    <h4 class="search-modal-section-title">Filter by Category</h4>
+                    <div class="search-modal-filters">
+                        <button class="search-modal-filter active">All</button>
+                        <button class="search-modal-filter">Technology</button>
+                        <button class="search-modal-filter">Business</button>
+                        <button class="search-modal-filter">Innovation</button>
+                        <button class="search-modal-filter">AI</button>
+                    </div>
+                </div>
+
+                <!-- Results -->
+                <div class="search-modal-section">
+                    <h4 class="search-modal-section-title">Recent Articles</h4>
+                    <div class="search-modal-results">
+                        <div class="search-modal-result">
+                            <div class="search-modal-result-content">
+                                <h5>The Future of Artificial Intelligence</h5>
+                                <p>Explore how AI is reshaping industries and creating unprecedented opportunities...</p>
+                                <span class="search-modal-result-meta">Technology • 8 min read</span>
+                            </div>
+                        </div>
+                        <div class="search-modal-result">
+                            <div class="search-modal-result-content">
+                                <h5>How AI is Revolutionizing Healthcare</h5>
+                                <p>Discover the transformative impact of AI in medical diagnosis and treatment...</p>
+                                <span class="search-modal-result-meta">Healthcare • 12 min read</span>
+                            </div>
+                        </div>
+                        <div class="search-modal-result">
+                            <div class="search-modal-result-content">
+                                <h5>The Rise of Quantum Computing</h5>
+                                <p>Understanding the next frontier in computational power and its implications...</p>
+                                <span class="search-modal-result-meta">Technology • 15 min read</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

@@ -443,63 +443,93 @@
     // Dark/Light Theme Toggle
     const ThemeToggle = {
         init: function() {
-            this.createToggleButton();
             this.bindEvents();
             Utils.debug('Theme Toggle initialized');
         },
 
-        createToggleButton: function() {
-            const button = document.createElement('button');
-            button.id = 'theme-toggle';
-            button.innerHTML = '<i class="ph-bold ph-sun"></i>';
-            button.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                width: 50px;
-                height: 50px;
-                border-radius: 50%;
-                background: var(--base);
-                border: 1px solid var(--stroke-elements);
-                color: var(--t-medium);
-                cursor: pointer;
-                z-index: 9999;
-                transition: all 0.3s var(--_animbezier);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 1.8rem;
-            `;
-            
-            document.body.appendChild(button);
-        },
-
         bindEvents: function() {
-            const button = document.getElementById('theme-toggle');
-            if (button) {
-                button.addEventListener('click', () => {
+            // Bind to existing theme buttons in header
+            const themeButtons = document.querySelectorAll('[onclick*="toggleTheme"]');
+            themeButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
                     this.toggleTheme();
                 });
-            }
+            });
         },
 
         toggleTheme: function() {
             const html = document.documentElement;
             const currentScheme = html.getAttribute('color-scheme') || 'light';
             const newScheme = currentScheme === 'light' ? 'dark' : 'light';
-            
+
             html.setAttribute('color-scheme', newScheme);
-            
-            // Update button icon
-            const button = document.getElementById('theme-toggle');
-            button.innerHTML = newScheme === 'light' ? 
-                '<i class="ph-bold ph-sun"></i>' : 
-                '<i class="ph-bold ph-moon"></i>';
-            
+
+            // Update all theme button icons
+            const themeButtons = document.querySelectorAll('[onclick*="toggleTheme"] i');
+            themeButtons.forEach(icon => {
+                icon.className = newScheme === 'light' ?
+                    'ph-bold ph-moon-stars text-lg' :
+                    'ph-bold ph-sun text-lg';
+            });
+
             // Save preference
             localStorage.setItem('color-scheme', newScheme);
-            
+
             Utils.debug('Theme changed to:', newScheme);
+        }
+    };
+
+    // Search Modal Module
+    const SearchModal = {
+        init: function() {
+            this.bindEvents();
+            Utils.debug('Search Modal initialized');
+        },
+
+        bindEvents: function() {
+            // Bind to existing search buttons in header
+            const searchButtons = document.querySelectorAll('[onclick*="openSearchModal"]');
+            searchButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.openModal();
+                });
+            });
+
+            // Close modal when clicking outside or on close button
+            document.addEventListener('click', (e) => {
+                const modal = document.getElementById('search-modal');
+                const closeBtn = e.target.closest('.search-modal-close');
+                if (modal && (e.target === modal || closeBtn)) {
+                    this.closeModal();
+                }
+            });
+
+            // Close on escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    this.closeModal();
+                }
+            });
+        },
+
+        openModal: function() {
+            const modal = document.getElementById('search-modal');
+            if (modal) {
+                modal.classList.add('active');
+                const input = modal.querySelector('.search-modal-input');
+                if (input) {
+                    setTimeout(() => input.focus(), 100);
+                }
+            }
+        },
+
+        closeModal: function() {
+            const modal = document.getElementById('search-modal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
         }
     };
 
@@ -794,8 +824,9 @@
                 if (document.getElementById('heroVideo')) {
                     VideoControls.init();
                 }
-                
+
                 ThemeToggle.init();
+                SearchModal.init();
                 Print.init();
                 MobileMenu.init();
                 
