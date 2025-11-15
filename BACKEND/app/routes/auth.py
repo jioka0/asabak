@@ -49,21 +49,38 @@ async def register_admin(user: AdminUserCreate, db: Session = Depends(get_db)):
 @router.post("/login", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     """Login and get access token"""
-    auth_route_logger.info(f"🚀 LOGIN REQUEST - Username: {form_data.username}, Grant type: {form_data.grant_type}")
+    auth_route_logger.info("🚀 LOGIN ENDPOINT CALLED")
+    auth_route_logger.info(f"📝 FORM DATA - Username: {form_data.username}, Grant type: {form_data.grant_type}")
+    auth_route_logger.info(f"🔐 PASSWORD LENGTH - {len(form_data.password) if form_data.password else 0}")
+
+    auth_route_logger.info("🔍 STARTING USER AUTHENTICATION")
     user = authenticate_user(db, form_data.username, form_data.password)
+
     if not user:
-        auth_route_logger.error(f"❌ LOGIN FAILED - Authentication failed for: {form_data.username}")
+        auth_route_logger.error(f"❌ AUTHENTICATION FAILED - Username: {form_data.username}")
+        auth_route_logger.error("❌ INVALID CREDENTIALS - Login rejected")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    auth_route_logger.info(f"🔐 USER AUTHENTICATED - ID: {user.id}, Username: {user.username}")
+
+    auth_route_logger.info("✅ USER AUTHENTICATION SUCCESSFUL")
+    auth_route_logger.info(f"👤 USER DETAILS - ID: {user.id}, Username: {user.username}, Email: {user.email}")
+    auth_route_logger.info(f"🔐 USER STATUS - Active: {user.is_active}, Superuser: {user.is_superuser}")
+
     access_token_expires = timedelta(minutes=120)  # 2 hours
+    auth_route_logger.info(f"⏰ TOKEN EXPIRATION - {access_token_expires} (2 hours)")
+
+    auth_route_logger.info("🔐 CREATING ACCESS TOKEN")
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
-    auth_route_logger.info(f"✅ LOGIN SUCCESS - Token created for: {form_data.username}, Token length: {len(access_token)}")
+
+    auth_route_logger.info("✅ LOGIN PROCESS COMPLETED")
+    auth_route_logger.info(f"🎫 TOKEN DETAILS - Length: {len(access_token)}, Type: bearer")
+    auth_route_logger.info(f"🚀 RETURNING TOKEN RESPONSE - Username: {form_data.username}")
+
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.get("/me", response_model=AdminUserSchema)

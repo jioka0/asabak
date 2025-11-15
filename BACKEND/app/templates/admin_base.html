@@ -1247,13 +1247,13 @@
         // Initialize admin app when DOM is ready
         document.addEventListener('DOMContentLoaded', async () => {
             console.log('🚀 ADMIN BASE LOADED - Starting authentication check');
-            
+
             // Check authentication status on page load
             try {
                 const token = localStorage.getItem('token');
                 console.log('🔍 TOKEN CHECK - Token found:', !!token);
                 console.log('🔍 TOKEN PREVIEW - First 20 chars:', token ? token.substring(0, 20) + '...' : 'No token');
-                
+
                 if (!token) {
                     console.log('❌ NO TOKEN FOUND - Redirecting to login');
                     redirectToLogin();
@@ -1268,13 +1268,13 @@
                         'Content-Type': 'application/json'
                     }
                 });
-                
+
                 console.log('📡 AUTH CHECK RESPONSE - Status:', response.status, 'OK:', response.ok);
-                
+
                 if (!response.ok) {
                     console.log('❌ AUTH CHECK FAILED - Status:', response.status, 'Redirecting to login');
                     console.log('📋 Response headers:', [...response.headers.entries()]);
-                    
+
                     // Try to get response text for debugging
                     try {
                         const errorText = await response.text();
@@ -1282,32 +1282,33 @@
                     } catch (e) {
                         console.log('❌ Could not read error response body');
                     }
-                    
+
                     localStorage.removeItem('token'); // Clear invalid token
                     console.log('🗑️ Token cleared due to authentication failure');
                     redirectToLogin();
                     return;
                 }
-                
+
                 const authData = await response.json();
                 console.log('✅ AUTH CHECK SUCCESS - User authenticated:', authData.user.username);
                 console.log('👤 User data:', authData.user);
                 console.log('🔓 Authentication flow completed successfully');
-                
-                // Set up session timeout (2 hours)
+
+
+                // Set up session timeout (2 hours from now)
                 setupSessionTimeout();
-                
+
             } catch (error) {
                 console.error('💥 AUTH CHECK ERROR - Exception:', error);
                 console.error('💥 Error type:', error.constructor.name);
                 console.error('💥 Error message:', error.message);
-                
+
                 localStorage.removeItem('token'); // Clear invalid token
                 console.log('🗑️ Token cleared due to error');
                 redirectToLogin();
                 return;
             }
-            
+
             console.log('🎯 INITIALIZING ADMIN APP');
             window.adminApp = new AdminApp();
         });
