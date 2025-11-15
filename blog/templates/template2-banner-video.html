@@ -1,380 +1,1153 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr" color-scheme="light">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Template 2: Banner Video + Text - NekwasaR Blog</title>
-    
+    <title>The Future of Artificial Intelligence: Transforming Our World | NekwasaR Blog</title>
+
     <!-- SEO Meta Tags -->
-    <meta name="description" content="Dynamic blog post template featuring a hero video background with engaging content overlay. Perfect for showcasing processes, demonstrations, and immersive storytelling.">
+    <meta name="description" content="Explore how AI is reshaping industries, empowering innovation, and creating unprecedented opportunities for growth and discovery in our rapidly evolving digital landscape.">
     <meta name="author" content="NekwasaR">
-    <meta name="keywords" content="blog template, banner video, dynamic design, video content, storytelling">
-    
+    <meta name="keywords" content="artificial intelligence, AI, technology, innovation, future, machine learning">
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="article">
-    <meta property="og:title" content="Dynamic Blog Template with Video Hero">
-    <meta property="og:description" content="An immersive blog template featuring a stunning video hero section with professional overlay content and interactive video controls.">
-    <meta property="og:image" content="https://nekwasar.com/blog-templates/images/template2-video-preview.jpg">
-    
+    <meta property="og:title" content="The Future of Artificial Intelligence: Transforming Our World">
+    <meta property="og:description" content="Explore how AI is reshaping industries, empowering innovation, and creating unprecedented opportunities for growth and discovery.">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&h=630&fit=crop">
+
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Dynamic Blog Template with Video Hero">
-    <meta name="twitter:description" content="An immersive blog template featuring a stunning video hero section with professional overlay content and interactive video controls.">
-    <meta name="twitter:image" content="https://nekwasar.com/blog-templates/images/template2-video-preview.jpg">
-    
-    <!-- Fonts - Portfolio Consistent -->
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400..800&display=swap" rel="stylesheet">
+    <meta name="twitter:title" content="The Future of Artificial Intelligence: Transforming Our World">
+    <meta name="twitter:description" content="Explore how AI is reshaping industries, empowering innovation, and creating unprecedented opportunities for growth and discovery.">
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&h=630&fit=crop">
+
+    <!-- Fonts and Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/bold/style.css">
-    
-    <!-- Template Styles -->
-    <link rel="stylesheet" href="css/blog-templates.css">
-    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary': '#0f172a',
+                        'secondary': '#1e293b',
+                        'accent': '#6867a3',
+                        'neutral': '#64748b',
+                        'light': '#f8fafc',
+                        'border': '#e2e8f0',
+                        'purple': {
+                            600: '#6867a3',
+                            700: '#5a5890',
+                            800: '#4c497d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <!-- Favicon -->
     <link rel="icon" href="https://nekwasar.com/favicon.png" sizes="any">
 </head>
-<body>
-    <div class="blog-post template-banner-video">
-        <!-- Hero Banner Video -->
-        <div class="banner-video-hero">
-            <video id="heroVideo" autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1920&h=1080&fit=crop&crop=center">
-                <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
-                <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.webm" type="video/webm">
+<body class="bg-white text-gray-900 font-inter antialiased">
+    <!-- Scroll Progress Bar -->
+    <div class="fixed top-0 left-0 w-full h-1 bg-gray-200 z-50">
+        <div class="h-full bg-purple-600 transition-all duration-300 ease-out" id="scrollProgress"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/" class="flex items-center space-x-2">
+                        <div class="text-lg sm:text-xl font-bold text-gray-900">NekwasaR</div>
+                        <span class="text-xs sm:text-sm text-gray-500 font-medium">Blog</span>
+                    </a>
+                </div>
+                <nav class="hidden md:flex items-center space-x-6 lg:space-x-8 text-sm font-medium text-gray-600">
+                    <a href="http://localhost:8000" class="hover:text-gray-900 transition-colors">Back to Portfolio</a>
+                    <a href="#latest" class="hover:text-gray-900 transition-colors">Latest</a>
+                    <a href="#popular" class="hover:text-gray-900 transition-colors">Popular</a>
+                    <a href="#others" class="hover:text-gray-900 transition-colors">Others</a>
+                    <a href="#featured" class="hover:text-gray-900 transition-colors">Featured</a>
+                    <a href="#tags" class="hover:text-gray-900 transition-colors">Topics</a>
+                </nav>
+                <div class="flex items-center space-x-3">
+                    <button onclick="toggleTheme()" class="p-2 text-gray-600 hover:text-gray-900 transition-colors">
+                        <i class="ph-bold ph-moon-stars text-lg"></i>
+                    </button>
+                    <button onclick="openSearchModal()" class="p-2 text-gray-600 hover:text-gray-900 transition-colors">
+                        <i class="ph-bold ph-magnifying-glass text-lg"></i>
+                    </button>
+                    <button id="mobile-menu-btn" class="md:hidden p-2 text-gray-600 hover:text-gray-900 transition-colors">
+                        <i class="ph-bold ph-list text-lg"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
+                <nav class="px-4 py-4 space-y-3 text-sm">
+                    <a href="http://localhost:8000" class="block text-gray-600 hover:text-gray-900">Back to Portfolio</a>
+                    <a href="#latest" class="block text-gray-600 hover:text-gray-900">Latest</a>
+                    <a href="#popular" class="block text-gray-600 hover:text-gray-900">Popular</a>
+                    <a href="#others" class="block text-gray-600 hover:text-gray-900">Others</a>
+                    <a href="#featured" class="block text-gray-600 hover:text-gray-900">Featured</a>
+                    <a href="#tags" class="block text-gray-600 hover:text-gray-900">Topics</a>
+                    <div class="flex items-center space-x-4 pt-2 border-t border-gray-100">
+                        <button onclick="toggleTheme()" class="p-2 text-gray-600 hover:text-gray-900">
+                            <i class="ph-bold ph-moon-stars text-lg"></i>
+                        </button>
+                        <button onclick="openSearchModal()" class="p-2 text-gray-600 hover:text-gray-900">
+                            <i class="ph-bold ph-magnifying-glass text-lg"></i>
+                        </button>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Introductory Section (now placed before hero) -->
+    <section class="py-16 bg-white">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <p class="text-lg text-gray-700 leading-relaxed mb-8">
+                Artificial Intelligence represents one of the most significant technological breakthroughs of our time.
+                As we stand at the precipice of a new digital age, AI is not just transforming how we work and live—it's
+                fundamentally reshaping the very fabric of human society. From healthcare to finance, education to
+                transportation, the ripple effects of AI innovation are felt across every industry.
+            </p>
+            <div class="flex items-center gap-4 mb-12">
+                <span class="text-sm font-medium text-gray-600">Share:</span>
+                <button onclick="shareOnTwitter()" class="p-2 text-gray-600 hover:text-purple-600 transition-colors">
+                    <i class="ph-bold ph-twitter-logo text-lg"></i>
+                </button>
+                <button onclick="shareOnLinkedIn()" class="p-2 text-gray-600 hover:text-purple-700 transition-colors">
+                    <i class="ph-bold ph-linkedin-logo text-lg"></i>
+                </button>
+                <button onclick="shareOnFacebook()" class="p-2 text-gray-600 hover:text-purple-800 transition-colors">
+                    <i class="ph-bold ph-facebook-logo text-lg"></i>
+                </button>
+                <button onclick="shareOnWhatsApp()" class="p-2 text-gray-600 hover:text-green-600 transition-colors">
+                    <i class="ph-bold ph-whatsapp-logo text-lg"></i>
+                </button>
+            </div>
+            <div class="bg-gray-100 border border-gray-200 rounded-lg p-8 text-center">
+                <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Advertisement</span>
+                <div class="mt-2 text-sm text-gray-600">Responsive Ad Banner</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hero Video Section (intro first, video second) -->
+    <section class="relative h-[60vh] sm:h-[70vh] min-h-[420px] sm:min-h-[520px] overflow-hidden" data-hero-video data-video-mp4="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" data-video-webm="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.webm" data-video-poster="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1920&h=1080&fit=crop&crop=center">
+        <div class="absolute inset-0">
+            <video id="heroVideo" autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1920&h=1080&fit=crop&crop=center" class="w-full h-full object-cover">
+                <source data-role="video-mp4" type="video/mp4">
+                <source data-role="video-webm" type="video/webm">
                 Your browser does not support the video tag.
             </video>
-            <div class="banner-video-overlay"></div>
+            <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/70"></div>
         </div>
-        
-        <!-- Video Controls -->
-        <div class="video-controls">
-            <button class="video-control-btn" id="playPauseBtn" title="Play/Pause">
-                <i class="ph-bold ph-pause"></i>
+        <div class="absolute top-4 right-4 z-20 flex gap-2">
+            <button class="video-control-btn bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors" id="playPauseBtn" title="Play/Pause">
+                <i class="ph-bold ph-pause text-lg"></i>
             </button>
-            <button class="video-control-btn" id="muteBtn" title="Mute/Unmute">
-                <i class="ph-bold ph-speaker-simple-x"></i>
+            <button class="video-control-btn bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors" id="muteBtn" title="Mute/Unmute">
+                <i class="ph-bold ph-speaker-simple-x text-lg"></i>
             </button>
-            <button class="video-control-btn" id="fullscreenBtn" title="Fullscreen">
-                <i class="ph-bold ph-expand"></i>
+            <button class="video-control-btn bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors" id="fullscreenBtn" title="Fullscreen">
+                <i class="ph-bold ph-expand text-lg"></i>
             </button>
         </div>
-        
-        <!-- Banner Content -->
-        <div class="banner-content">
-            <div class="banner-meta">
-                <span>
-                    <i class="ph-bold ph-calendar"></i>
-                    November 6, 2025
-                </span>
-                <span>
-                    <i class="ph-bold ph-user"></i>
-                    NekwasaR
-                </span>
-                <span>
-                    <i class="ph-bold ph-clock"></i>
-                    12 min read
-                </span>
-            </div>
-            
-            <h1>Building the Future: A Journey Through Innovation</h1>
-            
-            <p style="font-size: 1.8rem; line-height: 1.6; margin-bottom: 3rem; opacity: 0.95;">
-                Watch as we explore the cutting-edge technologies and visionary thinking that are reshaping our world, one breakthrough at a time.
-            </p>
-            
-            <a href="#content" class="banner-cta">
-                <span>Start the Journey</span>
-                <i class="ph-bold ph-arrow-down"></i>
-            </a>
-        </div>
-    </div>
-    
-    <!-- Main Content Section -->
-    <section class="content-section" id="content">
-        <div class="content-wrapper">
-            <!-- Video Introduction Section -->
-            <div class="blog-card" style="background: linear-gradient(135deg, var(--gradient-one), var(--gradient-two)); color: var(--t-opp-bright); border: none;">
-                <h2 style="color: var(--t-opp-bright);">The Power of Visual Storytelling</h2>
-                <p style="color: var(--t-opp-bright); opacity: 0.95; font-size: 1.8rem; line-height: 1.6;">
-                    Video content has revolutionized how we communicate complex ideas. In this article, we dive deep into the methodologies and thought processes that drive innovation in the digital age.
-                </p>
-                
-                <div style="margin: 3rem 0;">
-                    <video controls poster="https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&h=450&fit=crop&crop=center" 
-                           style="width: 100%; border-radius: var(--_radius-l); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);">
-                        <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                </div>
-            </div>
-            
-            <!-- Table of Contents -->
-            <div class="toc">
-                <h3 class="toc-title">Chapter Overview</h3>
-                <ul class="toc-list">
-                    <li class="toc-item">
-                        <a href="#vision" class="toc-link">The Visionary's Perspective</a>
-                    </li>
-                    <li class="toc-item">
-                        <a href="#process" class="toc-link">Innovation in Action</a>
-                    </li>
-                    <li class="toc-item">
-                        <a href="#collaboration" class="toc-link level-2">Team Dynamics</a>
-                    </li>
-                    <li class="toc-item">
-                        <a href="#collaboration" class="toc-link level-2">Creative Process</a>
-                    </li>
-                    <li class="toc-item">
-                        <a href="#results" class="toc-link">Measuring Success</a>
-                    </li>
-                    <li class="toc-item">
-                        <a href="#next-steps" class="toc-link">The Next Chapter</a>
-                    </li>
-                </ul>
-            </div>
-            
-            <!-- Content Blocks -->
-            <div class="blog-content">
-                <h2 id="vision">The Visionary's Perspective</h2>
-                
-                <p>Innovation begins with vision—the ability to see beyond the present constraints and imagine what could be. In our fast-paced digital world, the most successful innovators are those who can combine technical expertise with creative thinking and a deep understanding of human needs.</p>
-                
-                <p>Through extensive research and countless conversations with industry leaders, we've identified the key characteristics that define the most impactful innovators of our time. These are individuals who don't just adapt to change—they drive it.</p>
-                
-                <div class="blog-card">
-                    <h3>What Sets Great Innovators Apart</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin: 2rem 0;">
-                        <div style="text-align: center;">
-                            <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--accent), var(--secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-                                <i class="ph-bold ph-lightbulb" style="color: var(--t-opp-bright); font-size: 2rem;"></i>
-                            </div>
-                            <h4>Creative Thinking</h4>
-                            <p style="font-size: 1.4rem; color: var(--t-medium);">The ability to connect disparate ideas in novel ways</p>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--accent), var(--secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-                                <i class="ph-bold ph-users" style="color: var(--t-opp-bright); font-size: 2rem;"></i>
-                            </div>
-                            <h4>Collaboration</h4>
-                            <p style="font-size: 1.4rem; color: var(--t-medium);">Building diverse teams that amplify each other's strengths</p>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--accent), var(--secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-                                <i class="ph-bold ph-target" style="color: var(--t-opp-bright); font-size: 2rem;"></i>
-                            </div>
-                            <h4>Focus</h4>
-                            <p style="font-size: 1.4rem; color: var(--t-medium);">Maintaining clarity of purpose amid endless distractions</p>
-                        </div>
+        <div class="relative z-10 flex items-end h-full">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 sm:pb-16 w-full">
+                <div class="max-w-4xl">
+                    <div class="inline-flex items-center px-3 py-1 rounded-full bg-purple-600 text-white text-xs font-medium mb-3 sm:mb-4">
+                        Technology
                     </div>
-                </div>
-                
-                <blockquote>
-                    "Innovation is not about having the best technology—it's about understanding people and solving their real problems in ways they've never imagined."
-                </blockquote>
-                
-                <h2 id="process">Innovation in Action</h2>
-                
-                <p>To truly understand innovation, we must observe it in practice. The following case study reveals the messy, iterative process behind what appears to be seamless breakthrough moments.</p>
-                
-                <h3>The Genesis of a Game-Changing Idea</h3>
-                <p>Every great innovation starts with a problem that matters. In our featured case study, a team of engineers noticed that despite advances in automation, manufacturing processes still relied heavily on manual quality control—a bottleneck that limited productivity and introduced human error.</p>
-                
-                <div style="margin: 3rem 0;">
-                    <div style="background: var(--base-tint); border: 1px solid var(--stroke-elements); border-radius: var(--_radius-xl); padding: 2rem;">
-                        <h4 style="color: var(--t-bright); margin-bottom: 1rem;">The Challenge</h4>
-                        <p style="margin-bottom: 1.5rem;">Traditional quality control in manufacturing:</p>
-                        <ul style="padding-left: 2rem; margin-bottom: 1.5rem;">
-                            <li>Limited to 2D inspection methods</li>
-                            <li>Time-consuming manual processes</li>
-                            <li>Inconsistent accuracy rates</li>
-                            <li>High cost of specialized equipment</li>
-                        </ul>
-                        <h4 style="color: var(--t-bright); margin-bottom: 1rem;">Our Approach</h4>
-                        <ul style="padding-left: 2rem;">
-                            <li>3D scanning technology integration</li>
-                            <li>Real-time AI analysis</li>
-                            <li>Automated quality reporting</li>
-                            <li>Scalable cloud infrastructure</li>
-                        </ul>
+                    <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4 sm:mb-6">
+                        Building the Future: A Journey Through Innovation
+                    </h1>
+                    <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-white/90 text-xs sm:text-sm">
+                        <span class="flex items-center gap-2">
+                            <i class="ph-bold ph-user text-xs"></i>
+                            By NekwasaR
+                        </span>
+                        <span class="text-white/60 hidden sm:inline">•</span>
+                        <span class="flex items-center gap-2">
+                            <i class="ph-bold ph-calendar text-xs"></i>
+                            November 6, 2025
+                        </span>
+                        <span class="text-white/60 hidden sm:inline">•</span>
+                        <span class="flex items-center gap-2">
+                            <i class="ph-bold ph-clock text-xs"></i>
+                            12 min read
+                        </span>
                     </div>
-                </div>
-                
-                <h3>Lessons from the Trenches</h3>
-                <p>The journey from concept to implementation rarely follows a straight line. Our research revealed several key insights about navigating the complex landscape of innovation:</p>
-                
-                <div class="blog-card">
-                    <div class="card-header">
-                        <span class="card-category">Expert Insight</span>
-                        <span class="card-date">Field Research</span>
-                    </div>
-                    <h3 class="card-title">The Paradox of Innovation</h3>
-                    <p class="card-excerpt">The most innovative companies understand that breakthrough ideas often come from embracing failure as a learning opportunity rather than avoiding it altogether.</p>
-                    <div class="card-footer">
-                        <div class="card-author">
-                            <i class="ph-bold ph-user-circle"></i>
-                            <span>Innovation Research Team</span>
-                        </div>
-                        <div class="card-stats">
-                            <span><i class="ph-bold ph-heart"></i> 189</span>
-                            <span><i class="ph-bold ph-chat-circle"></i> 24</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <h2 id="collaboration">The Human Element</h2>
-                
-                <h3>Building High-Performance Teams</h3>
-                <p>Innovation is fundamentally a team sport. The most successful innovations emerge from diverse groups of people who bring different perspectives, skills, and experiences to the table. But diversity alone is not enough—teams need the right structure, culture, and processes to harness that diversity effectively.</p>
-                
-                <p>Our analysis of high-performing innovation teams revealed several key characteristics:</p>
-                
-                <ul style="padding-left: 2rem; margin: 2rem 0; font-size: 1.6rem; line-height: 1.6;">
-                    <li style="margin-bottom: 1rem;"><strong>Psychological Safety:</strong> Team members feel comfortable taking risks and sharing unconventional ideas</li>
-                    <li style="margin-bottom: 1rem;"><strong>Clear Purpose:</strong> Everyone understands how their work contributes to the larger mission</li>
-                    <li style="margin-bottom: 1rem;"><strong>Rapid Iteration:</strong> Quick feedback loops that enable fast learning and adaptation</li>
-                    <li style="margin-bottom: 1rem;"><strong>Resource Flexibility:</strong> Ability to reallocate resources based on emerging opportunities</li>
-                </ul>
-                
-                <div style="margin: 3rem 0;">
-                    <video controls poster="https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=450&fit=crop&crop=center" 
-                           style="width: 100%; border-radius: var(--_radius-l); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);">
-                        <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                    <p style="text-align: center; margin-top: 1rem; font-size: 1.4rem; color: var(--t-muted);">
-                        <em>Behind the scenes: How innovation teams collaborate in practice</em>
-                    </p>
-                </div>
-                
-                <h2 id="results">Measuring Impact</h2>
-                
-                <p>The true test of innovation lies not in its cleverness, but in its impact. How do we measure whether our innovations are making a meaningful difference? The answer requires looking beyond traditional metrics to consider both quantitative and qualitative indicators of success.</p>
-                
-                <h3>Beyond the Numbers</h3>
-                <p>While ROI, efficiency gains, and market share are important, the most meaningful innovations also create positive externalities that ripple throughout society. These might include:</p>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin: 3rem 0;">
-                    <div class="blog-card">
-                        <h4>Social Impact</h4>
-                        <p>How the innovation improves lives and creates opportunities for underserved communities</p>
-                    </div>
-                    <div class="blog-card">
-                        <h4>Environmental Benefits</h4>
-                        <p>Contributions to sustainability and reducing environmental footprint</p>
-                    </div>
-                    <div class="blog-card">
-                        <h4>Knowledge Creation</h4>
-                        <p>New insights and capabilities that enable future innovations</p>
-                    </div>
-                </div>
-                
-                <h2 id="next-steps">Charting the Future</h2>
-                
-                <p>As we look to the future, several trends are emerging that will shape the next wave of innovation. Artificial intelligence, quantum computing, biotechnology, and sustainable technology are converging to create unprecedented opportunities for solving humanity's greatest challenges.</p>
-                
-                <p>But technology alone is not the answer. The innovations that will define the coming decades will be those that successfully blend technological capability with deep human understanding, creating solutions that are not just technically sophisticated, but also socially responsible and environmentally sustainable.</p>
-                
-                <div class="blog-card" style="background: linear-gradient(135deg, var(--gradient-one), var(--gradient-two)); color: var(--t-opp-bright); border: none; text-align: center;">
-                    <h3 style="color: var(--t-opp-bright); margin-bottom: 1.5rem;">The Journey Continues</h3>
-                    <p style="color: var(--t-opp-bright); opacity: 0.9; font-size: 1.6rem; margin-bottom: 2.5rem;">
-                        Innovation is not a destination—it's a continuous journey of discovery, experimentation, and growth. Join us as we explore the technologies and ideas that will shape our future.
-                    </p>
-                    <a href="#" class="banner-cta" style="background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.3);">
-                        <span>Explore More Innovations</span>
-                        <i class="ph-bold ph-arrow-right"></i>
-                    </a>
                 </div>
             </div>
         </div>
     </section>
-    
-    <!-- Social Share -->
-    <div class="social-share">
-        <a href="#" class="social-share-btn" title="Share on Twitter">
-            <i class="ph-bold ph-twitter-logo"></i>
-        </a>
-        <a href="#" class="social-share-btn" title="Share on LinkedIn">
-            <i class="ph-bold ph-linkedin-logo"></i>
-        </a>
-        <a href="#" class="social-share-btn" title="Share on Facebook">
-            <i class="ph-bold ph-facebook-logo"></i>
-        </a>
-        <a href="#" class="social-share-btn" title="Copy Link">
-            <i class="ph-bold ph-link"></i>
-        </a>
+
+    <!-- Engagement Header Area -->
+    <section class="bg-gray-50 border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                <div class="flex flex-wrap items-center gap-4 sm:gap-6 text-xs sm:text-sm text-gray-600">
+                    <span class="flex items-center gap-2">
+                        <i class="ph-bold ph-chat-circle text-sm sm:text-base"></i>
+                        <span class="hidden sm:inline">47 Comments</span>
+                        <span class="sm:hidden">47</span>
+                    </span>
+                    <span class="flex items-center gap-2">
+                        <i class="ph-bold ph-eye text-sm sm:text-base"></i>
+                        <span class="hidden sm:inline">1.3k Views</span>
+                        <span class="sm:hidden">1.3k</span>
+                    </span>
+                    <span class="flex items-center gap-2 like-section" data-post-id="2">
+                        <button onclick="toggleLike()" class="flex items-center gap-2 hover:text-red-500 transition-colors">
+                            <i class="ph-bold ph-heart text-sm sm:text-base like-icon"></i>
+                            <span class="like-count hidden sm:inline">127</span>
+                            <span class="like-count sm:hidden">127</span>
+                            <span class="hidden sm:inline">Likes</span>
+                        </button>
+                    </span>
+                    <span class="flex items-center gap-2">
+                        <button onclick="openShareModal()" class="flex items-center gap-2 hover:text-purple-600 transition-colors">
+                            <i class="ph-bold ph-share-network text-sm sm:text-base"></i>
+                            <span class="hidden sm:inline">Share</span>
+                        </button>
+                    </span>
+                </div>
+                <button onclick="scrollToComments()" class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-purple-600 text-white text-xs sm:text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors w-full sm:w-auto justify-center">
+                    <i class="ph-bold ph-chat-circle-dots text-sm sm:text-base"></i>
+                    <span class="hidden sm:inline">Join the Conversation</span>
+                    <span class="sm:hidden">Comment</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Layout -->
+    <section class="py-8 sm:py-12 lg:py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+                <aside class="lg:col-span-3 order-2 lg:order-1">
+                    <div class="sticky top-20 sm:top-24 space-y-6">
+                        <div class="bg-white rounded-lg border border-gray-200 p-6">
+                            <h3 class="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                <i class="ph-bold ph-link text-base"></i>
+                                Related Posts
+                            </h3>
+                            <div class="space-y-4">
+                                <article class="flex gap-3">
+                                    <img src="https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=60&h=40&fit=crop" class="w-15 h-10 rounded object-cover" alt="">
+                                    <div>
+                                        <h4 class="text-sm font-medium text-gray-900 line-clamp-2">How AI is Revolutionizing Healthcare</h4>
+                                        <span class="text-xs text-gray-500">12.5k views</span>
+                                    </div>
+                                </article>
+                                <article class="flex gap-3">
+                                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=60&h=40&fit=crop" class="w-15 h-10 rounded object-cover" alt="">
+                                    <div>
+                                        <h4 class="text-sm font-medium text-gray-900 line-clamp-2">The Rise of Quantum Computing</h4>
+                                        <span class="text-xs text-gray-500">8.9k views</span>
+                                    </div>
+                                </article>
+                                <article class="flex gap-3">
+                                    <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=60&h=40&fit=crop" class="w-15 h-10 rounded object-cover" alt="">
+                                    <div>
+                                        <h4 class="text-sm font-medium text-gray-900 line-clamp-2">Machine Learning Ethics</h4>
+                                        <span class="text-xs text-gray-500">6.7k views</span>
+                                    </div>
+                                </article>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg border border-gray-200 p-6">
+                            <h3 class="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                <i class="ph-bold ph-trend-up text-base"></i>
+                                Trending Now
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="flex gap-3">
+                                    <img src="https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=60&h=40&fit=crop" class="w-15 h-10 rounded object-cover" alt="">
+                                    <div>
+                                        <h4 class="text-sm font-medium text-gray-900 line-clamp-2">AI in Finance</h4>
+                                        <span class="text-xs text-gray-500">2.1k views</span>
+                                    </div>
+                                </div>
+                                <div class="flex gap-3">
+                                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=60&h=40&fit=crop" class="w-15 h-10 rounded object-cover" alt="">
+                                    <div>
+                                        <h4 class="text-sm font-medium text-gray-900 line-clamp-2">Crypto Market Analysis</h4>
+                                        <span class="text-xs text-gray-500">1.8k views</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+                <main class="lg:col-span-6 order-1 lg:order-2">
+                    <article class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                        <div class="p-6">
+                            <h2 class="text-2xl font-bold text-gray-900 mb-6">The Evolution of Wealth in 2025</h2>
+                            <p class="text-lg text-gray-700 leading-relaxed mb-6">
+                                The billionaire landscape has undergone significant transformation. Technology, renewable energy, and digital innovation now dominate the narratives shaping the global economy.
+                            </p>
+                            <div class="bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg p-8 mb-8">
+                                <h3 class="text-2xl font-bold mb-3">The Power of Visual Storytelling</h3>
+                                <p class="text-lg leading-relaxed opacity-90 mb-5">
+                                    Video content has revolutionized how we communicate complex ideas. Here we dive deep into the methodologies that drive innovation.
+                                </p>
+                                <video controls poster="https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&h=450&fit=crop&crop=center" class="w-full rounded-lg shadow-lg">
+                                    <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                            </div>
+     
+                            <div class="prose prose-lg max-w-full">
+                                <h3 id="vision" class="text-2xl font-semibold text-gray-900">The Visionary's Perspective</h3>
+                                <p class="text-lg text-gray-700 leading-relaxed">
+                                    Innovation begins with vision—the ability to see beyond the present constraints and imagine new possibilities.
+                                </p>
+                                <blockquote class="border-l-4 border-purple-500 pl-6 italic text-gray-700 my-6">
+                                    "Innovation is about understanding people and solving their real problems in ways they've never imagined."
+                                </blockquote>
+                                <h3 class="text-2xl font-semibold text-gray-900 mt-8">Innovation in Action</h3>
+                                <p class="text-lg text-gray-700 leading-relaxed">
+                                    We studied teams that bring AI, deep tech, and human insight together to drive meaningful change.
+                                </p>
+                                <h3 class="text-2xl font-semibold text-gray-900 mt-8">The Human Element</h3>
+                                <p class="text-lg text-gray-700 leading-relaxed mb-6">
+                                    High-performance teams combine psychological safety with a relentless focus on purpose.
+                                </p>
+     
+                                <div class="bg-purple-50 border border-purple-200 rounded-lg p-6 my-10 text-center">
+                                    <i class="ph-bold ph-chat-circle-dots text-2xl text-purple-600 mb-3 block"></i>
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-2">What do you think so far?</h3>
+                                    <p class="text-gray-600 mb-4">Share your thoughts on the billionaire rankings</p>
+                                    <button onclick="scrollToComments()" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors">
+                                        Leave a Comment
+                                    </button>
+                                </div>
+     
+                                <div class="bg-gray-100 border border-gray-200 rounded-lg p-8 text-center my-12">
+                                    <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Advertisement</span>
+                                    <div class="mt-2 text-sm text-gray-600">Mid-Article Banner Ad</div>
+                                </div>
+     
+                                <h3 class="text-xl font-semibold text-gray-900 mt-4">1. Elon Musk – $285 Billion</h3>
+                                <p class="text-lg text-gray-700 leading-relaxed mb-6">
+                                    Musk continues to shepherd electric vehicles, space exploration, and AI research, leveraging bold narratives to keep communities aligned with his grand vision of a multiplanetary, automated future.
+                                </p>
+                                <h3 class="text-xl font-semibold text-gray-900 mb-3">2. Jeff Bezos – $195 Billion</h3>
+                                <p class="text-lg text-gray-700 leading-relaxed mb-6">
+                                    While building Blue Origin, Bezos keeps Amazon’s logistics automation and cloud infrastructure tightly focused, narrating every innovation as a customer-first evolution.
+                                </p>
+                                <h3 class="text-xl font-semibold text-gray-900 mb-3">3. Bernard Arnault – $180 Billion</h3>
+                                <p class="text-lg text-gray-700 leading-relaxed mb-6">
+                                    Arnault blends artistic direction with data-backed brand strategy, proving that culturally rich storytelling and innovation-driven craftsmanship can lift entire industries.
+                                </p>
+                            </div>
+     
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-8 my-12">
+                                <h2 class="text-2xl font-bold text-gray-900 mb-4">The Future of Billionaire Wealth</h2>
+                                <p class="text-lg text-gray-700 leading-relaxed mb-6">
+                                    As we look toward the future, several trends are likely to shape the billionaire landscape. Technology innovation, sustainable energy, and digital transformation will continue to create new opportunities for wealth creation.
+                                </p>
+     
+                                <div class="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Key Takeaways</h3>
+                                    <ul class="space-y-2 text-sm text-gray-700">
+                                        <li class="flex items-start gap-2">
+                                            <span class="text-purple-600 mt-1">•</span>
+                                            Technology and innovation remain the primary drivers of wealth creation.
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <span class="text-blue-600 mt-1">•</span>
+                                            Diversification across multiple industries provides stability.
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <span class="text-blue-600 mt-1">•</span>
+                                            Strategic philanthropy can enhance both social impact and financial strategy.
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <span class="text-blue-600 mt-1">•</span>
+                                            Adaptability to market changes is crucial for long-term success.
+                                        </li>
+                                    </ul>
+                                </div>
+     
+                                <div class="text-center">
+                                    <h4 class="text-lg font-semibold text-gray-900 mb-4">Share this article</h4>
+                                    <div class="flex justify-center gap-3 flex-wrap">
+                                        <button onclick="shareOnTwitter()" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-500 text-white text-sm font-medium rounded-lg hover:bg-purple-600 transition-colors">
+                                            <i class="ph-bold ph-twitter-logo text-base"></i>
+                                            Twitter
+                                        </button>
+                                        <button onclick="shareOnLinkedIn()" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-700 text-white text-sm font-medium rounded-lg hover:bg-purple-800 transition-colors">
+                                            <i class="ph-bold ph-linkedin-logo text-base"></i>
+                                            LinkedIn
+                                        </button>
+                                        <button onclick="shareOnFacebook()" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-800 text-white text-sm font-medium rounded-lg hover:bg-purple-900 transition-colors">
+                                            <i class="ph-bold ph-facebook-logo text-base"></i>
+                                            Facebook
+                                        </button>
+                                        <button onclick="shareOnWhatsApp()" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors">
+                                            <i class="ph-bold ph-whatsapp-logo text-base"></i>
+                                            WhatsApp
+                                        </button>
+                                        <button onclick="copyLink()" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors">
+                                            <i class="ph-bold ph-copy text-base"></i>
+                                            Copy Link
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                    <section id="comments" class="bg-white rounded-lg border border-gray-200 mt-6">
+                        <div class="p-6">
+                            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-5">
+                                <h2 class="text-xl font-bold text-gray-900">Join the Discussion</h2>
+                                <span class="bg-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold">47 Comments</span>
+                            </div>
+                            <textarea class="w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base comment-textarea" rows="4" placeholder="Share your thoughts..."></textarea>
+                            <div class="text-right mt-3">
+                                <button onclick="openCommentModal()" class="px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition-colors">
+                                    Post Comment
+                                </button>
+                            </div>
+                            <div class="space-y-4 sm:space-y-6 mt-6">
+                                <div class="flex gap-3 sm:gap-4 comment-item" data-comment-id="1">
+                                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex-shrink-0 bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white font-semibold text-xs sm:text-sm">
+                                        J
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-2">
+                                            <span class="font-semibold text-gray-900 text-sm sm:text-base">John Smith</span>
+                                            <span class="text-gray-500 text-xs sm:text-sm">2 hours ago</span>
+                                        </div>
+                                        <p class="text-gray-700 mb-3 text-sm sm:text-base">Great analysis! I was surprised to see some of these rankings.</p>
+                                        <div class="flex items-center gap-3 sm:gap-4">
+                                            <button onclick="toggleCommentLike(1)" class="flex items-center gap-1 text-xs sm:text-sm text-gray-600 hover:text-red-500 transition-colors comment-like-btn">
+                                                <i class="ph-bold ph-heart text-xs"></i>
+                                                <span class="comment-like-count">12</span>
+                                            </button>
+                                            <button onclick="replyToComment(1)" class="text-xs sm:text-sm text-gray-600 hover:text-gray-900 transition-colors">Reply</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex gap-3 sm:gap-4 ml-8 sm:ml-12 comment-item" data-comment-id="2">
+                                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex-shrink-0 bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold text-xs sm:text-sm">
+                                        S
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-2">
+                                            <span class="font-semibold text-gray-900 text-sm sm:text-base">Sarah Johnson</span>
+                                            <span class="text-gray-500 text-xs sm:text-sm">1 hour ago</span>
+                                        </div>
+                                        <p class="text-gray-700 mb-3 text-sm sm:text-base">Agreed! The tech sector dominance is really interesting.</p>
+                                        <div class="flex items-center gap-3 sm:gap-4">
+                                            <button onclick="toggleCommentLike(2)" class="flex items-center gap-1 text-xs sm:text-sm text-gray-600 hover:text-red-500 transition-colors comment-like-btn">
+                                                <i class="ph-bold ph-heart text-xs"></i>
+                                                <span class="comment-like-count">8</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </main>
+
+                <aside class="lg:col-span-3 order-3">
+                    <div class="sticky top-20 space-y-6">
+                        <div class="flex flex-col gap-3 mb-8">
+                            <a href="#" onclick="shareOnTwitter()" class="flex items-center justify-center w-12 h-12 bg-white border border-gray-200 rounded-full text-gray-600 hover:text-purple-600 hover:border-purple-600 transition-colors shadow-sm">
+                                <i class="ph-bold ph-twitter-logo text-lg"></i>
+                            </a>
+                            <a href="#" onclick="shareOnLinkedIn()" class="flex items-center justify-center w-12 h-12 bg-white border border-gray-200 rounded-full text-gray-600 hover:text-purple-700 hover:border-purple-700 transition-colors shadow-sm">
+                                <i class="ph-bold ph-linkedin-logo text-lg"></i>
+                            </a>
+                            <a href="#" onclick="shareOnFacebook()" class="flex items-center justify-center w-12 h-12 bg-white border border-gray-200 rounded-full text-gray-600 hover:text-purple-800 hover:border-purple-800 transition-colors shadow-sm">
+                                <i class="ph-bold ph-facebook-logo text-lg"></i>
+                            </a>
+                            <a href="#" onclick="shareOnWhatsApp()" class="flex items-center justify-center w-12 h-12 bg-white border border-gray-200 rounded-full text-gray-600 hover:text-green-600 hover:border-green-600 transition-colors shadow-sm">
+                                <i class="ph-bold ph-whatsapp-logo text-lg"></i>
+                            </a>
+                        </div>
+                        <div class="bg-white rounded-lg border border-gray-200 p-6">
+                            <h4 class="text-sm font-semibold text-gray-900 mb-3">Stay Updated</h4>
+                            <p class="text-xs text-gray-600 mb-4">Get the latest insights on technology and wealth building.</p>
+                            <input type="email" placeholder="Your email address" class="w-full px-3 py-2 border border-gray-300 rounded-lg mb-3 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <button class="w-full px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors">
+                                Subscribe
+                            </button>
+                        </div>
+                        <div class="bg-white rounded-lg border border-gray-200 p-6">
+                            <h4 class="text-sm font-semibold text-gray-900 mb-3">Follow NekwasaR</h4>
+                            <button onclick="openFollowModal()" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors">
+                                <i class="ph-bold ph-user-plus text-base"></i>
+                                Follow
+                            </button>
+                        </div>
+                        <div class="bg-white rounded-lg border border-gray-200 p-6 text-center">
+                            <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Sponsored</span>
+                            <p class="text-sm text-gray-600 mt-2">Sidebar Ad</p>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                <div>
+                    <div class="text-xl font-bold mb-2">NekwasaR</div>
+                    <p class="text-gray-400 text-sm leading-relaxed">Building the N•Gen Era through innovation and insight.</p>
+                    <div class="flex gap-4 mt-4">
+                        <a href="https://www.reddit.com/user/nekwasar/" class="text-gray-400 hover:text-white">
+                            <i class="ph-bold ph-reddit-logo text-lg"></i>
+                        </a>
+                        <a href="https://www.facebook.com/nekwasar" class="text-gray-400 hover:text-white">
+                            <i class="ph-bold ph-facebook-logo text-lg"></i>
+                        </a>
+                        <a href="https://www.instagram.com/nekwasar" class="text-gray-400 hover:text-white">
+                            <i class="ph-bold ph-instagram-logo text-lg"></i>
+                        </a>
+                        <a href="https://wa.me/2348164806578" class="text-gray-400 hover:text-white">
+                            <i class="ph-bold ph-whatsapp-logo text-lg"></i>
+                        </a>
+                        <a href="https://x.com/nekwasar" class="text-gray-400 hover:text-white">
+                            <i class="ph-bold ph-x-logo text-lg"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-sm font-semibold mb-4">Navigation</h4>
+                    <div class="space-y-2">
+                        <a href="/" class="text-gray-400 hover:text-white text-sm">Home</a>
+                        <a href="/categories" class="text-gray-400 hover:text-white text-sm">Categories</a>
+                        <a href="/about" class="text-gray-400 hover:text-white text-sm">About</a>
+                        <a href="/contact" class="text-gray-400 hover:text-white text-sm">Contact</a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-sm font-semibold mb-4">Connect</h4>
+                    <div class="space-y-2">
+                        <a href="https://twitter.com/nekwasar" class="text-gray-400 hover:text-white text-sm">Twitter</a>
+                        <a href="https://linkedin.com/in/nekwasar" class="text-gray-400 hover:text-white text-sm">LinkedIn</a>
+                        <a href="https://github.com/nekwasar" class="text-gray-400 hover:text-white text-sm">GitHub</a>
+                    </div>
+                </div>
+            </div>
+            <div class="pt-8 border-t border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-gray-400">
+                <p>&copy; 2025 NekwasaR. All rights reserved.</p>
+                <div class="flex gap-6">
+                    <a href="/privacy" class="hover:text-white">Privacy Policy</a>
+                    <a href="/terms" class="hover:text-white">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Comment Modal -->
+    <div id="commentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50" onclick="closeCommentModal()">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-sm sm:max-w-md w-full mx-4 p-4 sm:p-6 relative" onclick="event.stopPropagation()">
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold">Join the Discussion</h3>
+                    <button onclick="closeCommentModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="ph-bold ph-x text-xl"></i>
+                    </button>
+                </div>
+                <!-- Modal Content -->
+                <div id="modalContent">
+                    <!-- Step 1: Choice -->
+                    <div id="choiceStep">
+                        <p class="text-gray-600 mb-4">How would you like to comment?</p>
+                        <button onclick="showSubscribeForm()" class="w-full mb-2 px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                            <i class="ph-bold ph-envelope text-sm mr-2"></i>
+                            Subscribe & Comment
+                        </button>
+                        <button onclick="showAnonymousForm()" class="w-full px-4 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                            <i class="ph-bold ph-user text-sm mr-2"></i>
+                            Comment Anonymously
+                        </button>
+                    </div>
+                    <!-- Step 2: Subscribe Form -->
+                    <div id="subscribeForm" class="hidden">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Email Address *</label>
+                                <input type="email" id="subscribeEmail" placeholder="your@email.com" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Name *</label>
+                                <input type="text" id="subscribeName" placeholder="Your name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="newsletterSubscribe" class="mr-2 w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 focus:ring-2" required>
+                                <label for="newsletterSubscribe" class="text-sm text-gray-600 ml-2">Subscribe to newsletter for updates *</label>
+                            </div>
+                            <button onclick="submitSubscribeComment()" class="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                                Subscribe & Post Comment
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Step 3: Anonymous Form -->
+                    <div id="anonymousForm" class="hidden">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Display Name *</label>
+                                <input type="text" id="anonymousName" placeholder="Your name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            </div>
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                <p class="text-xs text-blue-800">
+                                    <i class="ph-bold ph-info text-sm mr-1"></i>
+                                    Comments are moderated. Anonymous comments may have limited features.
+                                </p>
+                            </div>
+                            <button onclick="submitAnonymousComment()" class="w-full px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                                Post Anonymous Comment
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Loading State -->
+                    <div id="loadingState" class="hidden text-center py-4">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+                        <p class="text-sm text-gray-600 mt-2">Processing...</p>
+                    </div>
+                    <!-- Success State -->
+                    <div id="successState" class="hidden text-center py-4">
+                        <i class="ph-bold ph-check-circle text-2xl text-green-600 mb-2"></i>
+                        <p class="text-sm text-gray-600">Comment submitted successfully!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    
+
+    <!-- Share Modal -->
+    <div id="shareModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50" onclick="closeShareModal()">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-sm w-full mx-4 p-4 sm:p-6 relative" onclick="event.stopPropagation()">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Share this article</h3>
+                    <button onclick="closeShareModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="ph-bold ph-x text-xl"></i>
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="shareOnTwitter()" class="flex items-center justify-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors text-sm text-blue-600">
+                        <i class="ph-bold ph-twitter-logo text-xl"></i>
+                        Twitter
+                    </button>
+                    <button onclick="shareOnLinkedIn()" class="flex items-center justify-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors text-sm text-blue-600">
+                        <i class="ph-bold ph-linkedin-logo text-xl"></i>
+                        LinkedIn
+                    </button>
+                    <button onclick="shareOnFacebook()" class="flex items-center justify-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors text-sm text-blue-600">
+                        <i class="ph-bold ph-facebook-logo text-xl"></i>
+                        Facebook
+                    </button>
+                    <button onclick="shareOnWhatsApp()" class="flex items-center justify-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors text-sm text-green-600">
+                        <i class="ph-bold ph-whatsapp-logo text-xl"></i>
+                        WhatsApp
+                    </button>
+                </div>
+                <button onclick="copyLink()" class="w-full mt-4 px-3 py-2 bg-gray-50 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
+                    <i class="ph-bold ph-copy mr-2"></i>Copy Link
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Follow Modal -->
+    <div id="followModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50" onclick="closeFollowModal()">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-sm w-full mx-4 p-4 sm:p-6 relative" onclick="event.stopPropagation()">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Follow NekwasaR</h3>
+                    <button onclick="closeFollowModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="ph-bold ph-x text-xl"></i>
+                    </button>
+                </div>
+                <p class="text-sm text-gray-600 mb-4">Choose your preferred platform to keep up with new content.</p>
+                <div class="grid grid-cols-2 gap-3">
+                    <a href="https://x.com/nekwasar" class="p-3 border border-gray-200 rounded-lg text-center text-gray-700 hover:border-purple-500 hover:text-purple-600"><i class="ph-bold ph-x-logo text-xl"></i><span class="text-xs block mt-1">X</span></a>
+                    <a href="https://linkedin.com/in/nekwasar" class="p-3 border border-gray-200 rounded-lg text-center text-gray-700 hover:border-blue-500 hover:text-blue-600"><i class="ph-bold ph-linkedin-logo text-xl"></i><span class="text-xs block mt-1">LinkedIn</span></a>
+                    <a href="https://instagram.com/nekwasar" class="p-3 border border-gray-200 rounded-lg text-center text-gray-700 hover:border-pink-500 hover:text-pink-600"><i class="ph-bold ph-instagram-logo text-xl"></i><span class="text-xs block mt-1">Instagram</span></a>
+                    <a href="https://github.com/nekwasar" class="p-3 border border-gray-200 rounded-lg text-center text-gray-700 hover:border-gray-800 hover:text-gray-900"><i class="ph-bold ph-github-logo text-xl"></i><span class="text-xs block mt-1">GitHub</span></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Modal -->
+    <div id="search-modal" class="search-modal-overlay hidden">
+        <div class="search-modal-container">
+            <div class="search-modal-header">
+                <div class="search-modal-input-wrapper">
+                    <i class="ph-bold ph-magnifying-glass search-modal-icon"></i>
+                    <input type="text" class="search-modal-input" placeholder="Search articles, topics, or keywords..." autocomplete="off">
+                    <button class="search-modal-close" onclick="closeSearchModal()">
+                        <i class="ph-bold ph-x"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="search-modal-content">
+                <div class="search-modal-section">
+                    <h4 class="search-modal-section-title">Trending Searches</h4>
+                    <div class="search-modal-suggestions">
+                        <button class="search-modal-suggestion">Artificial Intelligence</button>
+                        <button class="search-modal-suggestion">Machine Learning</button>
+                        <button class="search-modal-suggestion">Technology Trends</button>
+                    </div>
+                </div>
+                <div class="search-modal-section">
+                    <h4 class="search-modal-section-title">Filter by Category</h4>
+                    <div class="search-modal-filters">
+                        <button class="search-modal-filter active">All</button>
+                        <button class="search-modal-filter">Technology</button>
+                        <button class="search-modal-filter">Innovation</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
-    <script src="js/blog-templates.js"></script>
     <script>
-        // Video Controls Functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const video = document.getElementById('heroVideo');
+        // Scroll Progress Bar Functionality
+        function initScrollProgress() {
+            const progressBar = document.getElementById('scrollProgress');
+            if (!progressBar) return;
+    
+            function updateProgress() {
+                const scrollTop = window.pageYOffset;
+                const docHeight = document.body.offsetHeight - window.innerHeight;
+                const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+                progressBar.style.width = scrollPercent + '%';
+            }
+    
+            window.addEventListener('scroll', updateProgress);
+            updateProgress(); // Initial call
+        }
+    
+        // Social sharing functions
+        function shareOnTwitter() {
+            const url = encodeURIComponent(window.location.href);
+            const text = encodeURIComponent(document.title);
+            window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
+        }
+    
+        function shareOnLinkedIn() {
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
+        }
+    
+        function shareOnFacebook() {
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+        }
+    
+        function shareOnWhatsApp() {
+            const url = encodeURIComponent(window.location.href);
+            const text = encodeURIComponent(document.title + ' ' + window.location.href);
+            window.open(`https://wa.me/?text=${text}`, '_blank');
+        }
+    
+        function copyLink() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert('Link copied to clipboard!');
+            });
+        }
+    
+        function scrollToComments() {
+            document.getElementById('comments').scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+    
+        function openQuickComment() {
+            scrollToComments();
+        }
+    
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+        }
+    
+        function openSearchModal() {
+            document.getElementById('search-modal').classList.remove('hidden');
+        }
+    
+        function closeSearchModal() {
+            document.getElementById('search-modal').classList.add('hidden');
+        }
+    
+        function openShareModal() {
+            document.getElementById('shareModal').classList.remove('hidden');
+        }
+    
+        function closeShareModal() {
+            document.getElementById('shareModal').classList.add('hidden');
+        }
+    
+        function openFollowModal() {
+            document.getElementById('followModal').classList.remove('hidden');
+        }
+    
+        function closeFollowModal() {
+            document.getElementById('followModal').classList.add('hidden');
+        }
+    
+        function shareOnReddit() {
+            const url = encodeURIComponent(window.location.href);
+            const title = encodeURIComponent(document.title);
+            window.open(`https://reddit.com/submit?url=${url}&title=${title}`, '_blank');
+        }
+    
+        function shareOnTelegram() {
+            const url = encodeURIComponent(window.location.href);
+            const text = encodeURIComponent(document.title);
+            window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank');
+        }
+    
+        function shareOnPinterest() {
+            const url = encodeURIComponent(window.location.href);
+            const description = encodeURIComponent(document.title);
+            const image = encodeURIComponent('https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&h=630&fit=crop');
+            window.open(`https://pinterest.com/pin/create/button/?url=${url}&description=${description}&media=${image}`, '_blank');
+        }
+    
+        function shareOnTumblr() {
+            const url = encodeURIComponent(window.location.href);
+            const title = encodeURIComponent(document.title);
+            window.open(`https://www.tumblr.com/widgets/share/tool?canonicalUrl=${url}&title=${title}`, '_blank');
+        }
+    
+        function toggleLike() {
+            const likeSection = document.querySelector('.like-section');
+            const likeIcon = document.querySelector('.like-icon');
+            const likeCount = document.querySelector('.like-count');
+            const postId = likeSection.dataset.postId;
+    
+            const isLiked = likeIcon.classList.contains('text-red-500');
+            const newCount = isLiked ?
+                parseInt(likeCount.textContent) - 1 :
+                parseInt(likeCount.textContent) + 1;
+    
+            if (postId) {
+                const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '[]');
+                if (isLiked) {
+                    const index = likedPosts.indexOf(postId);
+                    if (index > -1) likedPosts.splice(index, 1);
+                } else {
+                    likedPosts.push(postId);
+                }
+                localStorage.setItem('likedPosts', JSON.stringify(likedPosts));
+            }
+    
+            likeCount.textContent = newCount;
+    
+            if (isLiked) {
+                likeIcon.classList.remove('text-red-500', 'ph-fill');
+                likeIcon.classList.add('ph-bold');
+            } else {
+                likeIcon.classList.add('text-red-500', 'ph-fill');
+                likeIcon.classList.remove('ph-bold');
+            }
+    
+            showLikeNotification(isLiked ? 'unliked' : 'liked');
+            console.log(`${isLiked ? 'Unliked' : 'Liked'} post ${postId}`);
+        }
+    
+        function showLikeNotification(action) {
+            const existingNotification = document.querySelector('.like-notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            const notification = document.createElement('div');
+            notification.className = 'like-notification fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+            notification.textContent = `Post ${action}! ❤️`;
+            document.body.appendChild(notification);
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateX(-50%) translateY(-20px)';
+            setTimeout(() => {
+                notification.style.transition = 'all 0.3s ease-out';
+                notification.style.opacity = '1';
+                notification.style.transform = 'translateX(-50%) translateY(0)';
+            }, 10);
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(-50%) translateY(-20px)';
+                setTimeout(() => {
+                    if (notification.parentNode) notification.parentNode.removeChild(notification);
+                }, 300);
+            }, 4000);
+        }
+    
+        function toggleCommentLike(commentId) {
+            const commentItem = document.querySelector(`[data-comment-id="${commentId}"]`);
+            if (!commentItem) return;
+            const likeBtn = commentItem.querySelector('.comment-like-btn');
+            const likeIcon = likeBtn.querySelector('i');
+            const likeCount = commentItem.querySelector('.comment-like-count');
+            const isLiked = likeIcon.classList.contains('text-red-500');
+            const newCount = isLiked ? parseInt(likeCount.textContent) - 1 : parseInt(likeCount.textContent) + 1;
+            if (isLiked) {
+                likeIcon.classList.remove('text-red-500', 'ph-fill');
+                likeIcon.classList.add('ph-bold');
+            } else {
+                likeIcon.classList.add('text-red-500', 'ph-fill');
+                likeIcon.classList.remove('ph-bold');
+            }
+            likeCount.textContent = newCount;
+            const likedComments = JSON.parse(localStorage.getItem('likedComments') || '[]');
+            if (isLiked) {
+                const index = likedComments.indexOf(commentId.toString());
+                if (index > -1) likedComments.splice(index, 1);
+            } else {
+                likedComments.push(commentId.toString());
+            }
+            localStorage.setItem('likedComments', JSON.stringify(likedComments));
+            console.log(`${isLiked ? 'Unliked' : 'Liked'} comment ${commentId}`);
+        }
+    
+        function showChoiceStep() {
+            document.getElementById('choiceStep').classList.remove('hidden');
+            document.getElementById('subscribeForm').classList.add('hidden');
+            document.getElementById('anonymousForm').classList.add('hidden');
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('successState').classList.add('hidden');
+        }
+    
+        function showSubscribeForm() {
+            document.getElementById('choiceStep').classList.add('hidden');
+            document.getElementById('subscribeForm').classList.remove('hidden');
+        }
+    
+        function showAnonymousForm() {
+            document.getElementById('choiceStep').classList.add('hidden');
+            document.getElementById('anonymousForm').classList.remove('hidden');
+        }
+    
+        function resetModal() {
+            showChoiceStep();
+            document.getElementById('subscribeEmail').value = '';
+            document.getElementById('subscribeName').value = '';
+            document.getElementById('anonymousName').value = '';
+            document.getElementById('newsletterSubscribe').checked = false;
+        }
+    
+        function generateDeviceFingerprint() {
+            const fingerprint = {
+                userAgent: navigator.userAgent,
+                language: navigator.language,
+                platform: navigator.platform,
+                screenResolution: `${screen.width}x${screen.height}`,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                cookieEnabled: navigator.cookieEnabled,
+                timestamp: Date.now()
+            };
+            let hash = 0;
+            const str = JSON.stringify(fingerprint);
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return Math.abs(hash).toString(36);
+        }
+    
+        function openCommentModal() {
+            const modal = document.getElementById('commentModal');
+            const textarea = document.querySelector('.comment-textarea');
+            const commentText = textarea ? textarea.value.trim() : '';
+            if (!commentText) {
+                alert('Please write a comment first.');
+                textarea && textarea.focus();
+                return;
+            }
+            localStorage.setItem('pendingComment', commentText);
+            modal.classList.remove('hidden');
+            showChoiceStep();
+        }
+    
+        function closeCommentModal() {
+            const modal = document.getElementById('commentModal');
+            modal.classList.add('hidden');
+            resetModal();
+        }
+    
+        function submitSubscribeComment() {
+            const email = document.getElementById('subscribeEmail').value.trim();
+            const name = document.getElementById('subscribeName').value.trim();
+            const subscribeNewsletter = document.getElementById('newsletterSubscribe').checked;
+            const commentText = localStorage.getItem('pendingComment');
+            if (!email || !name) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+            if (!isValidEmail(email)) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+            if (!subscribeNewsletter) {
+                alert('Please check the newsletter subscription box to continue.');
+                document.getElementById('newsletterSubscribe').focus();
+                return;
+            }
+            document.getElementById('subscribeForm').classList.add('hidden');
+            document.getElementById('loadingState').classList.remove('hidden');
+            setTimeout(() => {
+                console.log('Submitting subscriber comment:', { email, name, commentText, subscribeNewsletter, type: 'subscriber' });
+                localStorage.setItem('userData', JSON.stringify({ email, name, type: 'subscriber' }));
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('successState').classList.remove('hidden');
+                setTimeout(() => {
+                    const textarea = document.querySelector('.comment-textarea');
+                    if (textarea) textarea.value = '';
+                    localStorage.removeItem('pendingComment');
+                    closeCommentModal();
+                }, 2000);
+            }, 1500);
+        }
+    
+        function submitAnonymousComment() {
+            const name = document.getElementById('anonymousName').value.trim();
+            const commentText = localStorage.getItem('pendingComment');
+            if (!name) {
+                alert('Please enter a display name.');
+                return;
+            }
+            document.getElementById('anonymousForm').classList.add('hidden');
+            document.getElementById('loadingState').classList.remove('hidden');
+            const fingerprint = generateDeviceFingerprint();
+            setTimeout(() => {
+                console.log('Submitting anonymous comment:', { name, commentText, fingerprint, type: 'anonymous' });
+                const anonymousUsers = JSON.parse(localStorage.getItem('anonymousUsers') || '{}');
+                anonymousUsers[fingerprint] = name;
+                localStorage.setItem('anonymousUsers', JSON.stringify(anonymousUsers));
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('successState').classList.remove('hidden');
+                setTimeout(() => {
+                    const textarea = document.querySelector('.comment-textarea');
+                    if (textarea) textarea.value = '';
+                    localStorage.removeItem('pendingComment');
+                    closeCommentModal();
+                }, 2000);
+            }, 1500);
+        }
+    
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+    
+        function replyToComment(commentId) {
+            alert(`Reply to comment ${commentId} - Coming soon!`);
+        }
+    
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closeCommentModal();
+                closeShareModal();
+                closeFollowModal();
+            }
+        });
+    
+        document.addEventListener('DOMContentLoaded', function () {
+            initScrollProgress();
+            const menuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (menuBtn && mobileMenu) {
+                menuBtn.addEventListener('click', function () {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+            const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '[]');
+            const likeSection = document.querySelector('.like-section');
+            if (likeSection && likedPosts.includes(likeSection.dataset.postId)) {
+                const likeIcon = document.querySelector('.like-icon');
+                likeIcon.classList.add('text-red-500', 'ph-fill');
+                likeIcon.classList.remove('ph-bold');
+            }
+            const likedComments = JSON.parse(localStorage.getItem('likedComments') || '[]');
+            likedComments.forEach(commentId => {
+                const commentItem = document.querySelector(`[data-comment-id="${commentId}"]`);
+                if (commentItem) {
+                    const likeBtn = commentItem.querySelector('.comment-like-btn');
+                    const likeIcon = likeBtn.querySelector('i');
+                    likeIcon.classList.add('text-red-500', 'ph-fill');
+                    likeIcon.classList.remove('ph-bold');
+                }
+            });
+            if (window.innerWidth < 768) {
+                document.body.style.paddingBottom = '80px';
+                const touchElements = document.querySelectorAll('button, a, [role="button"]');
+                touchElements.forEach(element => {
+                    element.style.minHeight = '44px';
+                    element.style.minWidth = '44px';
+                });
+            }
+            const heroVideoWrapper = document.querySelector('[data-hero-video]');
+            const heroVideo = document.getElementById('heroVideo');
+            if (heroVideoWrapper && heroVideo) {
+                const mp4 = heroVideoWrapper.getAttribute('data-video-mp4');
+                const webm = heroVideoWrapper.getAttribute('data-video-webm');
+                const poster = heroVideoWrapper.getAttribute('data-video-poster');
+                if (poster) heroVideo.setAttribute('poster', poster);
+                const mp4Source = heroVideo.querySelector('[data-role="video-mp4"]');
+                const webmSource = heroVideo.querySelector('[data-role="video-webm"]');
+                if (mp4Source && mp4) mp4Source.setAttribute('src', mp4);
+                if (webmSource && webm) webmSource.setAttribute('src', webm);
+                heroVideo.load();
+                heroVideo.addEventListener('loadedmetadata', () => {
+                    heroVideo.play().catch(() => {});
+                });
+            }
             const playPauseBtn = document.getElementById('playPauseBtn');
             const muteBtn = document.getElementById('muteBtn');
             const fullscreenBtn = document.getElementById('fullscreenBtn');
-            
-            // Play/Pause toggle
-            playPauseBtn.addEventListener('click', function() {
-                if (video.paused) {
-                    video.play();
-                    playPauseBtn.innerHTML = '<i class="ph-bold ph-pause"></i>';
-                } else {
-                    video.pause();
-                    playPauseBtn.innerHTML = '<i class="ph-bold ph-play"></i>';
-                }
-            });
-            
-            // Mute/Unmute toggle
-            muteBtn.addEventListener('click', function() {
-                if (video.muted) {
-                    video.muted = false;
-                    muteBtn.innerHTML = '<i class="ph-bold ph-speaker-simple-high"></i>';
-                } else {
-                    video.muted = true;
-                    muteBtn.innerHTML = '<i class="ph-bold ph-speaker-simple-x"></i>';
-                }
-            });
-            
-            // Fullscreen toggle
-            fullscreenBtn.addEventListener('click', function() {
-                if (document.fullscreenElement) {
-                    document.exitFullscreen();
-                } else {
-                    video.requestFullscreen();
-                }
-            });
-            
-            // Update button states based on video state
-            video.addEventListener('play', function() {
-                playPauseBtn.innerHTML = '<i class="ph-bold ph-pause"></i>';
-            });
-            
-            video.addEventListener('pause', function() {
-                playPauseBtn.innerHTML = '<i class="ph-bold ph-play"></i>';
-            });
-            
-            video.addEventListener('volumechange', function() {
-                if (video.muted) {
-                    muteBtn.innerHTML = '<i class="ph-bold ph-speaker-simple-x"></i>';
-                } else {
-                    muteBtn.innerHTML = '<i class="ph-bold ph-speaker-simple-high"></i>';
-                }
-            });
-        });
-        
-        // Smooth scrolling for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
+            if (heroVideo && playPauseBtn) {
+                playPauseBtn.addEventListener('click', function () {
+                    if (heroVideo.paused) {
+                        heroVideo.play();
+                        playPauseBtn.innerHTML = '<i class="ph-bold ph-pause text-lg"></i>';
+                    } else {
+                        heroVideo.pause();
+                        playPauseBtn.innerHTML = '<i class="ph-bold ph-play text-lg"></i>';
+                    }
+                });
+            }
+            if (heroVideo && muteBtn) {
+                muteBtn.addEventListener('click', function () {
+                    heroVideo.muted = !heroVideo.muted;
+                    muteBtn.innerHTML = heroVideo.muted ? '<i class="ph-bold ph-speaker-simple-x text-lg"></i>' : '<i class="ph-bold ph-speaker-simple-high text-lg"></i>';
+                });
+            }
+            if (heroVideo && fullscreenBtn) {
+                fullscreenBtn.addEventListener('click', function () {
+                    if (document.fullscreenElement) {
+                        document.exitFullscreen();
+                    } else {
+                        heroVideo.requestFullscreen().catch(() => {});
+                    }
+                });
+            }
         });
     </script>
 </body>
