@@ -837,6 +837,57 @@
         }
     };
 
+    const RouteManager = {
+        routes: ['latest','popular','others','featured','topics'],
+        fallback: 'latest',
+        init: function() {
+            this.cache = {};
+            this.container = document.getElementById('route-container');
+            this.templates = document.getElementById('route-templates');
+            this.bindNavLinks();
+            window.addEventListener('popstate', () => this.renderRoute(this.getCurrentRoute()));
+            this.renderRoute(this.getCurrentRoute());
+        },
+        bindNavLinks() {
+            document.querySelectorAll('a[data-route]').forEach(link => {
+                link.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    const route = link.dataset.route;
+                    this.navigate(route);
+                });
+            });
+        },
+        getCurrentRoute() {
+            const path = window.location.pathname.replace(/^\/+|\/+$/g, '');
+            return path || this.fallback;
+        },
+        navigate(route) {
+            if (!this.routes.includes(route)) {
+                route = this.fallback;
+            }
+            history.pushState({}, '', `/${route}`);
+            this.renderRoute(route);
+        },
+        renderRoute(route) {
+            const templateId = `route-${route}`;
+            if (!this.templates) return;
+            const fragment = this.templates.querySelector(`#${templateId}`);
+            if (!fragment) return;
+            this.container.innerHTML = '<div class="min-h-[80vh]"></div>';
+            requestAnimationFrame(() => {
+                this.container.innerHTML = fragment.innerHTML;
+                document.title = fragment.dataset.title || fragment.querySelector('h1')?.textContent || 'NekwasaR Blog';
+                const description = fragment.dataset.description || '';
+                const meta = document.querySelector('meta[name="description"]');
+                if (meta) meta.setAttribute('content', description);
+                this.scrollToTop();
+            });
+        },
+        scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
+
     // Start the application
     BlogTemplates.init();
 
