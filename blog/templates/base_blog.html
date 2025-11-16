@@ -7,6 +7,8 @@
     <meta name="description" content="Professional insights, analysis, and storytelling from NekwasaR.">
     <meta name="author" content="NekwasaR">
 
+    {% block head_extra %}{% endblock %}
+
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syne:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
@@ -18,7 +20,7 @@
     <!-- Favicon -->
     <link rel="icon" href="https://nekwasar.com/favicon.png" sizes="any">
 </head>
-<body class="bg-base text-t-medium font-inter">
+<body class="bg-base text-t-medium font-inter" data-use-routing="{% block routing_flag %}true{% endblock %}">
     {% include 'includes/navbar.html' %}
 
     <main id="route-container" class="relative min-h-screen">
@@ -29,8 +31,10 @@
     <footer class="bg-base-tint border-t border-stroke-elements py-10">
         <div class="max-w-6xl mx-auto px-6 text-sm text-t-muted">
             <div class="flex flex-col sm:flex-row justify-between gap-4">
+                {% block footer_content %}
                 <span>NekwasaR &copy; {{ current_year if current_year is defined else '2025' }}. All rights reserved.</span>
                 <span>Design system harmonized with the NekwasaR homepage.</span>
+                {% endblock %}
             </div>
         </div>
     </footer>
@@ -44,6 +48,7 @@
     </div>
 
     <script src="../js/blog-templates.js" defer></script>
+    {% block extra_scripts %}{% endblock %}
 </body>
 </html>
 ]]>

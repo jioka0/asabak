@@ -1,12 +1,9 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NekwasaR Blog - Tech Insights & Innovation</title>
+<![CDATA[{% extends "./base_blog.html" %}
 
+{% block title %}NekwasaR Blog - Tech Insights & Innovation{% endblock %}
+
+{% block head_extra %}
     <!-- Primary Meta Tags -->
-    <title>NekwasaR Blog - Tech Insights & Innovation</title>
     <meta name="title" content="NekwasaR Blog - Tech Insights & Innovation">
     <meta name="description" content="Explore the latest in technology, AI, innovation, and digital transformation through NekwasaR's expert insights and analysis.">
     <meta name="author" content="NekwasaR">
@@ -26,63 +23,17 @@
     <meta name="twitter:description" content="Explore the latest in technology, AI, innovation, and digital transformation through NekwasaR's expert insights and analysis.">
     <meta name="twitter:image" content="https://nekwasar.com/favicon.png">
 
-    <!-- Fonts and Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
-    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/bold/style.css">
-
-    <!-- Favicon -->
-    <link rel="icon" href="/img/favicon.png" sizes="any">
-    <link rel="apple-touch-icon" href="/img/favicon.png">
-
     <!-- Styles -->
     <link rel="stylesheet" href="css/blog.css">
-</head>
-<body>
-    <!-- Header -->
-    <header class="blog-header">
-        <div class="header-container">
-            <div class="header-left">
-                <a href="/" class="logo-link">
-                    <div class="logo">NekwasaR</div>
-                    <span class="logo-subtitle">Blog</span>
-                </a>
-            </div>
+{% endblock %}
 
-            <nav class="main-nav">
-                <a href="https://nekwasar.com" class="nav-link portfolio-link">Back to Portfolio</a>
-                <a href="#latest" class="nav-link">Latest</a>
-                <a href="#popular" class="nav-link">Popular</a>
-                <a href="#others" class="nav-link">Others</a>
-                <a href="#featured" class="nav-link">Featured</a>
-                <a href="#tags" class="nav-link">Topics</a>
-            </nav>
-
-            <div class="header-right">
-                <button class="theme-toggle" id="themeToggle">
-                    <i class="ph-bold ph-moon-stars"></i>
-                </button>
-                <button class="search-toggle" id="searchToggle">
-                    <i class="ph-bold ph-magnifying-glass"></i>
-                </button>
-                <button class="mobile-menu-toggle" id="mobileMenuToggle">
-                    <i class="ph-bold ph-list"></i>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Content -->
+{% block content %}
     <main class="main-content">
-        <!-- Particle Canvas for Hero -->
         <canvas id="particleCanvas" class="particle-canvas"></canvas>
 
-        <!-- Trending Section -->
         <section id="latest" class="trending-section">
             <div class="section-container">
                 <h2 class="section-title">LATEST POST</h2>
-
-                <!-- Banner Auto Slider -->
                 <div class="banner-slider">
                     <button class="slider-nav prev" id="bannerPrev">
                         <i class="ph-bold ph-caret-left"></i>
@@ -154,203 +105,193 @@
             </div>
         </section>
 
-        <!-- Latest Articles Section -->
         <section id="popular" class="latest-articles-section">
             <div class="section-container">
                 <h2 class="section-title">POPULAR POSTS</h2>
-<div class="trending-slider">
+                <div class="trending-slider">
                     <button style="display: none" id="trendingPrev">
                         <i class="bold ph-caret-left"></i>
                     </button>
                     <div class="slider-container" id="trendingSlider">
                         <div class="slide active" data-href="#article-ai-future">
-                                <div class="slide-content">
-                                    <div class="slide-category">AI & Technology</div>
-                                    <div class="slide-title-container">
-                                        <h3 class="slide-title"><span class="slide-title-text">The Future of Artificial Intelligence: What's Next in 2025</span></h3>
-                                        <i class="ph-bold ph-cpu slide-icon"></i>
-                                    </div>
-                                    <div class="slide-meta">
-                                        <span class="author">NekwasaR</span>
-                                        <span class="date">Oct 30, 2025</span>
-                                        <span class="view-metric">2.1K views</span>
-                                    </div>
+                            <div class="slide-content">
+                                <div class="slide-category">AI & Technology</div>
+                                <div class="slide-title-container">
+                                    <h3 class="slide-title"><span class="slide-title-text">The Future of Artificial Intelligence: What's Next in 2025</span></h3>
+                                    <i class="ph-bold ph-cpu slide-icon"></i>
                                 </div>
-                                <div class="slide-image">
-                                    <!-- Featured image placeholder -->
-                                    <div class="image-placeholder">
-                                        <i class="ph-bold ph-cpu"></i>
-                                    </div>
+                                <div class="slide-meta">
+                                    <span class="author">NekwasaR</span>
+                                    <span class="date">Oct 30, 2025</span>
+                                    <span class="view-metric">2.1K views</span>
                                 </div>
                             </div>
-
-                          <div class="slide" data-href="#article-billion-dollar">
-                                <div class="slide-content">
-                                    <div class="slide-category">Innovation</div>
-                                    <div class="slide-title-container">
-                                        <h3 class="slide-title"><span class="slide-title-text">Building Billion-Dollar Ideas: Lessons from Successful Startups</span></h3>
-                                        <i class="ph-bold ph-lightbulb slide-icon"></i>
-                                    </div>
-                                    <div class="slide-meta">
-                                        <span class="author">NekwasaR</span>
-                                        <span class="date">Oct 28, 2025</span>
-                                        <span class="view-metric">1.8K views</span>
-                                    </div>
-                                </div>
-                                <div class="slide-image">
-                                    <div class="image-placeholder">
-                                        <i class="ph-bold ph-lightbulb"></i>
-                                    </div>
+                            <div class="slide-image">
+                                <div class="image-placeholder">
+                                    <i class="ph-bold ph-cpu"></i>
                                 </div>
                             </div>
-                            <div class="slide" data-href="#article-web-tech">
-                                <div class="slide-content">
-                                    <div class="slide-category">Web Development</div>
-                                    <div class="slide-title-container">
-                                        <h3 class="slide-title"><span class="slide-title-text">Modern Web Technologies: What Every Developer Should Know</span></h3>
-                                        <i class="ph-bold ph-code slide-icon"></i>
-                                    </div>
-                                    <div class="slide-meta">
-                                        <span class="author">NekwasaR</span>
-                                        <span class="date">Oct 25, 2025</span>
-                                        <span class="view-metric">1.5K views</span>
-                                    </div>
+                        </div>
+                        <div class="slide" data-href="#article-billion-dollar">
+                            <div class="slide-content">
+                                <div class="slide-category">Innovation</div>
+                                <div class="slide-title-container">
+                                    <h3 class="slide-title"><span class="slide-title-text">Building Billion-Dollar Ideas: Lessons from Successful Startups</span></h3>
+                                    <i class="ph-bold ph-lightbulb slide-icon"></i>
                                 </div>
-                                <div class="slide-image">
-                                    <div class="image-placeholder">
-                                        <i class="ph-bold ph-code"></i>
-                                    </div>
+                                <div class="slide-meta">
+                                    <span class="author">NekwasaR</span>
+                                    <span class="date">Oct 28, 2025</span>
+                                    <span class="view-metric">1.8K views</span>
                                 </div>
                             </div>
-                       
+                            <div class="slide-image">
+                                <div class="image-placeholder">
+                                    <i class="ph-bold ph-lightbulb"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slide" data-href="#article-web-tech">
+                            <div class="slide-content">
+                                <div class="slide-category">Web Development</div>
+                                <div class="slide-title-container">
+                                    <h3 class="slide-title"><span class="slide-title-text">Modern Web Technologies: What Every Developer Should Know</span></h3>
+                                    <i class="ph-bold ph-code slide-icon"></i>
+                                </div>
+                                <div class="slide-meta">
+                                    <span class="author">NekwasaR</span>
+                                    <span class="date">Oct 25, 2025</span>
+                                    <span class="view-metric">1.5K views</span>
+                                </div>
+                            </div>
+                            <div class="slide-image">
+                                <div class="image-placeholder">
+                                    <i class="ph-bold ph-code"></i>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <button style="display: none" id="trendingNext">
                         <i class="bold ph-caret-right"></i>
                     </button>
                 </div>
-
-
-
-                
                 <div class="slider-dots" id="trendingDots"></div>
-       
             </div>
             <div class="section-container">
-                
                 <div class="articles-slider">
                     <button class="slider-nav prev" id="articlesPrev">
                         <i class="ph-bold ph-caret-left"></i>
                     </button>
                     <div class="articles-container">
                         <div class="articles-track" id="articlesTrack">
-                        <article class="article-card">
-                            <div class="card-link" data-href="#article-ai-models">
-                                <div class="card-image">
-                                    <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=250&fit=crop&crop=center" alt="AI Models" loading="lazy">
-                                    <div class="card-category">AI</div>
-                                </div>
-                                <div class="card-content">
-                                    <h3 class="card-title">Latest AI Models: A Comprehensive Guide</h3>
-                                    <div class="card-meta">
-                                        <span class="author">NekwasaR</span>
-                                        <span class="engagement-metric">
-                                            <i class="ph-bold ph-heart"></i> 342
-                                            <i class="ph-bold ph-chat-circle"></i> 28
-                                        </span>
+                            <article class="article-card">
+                                <div class="card-link" data-href="#article-ai-models">
+                                    <div class="card-image">
+                                        <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=250&fit=crop&crop=center" alt="AI Models" loading="lazy">
+                                        <div class="card-category">AI</div>
+                                    </div>
+                                    <div class="card-content">
+                                        <h3 class="card-title">Latest AI Models: A Comprehensive Guide</h3>
+                                        <div class="card-meta">
+                                            <span class="author">NekwasaR</span>
+                                            <span class="engagement-metric">
+                                                <i class="ph-bold ph-heart"></i> 342
+                                                <i class="ph-bold ph-chat-circle"></i> 28
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </article>
-                        <article class="article-card">
-                            <div class="card-link" data-href="#article-tech-trends">
-                                <div class="card-image">
-                                    <img src="https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=250&fit=crop&crop=center" alt="Tech Trends" loading="lazy">
-                                    <div class="card-category">Tech Trends</div>
-                                </div>
-                                <div class="card-content">
-                                    <h3 class="card-title">Emerging Technologies Shaping 2025</h3>
-                                    <div class="card-meta">
-                                        <span class="author">NekwasaR</span>
-                                        <span class="engagement-metric">
-                                            <i class="ph-bold ph-heart"></i> 287
-                                            <i class="ph-bold ph-chat-circle"></i> 45
-                                        </span>
+                            </article>
+                            <article class="article-card">
+                                <div class="card-link" data-href="#article-tech-trends">
+                                    <div class="card-image">
+                                        <img src="https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=250&fit=crop&crop=center" alt="Tech Trends" loading="lazy">
+                                        <div class="card-category">Tech Trends</div>
+                                    </div>
+                                    <div class="card-content">
+                                        <h3 class="card-title">Emerging Technologies Shaping 2025</h3>
+                                        <div class="card-meta">
+                                            <span class="author">NekwasaR</span>
+                                            <span class="engagement-metric">
+                                                <i class="ph-bold ph-heart"></i> 287
+                                                <i class="ph-bold ph-chat-circle"></i> 45
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </article>
-                        <article class="article-card">
-                            <div class="card-link" data-href="#article-mobile-dev">
-                                <div class="card-image">
-                                    <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=400&h=250&fit=crop&crop=center" alt="Mobile Development" loading="lazy">
-                                    <div class="card-category">Mobile</div>
-                                </div>
-                                <div class="card-content">
-                                    <h3 class="card-title">The Evolution of Mobile App Development</h3>
-                                    <div class="card-meta">
-                                        <span class="author">NekwasaR</span>
-                                        <span class="engagement-metric">
-                                            <i class="ph-bold ph-heart"></i> 198
-                                            <i class="ph-bold ph-chat-circle"></i> 32
-                                        </span>
+                            </article>
+                            <article class="article-card">
+                                <div class="card-link" data-href="#article-mobile-dev">
+                                    <div class="card-image">
+                                        <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=400&h=250&fit=crop&crop=center" alt="Mobile Development" loading="lazy">
+                                        <div class="card-category">Mobile</div>
+                                    </div>
+                                    <div class="card-content">
+                                        <h3 class="card-title">The Evolution of Mobile App Development</h3>
+                                        <div class="card-meta">
+                                            <span class="author">NekwasaR</span>
+                                            <span class="engagement-metric">
+                                                <i class="ph-bold ph-heart"></i> 198
+                                                <i class="ph-bold ph-chat-circle"></i> 32
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </article>
-                        <article class="article-card">
-                            <div class="card-link" data-href="#article-cloud-computing">
-                                <div class="card-image">
-                                    <img src="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=400&h=250&fit=crop&crop=center" alt="Cloud Computing" loading="lazy">
-                                    <div class="card-category">Cloud</div>
-                                </div>
-                                <div class="card-content">
-                                    <h3 class="card-title">Cloud Computing: The Future is Here</h3>
-                                    <div class="card-meta">
-                                        <span class="author">NekwasaR</span>
-                                        <span class="engagement-metric">
-                                            <i class="ph-bold ph-heart"></i> 456
-                                            <i class="ph-bold ph-chat-circle"></i> 67
-                                        </span>
+                            </article>
+                            <article class="article-card">
+                                <div class="card-link" data-href="#article-cloud-computing">
+                                    <div class="card-image">
+                                        <img src="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=400&h=250&fit=crop&crop=center" alt="Cloud Computing" loading="lazy">
+                                        <div class="card-category">Cloud</div>
+                                    </div>
+                                    <div class="card-content">
+                                        <h3 class="card-title">Cloud Computing: The Future is Here</h3>
+                                        <div class="card-meta">
+                                            <span class="author">NekwasaR</span>
+                                            <span class="engagement-metric">
+                                                <i class="ph-bold ph-heart"></i> 456
+                                                <i class="ph-bold ph-chat-circle"></i> 67
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </article>
-                        <article class="article-card">
-                            <div class="card-link" data-href="#article-cybersecurity">
-                                <div class="card-image">
-                                    <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400&h=250&fit=crop&crop=center" alt="Cybersecurity" loading="lazy">
-                                    <div class="card-category">Security</div>
-                                </div>
-                                <div class="card-content">
-                                    <h3 class="card-title">Cybersecurity Best Practices for 2025</h3>
-                                    <div class="card-meta">
-                                        <span class="author">NekwasaR</span>
-                                        <span class="engagement-metric">
-                                            <i class="ph-bold ph-heart"></i> 523
-                                            <i class="ph-bold ph-chat-circle"></i> 89
-                                        </span>
+                            </article>
+                            <article class="article-card">
+                                <div class="card-link" data-href="#article-cybersecurity">
+                                    <div class="card-image">
+                                        <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400&h=250&fit=crop&crop=center" alt="Cybersecurity" loading="lazy">
+                                        <div class="card-category">Security</div>
+                                    </div>
+                                    <div class="card-content">
+                                        <h3 class="card-title">Cybersecurity Best Practices for 2025</h3>
+                                        <div class="card-meta">
+                                            <span class="author">NekwasaR</span>
+                                            <span class="engagement-metric">
+                                                <i class="ph-bold ph-heart"></i> 523
+                                                <i class="ph-bold ph-chat-circle"></i> 89
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </article>
-                        <article class="article-card">
-                            <div class="card-link" data-href="#article-ux-psychology">
-                                <div class="card-image">
-                                    <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=250&fit=crop&crop=center" alt="UX Psychology" loading="lazy">
-                                    <div class="card-category">Innovation</div>
-                                </div>
-                                <div class="card-content">
-                                    <h3 class="card-title">The Psychology of User Experience</h3>
-                                    <div class="card-meta">
-                                        <span class="author">NekwasaR</span>
-                                        <span class="engagement-metric">
-                                            <i class="ph-bold ph-heart"></i> 267
-                                            <i class="ph-bold ph-chat-circle"></i> 34
-                                        </span>
+                            </article>
+                            <article class="article-card">
+                                <div class="card-link" data-href="#article-ux-psychology">
+                                    <div class="card-image">
+                                        <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=250&fit=crop&crop=center" alt="UX Psychology" loading="lazy">
+                                        <div class="card-category">Innovation</div>
+                                    </div>
+                                    <div class="card-content">
+                                        <h3 class="card-title">The Psychology of User Experience</h3>
+                                        <div class="card-meta">
+                                            <span class="author">NekwasaR</span>
+                                            <span class="engagement-metric">
+                                                <i class="ph-bold ph-heart"></i> 267
+                                                <i class="ph-bold ph-chat-circle"></i> 34
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </article>
+                            </article>
                         </div>
                     </div>
                     <button class="slider-nav next" id="articlesNext">
@@ -358,17 +299,12 @@
                     </button>
                 </div>
             </div>
-
-            
         </section>
 
-        <!-- Magazine Section -->
         <section id="magazine" class="magazine-section">
             <div class="section-container">
                 <div class="magazine-grid">
-                    <!-- Main Content -->
                     <div class="magazine-main">
-                        <!-- Featured Post -->
                         <div class="featured-section">
                             <h3 class="subsection-title">FEATURED POST</h3>
                             <article class="featured-post">
@@ -393,30 +329,27 @@
                             </article>
                         </div>
 
-                        <!-- Lifestyle/Other Section -->
                         <div class="lifestyle-section">
                             <h3 class="subsection-title">OTHERS</h3>
                             <div class="lifestyle-grid">
-                                <!-- Large Posts -->
                                 <article class="large-post">
-                                        <div class="post-link" data-href="#article-high-performance-teams">
-                                            <div class="post-image">
-                                                <div class="image-placeholder">
-                                                    <i class="ph-bold ph-users"></i>
-                                                </div>
-                                            </div>
-                                            <div class="post-content">
-                                                <div class="post-category">Leadership</div>
-                                                <h3 class="post-title">Building High-Performance Teams in Tech</h3>
-                                                <p class="post-excerpt">Strategies for creating and maintaining successful development teams that deliver exceptional results.</p>
-                                                <div class="post-meta">
-                                                    <span class="author">NekwasaR</span>
-                                                    <span class="views-metric">2.8K views</span>
-                                                </div>
+                                    <div class="post-link" data-href="#article-high-performance-teams">
+                                        <div class="post-image">
+                                            <div class="image-placeholder">
+                                                <i class="ph-bold ph-users"></i>
                                             </div>
                                         </div>
-                                    </article>
-
+                                        <div class="post-content">
+                                            <div class="post-category">Leadership</div>
+                                            <h3 class="post-title">Building High-Performance Teams in Tech</h3>
+                                            <p class="post-excerpt">Strategies for creating and maintaining successful development teams that deliver exceptional results.</p>
+                                            <div class="post-meta">
+                                                <span class="author">NekwasaR</span>
+                                                <span class="views-metric">2.8K views</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </article>
                                 <article class="large-post">
                                     <div class="post-link" data-href="#article-product-strategy">
                                         <div class="post-image">
@@ -435,8 +368,6 @@
                                         </div>
                                     </div>
                                 </article>
-
-                                <!-- Small Posts Grid -->
                                 <div class="small-posts-grid">
                                     <article class="small-post">
                                         <div class="post-link" data-href="#article-data-driven">
@@ -456,7 +387,6 @@
                                             </div>
                                         </div>
                                     </article>
-
                                     <article class="small-post">
                                         <div class="post-link" data-href="#article-ux-psychology">
                                             <div class="post-image">
@@ -479,10 +409,7 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Sidebar -->
                     <aside class="magazine-sidebar">
-                        <!-- Stay Connected -->
                         <div class="sidebar-widget">
                             <h4 class="widget-title">Stay Connected</h4>
                             <div class="social-links">
@@ -493,61 +420,56 @@
                                 <a href="https://x.com/nekwasar" class="social-link" target="_blank"><i class="ph-bold ph-x-logo"></i></a>
                             </div>
                         </div>
-
-                        <!-- Popular Tags -->
                         <div class="sidebar-widget" id="tags">
                             <h4 class="widget-title">TOP TOPICS</h4>
                             <div class="tags-grid">
-                                    <div class="tag-item" data-href="#tag-ai">
-                                        <div class="tag-icon"><i class="ph-bold ph-cpu"></i></div>
-                                        <div class="tag-content">
-                                            <span class="tag-name">AI</span>
-                                            <span class="tag-count">24 posts</span>
-                                        </div>
-                                    </div>
-                                    <div class="tag-item" data-href="#tag-startup">
-                                        <div class="tag-icon"><i class="ph-bold ph-rocket"></i></div>
-                                        <div class="tag-content">
-                                            <span class="tag-name">Startup</span>
-                                            <span class="tag-count">18 posts</span>
-                                        </div>
-                                    </div>
-                                    <div class="tag-item" data-href="#tag-innovation">
-                                        <div class="tag-icon"><i class="ph-bold ph-lightbulb"></i></div>
-                                        <div class="tag-content">
-                                            <span class="tag-name">Innovation</span>
-                                            <span class="tag-count">15 posts</span>
-                                        </div>
-                                    </div>
-                                    <div class="tag-item" data-href="#tag-opinions">
-                                        <div class="tag-icon"><i class="ph-bold ph-chat-circle"></i></div>
-                                        <div class="tag-content">
-                                            <span class="tag-name">Opinions</span>
-                                            <span class="tag-count">12 posts</span>
-                                        </div>
-                                    </div>
-                                    <div class="tag-item" data-href="#tag-business">
-                                        <div class="tag-icon"><i class="ph-bold ph-building"></i></div>
-                                        <div class="tag-content">
-                                            <span class="tag-name">Business</span>
-                                            <span class="tag-count">10 posts</span>
-                                        </div>
-                                    </div>
-                                    <div class="tag-item" data-href="#tag-software">
-                                        <div class="tag-icon"><i class="ph-bold ph-code"></i></div>
-                                        <div class="tag-content">
-                                            <span class="tag-name">Software and App Development</span>
-                                            <span class="tag-count">8 posts</span>
-                                        </div>
+                                <div class="tag-item" data-href="#tag-ai">
+                                    <div class="tag-icon"><i class="ph-bold ph-cpu"></i></div>
+                                    <div class="tag-content">
+                                        <span class="tag-name">AI</span>
+                                        <span class="tag-count">24 posts</span>
                                     </div>
                                 </div>
+                                <div class="tag-item" data-href="#tag-startup">
+                                    <div class="tag-icon"><i class="ph-bold ph-rocket"></i></div>
+                                    <div class="tag-content">
+                                        <span class="tag-name">Startup</span>
+                                        <span class="tag-count">18 posts</span>
+                                    </div>
+                                </div>
+                                <div class="tag-item" data-href="#tag-innovation">
+                                    <div class="tag-icon"><i class="ph-bold ph-lightbulb"></i></div>
+                                    <div class="tag-content">
+                                        <span class="tag-name">Innovation</span>
+                                        <span class="tag-count">15 posts</span>
+                                    </div>
+                                </div>
+                                <div class="tag-item" data-href="#tag-opinions">
+                                    <div class="tag-icon"><i class="ph-bold ph-chat-circle"></i></div>
+                                    <div class="tag-content">
+                                        <span class="tag-name">Opinions</span>
+                                        <span class="tag-count">12 posts</span>
+                                    </div>
+                                </div>
+                                <div class="tag-item" data-href="#tag-business">
+                                    <div class="tag-icon"><i class="ph-bold ph-building"></i></div>
+                                    <div class="tag-content">
+                                        <span class="tag-name">Business</span>
+                                        <span class="tag-count">10 posts</span>
+                                    </div>
+                                </div>
+                                <div class="tag-item" data-href="#tag-software">
+                                    <div class="tag-icon"><i class="ph-bold ph-code"></i></div>
+                                    <div class="tag-content">
+                                        <span class="tag-name">Software and App Development</span>
+                                        <span class="tag-count">8 posts</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-
-                        <!-- Sponsored Ads -->
                         <div class="sidebar-widget">
                             <h4 class="widget-title">SPONSORED</h4>
                             <div class="ads-grid">
-                                <!-- Large Ad 1 -->
                                 <div class="ad-container ad-large">
                                     <div class="ad-content">
                                         <div class="ad-image">
@@ -560,8 +482,6 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- Large Ad 2 -->
                                 <div class="ad-container ad-large">
                                     <div class="ad-content">
                                         <div class="ad-image">
@@ -574,8 +494,6 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- Large Ad 3 -->
                                 <div class="ad-container ad-large">
                                     <div class="ad-content">
                                         <div class="ad-image">
@@ -588,8 +506,6 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- Small Ad 1 -->
                                 <div class="ad-container ad-small">
                                     <div class="ad-content">
                                         <div class="ad-text">
@@ -602,8 +518,6 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- Small Ad 2 -->
                                 <div class="ad-container ad-small">
                                     <div class="ad-content">
                                         <div class="ad-text">
@@ -623,7 +537,6 @@
             </div>
         </section>
 
-        <!-- Newsletter Section -->
         <section class="newsletter-section">
             <div class="newsletter-container">
                 <div class="newsletter-orb orb-1"></div>
@@ -651,52 +564,8 @@
         </section>
     </main>
 
-    <!-- Footer -->
-    <footer class="blog-footer">
-        <div class="footer-container">
-            <div class="footer-main">
-                <div class="footer-brand">
-                    <div class="footer-logo">NekwasaR</div>
-                    <p class="footer-description">Exploring the frontiers of technology, innovation, and digital transformation.</p>
-                    <div class="footer-social">
-                        <a href="https://www.reddit.com/user/nekwasar/" class="social-link" target="_blank"><i class="ph-bold ph-reddit-logo"></i></a>
-                        <a href="https://www.facebook.com/nekwasar" class="social-link" target="_blank"><i class="ph-bold ph-facebook-logo"></i></a>
-                        <a href="https://www.instagram.com/nekwasar" class="social-link" target="_blank"><i class="ph-bold ph-instagram-logo"></i></a>
-                        <a href="https://wa.me/2348164806578" class="social-link" target="_blank"><i class="ph-bold ph-whatsapp-logo"></i></a>
-                        <a href="https://x.com/nekwasar" class="social-link" target="_blank"><i class="ph-bold ph-x-logo"></i></a>
-                    </div>
-                </div>
-
-                <div class="footer-links">
-                    
-                    <div class="link-column">
-                        <h4>PAGES</h4>
-                        <a href="#technology">Technology</a>
-                        <a href="#innovation">Innovation</a>
-                        <a href="#business">Business</a>
-                        <a href="#others">Others</a>
-                    </div>
-                    <div class="link-column">
-                        <h4>LEGAL & PRIVACY</h4>
-                      
-                        <a href="#copyright">Copyright</a>
-                 
-                        <a href="#disclaimer">Disclaimer</a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="footer-bottom">
-                <p>&copy; 2025 NekwasaR. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Modals -->
-    <!-- Advanced Search Modal -->
     <div class="search-modal-overlay" id="searchOverlay">
         <div class="search-modal-container">
-            <!-- Search Header -->
             <div class="search-header">
                 <div class="search-title">
                     <i class="ph-bold ph-magnifying-glass"></i>
@@ -706,8 +575,6 @@
                     <i class="ph-bold ph-x"></i>
                 </button>
             </div>
-
-            <!-- Search Input Section -->
             <div class="search-input-section">
                 <div class="search-input-wrapper">
                     <input type="text" class="search-input" id="searchInput" placeholder="Search articles, topics, or authors...">
@@ -716,8 +583,6 @@
                         <i class="ph-bold ph-arrow-right"></i>
                     </button>
                 </div>
-
-                <!-- Smart Suggestions -->
                 <div class="search-suggestions" id="searchSuggestions">
                     <div class="suggestion-item initial" data-type="trending">
                         <i class="ph-bold ph-trend-up"></i>
@@ -732,8 +597,6 @@
                         <span>Popular: Blockchain Guide</span>
                     </div>
                 </div>
-
-                <!-- Typing State Message -->
                 <div class="search-typing-state" id="typingState">
                     <div class="typing-message">
                         <i class="ph-bold ph-magnifying-glass"></i>
@@ -741,10 +604,7 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Advanced Filters -->
             <div class="search-filters">
-                <!-- Section Filters -->
                 <div class="filter-group">
                     <label class="filter-label">Sections</label>
                     <div class="filter-buttons">
@@ -769,8 +629,6 @@
                         </button>
                     </div>
                 </div>
-
-                <!-- Tag Filters -->
                 <div class="filter-group">
                     <label class="filter-label">Topics</label>
                     <div class="tag-filters" id="tagFilters">
@@ -797,8 +655,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Search Results -->
             <div class="search-results-section">
                 <div class="results-header">
                     <div class="results-meta">
@@ -820,7 +676,6 @@
                         </button>
                     </div>
                 </div>
-
                 <div class="search-results" id="searchResults">
                     <div class="no-results">
                         <div class="no-results-icon">
@@ -830,8 +685,6 @@
                         <p>Search through our collection of articles, tutorials, and insights</p>
                     </div>
                 </div>
-
-                <!-- Load More -->
                 <div class="load-more-container" id="loadMoreContainer" style="display: none;">
                     <button class="load-more-btn" id="loadMoreBtn">
                         <span>Load More Results</span>
@@ -842,14 +695,11 @@
         </div>
     </div>
 
-    <!-- Mobile Menu Modal -->
     <div class="modal-overlay" id="menuOverlay">
         <div class="modal-content menu-modal">
             <div class="menu-header">
                 <div class="menu-logo">NekwasaR</div>
                 <div class="menu-actions">
-                    
-                    
                     <button class="modal-close" id="menuClose">
                         <i class="ph-bold ph-x"></i>
                     </button>
@@ -863,17 +713,46 @@
                 <a href="#featured" class="mobile-nav-link">Featured</a>
                 <a href="#tags" class="mobile-nav-link">Topics</a>
             </nav>
-            
         </div>
     </div>
 
-    <!-- Scroll to Top -->
     <div class="scroll-to-top" id="scrollToTop">
         <div class="scroll-progress" id="scrollProgress"></div>
         <i class="ph-bold ph-arrow-up"></i>
     </div>
+{% endblock %}
 
-    <!-- Scripts -->
+{% block footer_content %}
+    <div class="footer-main">
+        <div class="footer-brand">
+            <div class="footer-logo">NekwasaR</div>
+            <p class="footer-description">Exploring the frontiers of technology, innovation, and digital transformation.</p>
+            <div class="footer-social">
+                <a href="https://www.reddit.com/user/nekwasar/" class="social-link" target="_blank"><i class="ph-bold ph-reddit-logo"></i></a>
+                <a href="https://www.facebook.com/nekwasar" class="social-link" target="_blank"><i class="ph-bold ph-facebook-logo"></i></a>
+                <a href="https://www.instagram.com/nekwasar" class="social-link" target="_blank"><i class="ph-bold ph-instagram-logo"></i></a>
+                <a href="https://wa.me/2348164806578" class="social-link" target="_blank"><i class="ph-bold ph-whatsapp-logo"></i></a>
+                <a href="https://x.com/nekwasar" class="social-link" target="_blank"><i class="ph-bold ph-x-logo"></i></a>
+            </div>
+        </div>
+        <div class="footer-links">
+            <div class="link-column">
+                <h4>PAGES</h4>
+                <a href="#technology">Technology</a>
+                <a href="#innovation">Innovation</a>
+                <a href="#business">Business</a>
+                <a href="#others">Others</a>
+            </div>
+            <div class="link-column">
+                <h4>LEGAL & PRIVACY</h4>
+                <a href="#copyright">Copyright</a>
+                <a href="#disclaimer">Disclaimer</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
     <script src="js/blog.js"></script>
-</body>
-</html>
+{% endblock %}
+]]>
