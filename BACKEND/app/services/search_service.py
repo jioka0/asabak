@@ -3,8 +3,8 @@ from sqlalchemy import func, text, desc, or_, and_
 from typing import List, Dict, Any, Optional, Tuple
 import time
 import re
-from models.blog import BlogPost, SearchAnalytics
-from schemas.blog import SearchRequest, SearchResponse, BlogPostSearchResult, SearchSuggestions
+from backend.app.models.blog import BlogPost, SearchAnalytics
+from backend.app.schemas.blog import SearchRequest, SearchResponse, BlogPostSearchResult, SearchSuggestions
 
 class SearchService:
     def __init__(self, db: Session):

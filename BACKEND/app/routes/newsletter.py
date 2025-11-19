@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, Form, Request
 from sqlalchemy.orm import Session
-from database import get_db
-from services.newsletter_service import NewsletterService
-from schemas.blog import NewsletterSubscriberCreate, NewsletterCampaignCreate
+from backend.app.database import get_db
+from backend.app.services.newsletter_service import NewsletterService
+from backend.app.schemas.blog import NewsletterSubscriberCreate, NewsletterCampaignCreate
 from typing import Optional
 
 router = APIRouter()

@@ -1,19 +1,20 @@
 import logging
+from datetime import datetime
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
 import uvicorn
 import hashlib
 from sqlalchemy.orm import Session
 
-from database import create_tables, SessionLocal
-from routes import contacts, blogs, products, auth, admin, search, newsletter, analytics, content
-from core.config import settings
-from scheduler import init_scheduler, start_scheduler, stop_scheduler
-from models.user import AdminUser
+from backend.app.database import create_tables, SessionLocal
+from backend.app.routes import contacts, blogs, products, auth, admin, search, newsletter, analytics, content
+from backend.app.core.config import settings
+from backend.app.scheduler import init_scheduler, start_scheduler, stop_scheduler
+from backend.app.models.user import AdminUser
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -28,6 +29,11 @@ app = FastAPI(
 
 # Templates for admin pages
 templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
+
+# Blog templates & statics
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+BLOG_DIR = PROJECT_ROOT / "blog"
+blog_templates = Jinja2Templates(directory=str(BLOG_DIR / "templates"))
 
 # CORS middleware
 app.add_middleware(
@@ -50,12 +56,15 @@ app.include_router(content.router, prefix="/api/content", tags=["content"])
 app.include_router(admin.router, tags=["admin"])
 
 # Mount static files for admin interface
-app.mount("/static", StaticFiles(directory="../../portfolio"), name="static")
+app.mount("/static", StaticFiles(directory=str(PROJECT_ROOT / "portfolio")), name="static")
+
+# Mount blog assets (css, js, img)
+app.mount("/blog", StaticFiles(directory=str(BLOG_DIR)), name="blog-static")
 
 # Add custom exception handler for 401/403 errors to show custom 403 page
 from fastapi.responses import HTMLResponse
 from fastapi.exception_handlers import http_exception_handler
-from routes.admin import templates
+from backend.app.routes.admin import templates
 
 async def custom_403_handler(request: Request, exc: HTTPException):
     """Custom handler for 401/403 errors to show custom 403 page"""
@@ -121,30 +130,61 @@ async def startup_event():
 
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
-    """Redirect to main portfolio site based on port"""
-    if request.url.port == 8000:
-        redirect_url = "http://127.0.0.1:8001"
-    else:
-        # For other ports, serve API info or no redirect
-        return """
-        <html>
-            <body>
-                <h1>NekwasaR Backend API</h1>
-                <p>Visit <a href="/docs">/docs</a> for API documentation.</p>
-            </body>
-        </html>
-        """
+    """Render the blog homepage for testing"""
+    return blog_templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+            "current_year": datetime.utcnow().year
+        }
+    )
 
-    return f"""
-    <html>
-        <head>
-            <meta http-equiv="refresh" content="0; url={redirect_url}" />
-        </head>
-        <body>
-            <p>Redirecting to portfolio site...</p>
-        </body>
-    </html>
-    """
+# SPA deep-link routes: serve the same index.html for client-side router
+@app.get("/latest", response_class=HTMLResponse)
+@app.get("/latest/", response_class=HTMLResponse)
+async def blog_latest(request: Request):
+    return blog_templates.TemplateResponse(
+        "page_section.html",
+        {"request": request, "section": "latest", "current_year": datetime.utcnow().year}
+    )
+
+@app.get("/popular", response_class=HTMLResponse)
+@app.get("/popular/", response_class=HTMLResponse)
+async def blog_popular(request: Request):
+    return blog_templates.TemplateResponse(
+        "page_section.html",
+        {"request": request, "section": "popular", "current_year": datetime.utcnow().year}
+    )
+
+@app.get("/others", response_class=HTMLResponse)
+@app.get("/others/", response_class=HTMLResponse)
+async def blog_others(request: Request):
+    return blog_templates.TemplateResponse(
+        "page_section.html",
+        {"request": request, "section": "others", "current_year": datetime.utcnow().year}
+    )
+
+@app.get("/featured", response_class=HTMLResponse)
+@app.get("/featured/", response_class=HTMLResponse)
+async def blog_featured(request: Request):
+    return blog_templates.TemplateResponse(
+        "page_section.html",
+        {"request": request, "section": "featured", "current_year": datetime.utcnow().year}
+    )
+
+@app.get("/topics", response_class=HTMLResponse)
+@app.get("/topics/", response_class=HTMLResponse)
+async def blog_topics(request: Request):
+    return blog_templates.TemplateResponse(
+        "page_section.html",
+        {"request": request, "section": "topics", "current_year": datetime.utcnow().year}
+    )
+
+# Redirect misspelling /populer -> /popular
+@app.get("/populer")
+@app.get("/populer/")
+async def populer_redirect():
+    return RedirectResponse(url="/popular", status_code=301)
 
 # Fallback admin dashboard routes (ensure rendering even if router load order conflicts)
 @app.get("/admin/dashboard", response_class=HTMLResponse)

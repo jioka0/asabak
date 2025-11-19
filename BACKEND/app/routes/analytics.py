@@ -3,9 +3,9 @@ from sqlalchemy.orm import Session
 from typing import Optional, List
 from datetime import datetime, timedelta
 
-from database import get_db
-from services.analytics_service import AnalyticsService
-from schemas.blog import (
+from backend.app.database import get_db
+from backend.app.services.analytics_service import AnalyticsService
+from backend.app.schemas.blog import (
     PageViewAnalyticsCreate, ContentEngagementAnalyticsCreate,
     UserSessionAnalyticsCreate, ReferralAnalyticsCreate,
     AnalyticsDashboardResponse, AnalyticsReportRequest
@@ -155,7 +155,7 @@ async def get_reports(
 ):
     """Get list of generated reports"""
     try:
-        from models.blog import AnalyticsReports
+        from backend.app.models.blog import AnalyticsReports
 
         query = db.query(AnalyticsReports)
         if report_type:
@@ -195,7 +195,7 @@ async def get_report(
 ):
     """Get detailed report data"""
     try:
-        from models.blog import AnalyticsReports
+        from backend.app.models.blog import AnalyticsReports
 
         report = db.query(AnalyticsReports).filter(
             AnalyticsReports.id == report_id

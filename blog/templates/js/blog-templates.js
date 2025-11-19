@@ -796,11 +796,46 @@
         },
 
         initializeModules: function() {
-            // Load saved theme preference
-            const savedTheme = localStorage.getItem('color-scheme');
+            // Load saved theme preference (unified with blog.js + early bootstrap in base)
+            const savedBlogTheme = localStorage.getItem('blog.theme');
+            const savedTheme = savedBlogTheme || localStorage.getItem('color-scheme');
             if (savedTheme) {
-                document.documentElement.setAttribute('color-scheme', savedTheme);
+                const root = document.documentElement;
+                const isLight = savedTheme === 'light';
+                // Apply attribute + Tailwind class + color-scheme for native controls
+                root.setAttribute('color-scheme', savedTheme);
+                root.setAttribute('data-theme', savedTheme);
+                root.classList.toggle('dark', !isLight);
+                try { root.style.colorScheme = isLight ? 'light' : 'dark'; } catch (e) {}
+                // If early bootstrap API is present, normalize through it
+                try {
+                    if (typeof window.__applyTheme === 'function') {
+                        window.__applyTheme(savedTheme);
+                    }
+                } catch (e) {}
             }
+
+            // Keep theme fully in sync if other contexts update it
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'blog.theme' || e.key === 'color-scheme') {
+                    const t = localStorage.getItem('blog.theme') || localStorage.getItem('color-scheme');
+                    if (!t) return;
+                    try {
+                        if (typeof window.__applyTheme === 'function') {
+                            window.__applyTheme(t);
+                        } else {
+                            const root = document.documentElement;
+                            const isLight = t === 'light';
+                            root.setAttribute('color-scheme', t);
+                            root.setAttribute('data-theme', t);
+                            root.classList.toggle('dark', !isLight);
+                            try { root.style.colorScheme = isLight ? 'light' : 'dark'; } catch (err) {}
+                        }
+                    } catch (err) {
+                        // no-op
+                    }
+                }
+            });
             
             // Initialize all modules
             try {
@@ -838,15 +873,19 @@
     };
 
     const RouteManager = {
-        routes: ['latest','popular','others','featured','topics'],
-        fallback: 'latest',
+        routes: ['home','latest','popular','others','featured','topics'],
+        fallback: 'home',
         init: function() {
-            this.cache = {};
             this.container = document.getElementById('route-container');
-            this.templates = document.getElementById('route-templates');
             this.bindNavLinks();
-            window.addEventListener('popstate', () => this.renderRoute(this.getCurrentRoute()));
-            this.renderRoute(this.getCurrentRoute());
+            window.addEventListener('popstate', () => {
+                this.renderRoute(this.getCurrentRoute(), false);
+            });
+            // If we land on '/', do not force-load another route; content is already server-rendered
+            const current = this.getCurrentRoute();
+            if (current !== 'home') {
+                this.renderRoute(current, false);
+            }
         },
         bindNavLinks() {
             document.querySelectorAll('a[data-route]').forEach(link => {
@@ -857,31 +896,66 @@
                 });
             });
         },
+        routeToPath(route) {
+            return route === 'home' ? '/' : `/${route}`;
+        },
         getCurrentRoute() {
-            const path = window.location.pathname.replace(/^\/+|\/+$/g, '');
-            return path || this.fallback;
+            const path = window.location.pathname.replace(/^\/+|\/+$/g, '').toLowerCase();
+            if (!path) return 'home';
+            return this.routes.includes(path) ? path : this.fallback;
         },
         navigate(route) {
             if (!this.routes.includes(route)) {
                 route = this.fallback;
             }
-            history.pushState({}, '', `/${route}`);
-            this.renderRoute(route);
+            const url = this.routeToPath(route);
+            history.pushState({}, '', url);
+            this.renderRoute(route, true);
         },
-        renderRoute(route) {
-            const templateId = `route-${route}`;
-            if (!this.templates) return;
-            const fragment = this.templates.querySelector(`#${templateId}`);
-            if (!fragment) return;
-            this.container.innerHTML = '<div class="min-h-[80vh]"></div>';
-            requestAnimationFrame(() => {
-                this.container.innerHTML = fragment.innerHTML;
-                document.title = fragment.dataset.title || fragment.querySelector('h1')?.textContent || 'NekwasaR Blog';
-                const description = fragment.dataset.description || '';
+        async renderRoute(route, smoothScroll = true) {
+            if (!this.container) return;
+            try {
+                const url = this.routeToPath(route);
+                const res = await fetch(url, {
+                    headers: { 'X-Requested-With': 'fetch' }
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const html = await res.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newContainer = doc.querySelector('#route-container');
+                if (!newContainer) throw new Error('Missing #route-container in response');
+
+                // Swap main content
+                this.container.innerHTML = newContainer.innerHTML;
+
+                // Ensure theme state/icons are synced after swap
+                if (window.ApplyThemeFromStorage && typeof window.ApplyThemeFromStorage === 'function') {
+                    try { window.ApplyThemeFromStorage(); } catch (e) { console.error('ApplyThemeFromStorage failed:', e); }
+                }
+
+                // Re-initialize page-level JS for newly injected content
+                if (window.BlogPageInit && typeof window.BlogPageInit === 'function') {
+                    try { window.BlogPageInit(); } catch (e) { console.error('BlogPageInit failed:', e); }
+                }
+
+                // Update title and meta description
+                const newTitle = doc.querySelector('title')?.textContent?.trim();
+                if (newTitle) document.title = newTitle;
+                const newMetaDescription = doc.querySelector('meta[name="description"]')?.getAttribute('content') || '';
                 const meta = document.querySelector('meta[name="description"]');
-                if (meta) meta.setAttribute('content', description);
-                this.scrollToTop();
-            });
+                if (meta && newMetaDescription) meta.setAttribute('content', newMetaDescription);
+
+                // Highlight active nav link
+                document.querySelectorAll('a[data-route]').forEach(a => {
+                    a.classList.toggle('active', a.dataset.route === route);
+                });
+
+                if (smoothScroll) this.scrollToTop();
+            } catch (err) {
+                console.warn('SPA fetch failed, falling back to full navigation:', err);
+                window.location.href = this.routeToPath(route);
+            }
         },
         scrollToTop() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -890,7 +964,18 @@
 
     // Start the application
     BlogTemplates.init();
-
+    
+    // Initialize SPA router if enabled via body[data-use-routing="true"]
+    try {
+        const body = document.body;
+        const useRouting = body && (body.dataset.useRouting === 'true' || body.getAttribute('data-use-routing') === 'true');
+        if (useRouting && typeof RouteManager !== 'undefined' && RouteManager.init) {
+            RouteManager.init();
+        }
+    } catch (e) {
+        console.error('RouteManager init error:', e);
+    }
+    
     // Export for global access if needed
     window.BlogTemplates = BlogTemplates;
     window.BlogTemplatesUtils = Utils;

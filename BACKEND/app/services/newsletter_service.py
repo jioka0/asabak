@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
 from jinja2 import Template
 
-from models.blog import NewsletterSubscriber, NewsletterCampaign, BlogPost
-from schemas.blog import NewsletterSubscriberCreate, NewsletterCampaignCreate
+from backend.app.models.blog import NewsletterSubscriber, NewsletterCampaign, BlogPost
+from backend.app.schemas.blog import NewsletterSubscriberCreate, NewsletterCampaignCreate
 
 class NewsletterService:
     def __init__(self, db: Session):

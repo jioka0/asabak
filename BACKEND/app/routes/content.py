@@ -3,10 +3,11 @@ from sqlalchemy.orm import Session
 from typing import Optional, List
 from datetime import datetime
 from pathlib import Path
+import logging
 
-from database import get_db
-from services.content_service import ContentService
-from schemas.blog import (
+from backend.app.database import get_db
+from backend.app.services.content_service import ContentService
+from backend.app.schemas.blog import (
     BlogPostCreate, BlogPost, ContentRevision, ContentWorkflow,
     SEOMetadata, ContentTemplate, ContentAnalytics, BulkOperation,
     SEOAnalysisResponse, ContentScheduleRequest, ContentScheduleResponse,
@@ -95,7 +96,7 @@ async def get_media_files(
     logger = logging.getLogger(__name__)
     
     try:
-        from models.blog import MediaFile as MediaFileModel
+        from backend.app.models.blog import MediaFile as MediaFileModel
         from datetime import datetime, timedelta
         from sqlalchemy import func
         
@@ -104,7 +105,7 @@ async def get_media_files(
         
         # Check if MediaFileModel exists
         try:
-            from models.blog import MediaFile
+            from backend.app.models.blog import MediaFile
             logger.info(f"🐛 MEDIA API: MediaFile model imported successfully")
         except ImportError as e:
             logger.error(f"🐛 MEDIA API: Failed to import MediaFile model: {e}")
@@ -196,7 +197,7 @@ async def delete_media_file(
 ):
     """Delete a media file"""
     try:
-        from models.blog import MediaFile as MediaFileModel
+        from backend.app.models.blog import MediaFile as MediaFileModel
 
         media_file = db.query(MediaFileModel).filter(MediaFileModel.id == file_id).first()
         if not media_file:
@@ -238,7 +239,7 @@ async def update_seo_metadata(
 ):
     """Update SEO metadata for a post"""
     try:
-        from models.blog import SEOMetadata
+        from backend.app.models.blog import SEOMetadata
 
         seo_meta = db.query(SEOMetadata).filter(SEOMetadata.post_id == post_id).first()
 
@@ -265,7 +266,7 @@ async def get_seo_metadata(
 ):
     """Get SEO metadata for a post"""
     try:
-        from models.blog import SEOMetadata
+        from backend.app.models.blog import SEOMetadata
 
         seo_meta = db.query(SEOMetadata).filter(SEOMetadata.post_id == post_id).first()
         if not seo_meta:
@@ -299,7 +300,7 @@ async def get_workflow(
 ):
     """Get workflow status for a post"""
     try:
-        from models.blog import ContentWorkflow
+        from backend.app.models.blog import ContentWorkflow
 
         workflow = db.query(ContentWorkflow).filter(ContentWorkflow.post_id == post_id).first()
         if not workflow:
@@ -339,7 +340,7 @@ async def approve_content(
 ):
     """Approve content for publication"""
     try:
-        from models.blog import ContentWorkflow, BlogPost
+        from backend.app.models.blog import ContentWorkflow, BlogPost
 
         workflow = db.query(ContentWorkflow).filter(ContentWorkflow.post_id == post_id).first()
         if not workflow:
@@ -371,7 +372,7 @@ async def get_revisions(
 ):
     """Get revision history for a post"""
     try:
-        from models.blog import ContentRevision
+        from backend.app.models.blog import ContentRevision
 
         revisions = db.query(ContentRevision).filter(
             ContentRevision.post_id == post_id
@@ -390,7 +391,7 @@ async def create_revision(
 ):
     """Create a new revision for a post"""
     try:
-        from models.blog import ContentRevision
+        from backend.app.models.blog import ContentRevision
 
         # Get latest revision number
         latest = db.query(ContentRevision).filter(
@@ -422,7 +423,7 @@ async def restore_revision(
 ):
     """Restore a post to a previous revision"""
     try:
-        from models.blog import ContentRevision, BlogPost
+        from backend.app.models.blog import ContentRevision, BlogPost
 
         revision = db.query(ContentRevision).filter(ContentRevision.id == revision_id).first()
         if not revision:
@@ -472,7 +473,7 @@ async def get_bulk_operation_status(
 ):
     """Get status of a bulk operation"""
     try:
-        from models.blog import BulkOperation
+        from backend.app.models.blog import BulkOperation
 
         operation = db.query(BulkOperation).filter(BulkOperation.id == operation_id).first()
         if not operation:
@@ -505,7 +506,7 @@ async def get_content_templates(
 ):
     """Get available content templates"""
     try:
-        from models.blog import ContentTemplate
+        from backend.app.models.blog import ContentTemplate
 
         query = db.query(ContentTemplate)
 
@@ -528,7 +529,7 @@ async def create_content_template(
 ):
     """Create a new content template"""
     try:
-        from models.blog import ContentTemplate
+        from backend.app.models.blog import ContentTemplate
 
         template.created_by = request.headers.get("X-User", "admin")
         db_template = ContentTemplate(**template.dict())
@@ -547,7 +548,7 @@ async def increment_template_usage(
 ):
     """Increment template usage count"""
     try:
-        from models.blog import ContentTemplate
+        from backend.app.models.blog import ContentTemplate
 
         template = db.query(ContentTemplate).filter(ContentTemplate.id == template_id).first()
         if not template:
@@ -596,7 +597,7 @@ async def get_content_performance(
 ):
     """Get content performance metrics"""
     try:
-        from models.blog import BlogPost
+        from backend.app.models.blog import BlogPost
         from sqlalchemy import func
 
         start_date = datetime.now() - timedelta(days=timeframe_days)
@@ -643,7 +644,7 @@ async def get_content_dashboard(
 ):
     """Get content management dashboard overview"""
     try:
-        from models.blog import BlogPost, ContentWorkflow, MediaFile
+        from backend.app.models.blog import BlogPost, ContentWorkflow, MediaFile
 
         # Basic stats
         total_posts = db.query(func.count(BlogPost.id)).scalar() or 0
@@ -704,7 +705,7 @@ async def get_workflow_dashboard(
 ):
     """Get workflow management dashboard"""
     try:
-        from models.blog import ContentWorkflow, BlogPost
+        from backend.app.models.blog import ContentWorkflow, BlogPost
 
         query = db.query(ContentWorkflow).join(BlogPost)
 

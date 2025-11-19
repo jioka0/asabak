@@ -3,26 +3,39 @@
 (function() {
   "use strict";
 
-  // DOM Content Loaded
-  document.addEventListener('DOMContentLoaded', function() {
-    initBlog();
-  });
-
+    // Robust bootstrap: run once regardless of readyState timing
+    (function bootstrap() {
+      function start() {
+        if (window.__blogInited) return;
+        window.__blogInited = true;
+        initBlog();
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', start, { once: true });
+      } else {
+        start();
+      }
+    })();
+  
   function initBlog() {
-    // Initialize all blog features
-    initParticleSystem();
-    initThemeToggle();
-    initBannerSlider();
-    initTrendingSlider();
-    initArticlesSlider();
-    initSearchModal();
-    initMenuModal();
-    initScrollToTop();
-    initNewsletterForm();
-    initSmoothScrolling();
-    initAnimations();
-    initCardLinks();
-    forceTextWrapping();
+    // Initialize all blog features (resilient to isolated failures)
+    const safe = (fn, name) => {
+      try { fn(); } catch (e) { console.error('Blog init error in', name || fn?.name, e); }
+    };
+
+    safe(initParticleSystem, 'initParticleSystem');
+    safe(initThemeToggle, 'initThemeToggle');
+    safe(initBannerSlider, 'initBannerSlider');
+    safe(initTrendingSlider, 'initTrendingSlider');
+    safe(initArticlesSlider, 'initArticlesSlider');
+    safe(initSearchModal, 'initSearchModal');
+    safe(initMenuModal, 'initMenuModal');
+    safe(initScrollToTop, 'initScrollToTop');
+    safe(initNewsletterForm, 'initNewsletterForm');
+    safe(initSmoothScrolling, 'initSmoothScrolling');
+    safe(initAnimations, 'initAnimations');
+    safe(initCardLinks, 'initCardLinks');
+    safe(forceTextWrapping, 'forceTextWrapping');
   }
 
   // Force text wrapping for slide titles on mobile
@@ -216,45 +229,113 @@
 
   // Theme Toggle Functionality
   function initThemeToggle() {
-    const themeBtn = document.getElementById('themeToggle');
-    const menuThemeBtn = document.getElementById('menuThemeToggle');
+    const themeBtn = document.getElementById('themeToggle') || document.getElementById('theme-toggle');
+    const menuThemeBtn = document.getElementById('menuThemeToggle') || document.getElementById('menu-theme-toggle');
 
-    if (!themeBtn) return;
+    // If neither exists, nothing to bind
+    if (!themeBtn && !menuThemeBtn) return;
 
     function getCurrentTheme() {
-      let theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      localStorage.getItem('blog.theme') ? theme = localStorage.getItem('blog.theme') : null;
+      let theme =
+        document.documentElement.getAttribute('color-scheme') ||
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      const saved = localStorage.getItem('blog.theme') || localStorage.getItem('color-scheme');
+      if (saved) theme = saved;
       return theme;
+    }
+
+    function setIcons(theme) {
+      const desired = theme === 'light' ? 'ph ph-sun' : 'ph ph-moon-stars';
+      [themeBtn, menuThemeBtn].forEach(btn => {
+        if (!btn) return;
+        let iconEl = btn.querySelector('i');
+        if (!iconEl) {
+          iconEl = document.createElement('i');
+          btn.innerHTML = '';
+          btn.appendChild(iconEl);
+        }
+        iconEl.className = desired;
+      });
+      if (themeBtn) {
+        themeBtn.setAttribute('aria-label', theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode');
+      }
     }
 
     function loadTheme(theme) {
       const root = document.documentElement;
-      if (theme === "light") {
-        if (themeBtn) themeBtn.innerHTML = '<i class="ph-bold ph-sun"></i>';
-        if (menuThemeBtn) menuThemeBtn.innerHTML = '<i class="ph-bold ph-sun"></i>';
-        root.setAttribute('color-scheme', 'light');
-      } else {
-        if (themeBtn) themeBtn.innerHTML = '<i class="ph-bold ph-moon-stars"></i>';
-        if (menuThemeBtn) menuThemeBtn.innerHTML = '<i class="ph-bold ph-moon-stars"></i>';
-        root.setAttribute('color-scheme', 'dark');
-      }
+      // Persist to both keys for cross-script compatibility
+      localStorage.setItem('blog.theme', theme);
+      localStorage.setItem('color-scheme', theme);
+
+      // Apply attribute + Tailwind dark class (some route pages rely on dark: variants)
+      const isLight = theme === 'light';
+      root.setAttribute('color-scheme', isLight ? 'light' : 'dark');
       root.setAttribute('data-theme', theme);
+      if (isLight) {
+        root.classList.remove('dark');
+      } else {
+        root.classList.add('dark');
+      }
+      // Inform the UA for form controls, etc.
+      try { root.style.colorScheme = isLight ? 'light' : 'dark'; } catch (e) { /* no-op */ }
+
+      setIcons(theme);
     }
 
-    // Theme toggle click handlers
+    // Bind click handlers once per element (avoid duplicate bindings on SPA swaps)
     [themeBtn, menuThemeBtn].forEach(btn => {
-      if (btn) {
+      if (btn && !btn.dataset.bound) {
         btn.addEventListener('click', () => {
-          let theme = getCurrentTheme();
-          theme = theme === 'dark' ? 'light' : 'dark';
-          localStorage.setItem('blog.theme', theme);
-          loadTheme(theme);
+          if (typeof window.__toggleTheme === 'function') {
+            window.__toggleTheme();
+          } else {
+            let theme = getCurrentTheme();
+            theme = theme === 'dark' ? 'light' : 'dark';
+            loadTheme(theme);
+          }
         });
+        btn.dataset.bound = 'true';
       }
     });
 
+    // Additionally, delegate click so the toggle always works even if bindings are lost on SPA swaps
+    // Avoid double-toggle if early bootstrap already installed a global handler
+    if (!window.__themeBootstrap && !window.__themeDelegated) {
+      document.addEventListener('click', (e) => {
+        const tbtn = e.target.closest('#themeToggle, #theme-toggle, #menuThemeToggle, #menu-theme-toggle');
+        if (tbtn) {
+          if (typeof window.__toggleTheme === 'function') {
+            window.__toggleTheme();
+          } else {
+            let theme = getCurrentTheme();
+            theme = theme === 'dark' ? 'light' : 'dark';
+            loadTheme(theme);
+          }
+        }
+      }, true);
+      window.__themeDelegated = true;
+    }
+
+    // Observe attribute changes (if any other script flips theme, keep icons in sync)
+    const mo = new MutationObserver(() => setIcons(getCurrentTheme()));
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['color-scheme','class','data-theme'] });
+
     // Load initial theme
     loadTheme(getCurrentTheme());
+
+    // Expose sync helper for SPA route swaps
+    if (!window.ApplyThemeFromStorage) {
+      window.ApplyThemeFromStorage = () => {
+        try {
+          const t = getCurrentTheme();
+          if (typeof window.__applyTheme === 'function') {
+            window.__applyTheme(t);
+          } else {
+            loadTheme(t);
+          }
+        } catch (e) { /* no-op */ }
+      };
+    }
   }
 
   // Banner Slider Functionality
@@ -500,7 +581,7 @@
 
   // Advanced Search Modal Functionality
   function initSearchModal() {
-    const searchBtn = document.getElementById('searchToggle');
+    const searchBtn = document.getElementById('searchToggle') || document.getElementById('search-toggle');
     const searchOverlay = document.getElementById('searchOverlay');
     const searchClose = document.getElementById('searchClose');
     const searchInput = document.getElementById('searchInput');
@@ -1027,7 +1108,7 @@
 
   // Mobile Menu Modal Functionality
   function initMenuModal() {
-    const menuBtn = document.getElementById('mobileMenuToggle');
+    const menuBtn = document.getElementById('mobileMenuToggle') || document.getElementById('mobile-menu-toggle');
     const menuOverlay = document.getElementById('menuOverlay');
     const menuClose = document.getElementById('menuClose');
 
@@ -1089,14 +1170,14 @@
     scrollBtn.addEventListener('click', scrollToTop);
   }
 
-  // Newsletter Form Functionality
-  function initNewsletterForm() {
-    const form = document.getElementById('newsletterForm');
-    const message = document.getElementById('newsletterMessage');
-    const submitBtn = document.getElementById('subscribeBtn');
-    const btnText = submitBtn.querySelector('.btn-text');
-
-    if (!form) return;
+    // Newsletter Form Functionality
+    function initNewsletterForm() {
+      const form = document.getElementById('newsletterForm');
+      if (!form) return;
+  
+      const message = document.getElementById('newsletterMessage');
+      const submitBtn = document.getElementById('subscribeBtn');
+      const btnText = submitBtn ? submitBtn.querySelector('.btn-text') : null;
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -1115,9 +1196,9 @@
         return;
       }
 
-      // Show loading state
-      submitBtn.disabled = true;
-      btnText.textContent = 'Subscribing...';
+            // Show loading state
+            submitBtn.disabled = true;
+            if (btnText) btnText.textContent = 'Subscribing...';
 
       try {
         // Mock API call - replace with real endpoint
@@ -1131,7 +1212,7 @@
         showMessage('Something went wrong. Please try again.', 'error');
       } finally {
         submitBtn.disabled = false;
-        btnText.textContent = 'Subscribe';
+        if (btnText) btnText.textContent = 'Subscribe';
       }
     });
 
@@ -1250,5 +1331,8 @@
       // navigator.serviceWorker.register('/sw.js');
     });
   }
+
+  // Expose re-init for SPA route swaps
+  window.BlogPageInit = initBlog;
 
 })();

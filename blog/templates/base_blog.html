@@ -1,4 +1,4 @@
-<![CDATA[<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -9,13 +9,105 @@
 
     {% block head_extra %}{% endblock %}
 
+    <!-- Early theme bootstrap: apply saved theme ASAP and provide global fallbacks -->
+    <script>
+      (function () {
+        try {
+          var root = document.documentElement;
+
+          function readTheme() {
+            var t = localStorage.getItem('blog.theme') || localStorage.getItem('color-scheme');
+            if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            return t === 'dark' ? 'dark' : 'light';
+          }
+
+          function applyTheme(theme) {
+            var isLight = theme === 'light';
+            root.setAttribute('color-scheme', isLight ? 'light' : 'dark');
+            root.setAttribute('data-theme', theme);
+            if (isLight) { root.classList.remove('dark'); } else { root.classList.add('dark'); }
+            try { root.style.colorScheme = isLight ? 'light' : 'dark'; } catch (e) {}
+
+            try {
+              localStorage.setItem('blog.theme', theme);
+              localStorage.setItem('color-scheme', theme);
+            } catch (e) {}
+
+            // Update header icon if present
+            var btn = document.getElementById('theme-toggle') ||
+                      document.getElementById('themeToggle') ||
+                      document.getElementById('menu-theme-toggle') ||
+                      document.getElementById('menuThemeToggle');
+            if (btn) {
+              var i = btn.querySelector('i') || document.createElement('i');
+              i.className = isLight ? 'ph ph-sun' : 'ph ph-moon-stars';
+              if (!i.parentNode) { btn.innerHTML = ''; btn.appendChild(i); }
+              btn.setAttribute('aria-label', isLight ? 'Switch to dark mode' : 'Switch to light mode');
+            }
+          }
+
+          // Expose globals for any inline/on-demand use and SPA re-sync
+          window.__applyTheme = applyTheme;
+          window.__toggleTheme = function () {
+            var next = readTheme() === 'dark' ? 'light' : 'dark';
+            applyTheme(next);
+          };
+          // Signal that early theme bootstrap is active (prevents duplicate listeners)
+          window.__themeBootstrap = true;
+
+          // Apply immediately to avoid FOUC and guarantee correct initial state
+          applyTheme(readTheme());
+
+          /* Removed delegated fallback click handler to prevent double-toggles.
+             Toggling is handled by [initThemeToggle()](blog/js/blog.js:218) and direct button bindings. */
+        } catch (e) {
+          // fail-safe: do nothing
+        }
+      })();
+    </script>
+
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syne:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
     <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/bold/style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+
+    <!-- TailwindCSS (CDN JIT) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              inter: ['Inter', 'sans-serif'],
+              syne: ['Syne', 'sans-serif'],
+            },
+            colors: {
+              base: 'var(--base)',
+              'base-tint': 'var(--base-tint)',
+              't-bright': 'var(--t-bright)',
+              't-medium': 'var(--t-medium)',
+              't-muted': 'var(--t-muted)',
+              accent: 'var(--accent)',
+              secondary: 'var(--secondary)',
+              'stroke-elements': 'var(--stroke-elements)',
+            },
+            borderColor: {
+              DEFAULT: 'var(--stroke-elements)',
+            },
+          },
+        },
+        corePlugins: {
+          preflight: true
+        },
+      };
+    </script>
 
     <!-- Design System -->
-    <link rel="stylesheet" href="../css/blog-templates.css">
+    <link rel="stylesheet" href="/blog/templates/css/blog-templates.css">
+    <!-- Global Blog Styles -->
+    <link rel="stylesheet" href="/blog/css/blog.css">
 
     <!-- Favicon -->
     <link rel="icon" href="https://nekwasar.com/favicon.png" sizes="any">
@@ -28,27 +120,131 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="bg-base-tint border-t border-stroke-elements py-10">
-        <div class="max-w-6xl mx-auto px-6 text-sm text-t-muted">
-            <div class="flex flex-col sm:flex-row justify-between gap-4">
-                {% block footer_content %}
-                <span>NekwasaR &copy; {{ current_year if current_year is defined else '2025' }}. All rights reserved.</span>
-                <span>Design system harmonized with the NekwasaR homepage.</span>
-                {% endblock %}
+    {% include 'includes/footer.html' %}
+
+    <!-- Shared Modals (available on all pages) -->
+    <div class="search-modal-overlay" id="searchOverlay">
+        <div class="search-modal-container">
+            <div class="search-header">
+                <div class="search-title">
+                    <i class="ph-bold ph-magnifying-glass"></i>
+                    <span>Discover Content</span>
+                </div>
+                <button class="search-close" id="searchClose">
+                    <i class="ph-bold ph-x"></i>
+                </button>
+            </div>
+            <div class="search-input-section">
+                <div class="search-input-wrapper">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search articles, topics, or authors...">
+                    <div class="search-input-accent"></div>
+                    <button class="search-submit" id="searchBtn">
+                        <i class="ph-bold ph-arrow-right"></i>
+                    </button>
+                </div>
+                <div class="search-suggestions" id="searchSuggestions">
+                    <div class="suggestion-item initial" data-type="trending">
+                        <i class="ph-bold ph-trend-up"></i>
+                        <span>Trending: AI Ethics</span>
+                    </div>
+                    <div class="suggestion-item initial" data-type="recent">
+                        <i class="ph-bold ph-clock"></i>
+                        <span>Recent: Web Development</span>
+                    </div>
+                    <div class="suggestion-item initial" data-type="popular">
+                        <i class="ph-bold ph-star"></i>
+                        <span>Popular: Blockchain Guide</span>
+                    </div>
+                </div>
+                <div class="search-typing-state" id="typingState">
+                    <div class="typing-message">
+                        <i class="ph-bold ph-magnifying-glass"></i>
+                        <span>Start typing to search...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="search-filters">
+                <div class="filter-group">
+                    <label class="filter-label">Sections</label>
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-section="all"><span>All</span></button>
+                        <button class="filter-btn" data-section="latest"><i class="ph-bold ph-clock"></i><span>Latest</span></button>
+                        <button class="filter-btn" data-section="popular"><i class="ph-bold ph-star"></i><span>Popular</span></button>
+                        <button class="filter-btn" data-section="others"><i class="ph-bold ph-grid-four"></i><span>Others</span></button>
+                        <button class="filter-btn" data-section="featured"><i class="ph-bold ph-star"></i><span>Featured</span></button>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Topics</label>
+                    <div class="tag-filters" id="tagFilters">
+                        <span class="tag-chip" data-tag="ai"><span>AI</span><span class="tag-count">24</span></span>
+                        <span class="tag-chip" data-tag="startup"><span>Startup</span><span class="tag-count">18</span></span>
+                        <span class="tag-chip" data-tag="innovation"><span>Innovation</span><span class="tag-count">15</span></span>
+                        <span class="tag-chip" data-tag="opinions"><span>Opinions</span><span class="tag-count">12</span></span>
+                        <span class="tag-chip" data-tag="business"><span>Business</span><span class="tag-count">10</span></span>
+                    </div>
+                </div>
+            </div>
+            <div class="search-results-section">
+                <div class="results-header">
+                    <div class="results-meta">
+                        <span class="results-count" id="resultsCount">Start typing to search...</span>
+                        <div class="search-stats" id="searchStats"></div>
+                    </div>
+                    <div class="results-sort" id="resultsSort">
+                        <button class="sort-btn active" data-sort="relevance"><i class="ph-bold ph-target"></i><span>Relevance</span></button>
+                        <button class="sort-btn" data-sort="recent"><i class="ph-bold ph-clock"></i><span>Recent</span></button>
+                        <button class="sort-btn" data-sort="popular"><i class="ph-bold ph-heart"></i><span>Popular</span></button>
+                    </div>
+                </div>
+                <div class="search-results" id="searchResults">
+                    <div class="no-results">
+                        <div class="no-results-icon">
+                            <i class="ph-bold ph-magnifying-glass"></i>
+                        </div>
+                        <h3>Discover Amazing Content</h3>
+                        <p>Search through our collection of articles, tutorials, and insights</p>
+                    </div>
+                </div>
+                <div class="load-more-container" id="loadMoreContainer" style="display: none;">
+                    <button class="load-more-btn" id="loadMoreBtn">
+                        <span>Load More Results</span>
+                        <i class="ph-bold ph-arrow-down"></i>
+                    </button>
+                </div>
             </div>
         </div>
-    </footer>
-
-    <div id="route-templates" class="hidden">
-        {% include 'routes/latest.html' %}
-        {% include 'routes/popular.html' %}
-        {% include 'routes/others.html' %}
-        {% include 'routes/featured.html' %}
-        {% include 'routes/topics.html' %}
     </div>
 
-    <script src="../js/blog-templates.js" defer></script>
+    <div class="modal-overlay" id="menuOverlay">
+        <div class="modal-content menu-modal">
+            <div class="menu-header">
+                <div class="menu-logo">NekwasaR</div>
+                <div class="menu-actions">
+                    <button class="modal-close" id="menuClose">
+                        <i class="ph-bold ph-x"></i>
+                    </button>
+                </div>
+            </div>
+            <nav class="mobile-nav">
+                <a href="https://nekwasar.com" class="mobile-nav-link" target="_blank" rel="noopener">Back to Portfolio</a>
+                <a href="/latest" data-route="latest" class="mobile-nav-link">Latest</a>
+                <a href="/popular" data-route="popular" class="mobile-nav-link">Popular</a>
+                <a href="/others" data-route="others" class="mobile-nav-link">Others</a>
+                <a href="/featured" data-route="featured" class="mobile-nav-link">Featured</a>
+                <a href="/topics" data-route="topics" class="mobile-nav-link">Topics</a>
+            </nav>
+        </div>
+    </div>
+
+    <div class="scroll-to-top" id="scrollToTop">
+        <div class="scroll-progress" id="scrollProgress"></div>
+        <i class="ph-bold ph-arrow-up"></i>
+    </div>
+
+    <!-- Global Blog Script -->
+    <script src="/blog/js/blog.js" defer></script>
+    <script src="/blog/templates/js/blog-templates.js" defer></script>
     {% block extra_scripts %}{% endblock %}
 </body>
 </html>
-]]>

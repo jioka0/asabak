@@ -8,12 +8,12 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func, desc, and_, or_, text
 from user_agents import parse as parse_user_agent
 
-from models.blog import (
+from backend.app.models.blog import (
     PageViewAnalytics, ContentEngagementAnalytics, UserSessionAnalytics,
     ReferralAnalytics, DeviceAnalytics, GeographicAnalytics, RealTimeMetrics,
     AnalyticsReports, BlogPost, SearchAnalytics, NewsletterSubscriber
 )
-from schemas.blog import (
+from backend.app.schemas.blog import (
     PageViewAnalyticsCreate, ContentEngagementAnalyticsCreate,
     UserSessionAnalyticsCreate, ReferralAnalyticsCreate,
     AnalyticsDashboardResponse, AnalyticsReportRequest

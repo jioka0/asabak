@@ -1,4 +1,4 @@
-<![CDATA[{% extends "./base_blog.html" %}
+{% extends "./base_blog.html" %}
 
 {% block title %}NekwasaR Blog - Tech Insights & Innovation{% endblock %}
 
@@ -24,7 +24,7 @@
     <meta name="twitter:image" content="https://nekwasar.com/favicon.png">
 
     <!-- Styles -->
-    <link rel="stylesheet" href="css/blog.css">
+    <link rel="stylesheet" href="/blog/css/blog.css">
 {% endblock %}
 
 {% block content %}
@@ -564,162 +564,6 @@
         </section>
     </main>
 
-    <div class="search-modal-overlay" id="searchOverlay">
-        <div class="search-modal-container">
-            <div class="search-header">
-                <div class="search-title">
-                    <i class="ph-bold ph-magnifying-glass"></i>
-                    <span>Discover Content</span>
-                </div>
-                <button class="search-close" id="searchClose">
-                    <i class="ph-bold ph-x"></i>
-                </button>
-            </div>
-            <div class="search-input-section">
-                <div class="search-input-wrapper">
-                    <input type="text" class="search-input" id="searchInput" placeholder="Search articles, topics, or authors...">
-                    <div class="search-input-accent"></div>
-                    <button class="search-submit" id="searchBtn">
-                        <i class="ph-bold ph-arrow-right"></i>
-                    </button>
-                </div>
-                <div class="search-suggestions" id="searchSuggestions">
-                    <div class="suggestion-item initial" data-type="trending">
-                        <i class="ph-bold ph-trend-up"></i>
-                        <span>Trending: AI Ethics</span>
-                    </div>
-                    <div class="suggestion-item initial" data-type="recent">
-                        <i class="ph-bold ph-clock"></i>
-                        <span>Recent: Web Development</span>
-                    </div>
-                    <div class="suggestion-item initial" data-type="popular">
-                        <i class="ph-bold ph-star"></i>
-                        <span>Popular: Blockchain Guide</span>
-                    </div>
-                </div>
-                <div class="search-typing-state" id="typingState">
-                    <div class="typing-message">
-                        <i class="ph-bold ph-magnifying-glass"></i>
-                        <span>Start typing to search...</span>
-                    </div>
-                </div>
-            </div>
-            <div class="search-filters">
-                <div class="filter-group">
-                    <label class="filter-label">Sections</label>
-                    <div class="filter-buttons">
-                        <button class="filter-btn active" data-section="all">
-                            <span>All</span>
-                        </button>
-                        <button class="filter-btn" data-section="latest">
-                            <i class="ph-bold ph-clock"></i>
-                            <span>Latest</span>
-                        </button>
-                        <button class="filter-btn" data-section="popular">
-                            <i class="ph-bold ph-star"></i>
-                            <span>Popular</span>
-                        </button>
-                        <button class="filter-btn" data-section="others">
-                            <i class="ph-bold ph-grid-four"></i>
-                            <span>Others</span>
-                        </button>
-                        <button class="filter-btn" data-section="featured">
-                            <i class="ph-bold ph-star"></i>
-                            <span>Featured</span>
-                        </button>
-                    </div>
-                </div>
-                <div class="filter-group">
-                    <label class="filter-label">Topics</label>
-                    <div class="tag-filters" id="tagFilters">
-                        <span class="tag-chip" data-tag="ai">
-                            <span>AI</span>
-                            <span class="tag-count">24</span>
-                        </span>
-                        <span class="tag-chip" data-tag="startup">
-                            <span>Startup</span>
-                            <span class="tag-count">18</span>
-                        </span>
-                        <span class="tag-chip" data-tag="innovation">
-                            <span>Innovation</span>
-                            <span class="tag-count">15</span>
-                        </span>
-                        <span class="tag-chip" data-tag="opinions">
-                            <span>Opinions</span>
-                            <span class="tag-count">12</span>
-                        </span>
-                        <span class="tag-chip" data-tag="business">
-                            <span>Business</span>
-                            <span class="tag-count">10</span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div class="search-results-section">
-                <div class="results-header">
-                    <div class="results-meta">
-                        <span class="results-count" id="resultsCount">Start typing to search...</span>
-                        <div class="search-stats" id="searchStats"></div>
-                    </div>
-                    <div class="results-sort" id="resultsSort">
-                        <button class="sort-btn active" data-sort="relevance">
-                            <i class="ph-bold ph-target"></i>
-                            <span>Relevance</span>
-                        </button>
-                        <button class="sort-btn" data-sort="recent">
-                            <i class="ph-bold ph-clock"></i>
-                            <span>Recent</span>
-                        </button>
-                        <button class="sort-btn" data-sort="popular">
-                            <i class="ph-bold ph-heart"></i>
-                            <span>Popular</span>
-                        </button>
-                    </div>
-                </div>
-                <div class="search-results" id="searchResults">
-                    <div class="no-results">
-                        <div class="no-results-icon">
-                            <i class="ph-bold ph-magnifying-glass"></i>
-                        </div>
-                        <h3>Discover Amazing Content</h3>
-                        <p>Search through our collection of articles, tutorials, and insights</p>
-                    </div>
-                </div>
-                <div class="load-more-container" id="loadMoreContainer" style="display: none;">
-                    <button class="load-more-btn" id="loadMoreBtn">
-                        <span>Load More Results</span>
-                        <i class="ph-bold ph-arrow-down"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="menuOverlay">
-        <div class="modal-content menu-modal">
-            <div class="menu-header">
-                <div class="menu-logo">NekwasaR</div>
-                <div class="menu-actions">
-                    <button class="modal-close" id="menuClose">
-                        <i class="ph-bold ph-x"></i>
-                    </button>
-                </div>
-            </div>
-            <nav class="mobile-nav">
-                <a href="https://nekwasar.com" class="mobile-nav-link">Back to Portfolio</a>
-                <a href="#latest" class="mobile-nav-link">Latest</a>
-                <a href="#popular" class="mobile-nav-link">Popular</a>
-                <a href="#others" class="mobile-nav-link">Others</a>
-                <a href="#featured" class="mobile-nav-link">Featured</a>
-                <a href="#tags" class="mobile-nav-link">Topics</a>
-            </nav>
-        </div>
-    </div>
-
-    <div class="scroll-to-top" id="scrollToTop">
-        <div class="scroll-progress" id="scrollProgress"></div>
-        <i class="ph-bold ph-arrow-up"></i>
-    </div>
 {% endblock %}
 
 {% block footer_content %}
@@ -752,7 +596,4 @@
     </div>
 {% endblock %}
 
-{% block extra_scripts %}
-    <script src="js/blog.js"></script>
-{% endblock %}
-]]>
+{% block extra_scripts %}{% endblock %}

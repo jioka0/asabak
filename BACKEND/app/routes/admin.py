@@ -4,9 +4,9 @@ from fastapi.templating import Jinja2Templates
 from pathlib import Path
 import logging
 import os
-from auth import get_current_user, get_current_active_user
+from backend.app.auth import get_current_user, get_current_active_user
 from fastapi.exception_handlers import http_exception_handler
-from database import SessionLocal
+from backend.app.database import SessionLocal
 
 # Get database session
 db = SessionLocal()
@@ -150,9 +150,9 @@ async def check_auth(request: Request, current_user = Depends(get_current_active
 async def get_dashboard_kpi(current_user = Depends(get_current_active_user)):
     """Get dashboard KPI data"""
     from sqlalchemy import func
-    from models.blog import BlogPost
-    from models.contact import Contact
-    from models.user import NewsletterSubscriber
+    from backend.app.models.blog import BlogPost
+    from backend.app.models.contact import Contact
+    from backend.app.models.blog import NewsletterSubscriber
 
     try:
         # Get total posts
@@ -190,7 +190,7 @@ async def get_dashboard_kpi(current_user = Depends(get_current_active_user)):
 @router.get("/api/admin/dashboard/popular-content")
 async def get_popular_content(current_user = Depends(get_current_active_user)):
     """Get popular content data"""
-    from models.blog import BlogPost
+    from backend.app.models.blog import BlogPost
 
     try:
         # Get top 5 posts by views (placeholder - implement real view tracking)
@@ -261,7 +261,7 @@ async def get_quick_stats(current_user = Depends(get_current_active_user)):
 @router.get("/api/admin/blog/posts")
 async def get_blog_posts(current_user = Depends(get_current_active_user)):
     """Get blog posts data for admin interface"""
-    from models.blog import BlogPost
+    from backend.app.models.blog import BlogPost
     from sqlalchemy import func
 
     try:
@@ -331,7 +331,7 @@ async def get_blog_posts(current_user = Depends(get_current_active_user)):
 @router.post("/api/admin/blog/posts")
 async def create_blog_post(post_data: dict, current_user = Depends(get_current_active_user)):
     """Create a new blog post"""
-    from models.blog import BlogPost
+    from backend.app.models.blog import BlogPost
 
     try:
         new_post = BlogPost(
@@ -356,7 +356,7 @@ async def create_blog_post(post_data: dict, current_user = Depends(get_current_a
 @router.put("/api/admin/blog/posts/{post_id}")
 async def update_blog_post(post_id: int, post_data: dict, current_user = Depends(get_current_active_user)):
     """Update a blog post"""
-    from models.blog import BlogPost
+    from backend.app.models.blog import BlogPost
 
     try:
         post = db.query(BlogPost).filter(BlogPost.id == post_id).first()
@@ -380,7 +380,7 @@ async def update_blog_post(post_id: int, post_data: dict, current_user = Depends
 @router.delete("/api/admin/blog/posts/{post_id}")
 async def delete_blog_post(post_id: int, current_user = Depends(get_current_active_user)):
     """Delete a blog post"""
-    from models.blog import BlogPost
+    from backend.app.models.blog import BlogPost
 
     try:
         post = db.query(BlogPost).filter(BlogPost.id == post_id).first()
