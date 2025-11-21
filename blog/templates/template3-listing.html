@@ -1,10 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Future of Artificial Intelligence: Transforming Our World | NekwasaR Blog</title>
+{% extends "./base_blog.html" %}
 
+{% block title %}TOP 10 Best Sci-Fi Epics of the Decade | NekwasaR Blog{% endblock %}
+{% block fluid_layout %}true{% endblock %}
+
+{% block head_extra %}
     <!-- SEO Meta Tags -->
     <meta name="description" content="Explore how AI is reshaping industries, empowering innovation, and creating unprecedented opportunities for growth and discovery in our rapidly evolving digital landscape.">
     <meta name="author" content="NekwasaR">
@@ -12,119 +11,24 @@
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="article">
-    <meta property="og:title" content="The Future of Artificial Intelligence: Transforming Our World">
+    <meta property="og:title" content="TOP 10 Best Sci-Fi Epics of the Decade">
     <meta property="og:description" content="Explore how AI is reshaping industries, empowering innovation, and creating unprecedented opportunities for growth and discovery.">
     <meta property="og:image" content="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&h=630&fit=crop">
     <meta property="og:url" content="https://nekwasar.com/blog/ai-future-transforming-world">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="The Future of Artificial Intelligence: Transforming Our World">
+    <meta name="twitter:title" content="TOP 10 Best Sci-Fi Epics of the Decade">
     <meta name="twitter:description" content="Explore how AI is reshaping industries, empowering innovation, and creating unprecedented opportunities for growth and discovery.">
     <meta name="twitter:image" content="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&h=630&fit=crop">
+{% endblock %}
 
-    <!-- Fonts and Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
-    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/bold/style.css">
+{% block content %}
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        'inter': ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        'primary': '#0f172a',
-                        'secondary': '#1e293b',
-                        'accent': '#6867a3',
-                        'neutral': '#64748b',
-                        'light': '#f8fafc',
-                        'border': '#e2e8f0',
-                        'purple': {
-                            600: '#6867a3',
-                            700: '#5a5890',
-                            800: '#4c497d',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-
-    <!-- Favicon -->
-    <link rel="icon" href="https://nekwasar.com/favicon.png" sizes="any">
-</head>
-<body class="bg-white text-gray-900 font-inter antialiased">
-    <!-- Scroll Progress Bar -->
-    <div class="fixed top-0 left-0 w-full h-1 bg-gray-200 z-50">
-        <div class="h-full bg-purple-600 transition-all duration-300 ease-out" id="scrollProgress"></div>
-    </div>
-
-    <!-- Header -->
-    <header class="bg-white border-b border-gray-200 sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <!-- Logo -->
-                <div class="flex items-center">
-                    <a href="/" class="flex items-center space-x-2">
-                        <div class="text-lg sm:text-xl font-bold text-gray-900">NekwasaR</div>
-                        <span class="text-xs sm:text-sm text-gray-500 font-medium">Blog</span>
-                    </a>
-                </div>
-
-                <!-- Desktop Navigation -->
-                <nav class="hidden md:flex items-center space-x-6 lg:space-x-8">
-                    <a href="http://localhost:8000" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Back to Portfolio</a>
-                    <a href="#latest" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Latest</a>
-                    <a href="#popular" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Popular</a>
-                    <a href="#others" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Others</a>
-                    <a href="#featured" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Featured</a>
-                    <a href="#tags" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Topics</a>
-                </nav>
-
-                <!-- Header Actions -->
-                <div class="flex items-center space-x-2 sm:space-x-4">
-                    <button onclick="toggleTheme()" class="p-2 text-gray-600 hover:text-gray-900 transition-colors">
-                        <i class="ph-bold ph-moon-stars text-lg"></i>
-                    </button>
-                    <button onclick="openSearchModal()" class="p-2 text-gray-600 hover:text-gray-900 transition-colors">
-                        <i class="ph-bold ph-magnifying-glass text-lg"></i>
-                    </button>
-                    <button id="mobile-menu-btn" class="md:hidden p-2 text-gray-600 hover:text-gray-900 transition-colors">
-                        <i class="ph-bold ph-list text-lg"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Mobile Navigation Menu -->
-            <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
-                <nav class="px-4 py-4 space-y-3">
-                    <a href="http://localhost:8000" class="block text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors py-2">Back to Portfolio</a>
-                    <a href="#latest" class="block text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors py-2">Latest</a>
-                    <a href="#popular" class="block text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors py-2">Popular</a>
-                    <a href="#others" class="block text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors py-2">Others</a>
-                    <a href="#featured" class="block text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors py-2">Featured</a>
-                    <a href="#tags" class="block text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors py-2">Topics</a>
-                    <div class="flex items-center space-x-4 pt-2 border-t border-gray-100">
-                        <button onclick="toggleTheme()" class="p-2 text-gray-600 hover:text-gray-900 transition-colors">
-                            <i class="ph-bold ph-moon-stars text-lg"></i>
-                        </button>
-                        <button onclick="openSearchModal()" class="p-2 text-gray-600 hover:text-gray-900 transition-colors">
-                            <i class="ph-bold ph-magnifying-glass text-lg"></i>
-                        </button>
-                    </div>
-                </nav>
-            </div>
-        </div>
-    </header>
 
     <!-- Introductory + List Header -->
     <section class="py-16 bg-white">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="w-full px-4 sm:px-6 lg:px-8 text-center">
             <p class="text-lg text-gray-700 leading-relaxed mb-6">
                 Artificial Intelligence represents one of the most significant technological breakthroughs of our time.
                 As we stand at the precipice of a new digital age, AI is not just transforming how we work and live—it's
@@ -166,33 +70,33 @@
 
     <!-- Main Content Layout -->
     <section class="py-8 sm:py-12 lg:py-16 bg-gray-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="w-full px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
                 <!-- Left Sidebar -->
                 <aside class="lg:col-span-3 order-2 lg:order-1">
-                    <div class="sticky top-20 sm:top-24">
+                    <div class="sticky top-20 sm:top-24 space-y-6">
                         <!-- Related Posts -->
                         <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
                             <h3 class="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
                                 <i class="ph-bold ph-link text-base"></i>
                                 Related Posts
                             </h3>
-                            <div class="space-y-4">
-                                <a href="/blog/ai-revolutionizing-healthcare" class="flex gap-3 group">
+                            <div class="space-y-5">
+                                <a href="/blog/ai-revolutionizing-healthcare" class="flex gap-4 group">
                                     <img src="https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=60&h=40&fit=crop" alt="Post 1" class="w-15 h-10 rounded object-cover flex-shrink-0">
                                     <div class="flex-1 min-w-0">
                                         <h4 class="text-sm font-medium text-gray-900 line-clamp-2 group-hover:text-purple-600 transition-colors">How AI is Revolutionizing Healthcare</h4>
                                         <span class="text-xs text-gray-500">12.5k views</span>
                                     </div>
                                 </a>
-                                <a href="/blog/rise-of-quantum-computing" class="flex gap-3 group">
+                                <a href="/blog/rise-of-quantum-computing" class="flex gap-4 group">
                                     <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=60&h=40&fit=crop" alt="Post 2" class="w-15 h-10 rounded object-cover flex-shrink-0">
                                     <div class="flex-1 min-w-0">
                                         <h4 class="text-sm font-medium text-gray-900 line-clamp-2 group-hover:text-purple-600 transition-colors">The Rise of Quantum Computing</h4>
                                         <span class="text-xs text-gray-500">8.9k views</span>
                                     </div>
                                 </a>
-                                <a href="/blog/machine-learning-ethics" class="flex gap-3 group">
+                                <a href="/blog/machine-learning-ethics" class="flex gap-4 group">
                                     <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=60&h=40&fit=crop" alt="Post 3" class="w-15 h-10 rounded object-cover flex-shrink-0">
                                     <div class="flex-1 min-w-0">
                                         <h4 class="text-sm font-medium text-gray-900 line-clamp-2 group-hover:text-purple-600 transition-colors">Machine Learning Ethics</h4>
@@ -208,22 +112,22 @@
                                 <i class="ph-bold ph-trend-up text-base"></i>
                                 Trending Now
                             </h3>
-                            <div class="space-y-4">
-                                <a href="/blog/ai-changing-finance" class="flex gap-3 group">
+                            <div class="space-y-5">
+                                <a href="/blog/ai-changing-finance" class="flex gap-4 group">
                                     <img src="https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=60&h=40&fit=crop" alt="Post 1" class="w-15 h-10 rounded object-cover flex-shrink-0">
                                     <div class="flex-1 min-w-0">
                                         <h4 class="text-sm font-medium text-gray-900 line-clamp-2 group-hover:text-purple-600 transition-colors">How AI is Changing Finance</h4>
                                         <span class="text-xs text-gray-500">2.1k views</span>
                                     </div>
                                 </a>
-                                <a href="/blog/crypto-market-2025" class="flex gap-3 group">
+                                <a href="/blog/crypto-market-2025" class="flex gap-4 group">
                                     <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=60&h=40&fit=crop" alt="Post 2" class="w-15 h-10 rounded object-cover flex-shrink-0">
                                     <div class="flex-1 min-w-0">
                                         <h4 class="text-sm font-medium text-gray-900 line-clamp-2 group-hover:text-purple-600 transition-colors">Crypto Market Analysis 2025</h4>
                                         <span class="text-xs text-gray-500">1.8k views</span>
                                     </div>
                                 </a>
-                                <a href="/blog/real-estate-trends" class="flex gap-3 group">
+                                <a href="/blog/real-estate-trends" class="flex gap-4 group">
                                     <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=60&h=40&fit=crop" alt="Post 3" class="w-15 h-10 rounded object-cover flex-shrink-0">
                                     <div class="flex-1 min-w-0">
                                         <h4 class="text-sm font-medium text-gray-900 line-clamp-2 group-hover:text-purple-600 transition-colors">Real Estate Trends</h4>
@@ -241,15 +145,15 @@
                             </div>
 
                             <!-- More Posts -->
-                            <div class="mt-6 space-y-4">
-                                <div class="flex gap-3">
+                            <div class="mt-6 space-y-5">
+                                <div class="flex gap-4">
                                     <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=60&h=40&fit=crop" alt="Post 4" class="w-15 h-10 rounded object-cover flex-shrink-0">
                                     <div class="flex-1 min-w-0">
                                         <h4 class="text-sm font-medium text-gray-900 line-clamp-2">Investment Strategies</h4>
                                         <span class="text-xs text-gray-500">1.2k views</span>
                                     </div>
                                 </div>
-                                <div class="flex gap-3">
+                                <div class="flex gap-4">
                                     <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=60&h=40&fit=crop" alt="Post 5" class="w-15 h-10 rounded object-cover flex-shrink-0">
                                     <div class="flex-1 min-w-0">
                                         <h4 class="text-sm font-medium text-gray-900 line-clamp-2">Stock Market Guide</h4>
@@ -413,9 +317,9 @@
 
                 <!-- Right Sidebar -->
                 <aside class="lg:col-span-3 order-3">
-                    <div class="sticky top-20 sm:top-24">
+                    <div class="sticky top-20 sm:top-24 space-y-6">
                         <!-- Floating Social Icons -->
-                        <div class="flex flex-col gap-3 mb-8">
+                        <div class="flex flex-col gap-4 mb-8">
                             <a href="#" onclick="shareOnTwitter()" class="flex items-center justify-center w-12 h-12 bg-white border border-gray-200 rounded-full text-gray-600 hover:text-purple-600 hover:border-purple-600 transition-colors shadow-sm">
                                 <i class="ph-bold ph-twitter-logo text-lg"></i>
                             </a>
@@ -434,7 +338,7 @@
                         <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
                             <h4 class="text-sm font-semibold text-gray-900 mb-3">Stay Updated</h4>
                             <p class="text-sm text-gray-600 mb-4">Get the latest insights on technology and wealth building</p>
-                            <div class="space-y-3">
+                            <div class="space-y-4">
                                 <input type="email" placeholder="Your email address" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent">
                                 <button class="w-full px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors">
                                     Subscribe
@@ -462,65 +366,43 @@
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-                <div>
-                    <div class="text-xl font-bold mb-2">NekwasaR</div>
-                    <p class="text-gray-400 text-sm leading-relaxed">
-                        Building the N•Gen Era through innovation and insight.
-                    </p>
-                    <div class="flex gap-4 mt-4">
-                        <a href="https://www.reddit.com/user/nekwasar/" class="text-gray-400 hover:text-white">
-                            <i class="ph-bold ph-reddit-logo text-lg"></i>
-                        </a>
-                        <a href="https://www.facebook.com/nekwasar" class="text-gray-400 hover:text-white">
-                            <i class="ph-bold ph-facebook-logo text-lg"></i>
-                        </a>
-                        <a href="https://www.instagram.com/nekwasar" class="text-gray-400 hover:text-white">
-                            <i class="ph-bold ph-instagram-logo text-lg"></i>
-                        </a>
-                        <a href="https://wa.me/2348164806578" class="text-gray-400 hover:text-white">
-                            <i class="ph-bold ph-whatsapp-logo text-lg"></i>
-                        </a>
-                        <a href="https://x.com/nekwasar" class="text-gray-400 hover:text-white">
-                            <i class="ph-bold ph-x-logo text-lg"></i>
-                        </a>
-                    </div>
-                </div>
-                <div>
-                    <h4 class="text-sm font-semibold mb-4">Navigation</h4>
-                    <div class="space-y-2">
-                        <a href="/" class="text-gray-400 hover:text-white text-sm">Home</a>
-                        <a href="/categories" class="text-gray-400 hover:text-white text-sm">Categories</a>
-                        <a href="/about" class="text-gray-400 hover:text-white text-sm">About</a>
-                        <a href="/contact" class="text-gray-400 hover:text-white text-sm">Contact</a>
-                    </div>
-                </div>
-                <div>
-                    <h4 class="text-sm font-semibold mb-4">Connect</h4>
-                    <div class="space-y-2">
-                        <a href="https://twitter.com/nekwasar" class="text-gray-400 hover:text-white text-sm">Twitter</a>
-                        <a href="https://linkedin.com/in/nekwasar" class="text-gray-400 hover:text-white text-sm">LinkedIn</a>
-                        <a href="https://github.com/nekwasar" class="text-gray-400 hover:text-white text-sm">GitHub</a>
-                    </div>
-                </div>
-            </div>
-            <div class="pt-8 border-t border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-gray-400">
-                <p>&copy; 2025 NekwasaR. All rights reserved.</p>
-                <div class="flex gap-6">
-                    <a href="/privacy" class="hover:text-white">Privacy Policy</a>
-                    <a href="/terms" class="hover:text-white">Terms of Service</a>
-                </div>
+{% endblock %}
+
+{% block footer_content %}
+    <div class="footer-main">
+        <div class="footer-brand">
+            <div class="footer-logo">NekwasaR</div>
+            <p class="footer-description">Exploring the frontiers of technology, innovation, and digital transformation.</p>
+            <div class="footer-social">
+                <a href="https://www.reddit.com/user/nekwasar/" class="social-link" target="_blank"><i class="ph-bold ph-reddit-logo"></i></a>
+                <a href="https://www.facebook.com/nekwasar" class="social-link" target="_blank"><i class="ph-bold ph-facebook-logo"></i></a>
+                <a href="https://www.instagram.com/nekwasar" class="social-link" target="_blank"><i class="ph-bold ph-instagram-logo"></i></a>
+                <a href="https://wa.me/2348164806578" class="social-link" target="_blank"><i class="ph-bold ph-whatsapp-logo"></i></a>
+                <a href="https://x.com/nekwasar" class="social-link" target="_blank"><i class="ph-bold ph-x-logo"></i></a>
             </div>
         </div>
-    </footer>
+        <div class="footer-links">
+            <div class="link-column">
+                <h4>PAGES</h4>
+                <a href="#technology">Technology</a>
+                <a href="#innovation">Innovation</a>
+                <a href="#business">Business</a>
+                <a href="#others">Others</a>
+            </div>
+            <div class="link-column">
+                <h4>LEGAL & PRIVACY</h4>
+                <a href="#copyright">Copyright</a>
+                <a href="#disclaimer">Disclaimer</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
 
-    <!-- Comment Modal -->
-    <div id="commentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50" onclick="closeCommentModal()">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg max-w-sm sm:max-w-md w-full mx-4 p-4 sm:p-6 relative" onclick="event.stopPropagation()">
+{% block extra_scripts %}{% endblock %}
+
+    <!-- Modals are handled by base_blog.html -->
+</body>
+</html>
                 <!-- Header -->
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-semibold">Join the Discussion</h3>
@@ -736,9 +618,8 @@
         </div>
     </div>
 
-    <!-- Scripts -->
-    <script>
-        // Scroll Progress Bar Functionality
+    <!-- Scripts are handled by base_blog.html -->
+</script>
         function initScrollProgress() {
             const progressBar = document.getElementById('scrollProgress');
 

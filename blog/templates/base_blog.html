@@ -109,13 +109,83 @@
     <!-- Global Blog Styles -->
     <link rel="stylesheet" href="/blog/css/blog.css">
 
+    <!-- Fluid layout opt-in: neutralize Tailwind container clamps only within main[data-fluid="true"] -->
+    <style>
+      /* Remove Tailwind's max-w-* clamping (all variants, including -screen-* and -prose) */
+      main#route-container[data-fluid="true"] [class*="max-w-"],
+      main#route-container[data-fluid="true"] .container,
+      main#route-container[data-fluid="true"] .prose,
+      main#route-container[data-fluid="true"] .max-w-prose {
+        max-width: none !important;
+        width: 100% !important;
+      }
+
+      /* Neutralize centering via mx-auto including responsive variants (sm:, md:, lg:, xl:, 2xl:) */
+      main#route-container[data-fluid="true"] [class*="mx-auto"],
+      main#route-container[data-fluid="true"] .sm\:mx-auto,
+      main#route-container[data-fluid="true"] .md\:mx-auto,
+      main#route-container[data-fluid="true"] .lg\:mx-auto,
+      main#route-container[data-fluid="true"] .xl\:mx-auto,
+      main#route-container[data-fluid="true"] .\32xl\:mx-auto {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+      }
+
+      /* Ensure top-level sections inside fluid container stretch full width */
+      main#route-container[data-fluid="true"] section {
+        width: 100% !important;
+      }
+
+      /* Sidebar spacing improvements in fluid mode (avoid jam-packed stacks) */
+      main#route-container[data-fluid="true"] aside .sticky > * + * {
+        margin-top: 1.5rem !important; /* 24px vertical rhythm between widgets */
+      }
+      main#route-container[data-fluid="true"] aside .space-y-3 > * + * {
+        margin-top: 1rem !important; /* normalize small stacks */
+      }
+      main#route-container[data-fluid="true"] aside .space-y-4 > * + * {
+        margin-top: 1.25rem !important; /* 20px */
+      }
+
+      /* Normalize Tailwind text scale in fluid mode (root html is 62.5% => 1rem = 10px).
+         Map common text utilities to the intended px sizes as if 1rem = 16px. */
+      main#route-container[data-fluid="true"] .text-xs { font-size: 1.2rem !important; }  /* ~12px */
+      main#route-container[data-fluid="true"] .text-sm { font-size: 1.4rem !important; }  /* ~14px */
+      main#route-container[data-fluid="true"] .text-base { font-size: 1.6rem !important; }/* ~16px */
+      main#route-container[data-fluid="true"] .text-lg { font-size: 1.8rem !important; }  /* ~18px */
+      main#route-container[data-fluid="true"] .text-xl { font-size: 2.0rem !important; }  /* ~20px */
+      main#route-container[data-fluid="true"] .text-2xl { font-size: 2.4rem !important; } /* ~24px */
+      main#route-container[data-fluid="true"] .text-3xl { font-size: 3.0rem !important; } /* ~30px */
+      main#route-container[data-fluid="true"] .text-4xl { font-size: 4.0rem !important; } /* ~40px */
+
+      /* Headings scale consistent with homepage rhythm for fluid templates */
+      main#route-container[data-fluid="true"] h1 {
+        font-family: inherit !important;
+        font-weight: 700 !important;
+        font-size: 4.0rem !important;
+        line-height: 1.1 !important;
+      }
+      main#route-container[data-fluid="true"] h2 {
+        font-family: inherit !important;
+        font-weight: 700 !important;
+        font-size: 3.0rem !important;
+        line-height: 1.2 !important;
+      }
+      main#route-container[data-fluid="true"] h3 {
+        font-family: inherit !important;
+        font-weight: 700 !important;
+        font-size: 2.0rem !important;
+        line-height: 1.3 !important;
+      }
+    </style>
+
     <!-- Favicon -->
     <link rel="icon" href="https://nekwasar.com/favicon.png" sizes="any">
 </head>
 <body class="bg-base text-t-medium font-inter" data-use-routing="{% block routing_flag %}true{% endblock %}">
     {% include 'includes/navbar.html' %}
 
-    <main id="route-container" class="relative min-h-screen">
+    <main id="route-container" class="relative min-h-screen" data-fluid="{% block fluid_layout %}false{% endblock %}">
         {% block hero %}{% endblock %}
         {% block content %}{% endblock %}
     </main>

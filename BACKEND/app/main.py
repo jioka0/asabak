@@ -180,6 +180,34 @@ async def blog_topics(request: Request):
         {"request": request, "section": "topics", "current_year": datetime.utcnow().year}
     )
 
+# Routes for specific blog templates
+@app.get("/template1", response_class=HTMLResponse)
+@app.get("/template1/", response_class=HTMLResponse)
+async def blog_template1(request: Request):
+    """Serve template1-banner-image.html"""
+    return blog_templates.TemplateResponse(
+        "template1-banner-image.html",
+        {"request": request, "current_year": datetime.utcnow().year}
+    )
+
+@app.get("/template2", response_class=HTMLResponse)
+@app.get("/template2/", response_class=HTMLResponse)
+async def blog_template2(request: Request):
+    """Serve template2-banner-video.html"""
+    return blog_templates.TemplateResponse(
+        "template2-banner-video.html",
+        {"request": request, "current_year": datetime.utcnow().year}
+    )
+
+@app.get("/template3", response_class=HTMLResponse)
+@app.get("/template3/", response_class=HTMLResponse)
+async def blog_template3(request: Request):
+    """Serve template3-listing.html"""
+    return blog_templates.TemplateResponse(
+        "template3-listing.html",
+        {"request": request, "current_year": datetime.utcnow().year}
+    )
+
 # Redirect misspelling /populer -> /popular
 @app.get("/populer")
 @app.get("/populer/")
