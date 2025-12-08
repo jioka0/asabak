@@ -146,6 +146,7 @@ async def check_auth(request: Request, current_user = Depends(get_current_active
     return JSONResponse(response_data)
 
 # Dashboard API endpoints
+@router.get("/admin/api/dashboard/kpi")
 @router.get("/api/admin/dashboard/kpi")
 async def get_dashboard_kpi(current_user = Depends(get_current_active_user)):
     """Get dashboard KPI data"""
@@ -187,6 +188,8 @@ async def get_dashboard_kpi(current_user = Depends(get_current_active_user)):
         auth_logger.error(f"❌ Error getting KPI data: {e}")
         raise HTTPException(status_code=500, detail="Failed to load KPI data")
 
+@router.get("/api/dashboard/popular-content")
+@router.get("/admin/api/dashboard/popular-content")
 @router.get("/api/admin/dashboard/popular-content")
 async def get_popular_content(current_user = Depends(get_current_active_user)):
     """Get popular content data"""
@@ -194,14 +197,14 @@ async def get_popular_content(current_user = Depends(get_current_active_user)):
 
     try:
         # Get top 5 posts by views (placeholder - implement real view tracking)
-        popular_posts = db.query(BlogPost).limit(5).all()
+        popular_posts = db.query(BlogPost).order_by(BlogPost.view_count.desc()).limit(5).all()
 
         return [
             {
                 "title": post.title,
-                "category": post.category or "General",
-                "publishedAt": post.created_at.isoformat() if post.created_at else None,
-                "views": getattr(post, 'views', 0) or 0  # Placeholder
+                "category": getattr(post, "section", None) or "General",
+                "publishedAt": post.published_at.isoformat() if getattr(post, "published_at", None) else None,
+                "views": getattr(post, "view_count", 0) or 0  # Placeholder
             }
             for post in popular_posts
         ]
@@ -209,6 +212,8 @@ async def get_popular_content(current_user = Depends(get_current_active_user)):
         auth_logger.error(f"❌ Error getting popular content: {e}")
         raise HTTPException(status_code=500, detail="Failed to load popular content")
 
+@router.get("/api/dashboard/recent-activity")
+@router.get("/admin/api/dashboard/recent-activity")
 @router.get("/api/admin/dashboard/recent-activity")
 async def get_recent_activity(current_user = Depends(get_current_active_user)):
     """Get recent activity data"""
@@ -242,6 +247,8 @@ async def get_recent_activity(current_user = Depends(get_current_active_user)):
         auth_logger.error(f"❌ Error getting recent activity: {e}")
         raise HTTPException(status_code=500, detail="Failed to load recent activity")
 
+@router.get("/api/dashboard/quick-stats")
+@router.get("/admin/api/dashboard/quick-stats")
 @router.get("/api/admin/dashboard/quick-stats")
 async def get_quick_stats(current_user = Depends(get_current_active_user)):
     """Get quick stats data"""
@@ -258,30 +265,33 @@ async def get_quick_stats(current_user = Depends(get_current_active_user)):
         raise HTTPException(status_code=500, detail="Failed to load quick stats")
 
 # Blog management API endpoints
+@router.get("/admin/api/blog/posts")
 @router.get("/api/admin/blog/posts")
 async def get_blog_posts(current_user = Depends(get_current_active_user)):
     """Get blog posts data for admin interface"""
+    auth_logger.info("🗂️ get_blog_posts endpoint hit at /admin/api/blog/posts or /api/admin/blog/posts")
     from backend.app.models.blog import BlogPost
     from sqlalchemy import func
 
     try:
         # Get all posts with basic info
-        posts_query = db.query(BlogPost).order_by(BlogPost.created_at.desc())
+        posts_query = db.query(BlogPost).order_by(BlogPost.published_at.desc())
         posts = posts_query.all()
 
         # Get stats
         total_posts = db.query(func.count(BlogPost.id)).scalar() or 0
-        published_count = db.query(func.count(BlogPost.id)).filter(BlogPost.status == 'published').scalar() or 0
-        draft_count = db.query(func.count(BlogPost.id)).filter(BlogPost.status == 'draft').scalar() or 0
-        scheduled_count = db.query(func.count(BlogPost.id)).filter(BlogPost.status == 'scheduled').scalar() or 0
+        # Status field not present in model yet; approximate counts
+        published_count = total_posts
+        draft_count = 0
+        scheduled_count = 0
 
-        # Get categories with counts
+        # Get categories with counts (using 'section' field instead of missing 'category')
         categories = db.query(
-            BlogPost.category,
+            BlogPost.section,
             func.count(BlogPost.id).label('count')
         ).filter(
-            BlogPost.category.isnot(None)
-        ).group_by(BlogPost.category).all()
+            BlogPost.section.isnot(None)
+        ).group_by(BlogPost.section).all()
 
         # Mock tags for now (implement when you have tags model)
         tags = [
@@ -296,16 +306,16 @@ async def get_blog_posts(current_user = Depends(get_current_active_user)):
             {
                 "id": str(post.id),
                 "title": post.title,
-                "excerpt": post.excerpt or post.content[:100] + "..." if post.content else "No content",
-                "status": post.status or "draft",
+                "excerpt": post.excerpt or (post.content[:100] + "...") if post.content else "No content",
+                "status": "published" if getattr(post, "published_at", None) else "draft",
                 "author": "NekwasaR",  # Default author
-                "category": post.category or "Uncategorized",
-                "categoryId": post.category,  # For filtering
+                "category": getattr(post, "section", None) or "Uncategorized",
+                "categoryId": getattr(post, "section", None),  # For filtering
                 "tags": [],  # Implement when you have tags
-                "updatedAt": post.updated_at.isoformat() if post.updated_at else post.created_at.isoformat(),
-                "createdAt": post.created_at.isoformat(),
+                "updatedAt": post.published_at.isoformat() if getattr(post, "published_at", None) else None,
+                "createdAt": post.published_at.isoformat() if getattr(post, "published_at", None) else None,
                 "contentLength": len(post.content or ""),
-                "views": getattr(post, 'views', 0) or 0
+                "views": getattr(post, "view_count", 0) or 0
             }
             for post in posts
         ]
@@ -328,19 +338,34 @@ async def get_blog_posts(current_user = Depends(get_current_active_user)):
         auth_logger.error(f"❌ Error getting blog posts: {e}")
         raise HTTPException(status_code=500, detail="Failed to load blog posts")
 
-@router.post("/api/admin/blog/posts")
+@router.post("/admin/api/blog/posts")
 async def create_blog_post(post_data: dict, current_user = Depends(get_current_active_user)):
     """Create a new blog post"""
     from backend.app.models.blog import BlogPost
+    from datetime import datetime
 
     try:
+        # Set published_at if provided, otherwise leave as None for drafts
+        published_at = None
+        if post_data.get("published_at"):
+            try:
+                published_at = datetime.fromisoformat(post_data["published_at"].replace('Z', '+00:00'))
+            except:
+                published_at = datetime.utcnow()
+
         new_post = BlogPost(
             title=post_data.get("title", ""),
             content=post_data.get("content", ""),
             excerpt=post_data.get("excerpt"),
-            category=post_data.get("category"),
-            status=post_data.get("status", "draft"),
-            author_id=current_user.id
+            template_type=post_data.get("template_type"),
+            featured_image=post_data.get("featured_image"),
+            video_url=post_data.get("video_url"),
+            tags=post_data.get("tags"),
+            section=post_data.get("section", "others"),
+            slug=post_data.get("slug"),
+            priority=post_data.get("priority", 0),
+            is_featured=post_data.get("is_featured", False),
+            published_at=published_at
         )
 
         db.add(new_post)
@@ -353,7 +378,7 @@ async def create_blog_post(post_data: dict, current_user = Depends(get_current_a
         db.rollback()
         raise HTTPException(status_code=500, detail="Failed to create blog post")
 
-@router.put("/api/admin/blog/posts/{post_id}")
+@router.put("/admin/api/blog/posts/{post_id}")
 async def update_blog_post(post_id: int, post_data: dict, current_user = Depends(get_current_active_user)):
     """Update a blog post"""
     from backend.app.models.blog import BlogPost
@@ -364,11 +389,10 @@ async def update_blog_post(post_id: int, post_data: dict, current_user = Depends
             raise HTTPException(status_code=404, detail="Post not found")
 
         # Update fields
-        for field in ["title", "content", "excerpt", "category", "status"]:
+        for field in ["title", "content", "excerpt", "template_type", "featured_image", "video_url", "tags", "section", "slug", "priority", "is_featured", "published_at"]:
             if field in post_data:
                 setattr(post, field, post_data[field])
 
-        post.updated_at = func.now()
         db.commit()
 
         return {"success": True}
@@ -377,7 +401,40 @@ async def update_blog_post(post_id: int, post_data: dict, current_user = Depends
         db.rollback()
         raise HTTPException(status_code=500, detail="Failed to update blog post")
 
-@router.delete("/api/admin/blog/posts/{post_id}")
+@router.get("/admin/api/blog/posts/{post_id}")
+async def get_blog_post(post_id: int, current_user = Depends(get_current_active_user)):
+    """Get a single blog post for admin interface"""
+    from backend.app.models.blog import BlogPost
+
+    try:
+        post = db.query(BlogPost).filter(BlogPost.id == post_id).first()
+        if not post:
+            raise HTTPException(status_code=404, detail="Post not found")
+
+        return {
+            "id": post.id,
+            "title": post.title,
+            "slug": post.slug,
+            "content": post.content,
+            "excerpt": post.excerpt,
+            "template_type": post.template_type,
+            "featured_image": post.featured_image,
+            "video_url": post.video_url,
+            "tags": post.tags,
+            "section": post.section,
+            "priority": post.priority,
+            "is_featured": post.is_featured,
+            "published_at": post.published_at.isoformat() if post.published_at else None,
+            "view_count": post.view_count,
+            "like_count": post.like_count,
+            "comment_count": post.comment_count,
+            "author": post.author or "NekwasaR"  # Use the author field from the model
+        }
+    except Exception as e:
+        auth_logger.error(f"❌ Error getting blog post: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get blog post")
+
+@router.delete("/admin/api/blog/posts/{post_id}")
 async def delete_blog_post(post_id: int, current_user = Depends(get_current_active_user)):
     """Delete a blog post"""
     from backend.app.models.blog import BlogPost
@@ -395,3 +452,164 @@ async def delete_blog_post(post_id: int, current_user = Depends(get_current_acti
         auth_logger.error(f"❌ Error deleting blog post: {e}")
         db.rollback()
         raise HTTPException(status_code=500, detail="Failed to delete blog post")
+
+@router.get("/admin/api/blog/render-template/{template_name}")
+@router.get("/api/admin/blog/render-template/{template_name}")
+async def render_blog_template(template_name: str, current_user = Depends(get_current_active_user)):
+    """Render a blog template for the editor"""
+    from pathlib import Path
+    import re
+
+    try:
+        auth_logger.info(f"🎨 RENDERING TEMPLATE: {template_name} for user {current_user.username}")
+
+        # Map template names
+        template_map = {
+            'template1': 'template1-banner-image.html',
+            'template2': 'template2-banner-video.html',
+            'template3': 'template3-listing.html'
+        }
+
+        if template_name not in template_map:
+            auth_logger.error(f"❌ Template {template_name} not in map")
+            raise HTTPException(status_code=404, detail="Template not found")
+
+        template_file = template_map[template_name]
+        project_root = Path(__file__).resolve().parents[3]
+        auth_logger.info(f"🗂️ Project root resolved: {project_root}")
+        template_path = project_root / "blog" / "templates" / template_file
+
+        auth_logger.info(f"📁 Template path: {template_path}")
+        auth_logger.info(f"📁 Template exists: {template_path.exists()}")
+
+        if not template_path.exists():
+            auth_logger.error(f"❌ Template file not found: {template_path}")
+            raise HTTPException(status_code=404, detail="Template file not found")
+
+        # Read the template
+        with open(template_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        auth_logger.info(f"📖 Template content length: {len(content)}")
+
+        # Extract the content block (between {% block content %} and {% endblock %})
+        content_match = re.search(r'{% block content %}(.*?){% endblock %}', content, re.DOTALL | re.IGNORECASE)
+        if not content_match:
+            auth_logger.error("❌ Could not extract template content block")
+            raise HTTPException(status_code=500, detail="Could not extract template content")
+
+        template_content = content_match.group(1).strip()
+        auth_logger.info(f"✂️ Extracted content length: {len(template_content)}")
+
+        # Extract and remove styles from content
+        style_match = re.search(r'<style>(.*?)</style>', template_content, re.DOTALL | re.IGNORECASE)
+        if style_match:
+            template_styles = style_match.group(1).strip()
+            # Remove the style tag from content
+            template_content = re.sub(r'<style>.*?</style>', '', template_content, flags=re.DOTALL | re.IGNORECASE).strip()
+        else:
+            template_styles = ""
+
+        auth_logger.info(f"🎨 Extracted styles length: {len(template_styles)}")
+        auth_logger.info(f"📄 Final content length: {len(template_content)}")
+
+        # Load global blog template assets (CSS/JS) so the editor can render everything
+        global_styles = ""
+        global_scripts = ""
+        try:
+            project_root = Path(__file__).resolve().parents[3]
+            base_css_path = project_root / "blog" / "templates" / "css" / "blog-templates.css"
+            auth_logger.info(f"🧩 Global CSS path: {base_css_path} exists: {base_css_path.exists()}")
+            if base_css_path.exists():
+                global_styles = base_css_path.read_text(encoding="utf-8")
+                auth_logger.info(f"🧩 Global CSS length: {len(global_styles)}")
+            else:
+                auth_logger.warning(f"⚠️ Global CSS not found at {base_css_path}")
+        except Exception as e:
+            auth_logger.error(f"❌ Error reading global CSS: {e}")
+
+        try:
+            project_root = Path(__file__).resolve().parents[3]
+            base_js_path = project_root / "blog" / "templates" / "js" / "blog-templates.js"
+            auth_logger.info(f"🧩 Global JS path: {base_js_path} exists: {base_js_path.exists()}")
+            if base_js_path.exists():
+                global_scripts = base_js_path.read_text(encoding="utf-8")
+                auth_logger.info(f"🧩 Global JS length: {len(global_scripts)}")
+            else:
+                auth_logger.warning(f"⚠️ Global JS not found at {base_js_path}")
+        except Exception as e:
+            auth_logger.error(f"❌ Error reading global JS: {e}")
+
+        # Return the extracted content, template-scoped styles, and global assets
+        result = {
+            "html": template_content,
+            "styles": template_styles,
+            "globalStyles": global_styles,
+            "globalScripts": global_scripts,
+            "template": template_name
+        }
+        auth_logger.info(f"✅ Template rendered successfully for {template_name}")
+        return result
+
+    except Exception as e:
+        auth_logger.error(f"💥 Error rendering template {template_name}: {str(e)}")
+        auth_logger.error(f"💥 Exception type: {type(e).__name__}")
+        import traceback
+        auth_logger.error(f"💥 Traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Failed to render template: {str(e)}")
+
+@router.get("/api/blog/posts/section/{section}")
+async def get_posts_by_section(section: str, limit: int = 10):
+    """Get published posts for a specific section (public API - no auth required)"""
+    from backend.app.models.blog import BlogPost
+
+    try:
+        # Map section names to database queries
+        section_filters = {
+            'latest': BlogPost.published_at.isnot(None),
+            'popular': BlogPost.published_at.isnot(None),
+            'featured': BlogPost.is_featured == True,
+            'others': BlogPost.published_at.isnot(None)
+        }
+
+        if section not in section_filters:
+            raise HTTPException(status_code=400, detail="Invalid section")
+
+        query = db.query(BlogPost).filter(section_filters[section])
+
+        # Order by different criteria based on section
+        if section == 'latest':
+            query = query.order_by(BlogPost.published_at.desc())
+        elif section == 'popular':
+            query = query.order_by(BlogPost.view_count.desc())
+        elif section == 'featured':
+            query = query.order_by(BlogPost.published_at.desc())
+        else:  # others
+            query = query.order_by(BlogPost.published_at.desc())
+
+        posts = query.limit(limit).all()
+
+        # Convert to dict format
+        result = []
+        for post in posts:
+            result.append({
+                'id': post.id,
+                'title': post.title,
+                'slug': post.slug,
+                'excerpt': post.excerpt,
+                'author': post.author,
+                'published_at': post.published_at.isoformat() if post.published_at else None,
+                'featured_image': post.featured_image,
+                'tags': post.tags if post.tags else [],
+                'view_count': post.view_count,
+                'like_count': post.like_count,
+                'comment_count': post.comment_count,
+                'template_type': post.template_type,
+                'is_featured': post.is_featured
+            })
+
+        return {"posts": result}
+
+    except Exception as e:
+        auth_logger.error(f"❌ Error getting posts by section: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch posts: {str(e)}")

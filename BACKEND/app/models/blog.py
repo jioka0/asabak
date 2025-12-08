@@ -8,6 +8,7 @@ class BlogPost(Base):
     title = Column(String(255), nullable=False)
     content = Column(Text)
     excerpt = Column(Text)
+    author = Column(String(255), nullable=False, default='NekwasaR')
     template_type = Column(String(50))  # 'banner_text', 'video_text', 'image_text'
     featured_image = Column(String(500))
     video_url = Column(String(500))

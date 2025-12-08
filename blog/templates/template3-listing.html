@@ -1,26 +1,26 @@
 {% extends "./base_blog.html" %}
 
-{% block title %}TOP 10 Best Sci-Fi Epics of the Decade | NekwasaR Blog{% endblock %}
+{% block title %}{% if post_data %}{{ post_data.title }} | NekwasaR Blog{% else %}TOP 10 Best Sci-Fi Epics of the Decade | NekwasaR Blog{% endif %}{% endblock %}
 {% block fluid_layout %}true{% endblock %}
 
 {% block head_extra %}
     <!-- SEO Meta Tags -->
-    <meta name="description" content="Explore how AI is reshaping industries, empowering innovation, and creating unprecedented opportunities for growth and discovery in our rapidly evolving digital landscape.">
-    <meta name="author" content="NekwasaR">
-    <meta name="keywords" content="artificial intelligence, AI, technology, innovation, future, machine learning">
+    <meta name="description" content="{% if post_data %}{{ post_data.excerpt|truncate(160) }}{% else %}Explore how AI is reshaping industries, empowering innovation, and creating unprecedented opportunities for growth and discovery in our rapidly evolving digital landscape.{% endif %}">
+    <meta name="author" content="{% if post_data %}{{ post_data.author }}{% else %}NekwasaR{% endif %}">
+    <meta name="keywords" content="{% if post_data %}{{ post_data.tags|join(', ') }}{% else %}artificial intelligence, AI, technology, innovation, future, machine learning{% endif %}">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="article">
-    <meta property="og:title" content="TOP 10 Best Sci-Fi Epics of the Decade">
-    <meta property="og:description" content="Explore how AI is reshaping industries, empowering innovation, and creating unprecedented opportunities for growth and discovery.">
-    <meta property="og:image" content="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&h=630&fit=crop">
-    <meta property="og:url" content="https://nekwasar.com/blog/ai-future-transforming-world">
+    <meta property="og:title" content="{% if post_data %}{{ post_data.title }}{% else %}TOP 10 Best Sci-Fi Epics of the Decade{% endif %}">
+    <meta property="og:description" content="{% if post_data %}{{ post_data.excerpt|truncate(160) }}{% else %}Explore how AI is reshaping industries, empowering innovation, and creating unprecedented opportunities for growth and discovery.{% endif %}">
+    <meta property="og:image" content="{% if post_data and post_data.featured_image %}{{ post_data.featured_image }}{% else %}https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&h=630&fit=crop{% endif %}">
+    <meta property="og:url" content="https://nekwasar.com/{% if post_data %}{{ post_data.slug }}{% else %}blog/ai-future-transforming-world{% endif %}">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="TOP 10 Best Sci-Fi Epics of the Decade">
-    <meta name="twitter:description" content="Explore how AI is reshaping industries, empowering innovation, and creating unprecedented opportunities for growth and discovery.">
-    <meta name="twitter:image" content="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&h=630&fit=crop">
+    <meta name="twitter:title" content="{% if post_data %}{{ post_data.title }}{% else %}TOP 10 Best Sci-Fi Epics of the Decade{% endif %}">
+    <meta name="twitter:description" content="{% if post_data %}{{ post_data.excerpt|truncate(160) }}{% else %}Explore how AI is reshaping industries, empowering innovation, and creating unprecedented opportunities for growth and discovery.{% endif %}">
+    <meta name="twitter:image" content="{% if post_data and post_data.featured_image %}{{ post_data.featured_image }}{% else %}https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&h=630&fit=crop{% endif %}">
 {% endblock %}
 
 {% block content %}
@@ -30,27 +30,31 @@
     <section class="py-16 bg-white">
         <div class="w-full px-4 sm:px-6 lg:px-8 text-center">
             <p class="text-lg text-gray-700 leading-relaxed mb-6">
-                Artificial Intelligence represents one of the most significant technological breakthroughs of our time.
-                As we stand at the precipice of a new digital age, AI is not just transforming how we work and live—it's
-                fundamentally reshaping the very fabric of human society. From healthcare to finance, education to
-                transportation, the ripple effects of AI innovation are felt across every industry.
+                {% if post_data and post_data.excerpt %}
+                    {{ post_data.excerpt }}
+                {% else %}
+                    Artificial Intelligence represents one of the most significant technological breakthroughs of our time.
+                    As we stand at the precipice of a new digital age, AI is not just transforming how we work and live—it's
+                    fundamentally reshaping the very fabric of human society. From healthcare to finance, education to
+                    transportation, the ripple effects of AI innovation are felt across every industry.
+                {% endif %}
             </p>
-            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-3">
-                TOP 10 Best Sci-Fi Epics of the Decade
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 no-edit">
+                {% if post_data %}{{ post_data.title }}{% else %}TOP 10 Best Sci-Fi Epics of the Decade{% endif %}
             </h1>
-            <p class="text-sm text-gray-500 uppercase tracking-wide mb-4">A curated list of the most visionary films pushing the genre forward</p>
-            <div class="flex flex-wrap items-center justify-center gap-4 mb-8">
+            <p class="text-sm text-gray-500 uppercase tracking-wide mb-4 no-edit">{% if post_data and post_data.tags %}{{ post_data.tags[0] }} • {% else %}A curated list of the most visionary films pushing the genre forward{% endif %}</p>
+            <div class="flex flex-wrap items-center justify-center gap-4 mb-8 no-edit">
                 <div class="inline-flex items-center gap-2 text-sm text-gray-600">
                     <i class="ph ph-chat-circle text-base"></i>
-                    21 Comments
+                    {% if post_data %}{{ post_data.comment_count }}{% else %}21{% endif %} Comments
                 </div>
                 <div class="inline-flex items-center gap-2 text-sm text-gray-600">
                     <i class="ph ph-eye text-base"></i>
-                    4.8k Views
+                    {% if post_data %}{{ post_data.view_count }}{% else %}4.8k{% endif %} Views
                 </div>
                 <div class="inline-flex items-center gap-2 text-sm text-gray-600">
                     <i class="ph ph-heart text-base"></i>
-                    912 Likes
+                    {% if post_data %}{{ post_data.like_count }}{% else %}912{% endif %} Likes
                 </div>
                 <button onclick="openShareModal()" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white text-xs sm:text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors">
                     <i class="ph-bold ph-share-network text-sm"></i>
@@ -246,7 +250,7 @@
                  </article>
 
                     <!-- Comments Section -->
-                    <section id="comments" class="bg-white rounded-lg border border-gray-200 mt-6 sm:mt-8">
+                    <section id="comments" class="bg-white rounded-lg border border-gray-200 mt-6 sm:mt-8 no-edit">
                         <div class="p-4 sm:p-6 lg:p-8">
                             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8 gap-3">
                                 <h2 class="text-xl sm:text-2xl font-bold text-gray-900">Join the Discussion</h2>
@@ -316,7 +320,7 @@
 
 
                 <!-- Right Sidebar -->
-                <aside class="lg:col-span-3 order-3">
+                <aside class="lg:col-span-3 order-3 no-edit">
                     <div class="sticky top-20 sm:top-24 space-y-6">
                         <!-- Floating Social Icons -->
                         <div class="flex flex-col gap-4 mb-8">
@@ -356,7 +360,7 @@
                         </div>
 
                         <!-- Ad Widget -->
-                        <div class="bg-gray-100 border border-gray-200 rounded-lg p-4 text-center">
+                        <div class="bg-gray-100 border border-gray-200 rounded-lg p-4 text-center editable">
                             <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Sponsored</span>
                             <div class="mt-2 text-sm text-gray-600">Sidebar Ad</div>
                         </div>
@@ -398,7 +402,130 @@
     </div>
 {% endblock %}
 
-{% block extra_scripts %}{% endblock %}
+{% block extra_scripts %}
+<script>
+(function() {
+    // Dynamic Comments Loading
+    async function loadComments(postId) {
+        try {
+            const response = await fetch(`/api/blog/posts/${postId}/comments-tree`);
+            const data = await response.json();
+
+            const commentsContainer = document.getElementById('dynamic-comments-list');
+            if (!commentsContainer) return;
+
+            commentsContainer.innerHTML = '';
+
+            data.comments.forEach(comment => {
+                const commentHtml = createCommentHTML(comment);
+                commentsContainer.appendChild(commentHtml);
+            });
+        } catch (error) {
+            console.error('Error loading comments:', error);
+        }
+    }
+
+    function createCommentHTML(comment) {
+        const commentDiv = document.createElement('div');
+        commentDiv.className = 'flex gap-3 sm:gap-4 comment-item';
+        commentDiv.setAttribute('data-comment-id', comment.id);
+
+        const isReply = comment.replies && comment.replies.length > 0;
+        if (isReply) {
+            commentDiv.classList.add('ml-8', 'sm:ml-12');
+        }
+
+        commentDiv.innerHTML = `
+            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex-shrink-0 bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white font-semibold text-xs sm:text-sm">
+                ${comment.author.charAt(0).toUpperCase()}
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-2">
+                    <span class="font-semibold text-gray-900 text-sm sm:text-base">${comment.author}</span>
+                    <span class="text-gray-500 text-xs sm:text-sm">${formatDate(comment.created_at)}</span>
+                </div>
+                <p class="text-gray-700 mb-3 text-sm sm:text-base">${comment.content}</p>
+                <div class="flex items-center gap-3 sm:gap-4">
+                    <button onclick="toggleCommentLike(${comment.id})" class="flex items-center gap-1 text-xs sm:text-sm text-gray-600 hover:text-red-500 transition-colors comment-like-btn">
+                        <i class="ph-bold ph-heart text-xs"></i>
+                        <span class="comment-like-count">0</span>
+                    </button>
+                    <button onclick="replyToComment(${comment.id})" class="text-xs sm:text-sm text-gray-600 hover:text-gray-900 transition-colors">Reply</button>
+                </div>
+                ${comment.replies ? comment.replies.map(reply => createReplyHTML(reply)).join('') : ''}
+            </div>
+        `;
+
+        return commentDiv;
+    }
+
+    function createReplyHTML(reply) {
+        return `
+            <div class="flex gap-3 sm:gap-4 ml-8 sm:ml-12 mt-4 comment-item" data-comment-id="${reply.id}">
+                <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-full flex-shrink-0 bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold text-xs">
+                    ${reply.author.charAt(0).toUpperCase()}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-2">
+                        <span class="font-semibold text-gray-900 text-sm">${reply.author}</span>
+                        <span class="text-gray-500 text-xs">${formatDate(reply.created_at)}</span>
+                    </div>
+                    <p class="text-gray-700 mb-2 text-sm">${reply.content}</p>
+                    <div class="flex items-center gap-3">
+                        <button onclick="toggleCommentLike(${reply.id})" class="flex items-center gap-1 text-xs text-gray-600 hover:text-red-500 transition-colors comment-like-btn">
+                            <i class="ph-bold ph-heart text-xs"></i>
+                            <span class="comment-like-count">0</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffHours = diffMs / (1000 * 60 * 60);
+
+        if (diffHours < 1) {
+            const diffMins = Math.floor(diffMs / (1000 * 60));
+            return diffMins <= 1 ? 'Just now' : `${diffMins} minutes ago`;
+        } else if (diffHours < 24) {
+            return `${Math.floor(diffHours)} hours ago`;
+        } else {
+            return date.toLocaleDateString();
+        }
+    }
+
+    // Load comments when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        const postId = getPostIdFromURL();
+        if (postId) {
+            loadComments(postId);
+        }
+    });
+
+    function getPostIdFromURL() {
+        const path = window.location.pathname;
+        const match = path.match(/^\/blog\/(\d+)/);
+        return match ? parseInt(match[1]) : null;
+    }
+
+    // Make functions global for button clicks
+    window.loadComments = loadComments;
+    window.toggleCommentLike = function(commentId) {
+        console.log('Like comment:', commentId);
+        // Implement like functionality
+    };
+
+    window.replyToComment = function(commentId) {
+        console.log('Reply to comment:', commentId);
+        // Implement reply functionality
+    };
+})();
+</script>
+{% endblock %}
 
     <!-- Modals are handled by base_blog.html -->
 </body>

@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -10,7 +10,7 @@ import uvicorn
 import hashlib
 from sqlalchemy.orm import Session
 
-from backend.app.database import create_tables, SessionLocal
+from backend.app.database import create_tables, SessionLocal, get_db
 from backend.app.routes import contacts, blogs, products, auth, admin, search, newsletter, analytics, content
 from backend.app.core.config import settings
 from backend.app.scheduler import init_scheduler, start_scheduler, stop_scheduler
@@ -178,6 +178,60 @@ async def blog_topics(request: Request):
     return blog_templates.TemplateResponse(
         "page_section.html",
         {"request": request, "section": "topics", "current_year": datetime.utcnow().year}
+    )
+
+# Dynamic blog post route
+@app.get("/{slug}", response_class=HTMLResponse)
+async def blog_post_by_slug(request: Request, slug: str, db: Session = Depends(get_db)):
+    """Serve individual blog posts by slug"""
+    from backend.app.models.blog import BlogPost
+
+    # Skip if it's a known static route
+    static_routes = ['latest', 'popular', 'featured', 'others', 'topics', 'template1', 'template2', 'template3']
+    if slug in static_routes:
+        raise HTTPException(status_code=404, detail="Page not found")
+
+    # Look up post by slug
+    post = db.query(BlogPost).filter(BlogPost.slug == slug).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    # Determine which template to use
+    template_map = {
+        'template1': 'template1-banner-image.html',
+        'template2': 'template2-banner-video.html',
+        'template3': 'template3-listing.html'
+    }
+
+    template_name = template_map.get(post.template_type, 'template1-banner-image.html')
+
+    # Prepare post data for template
+    post_data = {
+        'id': post.id,
+        'title': post.title,
+        'slug': post.slug,
+        'excerpt': post.excerpt,
+        'content': post.content,
+        'author': getattr(post, 'author', 'NekwasaR'),
+        'published_at': post.published_at.isoformat() if post.published_at else None,
+        'featured_image': post.featured_image,
+        'tags': post.tags if post.tags else [],
+        'view_count': post.view_count,
+        'like_count': post.like_count,
+        'comment_count': post.comment_count
+    }
+
+    # Increment view count
+    post.view_count += 1
+    db.commit()
+
+    return blog_templates.TemplateResponse(
+        template_name,
+        {
+            "request": request,
+            "current_year": datetime.utcnow().year,
+            "post_data": post_data
+        }
     )
 
 # Routes for specific blog templates

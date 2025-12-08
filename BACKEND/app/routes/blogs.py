@@ -97,6 +97,41 @@ async def get_comments(post_id: int, db: Session = Depends(get_db)):
 
     return comments
 
+@router.get("/{post_id}/comments-tree")
+async def get_comments_tree(post_id: int, db: Session = Depends(get_db)):
+    """Get approved comments for a blog post with nested replies"""
+    # Get all approved comments for this post
+    all_comments = db.query(BlogComment).filter(
+        BlogComment.blog_post_id == post_id,
+        BlogComment.is_approved == True
+    ).order_by(BlogComment.created_at).all()
+
+    # Build comment tree
+    comment_dict = {}
+    root_comments = []
+
+    # First pass: create comment objects
+    for comment in all_comments:
+        comment_data = {
+            "id": comment.id,
+            "author": comment.author_name,
+            "content": comment.content,
+            "created_at": comment.created_at.isoformat(),
+            "replies": []
+        }
+        comment_dict[comment.id] = comment_data
+
+    # Second pass: build hierarchy
+    for comment in all_comments:
+        if comment.parent_id and comment.parent_id in comment_dict:
+            # This is a reply
+            comment_dict[comment.parent_id]["replies"].append(comment_dict[comment.id])
+        else:
+            # This is a root comment
+            root_comments.append(comment_dict[comment.id])
+
+    return {"comments": root_comments}
+
 @router.put("/comments/{comment_id}/approve")
 async def approve_comment(comment_id: int, db: Session = Depends(get_db)):
     """Approve a comment (admin only)"""

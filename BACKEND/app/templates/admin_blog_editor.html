@@ -1,0 +1,1090 @@
+<!-- Admin Blog Editor - boots from sessionStorage.blogNewPostWizardState and renders chosen template -->
+
+<!-- Fonts and Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/bold/style.css">
+
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Tailwind Config for custom colors -->
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        'syne': ['Syne', 'sans-serif'],
+      },
+      colors: {
+        'base': 'var(--base)',
+        'base-tint': 'var(--base-tint)',
+        'base-shade': 'var(--base-shade)',
+        'accent': 'var(--accent)',
+        'secondary': 'var(--secondary)',
+        'secondary-rgba': 'var(--secondary-rgba)',
+        'stroke-controls': 'var(--stroke-controls)',
+        'stroke-elements': 'var(--stroke-elements)',
+        't-bright': 'var(--t-bright)',
+        't-medium': 'var(--t-medium)',
+        't-muted': 'var(--t-muted)',
+        't-accent': 'var(--t-accent)',
+        't-secondary': 'var(--t-secondary)',
+        't-disabled': 'var(--t-disabled)',
+        't-placeholder': 'var(--t-placeholder)',
+        'base-opp': 'var(--base-opp)',
+        't-opp-bright': 'var(--t-opp-bright)',
+        't-opp-medium': 'var(--t-opp-medium)',
+        't-opp-muted': 'var(--t-opp-muted)',
+        'gradient-one': 'var(--gradient-one)',
+        'gradient-two': 'var(--gradient-two)',
+        'gradient-three': 'var(--gradient-three)',
+      },
+      borderRadius: {
+        's': 'var(--_radius-s)',
+        'm': 'var(--_radius-m)',
+        'l': 'var(--_radius-l)',
+        'xl': 'var(--_radius-xl)',
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.6s ease-out forwards',
+        'slide-up': 'slideUp 0.6s ease-out forwards',
+        'scale-in': 'scaleIn 0.4s ease-out forwards',
+      },
+      transitionTimingFunction: {
+        'bezier': 'var(--_animbezier)',
+      },
+      transitionDuration: {
+        'fast': 'var(--_animspeed-fast)',
+        'medium': 'var(--_animspeed-medium)',
+        'slow': 'var(--_animspeed-slow)',
+      },
+    },
+  },
+}
+</script>
+
+<div class="editor-container">
+  <div class="editor-header">
+    <div class="editor-title">
+      <span class="editor-icon">📝</span>
+      <h2 id="editorHeading">BLOG POST EDITOR</h2>
+    </div>
+    <div class="editor-actions">
+      <button class="ed-btn ghost" id="btnBackToPosts" title="Back to Posts">◀ Back</button>
+      <button class="ed-btn" id="btnSaveDraft" title="Save draft">Save Draft</button>
+      <button class="ed-btn success" id="btnPublish" title="Publish">Publish</button>
+      <button class="ed-btn danger" id="btnExit" title="Exit editor">Exit</button>
+    </div>
+  </div>
+
+  <div class="editor-main">
+    <section class="editor-canvas">
+      <div class="canvas-header">
+        <div class="canvas-title">Preview</div>
+        <div class="canvas-tools">
+          <button class="ed-btn tiny" data-vmode="desktop">Desktop</button>
+          <button class="ed-btn tiny" data-vmode="tablet">Tablet</button>
+          <button class="ed-btn tiny" data-vmode="mobile">Mobile</button>
+        </div>
+      </div>
+      <div id="previewMount" class="preview-mount">
+        <!-- Preview will render here -->
+      </div>
+      <div id="missingState" class="missing-state hidden">
+        <div class="missing-box">
+          <div class="missing-emoji">🧭</div>
+          <div class="missing-title">No wizard state found</div>
+          <div class="missing-text">
+            Start from Blog > Posts and click “New Post” to pick a template and destinations.
+          </div>
+          <div class="missing-actions">
+            <a href="/admin/blog/posts" class="ed-btn">Go to Posts</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- Publish Wizard Modal -->
+<div id="publishWizardBackdrop" class="publish-backdrop hidden"></div>
+<div id="publishWizard" class="publish-modal hidden" role="dialog" aria-modal="true" aria-labelledby="publishTitle">
+  <div class="publish-shell">
+    <div class="publish-header">
+      <div class="publish-title">
+        <span class="publish-icon">📝</span>
+        <h2 id="publishHeading">PUBLISH POST</h2>
+      </div>
+      <div class="publish-step-indicator">
+        <span id="publishStepIndicator">Step 1 of 3</span>
+      </div>
+      <button class="publish-close-btn" title="Close (Esc)" id="publishCloseBtn">×</button>
+    </div>
+
+    <div class="publish-content">
+      <!-- Step 1: Basic Info -->
+      <section class="publish-step" data-step="1" id="publishStep1">
+        <h3 class="publish-section-title">Post Details</h3>
+        <div class="publish-form">
+          <div class="publish-field">
+            <label for="publishTitle">Title *</label>
+            <input type="text" id="publishTitle" class="publish-input" placeholder="Enter post title" required>
+          </div>
+          <div class="publish-field">
+            <label for="publishSlug">URL Slug *</label>
+            <input type="text" id="publishSlug" class="publish-input" placeholder="top-10-best-footballers" required>
+            <small class="publish-help">This will be the URL: /blog/your-slug-here</small>
+          </div>
+          <div class="publish-field">
+            <label for="publishExcerpt">Excerpt</label>
+            <textarea id="publishExcerpt" class="publish-textarea" rows="3" placeholder="Brief description (optional)"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 2: Organization -->
+      <section class="publish-step hidden" data-step="2" id="publishStep2">
+        <h3 class="publish-section-title">Organization</h3>
+        <div class="publish-form">
+          <div class="publish-field">
+            <label for="publishSection">Section *</label>
+            <select id="publishSection" class="publish-select" required>
+              <option value="">Select section</option>
+              <option value="latest">Latest</option>
+              <option value="popular">Popular</option>
+              <option value="featured">Featured</option>
+              <option value="others">Others</option>
+            </select>
+          </div>
+          <div class="publish-field">
+            <label for="publishTags">Tags</label>
+            <input type="text" id="publishTags" class="publish-input" placeholder="tech, ai, tutorial (comma-separated)">
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 3: Confirm -->
+      <section class="publish-step hidden" data-step="3" id="publishStep3">
+        <h3 class="publish-section-title">Ready to Publish</h3>
+        <div class="publish-summary">
+          <div class="summary-item">
+            <div class="summary-label">Title</div>
+            <div class="summary-value" id="summaryTitle">-</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">URL</div>
+            <div class="summary-value" id="summarySlug">/blog/-</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Section</div>
+            <div class="summary-value" id="summarySection">-</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Featured</div>
+            <div class="summary-value" id="summaryFeatured">No</div>
+          </div>
+        </div>
+        <p class="publish-note">Click "Publish" to make this post live on your blog.</p>
+      </section>
+    </div>
+
+    <div class="publish-footer">
+      <div class="publish-footer-left">
+        <button class="publish-btn ghost" id="publishBackBtn" title="Back">◀ Back</button>
+      </div>
+      <div class="publish-footer-right">
+        <button class="publish-btn ghost" id="publishCancelBtn">Cancel</button>
+        <button class="publish-btn primary" id="publishNextBtn" title="Next">Next ▶</button>
+        <button class="publish-btn success hidden" id="publishPublishBtn" title="Publish post">Publish</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.editor-container {
+  font-family: 'Courier New', monospace;
+  color: #00ff00;
+  background: linear-gradient(145deg, #0a0a0a, #111);
+  border: 2px solid #00ff00;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0,255,0,0.25);
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* CRT scanlines */
+.editor-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(transparent 50%, rgba(0,255,0,0.03) 50%);
+  background-size: 100% 4px;
+  pointer-events: none;
+}
+
+.editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(90deg, #0f0f0f, #1f1f1f);
+  border-bottom: 1px solid #00ff00;
+  padding: 8px 12px;
+}
+.editor-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.editor-icon { font-size: 16px; }
+.editor-title h2 {
+  margin: 0; font-size: 16px; font-weight: bold; text-shadow: 0 0 8px #00ff00;
+}
+.editor-actions { display: flex; gap: 8px; }
+
+.ed-btn {
+  border: 1px solid #333;
+  background: #0a0a0a;
+  color: #00ff00;
+  cursor: pointer;
+  padding: 6px 10px;
+}
+.ed-btn:hover { border-color: #00ff00; background: rgba(0,255,0,0.08); }
+.ed-btn.ghost { color: #88ff88; }
+.ed-btn.success { background: rgba(0,255,0,0.12); }
+.ed-btn.danger:hover { background: #ff0000; color: #fff; border-color: #550000; }
+.ed-btn.tiny { padding: 4px 8px; font-size: 12px; }
+
+.editor-main {
+  display: flex;
+  flex-direction: column;
+  min-height: 520px;
+}
+.panel { border: 1px solid #333; margin-bottom: 12px; }
+.panel-title {
+  padding: 8px 10px; border-bottom: 1px solid #00ff00; font-weight: 700; color: #00ff00;
+}
+.panel-content { padding: 10px; font-size: 12px; color: #88ff88; }
+.kv { display: grid; grid-template-columns: 100px 1fr; gap: 8px; margin-bottom: 6px; }
+.k { color: #88ff88; }
+.v { color: #00ff00; font-weight: 700; word-break: break-word; }
+.note { margin-top: 10px; color: #88ff88; }
+.sidebar-actions { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+
+.meta-field { display: grid; grid-template-columns: 1fr; gap: 4px; margin-bottom: 8px; }
+.meta-field span { color: #88ff88; }
+.meta-input {
+  border: 1px solid #333; background: #0a0a0a; color: #00ff00; padding: 6px 8px;
+}
+.meta-input::placeholder { color: #557755; }
+
+.editor-canvas { display: flex; flex-direction: column; min-width: 0; }
+.canvas-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px; border-bottom: 1px solid #333; background: #111;
+}
+.canvas-title { font-weight: 700; }
+.canvas-tools { display: flex; gap: 6px; }
+
+.preview-mount {
+  flex: 1; overflow: auto; padding: 12px;
+  background: #0d0d0d;
+}
+
+/* Missing state */
+.missing-state { padding: 20px; }
+.missing-box {
+  border: 1px solid #333; background: #0a0a0a; padding: 16px; text-align: center;
+}
+.missing-emoji { font-size: 28px; margin-bottom: 8px; }
+.missing-title { font-weight: 800; margin-bottom: 6px; }
+.missing-text { color: #88ff88; margin-bottom: 10px; }
+.missing-actions { display: flex; justify-content: center; }
+
+.hidden { display: none !important; }
+
+/* Preview template shells */
+.preview-card {
+  border: 1px solid #333; background: #0a0a0a; padding: 12px; margin-bottom: 12px;
+}
+.preview-hero {
+  border: 1px solid #333; background: #070707; height: 220px; display: flex; align-items: center; justify-content: center;
+  color: #88ff88;
+}
+.preview-video {
+  border: 1px solid #333; background: #050505; height: 220px; display: flex; align-items: center; justify-content: center;
+  color: #88ff88;
+}
+.preview-list {
+  display: grid; gap: 10px; grid-template-columns: repeat(3, minmax(160px, 1fr));
+}
+.preview-item {
+  border: 1px solid #333; background: #0a0a0a; padding: 10px;
+}
+.preview-item-thumb {
+  height: 90px; border: 1px dashed #234; background: #050505; margin-bottom: 6px;
+  display: flex; align-items: center; justify-content: center; color: #557755;
+}
+.preview-item-title { font-weight: 700; color: #00ff00; }
+.preview-item-meta { font-size: 12px; color: #88ff88; }
+
+@media (max-width: 900px) {
+  .editor-main { grid-template-columns: 1fr; }
+  .editor-sidebar { border-right: none; border-bottom: 1px solid #333; }
+  .preview-list { grid-template-columns: repeat(2, minmax(140px, 1fr)); }
+}
+@media (max-width: 600px) {
+  .preview-list { grid-template-columns: 1fr; }
+}
+
+/* Publish Wizard Styles */
+.publish-backdrop {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  opacity: 0.9;
+  z-index: 10020;
+}
+
+.publish-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10021;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Courier New', monospace;
+  color: #00ff00;
+  background: linear-gradient(145deg, #0a0a0a, #111);
+}
+
+.publish-shell {
+  width: 100%;
+  height: 100%;
+  background: #0a0a0a;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.publish-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(90deg, #0f0f0f, #1f1f1f);
+  border-bottom: 1px solid #00ff00;
+  padding: 8px 12px;
+}
+
+.publish-title {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.publish-icon { font-size: 16px; }
+.publish-title h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: bold;
+  text-shadow: 0 0 8px #00ff00;
+}
+.publish-step-indicator { font-size: 12px; color: #88ff88; }
+.publish-close-btn {
+  width: 28px; height: 28px; border: 1px solid #333; background: #0a0a0a; color: #00ff00;
+  cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;
+}
+.publish-close-btn:hover { background: #ff0000; color: #fff; }
+
+.publish-content {
+  flex: 1;
+  padding: 16px;
+  overflow: auto;
+  background: linear-gradient(transparent 50%, rgba(0,255,0,0.03) 50%);
+  background-size: 100% 4px;
+}
+
+.publish-section-title {
+  font-size: 14px;
+  margin: 0 0 12px 0;
+  color: #00ff00;
+  text-transform: uppercase;
+}
+
+.publish-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.publish-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.publish-field label {
+  color: #88ff88;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.publish-input,
+.publish-select,
+.publish-textarea {
+  border: 1px solid #333;
+  background: #0a0a0a;
+  color: #00ff00;
+  padding: 8px 10px;
+  font-family: 'Courier New', monospace;
+}
+
+.publish-input::placeholder,
+.publish-textarea::placeholder {
+  color: #557755;
+}
+
+.publish-textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.publish-help {
+  color: #88ff88;
+  font-size: 11px;
+  margin-top: 4px;
+}
+
+.publish-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.publish-checkbox {
+  accent-color: #00ff00;
+  width: 16px;
+  height: 16px;
+}
+
+.publish-summary {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr;
+}
+
+.summary-item {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #333;
+}
+
+.summary-label {
+  color: #88ff88;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.summary-value {
+  color: #00ff00;
+  font-weight: 700;
+}
+
+.publish-note {
+  color: #88ff88;
+  font-size: 12px;
+  margin-top: 16px;
+  text-align: center;
+}
+
+.publish-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-top: 1px solid #00ff00;
+  background: #111;
+}
+
+.publish-btn {
+  border: 1px solid #333;
+  background: #0a0a0a;
+  color: #00ff00;
+  cursor: pointer;
+  padding: 8px 14px;
+  font-family: 'Courier New', monospace;
+}
+
+.publish-btn:hover {
+  border-color: #00ff00;
+  background: rgba(0,255,0,0.08);
+}
+
+.publish-btn.primary {
+  font-weight: 700;
+}
+
+.publish-btn.success {
+  border-color: #00ff00;
+  background: rgba(0,255,0,0.12);
+}
+
+.publish-btn.ghost {
+  color: #88ff88;
+}
+
+@media (max-width: 768px) {
+  .publish-shell {
+    height: 96vh;
+    width: 98vw;
+  }
+
+  .publish-form {
+    gap: 12px;
+  }
+
+  .summary-item {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}
+</style>
+
+<script>
+(function() {
+  // Wait for DOM to be ready
+  // Wait for DOM to be ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  function init() {
+    const WIZARD_KEY = 'blogNewPostWizardState';
+    const state = restoreState();
+    const el = (id) => document.getElementById(id);
+    const previewMount = el('previewMount');
+    const missingState = el('missingState');
+
+    // Wire header actions
+    el('btnBackToPosts').onclick = () => navigate('/admin/blog/posts');
+    el('btnExit').onclick = () => navigate('/admin/dashboard');
+    el('btnSaveDraft').onclick = onSaveDraft;
+    el('btnPublish').onclick = onPublish;
+
+    // Viewport buttons
+    document.querySelectorAll('[data-vmode]').forEach(btn => {
+      btn.onclick = () => setViewport(btn.getAttribute('data-vmode'));
+    });
+
+    console.log('[Editor] Loaded, state:', state);
+
+    if (!state) {
+      console.log('[Editor] No state found, showing missing');
+      showMissing();
+      return;
+    }
+
+    console.log('[Editor] State found, template:', state.selectedTemplate);
+
+    // Render chosen template with full content
+    console.log('[Editor] Calling renderTemplate with:', state.selectedTemplate);
+    renderTemplate(state.selectedTemplate);
+  }
+
+  // ------- functions -------
+  function navigate(path) {
+    // Admin base intercepts this and loads proper template
+    window.location.href = path;
+  }
+
+  function showMissing() {
+    previewMount.classList.add('hidden');
+    missingState.classList.remove('hidden');
+  }
+
+  function restoreState() {
+    try {
+      const raw = localStorage.getItem(WIZARD_KEY);
+      console.log('[Editor] Restoring state from localStorage, raw:', raw);
+      if (!raw) {
+        console.log('[Editor] No state found in localStorage');
+        return null;
+      }
+      const parsed = JSON.parse(raw);
+      console.log('[Editor] State parsed:', parsed);
+      return parsed;
+    } catch(e) {
+      console.warn('Editor: unable to parse wizard state', e);
+      return null;
+    }
+  }
+
+  function fmtTemplate(t) {
+    if (!t) return '-';
+    return t.replace('template', 'Template ');
+  }
+
+  async function renderTemplate(tpl) {
+    previewMount.innerHTML = '<div style="padding:20px;text-align:center;color:#88ff88;">Loading template...</div>';
+
+    try {
+      const response = await fetch(`/admin/api/blog/render-template/${tpl}`);
+      if (!response.ok) {
+        throw new Error(`Failed to load template: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const html = data.html;
+      const styles = data.styles;
+
+      // Create container
+      const container = document.createElement('div');
+      container.innerHTML = html;
+
+      // Apply template-specific styles to document head
+      if (styles) {
+        const styleEl = document.createElement('style');
+        styleEl.textContent = styles;
+        styleEl.setAttribute('data-template-styles', tpl);
+        document.head.appendChild(styleEl);
+      }
+
+      previewMount.innerHTML = '';
+      previewMount.appendChild(container);
+
+      // Make all text content editable
+      makeEditable(container);
+
+    } catch (error) {
+      console.error('Error loading template:', error);
+      previewMount.innerHTML = `
+        <div class="missing-box">
+          <div class="missing-emoji">❌</div>
+          <div class="missing-title">Failed to load template</div>
+          <div class="missing-text">${error.message}</div>
+          <div class="missing-actions"><a href="/admin/blog/posts" class="ed-btn">Back to Posts</a></div>
+        </div>
+      `;
+    }
+  }
+
+  function makeEditable(container) {
+    // Make text elements contenteditable
+    const textElements = container.querySelectorAll('p, h1, h2, h3, h4, h5, h6, span, div:not(.no-edit), .editable');
+    textElements.forEach(el => {
+      // Skip if element or any parent has no-edit class
+      if (el.closest('.no-edit') && !el.classList.contains('editable')) {
+        return;
+      }
+      if (el.textContent && el.textContent.trim() && !el.querySelector('input, textarea, select')) {
+        el.contentEditable = 'true';
+        el.style.outline = '1px dashed #00ff00';
+        el.style.padding = '2px';
+        el.addEventListener('focus', () => el.style.outline = '1px solid #00ff00');
+        el.addEventListener('blur', () => el.style.outline = '1px dashed #00ff00');
+      }
+    });
+
+    // Make images editable with input fields
+    const images = container.querySelectorAll('img');
+    images.forEach(img => {
+      const wrapper = document.createElement('div');
+      wrapper.style.position = 'relative';
+      wrapper.style.display = 'inline-block';
+      img.parentNode.insertBefore(wrapper, img);
+      wrapper.appendChild(img);
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = img.src;
+      input.style.position = 'absolute';
+      input.style.top = '0';
+      input.style.left = '0';
+      input.style.width = '100%';
+      input.style.background = 'rgba(0,0,0,0.8)';
+      input.style.color = '#00ff00';
+      input.style.border = '1px solid #00ff00';
+      input.style.fontSize = '10px';
+      input.style.zIndex = '10';
+      input.placeholder = 'Image URL';
+
+      input.addEventListener('input', () => {
+        img.src = input.value;
+      });
+
+      wrapper.appendChild(input);
+    });
+
+    // Make videos editable
+    const videos = container.querySelectorAll('video, iframe');
+    videos.forEach(video => {
+      const wrapper = document.createElement('div');
+      wrapper.style.position = 'relative';
+      wrapper.style.display = 'inline-block';
+      video.parentNode.insertBefore(wrapper, video);
+      wrapper.appendChild(video);
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = video.src || video.getAttribute('src') || '';
+      input.style.position = 'absolute';
+      input.style.top = '0';
+      input.style.left = '0';
+      input.style.width = '100%';
+      input.style.background = 'rgba(0,0,0,0.8)';
+      input.style.color = '#00ff00';
+      input.style.border = '1px solid #00ff00';
+      input.style.fontSize = '10px';
+      input.style.zIndex = '10';
+      input.placeholder = 'Video URL';
+
+      input.addEventListener('input', () => {
+        if (video.tagName === 'VIDEO') {
+          video.src = input.value;
+        } else if (video.tagName === 'IFRAME') {
+          video.src = input.value;
+        }
+      });
+
+      wrapper.appendChild(input);
+    });
+  }
+
+  function onSaveDraft() {
+    // Placeholder: this would POST to /api/admin/blog/posts with draft status
+    console.log('[Editor] Save draft clicked');
+    alert('Draft saved (placeholder).');
+  }
+
+  function onPublish() {
+    console.log('🚀 [PUBLISH DEBUG] onPublish() function called');
+    console.log('📊 [PUBLISH DEBUG] Current timestamp -', new Date().toISOString());
+
+    console.log('🔍 [PUBLISH DEBUG] Element exist check - Editor container:', !!document.querySelector('.editor-container'));
+    console.log('🔍 [PUBLISH DEBUG] Element exist check - Publish wizard:', !!document.getElementById('publishWizard'));
+    console.log('🔍 [PUBLISH DEBUG] Element exist check - Publish backdrop:', !!document.getElementById('publishWizardBackdrop'));
+
+    console.log('🔍 [PUBLISH DEBUG] Editor container found -', !!document.querySelector('.editor-container'));
+
+    console.log('🔄 [PUBLISH DEBUG] Hiding editor container...');
+
+    // Hide the editor container
+    const editorContainer = document.querySelector('.editor-container');
+    if (editorContainer) {
+      editorContainer.style.display = 'none';
+      console.log('✅ [PUBLISH DEBUG] Editor container hidden');
+    } else {
+      console.log('❌ [PUBLISH DEBUG] Editor container not found, cannot hide');
+    }
+
+    console.log('📚 [PUBLISH DEBUG] Calling openPublishWizard()...');
+
+    // Open the publish wizard as full-screen replacement
+    openPublishWizard();
+  }
+
+  // Publish Wizard Functions
+  function openPublishWizard() {
+    console.log('[Publish Wizard] openPublishWizard called');
+
+    const wizard = document.getElementById('publishWizard');
+
+    console.log('[Publish Wizard] wizard element:', wizard);
+
+    if (!wizard) {
+      console.error('[Publish Wizard] Wizard element not found');
+      alert('Publish wizard not found. Please refresh the page.');
+      return;
+    }
+
+    // Load current content from editor
+    loadPostMetaFromEditor();
+
+    wizard.classList.remove('hidden');
+
+    console.log('[Publish Wizard] Wizard should now be visible');
+    console.log('[Publish Wizard] Wizard classes:', wizard.className);
+
+    // Wire publish wizard buttons
+    document.getElementById('publishBackBtn').onclick = onPublishBack;
+    document.getElementById('publishCancelBtn').onclick = closePublishWizard;
+    document.getElementById('publishNextBtn').onclick = onPublishNext;
+    document.getElementById('publishPublishBtn').onclick = onPublishPost;
+    document.getElementById('publishCloseBtn').onclick = closePublishWizard;
+
+    // Focus first input
+    setTimeout(() => {
+      const firstInput = wizard.querySelector('input');
+      if (firstInput) firstInput.focus();
+    }, 100);
+
+    console.log('✅ [PUBLISH DEBUG] openPublishWizard() completed');
+  }
+
+  function closePublishWizard() {
+    const wizard = document.getElementById('publishWizard');
+
+    if (wizard) wizard.classList.add('hidden');
+
+    // Show the editor again
+    const editorContainer = document.querySelector('.editor-container');
+    if (editorContainer) {
+      editorContainer.style.display = '';
+    }
+
+    resetPublishWizard();
+  }
+
+  function resetPublishWizard() {
+    // Reset form fields
+    const inputs = document.querySelectorAll('#publishWizard input, #publishWizard textarea, #publishWizard select');
+    inputs.forEach(input => {
+      if (input.type === 'checkbox') {
+        input.checked = false;
+      } else {
+        input.value = '';
+      }
+    });
+
+    // Reset step to first
+    showPublishStep(1);
+  }
+
+  function loadPostMetaFromEditor() {
+    // Extract metadata from the current template content
+    const container = document.querySelector('.preview-mount > div');
+    if (!container) return;
+
+    // Try to extract title from h1, h2, etc.
+    const titleEl = container.querySelector('h1, h2, h3');
+    if (titleEl && titleEl.textContent) {
+      document.getElementById('publishTitle').value = titleEl.textContent.trim();
+    }
+
+    // Try to extract excerpt from first paragraph
+    const excerptEl = container.querySelector('p');
+    if (excerptEl && excerptEl.textContent) {
+      document.getElementById('publishExcerpt').value = excerptEl.textContent.trim().substring(0, 200);
+    }
+
+    // Generate slug from title
+    const title = document.getElementById('publishTitle').value;
+    if (title) {
+      const slug = title.toLowerCase()
+        .replace(/[^\w\s-]/g, '') // Remove special chars
+        .replace(/\s+/g, '-') // Replace spaces with hyphens
+        .replace(/-+/g, '-') // Replace multiple hyphens with single
+        .trim();
+      document.getElementById('publishSlug').value = slug;
+    }
+  }
+
+  function showPublishStep(step) {
+    const steps = document.querySelectorAll('.publish-step');
+    steps.forEach(s => s.classList.add('hidden'));
+
+    const targetStep = document.getElementById(`publishStep${step}`);
+    if (targetStep) {
+      targetStep.classList.remove('hidden');
+    }
+
+    // Update step indicator
+    const indicator = document.getElementById('publishStepIndicator');
+    if (indicator) {
+      indicator.textContent = `Step ${step} of 3`;
+    }
+
+    // Update buttons
+    const backBtn = document.getElementById('publishBackBtn');
+    const nextBtn = document.getElementById('publishNextBtn');
+    const publishBtn = document.getElementById('publishPublishBtn');
+
+    if (backBtn) backBtn.classList.toggle('hidden', step === 1);
+    if (nextBtn) nextBtn.classList.toggle('hidden', step === 3);
+    if (publishBtn) publishBtn.classList.toggle('hidden', step !== 3);
+
+    // Update summary if moving to step 3
+    if (step === 3) {
+      updatePublishSummary();
+    }
+  }
+
+  function validatePublishStep(step) {
+    switch (step) {
+      case 1:
+        const title = document.getElementById('publishTitle').value.trim();
+        const slug = document.getElementById('publishSlug').value.trim();
+        if (!title) {
+          alert('Please enter a title');
+          document.getElementById('publishTitle').focus();
+          return false;
+        }
+        if (!slug) {
+          alert('Please enter a URL slug');
+          document.getElementById('publishSlug').focus();
+          return false;
+        }
+        return true;
+
+      case 2:
+        const section = document.getElementById('publishSection').value;
+        if (!section) {
+          alert('Please select a section');
+          document.getElementById('publishSection').focus();
+          return false;
+        }
+        return true;
+
+      case 3:
+        return true;
+
+      default:
+        return false;
+    }
+  }
+
+  function onPublishNext() {
+    const currentStep = getCurrentPublishStep();
+    if (!validatePublishStep(currentStep)) return;
+
+    if (currentStep < 3) {
+      showPublishStep(currentStep + 1);
+    }
+  }
+
+  function onPublishBack() {
+    const currentStep = getCurrentPublishStep();
+    if (currentStep > 1) {
+      showPublishStep(currentStep - 1);
+    }
+  }
+
+  function getCurrentPublishStep() {
+    const steps = document.querySelectorAll('.publish-step');
+    for (let i = 0; i < steps.length; i++) {
+      if (!steps[i].classList.contains('hidden')) {
+        return i + 1;
+      }
+    }
+    return 1;
+  }
+
+  function updatePublishSummary() {
+    const title = document.getElementById('publishTitle').value.trim();
+    const slug = document.getElementById('publishSlug').value.trim();
+    const section = document.getElementById('publishSection').value;
+    const state = restoreState();
+    const featured = state?.featured || false;
+
+    document.getElementById('summaryTitle').textContent = title || '-';
+    document.getElementById('summarySlug').textContent = slug ? `/blog/${slug}` : '/blog/-';
+    document.getElementById('summarySection').textContent = section ? section.charAt(0).toUpperCase() + section.slice(1) : '-';
+    document.getElementById('summaryFeatured').textContent = featured ? 'Yes' : 'No';
+  }
+
+  async function onPublishPost() {
+    if (!validatePublishStep(3)) return;
+
+    try {
+      // Collect post data
+      const state = restoreState();
+      const postData = {
+        title: document.getElementById('publishTitle').value.trim(),
+        slug: document.getElementById('publishSlug').value.trim(),
+        excerpt: document.getElementById('publishExcerpt').value.trim(),
+        section: document.getElementById('publishSection').value,
+        tags: document.getElementById('publishTags').value.split(',').map(t => t.trim()).filter(t => t),
+        template_type: state?.selectedTemplate || 'template1',
+        is_featured: state?.featured || false,
+        published_at: new Date().toISOString()
+      };
+
+      // Get HTML content from editor
+      const container = document.querySelector('.preview-mount > div');
+      if (container) {
+        postData.content = container.innerHTML;
+      }
+
+      console.log('[Publish] Publishing post:', postData);
+
+      // Send to API
+      const response = await fetch('/admin/api/blog/posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+        },
+        body: JSON.stringify(postData)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to publish: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('[Publish] Post published successfully:', result);
+
+      // Success - navigate back to posts page
+      alert('Post published successfully!');
+      navigate('/admin/blog/posts');
+
+    } catch (error) {
+      console.error('[Publish] Error publishing post:', error);
+      alert('Failed to publish post: ' + error.message);
+    }
+  }
+
+  function setViewport(mode) {
+    if (mode === 'desktop') {
+      previewMount.style.width = '100%';
+    } else if (mode === 'tablet') {
+      previewMount.style.width = '768px';
+    } else if (mode === 'mobile') {
+      previewMount.style.width = '390px';
+    }
+  }
+
+  function persistMeta() {
+    try {
+      const metaState = {
+        title: el('metaTitle').value || '',
+        category: el('metaCategory').value || '',
+        tags: el('metaTags').value || '',
+        status: el('metaStatus').value || 'draft'
+      };
+      sessionStorage.setItem('blogNewPostEditorMeta', JSON.stringify(metaState));
+    } catch(e) {
+      console.warn('Editor: unable to persist meta', e);
+    }
+  }
+
+  function loadMeta() {
+    try {
+      const raw = sessionStorage.getItem('blogNewPostEditorMeta');
+      if (!raw) return;
+      const metaState = JSON.parse(raw);
+      el('metaTitle').value = metaState.title || '';
+      el('metaCategory').value = metaState.category || '';
+      el('metaTags').value = metaState.tags || '';
+      el('metaStatus').value = metaState.status || 'draft';
+    } catch(e) {
+      // ignore
+    }
+  }
+
+  function throttle(fn, wait) {
+    let t = null;
+    return function(...args) {
+      if (t) return;
+      t = setTimeout(() => { t = null; fn.apply(this, args); }, wait);
+    };
+  }
+})();
+</script>

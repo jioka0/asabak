@@ -1,26 +1,26 @@
 {% extends "./base_blog.html" %}
 
-{% block title %}The Future of Artificial Intelligence: Transforming Our World | NekwasaR Blog{% endblock %}
-{% block fluid_layout %}true{% endblock %}
+{% block title %}{% if post_data %}{{ post_data.title }} | NekwasaR Blog{% else %}The Future of Artificial Intelligence: Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
+{% block fluid_layout %}false{% endblock %}
 
 {% block head_extra %}
     <!-- SEO Meta Tags -->
-    <meta name="description" content="Explore how AI is reshaping industries, empowering innovation, and creating unprecedented opportunities for growth and discovery in our rapidly evolving digital landscape.">
-    <meta name="author" content="NekwasaR">
-    <meta name="keywords" content="artificial intelligence, AI, technology, innovation, future, machine learning">
+    <meta name="description" content="{% if post_data %}{{ post_data.excerpt|truncate(160) }}{% else %}Explore how AI is reshaping industries, empowering innovation, and creating unprecedented opportunities for growth and discovery in our rapidly evolving digital landscape.{% endif %}">
+    <meta name="author" content="{% if post_data %}{{ post_data.author }}{% else %}NekwasaR{% endif %}">
+    <meta name="keywords" content="{% if post_data %}{{ post_data.tags|join(', ') }}{% else %}artificial intelligence, AI, technology, innovation, future, machine learning{% endif %}">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="article">
-    <meta property="og:title" content="The Future of Artificial Intelligence: Transforming Our World">
-    <meta property="og:description" content="Explore how AI is reshaping industries, empowering innovation, and creating unprecedented opportunities for growth and discovery.">
-    <meta property="og:image" content="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&h=630&fit=crop">
-    <meta property="og:url" content="https://nekwasar.com/blog/ai-future-transforming-world">
+    <meta property="og:title" content="{% if post_data %}{{ post_data.title }}{% else %}The Future of Artificial Intelligence: Transforming Our World{% endif %}">
+    <meta property="og:description" content="{% if post_data %}{{ post_data.excerpt|truncate(160) }}{% else %}Explore how AI is reshaping industries, empowering innovation, and creating unprecedented opportunities for growth and discovery.{% endif %}">
+    <meta property="og:image" content="{% if post_data and post_data.featured_image %}{{ post_data.featured_image }}{% else %}https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&h=630&fit=crop{% endif %}">
+    <meta property="og:url" content="https://nekwasar.com/{% if post_data %}{{ post_data.slug }}{% else %}blog/ai-future-transforming-world{% endif %}">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="The Future of Artificial Intelligence: Transforming Our World">
-    <meta name="twitter:description" content="Explore how AI is reshaping industries, empowering innovation, and creating unprecedented opportunities for growth and discovery.">
-    <meta name="twitter:image" content="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&h=630&fit=crop">
+    <meta name="twitter:title" content="{% if post_data %}{{ post_data.title }}{% else %}The Future of Artificial Intelligence: Transforming Our World{% endif %}">
+    <meta name="twitter:description" content="{% if post_data %}{{ post_data.excerpt|truncate(160) }}{% else %}Explore how AI is reshaping industries, empowering innovation, and creating unprecedented opportunities for growth and discovery.{% endif %}">
+    <meta name="twitter:image" content="{% if post_data and post_data.featured_image %}{{ post_data.featured_image }}{% else %}https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&h=630&fit=crop{% endif %}">
 {% endblock %}
 
 {% block content %}
@@ -55,14 +55,96 @@
             padding: 0 2rem !important;
         }
     }
+
+    /* Responsive adjustments for mobile */
+    @media (max-width: 1023px) {
+        /* Stack sidebars on tablets and mobile */
+        .grid.grid-cols-1.lg\:grid-cols-12 {
+            grid-template-columns: 1fr !important;
+        }
+
+        /* Hide sidebars on mobile for better readability */
+        aside.lg\:col-span-3 {
+            display: none !important;
+        }
+
+        /* Make main content full width */
+        main.lg\:col-span-6 {
+            grid-column: 1 !important;
+        }
+
+        /* Adjust hero section height on mobile */
+        .h-\[60vh\].sm\:h-\[70vh\] {
+            height: 50vh !important;
+        }
+
+        /* Reduce padding on mobile */
+        .p-4.sm\:p-6.lg\:p-8.xl\:p-12 {
+            padding: 1rem !important;
+        }
+
+        /* Stack engagement stats vertically */
+        .flex.flex-col.sm\:flex-row.sm\:items-center.sm\:justify-between {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 1rem !important;
+        }
+
+        /* Make share buttons stack on mobile */
+        .flex.justify-center.gap-3.flex-wrap {
+            justify-content: center !important;
+        }
+
+        /* Adjust comment section */
+        .flex.flex-col.sm\:flex-row.sm\:items-center.sm\:justify-between.mb-6.sm\:mb-8 {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 1rem !important;
+        }
+    }
+
+    @media (max-width: 767px) {
+        /* Further mobile optimizations */
+        .text-3xl.sm\:text-4xl.md\:text-5xl.lg\:text-6xl {
+            font-size: 2rem !important;
+            line-height: 1.2 !important;
+        }
+
+        .max-w-4xl {
+            max-width: 100% !important;
+        }
+
+        .max-w-7xl {
+            max-width: 100% !important;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }
+
+        /* Hide floating social icons on very small screens */
+        .flex.flex-col.gap-3.mb-8 {
+            display: none !important;
+        }
+
+        /* Simplify engagement stats */
+        .flex.flex-wrap.items-center.gap-4.sm\:gap-6 {
+            justify-content: space-between !important;
+            gap: 0.5rem !important;
+        }
+
+        /* Make buttons full width on mobile */
+        .inline-flex.items-center.gap-2.px-3.sm\:px-4.py-2 {
+            width: 100% !important;
+            justify-content: center !important;
+        }
+    }
 </style>
 
     <!-- Hero Section -->
     <section class="relative h-[60vh] sm:h-[70vh] min-h-[400px] sm:min-h-[500px] overflow-hidden">
         <div class="absolute inset-0">
-            <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1920&h=1080&fit=crop&crop=center"
-                 alt="AI and Technology Innovation"
-                 class="w-full h-full object-cover">
+            <img src="{% if post_data and post_data.featured_image %}{{ post_data.featured_image }}{% else %}https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1920&h=1080&fit=crop&crop=center{% endif %}"
+                  alt="{% if post_data %}{{ post_data.title }} Banner{% else %}AI and Technology Innovation{% endif %}"
+                  class="w-full h-full object-cover">
             <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/70"></div>
         </div>
 
@@ -71,24 +153,28 @@
                 <div class="max-w-4xl">
                     <!-- Category Tag -->
                     <div class="inline-flex items-center px-3 py-1 rounded-full bg-purple-600 text-white text-xs font-medium mb-3 sm:mb-4">
-                        Technology
+                        {% if post_data and post_data.tags %}{{ post_data.tags[0] }}{% else %}Technology{% endif %}
                     </div>
 
                     <!-- Title -->
                     <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4 sm:mb-6">
-                        The Future of Artificial Intelligence: Transforming Our World
+                        {% if post_data %}{{ post_data.title }}{% else %}The Future of Artificial Intelligence: Transforming Our World{% endif %}
                     </h1>
 
                     <!-- Meta Information -->
-                    <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-white/90 text-xs sm:text-sm">
+                    <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-white/90 text-xs sm:text-sm no-edit">
                         <span class="flex items-center gap-2">
                             <i class="ph-bold ph-user text-xs"></i>
-                            By NekwasaR
+                            By {% if post_data %}{{ post_data.author }}{% else %}NekwasaR{% endif %}
                         </span>
                         <span class="text-white/60 hidden sm:inline">•</span>
                         <span class="flex items-center gap-2">
                             <i class="ph-bold ph-calendar text-xs"></i>
-                            November 6, 2025
+                            {% if post_data and post_data.published_at %}
+                                {{ post_data.published_at | strftime('%B %d, %Y') }}
+                            {% else %}
+                                November 6, 2025
+                            {% endif %}
                         </span>
                         <span class="text-white/60 hidden sm:inline">•</span>
                         <span class="flex items-center gap-2">
@@ -412,7 +498,7 @@
                             </div>
 
                             <!-- Article Footer -->
-                            <div class="pt-8 border-t border-gray-200">
+                            <div class="pt-8 border-t border-gray-200 no-edit">
                                 <div class="flex flex-wrap gap-2">
                                     <span class="inline-flex items-center px-3 py-1 rounded-full bg-purple-100 text-purple-800 text-sm font-medium">Finance</span>
                                     <span class="inline-flex items-center px-3 py-1 rounded-full bg-purple-100 text-purple-800 text-sm font-medium">Billionaires</span>
@@ -424,7 +510,7 @@
                     </article>
 
                     <!-- Comments Section -->
-                    <section id="comments" class="bg-white rounded-lg border border-gray-200 mt-6 sm:mt-8">
+                    <section id="comments" class="bg-white rounded-lg border border-gray-200 mt-6 sm:mt-8 no-edit">
                         <div class="p-4 sm:p-6 lg:p-8">
                             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8 gap-3">
                                 <h2 class="text-xl sm:text-2xl font-bold text-gray-900">Join the Discussion</h2>
@@ -446,54 +532,15 @@
                             </div>
 
                             <!-- Comments List -->
-                            <div class="space-y-4 sm:space-y-6">
-                                <!-- Comment 1 -->
-                                <div class="flex gap-3 sm:gap-4 comment-item" data-comment-id="1">
-                                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex-shrink-0 bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white font-semibold text-xs sm:text-sm">
-                                        J
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-2">
-                                            <span class="font-semibold text-gray-900 text-sm sm:text-base">John Smith</span>
-                                            <span class="text-gray-500 text-xs sm:text-sm">2 hours ago</span>
-                                        </div>
-                                        <p class="text-gray-700 mb-3 text-sm sm:text-base">Great analysis! I was surprised to see some of these rankings.</p>
-                                        <div class="flex items-center gap-3 sm:gap-4">
-                                            <button onclick="toggleCommentLike(1)" class="flex items-center gap-1 text-xs sm:text-sm text-gray-600 hover:text-red-500 transition-colors comment-like-btn">
-                                                <i class="ph-bold ph-heart text-xs"></i>
-                                                <span class="comment-like-count">12</span>
-                                            </button>
-                                            <button onclick="replyToComment(1)" class="text-xs sm:text-sm text-gray-600 hover:text-gray-900 transition-colors">Reply</button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Reply Comment -->
-                                <div class="flex gap-3 sm:gap-4 ml-8 sm:ml-12 comment-item" data-comment-id="2">
-                                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex-shrink-0 bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold text-xs sm:text-sm">
-                                        S
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-2">
-                                            <span class="font-semibold text-gray-900 text-sm sm:text-base">Sarah Johnson</span>
-                                            <span class="text-gray-500 text-xs sm:text-sm">1 hour ago</span>
-                                        </div>
-                                        <p class="text-gray-700 mb-3 text-sm sm:text-base">Agreed! The tech sector dominance is really interesting.</p>
-                                        <div class="flex items-center gap-3 sm:gap-4">
-                                            <button onclick="toggleCommentLike(2)" class="flex items-center gap-1 text-xs sm:text-sm text-gray-600 hover:text-red-500 transition-colors comment-like-btn">
-                                                <i class="ph-bold ph-heart text-xs"></i>
-                                                <span class="comment-like-count">8</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="space-y-4 sm:space-y-6" id="dynamic-comments-list">
+                                <!-- Comments will be loaded here dynamically -->
                             </div>
                         </div>
                     </section>
                 </main>
 
                 <!-- Right Sidebar -->
-                <aside class="lg:col-span-3 order-3">
+                <aside class="lg:col-span-3 order-3 no-edit">
                     <div class="sticky top-20 sm:top-24">
                         <!-- Floating Social Icons -->
                         <div class="flex flex-col gap-3 mb-8">
@@ -533,7 +580,7 @@
                         </div>
 
                         <!-- Ad Widget -->
-                        <div class="bg-gray-100 border border-gray-200 rounded-lg p-4 text-center">
+                        <div class="bg-gray-100 border border-gray-200 rounded-lg p-4 text-center editable">
                             <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Sponsored</span>
                             <div class="mt-2 text-sm text-gray-600">Sidebar Ad</div>
                         </div>
@@ -575,4 +622,127 @@
     </div>
 {% endblock %}
 
-{% block extra_scripts %}{% endblock %}
+{% block extra_scripts %}
+<script>
+(function() {
+    // Dynamic Comments Loading
+    async function loadComments(postId) {
+        try {
+            const response = await fetch(`/api/blog/posts/${postId}/comments-tree`);
+            const data = await response.json();
+
+            const commentsContainer = document.getElementById('dynamic-comments-list');
+            if (!commentsContainer) return;
+
+            commentsContainer.innerHTML = '';
+
+            data.comments.forEach(comment => {
+                const commentHtml = createCommentHTML(comment);
+                commentsContainer.appendChild(commentHtml);
+            });
+        } catch (error) {
+            console.error('Error loading comments:', error);
+        }
+    }
+
+    function createCommentHTML(comment) {
+        const commentDiv = document.createElement('div');
+        commentDiv.className = 'flex gap-3 sm:gap-4 comment-item';
+        commentDiv.setAttribute('data-comment-id', comment.id);
+
+        const isReply = comment.replies && comment.replies.length > 0;
+        if (isReply) {
+            commentDiv.classList.add('ml-8', 'sm:ml-12');
+        }
+
+        commentDiv.innerHTML = `
+            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex-shrink-0 bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white font-semibold text-xs sm:text-sm">
+                ${comment.author.charAt(0).toUpperCase()}
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-2">
+                    <span class="font-semibold text-gray-900 text-sm sm:text-base">${comment.author}</span>
+                    <span class="text-gray-500 text-xs sm:text-sm">${formatDate(comment.created_at)}</span>
+                </div>
+                <p class="text-gray-700 mb-3 text-sm sm:text-base">${comment.content}</p>
+                <div class="flex items-center gap-3 sm:gap-4">
+                    <button onclick="toggleCommentLike(${comment.id})" class="flex items-center gap-1 text-xs sm:text-sm text-gray-600 hover:text-red-500 transition-colors comment-like-btn">
+                        <i class="ph-bold ph-heart text-xs"></i>
+                        <span class="comment-like-count">0</span>
+                    </button>
+                    <button onclick="replyToComment(${comment.id})" class="text-xs sm:text-sm text-gray-600 hover:text-gray-900 transition-colors">Reply</button>
+                </div>
+                ${comment.replies ? comment.replies.map(reply => createReplyHTML(reply)).join('') : ''}
+            </div>
+        `;
+
+        return commentDiv;
+    }
+
+    function createReplyHTML(reply) {
+        return `
+            <div class="flex gap-3 sm:gap-4 ml-8 sm:ml-12 mt-4 comment-item" data-comment-id="${reply.id}">
+                <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-full flex-shrink-0 bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold text-xs">
+                    ${reply.author.charAt(0).toUpperCase()}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-2">
+                        <span class="font-semibold text-gray-900 text-sm">${reply.author}</span>
+                        <span class="text-gray-500 text-xs">${formatDate(reply.created_at)}</span>
+                    </div>
+                    <p class="text-gray-700 mb-2 text-sm">${reply.content}</p>
+                    <div class="flex items-center gap-3">
+                        <button onclick="toggleCommentLike(${reply.id})" class="flex items-center gap-1 text-xs text-gray-600 hover:text-red-500 transition-colors comment-like-btn">
+                            <i class="ph-bold ph-heart text-xs"></i>
+                            <span class="comment-like-count">0</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffHours = diffMs / (1000 * 60 * 60);
+
+        if (diffHours < 1) {
+            const diffMins = Math.floor(diffMs / (1000 * 60));
+            return diffMins <= 1 ? 'Just now' : `${diffMins} minutes ago`;
+        } else if (diffHours < 24) {
+            return `${Math.floor(diffHours)} hours ago`;
+        } else {
+            return date.toLocaleDateString();
+        }
+    }
+
+    // Load comments when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        const postId = getPostIdFromURL();
+        if (postId) {
+            loadComments(postId);
+        }
+    });
+
+    function getPostIdFromURL() {
+        const path = window.location.pathname;
+        const match = path.match(/^\/blog\/(\d+)/);
+        return match ? parseInt(match[1]) : null;
+    }
+
+    // Make functions global for button clicks
+    window.loadComments = loadComments;
+    window.toggleCommentLike = function(commentId) {
+        console.log('Like comment:', commentId);
+        // Implement like functionality
+    };
+
+    window.replyToComment = function(commentId) {
+        console.log('Reply to comment:', commentId);
+        // Implement reply functionality
+    };
+})();
+</script>
+{% endblock %}

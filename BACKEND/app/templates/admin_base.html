@@ -855,6 +855,7 @@
                 icon: "ph-newspaper",
                 children: {
                     posts: { label: "Posts", icon: "ph-article" },
+                    editor: { label: "Editor", icon: "ph-pencil" },
                     comments: { label: "Comments", icon: "ph-chat" },
                     drafts: { label: "Drafts", icon: "ph-file" },
                     scheduled: { label: "Scheduled", icon: "ph-clock" },
@@ -1049,6 +1050,27 @@
                         console.log(`✅ TEMPLATE LOADED - Content length: ${html.length} characters`);
                         contentContainer.innerHTML = html;
 
+                        // Execute inline/external scripts from the loaded template so global functions (e.g., initBlogPosts, wizard bootstraps) are available
+                        try {
+                            const scripts = contentContainer.querySelectorAll('script');
+                            scripts.forEach((oldScript) => {
+                                const s = document.createElement('script');
+                                // Copy attributes (type, src, etc.)
+                                for (const attr of oldScript.attributes) {
+                                    s.setAttribute(attr.name, attr.value);
+                                }
+                                if (oldScript.src) {
+                                    s.src = oldScript.src;
+                                    s.async = false;
+                                } else {
+                                    s.textContent = oldScript.textContent || '';
+                                }
+                                oldScript.parentNode.replaceChild(s, oldScript);
+                            });
+                        } catch (e) {
+                            console.warn('⚠️ Failed to execute template scripts:', e);
+                        }
+
                         // Update header and breadcrumb
                         this.updateHeader(section, page);
                         this.updateBreadcrumb(section, page);
@@ -1211,7 +1233,17 @@
             }
 
             loadInitialPage() {
-                // Load overview/home by default
+                // If URL already points to a section/page, load that. Otherwise default to overview/home.
+                const path = window.location.pathname;
+                const match = path.match(/^\/admin\/([^\/]+)\/([^\/]+)/);
+                if (match) {
+                    const section = match[1];
+                    const page = match[2];
+                    if (navigationConfig[section] && navigationConfig[section].children[page]) {
+                        this.navigateTo(section, page);
+                        return;
+                    }
+                }
                 this.loadPage('overview', 'home');
             }
 
