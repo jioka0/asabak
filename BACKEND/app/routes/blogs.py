@@ -3,9 +3,9 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
 from sqlalchemy.orm import Session
-from backend.app.database import get_db
-from backend.app.models.blog import BlogPost, BlogComment, BlogLike
-from backend.app.schemas import BlogPost, BlogPostCreate, Comment, CommentCreate, Like, LikeCreate
+from database import get_db
+from models.blog import BlogPost, BlogComment, BlogLike
+from schemas import BlogPost, BlogPostCreate, Comment, CommentCreate, Like, LikeCreate
 import logging
 
 # Set up logging

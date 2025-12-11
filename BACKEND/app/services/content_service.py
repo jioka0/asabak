@@ -11,11 +11,11 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func, desc, and_, or_, text
 from fastapi import UploadFile, HTTPException
 
-from backend.app.models.blog import (
+from models.blog import (
     BlogPost, MediaFile, ContentRevision, ContentWorkflow,
     SEOMetadata, ContentTemplate, ContentAnalytics, BulkOperation
 )
-from backend.app.schemas.blog import (
+from schemas.blog import (
     BlogPostCreate, BlogPost as BlogPostSchema, ContentRevisionCreate,
     ContentWorkflowCreate, SEOMetadataCreate, ContentTemplateCreate,
     ContentAnalyticsCreate, BulkOperationCreate, SEOAnalysisResponse,

@@ -86,10 +86,12 @@ tailwind.config = {
           <button class="ed-btn tiny" data-vmode="desktop">Desktop</button>
           <button class="ed-btn tiny" data-vmode="tablet">Tablet</button>
           <button class="ed-btn tiny" data-vmode="mobile">Mobile</button>
+          <button class="ed-btn tiny" id="btnMaximize">⛶ Maximize</button>
         </div>
       </div>
       <div id="previewMount" class="preview-mount">
         <!-- Preview will render here -->
+        <button class="maximize-close-btn" id="maximizeCloseBtn">×</button>
       </div>
       <div id="missingState" class="missing-state hidden">
         <div class="missing-box">
@@ -291,6 +293,44 @@ tailwind.config = {
 .preview-mount {
   flex: 1; overflow: auto; padding: 12px;
   background: #0d0d0d;
+  transition: all 0.3s ease;
+  max-width: 100%;
+  position: relative;
+}
+
+.preview-mount.maximized {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10000;
+  padding: 50px 20px 20px 20px;
+  background: #000;
+}
+
+.maximize-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  background: #ff0000;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  z-index: 10001;
+  display: none;
+}
+
+.maximize-close-btn:hover {
+  background: #cc0000;
+}
+
+.preview-mount.maximized .maximize-close-btn {
+  display: block;
 }
 
 /* Missing state */
@@ -357,16 +397,20 @@ tailwind.config = {
   font-family: 'Courier New', monospace;
   color: #00ff00;
   background: linear-gradient(145deg, #0a0a0a, #111);
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
 }
 
 .publish-shell {
   width: 100%;
-  height: 100%;
+  height: 100vh;
   background: #0a0a0a;
   border: none;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  max-height: 100vh;
 }
 
 .publish-header {
@@ -376,6 +420,7 @@ tailwind.config = {
   background: linear-gradient(90deg, #0f0f0f, #1f1f1f);
   border-bottom: 1px solid #00ff00;
   padding: 8px 12px;
+  flex-shrink: 0;
 }
 
 .publish-title {
@@ -403,6 +448,26 @@ tailwind.config = {
   overflow: auto;
   background: linear-gradient(transparent 50%, rgba(0,255,0,0.03) 50%);
   background-size: 100% 4px;
+  min-height: 0;
+  max-height: calc(100vh - 120px);
+}
+
+/* Ensure scrollbar is visible and styled */
+.publish-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.publish-content::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+
+.publish-content::-webkit-scrollbar-thumb {
+  background: #00ff00;
+  border-radius: 4px;
+}
+
+.publish-content::-webkit-scrollbar-thumb:hover {
+  background: #88ff88;
 }
 
 .publish-section-title {
@@ -582,6 +647,18 @@ tailwind.config = {
     document.querySelectorAll('[data-vmode]').forEach(btn => {
       btn.onclick = () => setViewport(btn.getAttribute('data-vmode'));
     });
+
+    // Maximize button
+    const btnMaximize = document.getElementById('btnMaximize');
+    if (btnMaximize) {
+      btnMaximize.onclick = toggleMaximize;
+    }
+
+    // Maximize close button
+    const maximizeCloseBtn = document.getElementById('maximizeCloseBtn');
+    if (maximizeCloseBtn) {
+      maximizeCloseBtn.onclick = toggleMaximize;
+    }
 
     console.log('[Editor] Loaded, state:', state);
 
@@ -1041,13 +1118,45 @@ tailwind.config = {
     }
   }
 
+  // Global state for maximize
+  let isMaximized = false;
+
   function setViewport(mode) {
+    // Exit maximize mode if active
+    if (isMaximized) {
+      toggleMaximize();
+    }
+
     if (mode === 'desktop') {
       previewMount.style.width = '100%';
+      previewMount.style.maxWidth = '100%';
     } else if (mode === 'tablet') {
       previewMount.style.width = '768px';
+      previewMount.style.maxWidth = '768px';
     } else if (mode === 'mobile') {
       previewMount.style.width = '390px';
+      previewMount.style.maxWidth = '390px';
+    }
+  }
+
+  function toggleMaximize() {
+    const previewMount = document.getElementById('previewMount');
+    const btnMaximize = document.getElementById('btnMaximize');
+
+    if (!previewMount || !btnMaximize) return;
+
+    if (isMaximized) {
+      // Exit maximize mode
+      previewMount.classList.remove('maximized');
+      previewMount.style.width = '';
+      previewMount.style.maxWidth = '';
+      btnMaximize.textContent = '⛶ Maximize';
+      isMaximized = false;
+    } else {
+      // Enter maximize mode
+      previewMount.classList.add('maximized');
+      btnMaximize.textContent = '⛶ Restore';
+      isMaximized = true;
     }
   }
 

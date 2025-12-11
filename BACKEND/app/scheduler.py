@@ -1,7 +1,7 @@
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
-from backend.app.services.newsletter_service import NewsletterService
-from backend.app.database import get_db
+from services.newsletter_service import NewsletterService
+from database import get_db
 from sqlalchemy.orm import Session
 import asyncio
 

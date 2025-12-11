@@ -2,10 +2,10 @@ from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from backend.app.database import get_db
-from backend.app.auth import authenticate_user, create_access_token, get_current_active_user, get_current_superuser
-from backend.app.models.user import AdminUser as DBAdminUser
-from backend.app.schemas import AdminUserCreate, AdminUser as AdminUserSchema, Token, AdminLogin
+from database import get_db
+from auth import authenticate_user, create_access_token, get_current_active_user, get_current_superuser
+from models.user import AdminUser as DBAdminUser
+from schemas import AdminUserCreate, AdminUser as AdminUserSchema, Token, AdminLogin
 import logging
 
 # Set up dedicated auth route logging
@@ -25,7 +25,7 @@ async def register_admin(user: AdminUserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Username or email already registered")
 
     # Create new admin user
-    from backend.app.auth import get_password_hash
+    from auth import get_password_hash
     hashed_password = get_password_hash(user.password)
     db_user = DBAdminUser(
         username=user.username,

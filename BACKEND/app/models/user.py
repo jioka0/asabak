@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, func
-from backend.app.database import Base
+from database import Base
 
 class AdminUser(Base):
     __tablename__ = "admin_users"

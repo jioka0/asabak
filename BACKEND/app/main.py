@@ -10,11 +10,11 @@ import uvicorn
 import hashlib
 from sqlalchemy.orm import Session
 
-from backend.app.database import create_tables, SessionLocal, get_db
-from backend.app.routes import contacts, blogs, products, auth, admin, search, newsletter, analytics, content
-from backend.app.core.config import settings
-from backend.app.scheduler import init_scheduler, start_scheduler, stop_scheduler
-from backend.app.models.user import AdminUser
+from database import create_tables, SessionLocal, get_db
+from routes import contacts, blogs, products, auth, admin, search, newsletter, analytics, content
+from core.config import settings
+from scheduler import init_scheduler, start_scheduler, stop_scheduler
+from models.user import AdminUser
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -64,7 +64,7 @@ app.mount("/blog", StaticFiles(directory=str(BLOG_DIR)), name="blog-static")
 # Add custom exception handler for 401/403 errors to show custom 403 page
 from fastapi.responses import HTMLResponse
 from fastapi.exception_handlers import http_exception_handler
-from backend.app.routes.admin import templates
+from routes.admin import templates
 
 async def custom_403_handler(request: Request, exc: HTTPException):
     """Custom handler for 401/403 errors to show custom 403 page"""
@@ -184,7 +184,7 @@ async def blog_topics(request: Request):
 @app.get("/{slug}", response_class=HTMLResponse)
 async def blog_post_by_slug(request: Request, slug: str, db: Session = Depends(get_db)):
     """Serve individual blog posts by slug"""
-    from backend.app.models.blog import BlogPost
+    from models.blog import BlogPost
 
     # Skip if it's a known static route
     static_routes = ['latest', 'popular', 'featured', 'others', 'topics', 'template1', 'template2', 'template3']

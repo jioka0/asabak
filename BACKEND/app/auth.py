@@ -5,10 +5,10 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
-from backend.app.database import get_db
-from backend.app.models.user import AdminUser
-from backend.app.schemas import TokenData
-from backend.app.core.config import settings
+from database import get_db
+from models.user import AdminUser
+from schemas import TokenData
+from core.config import settings
 import logging
 
 # Set up dedicated auth logging

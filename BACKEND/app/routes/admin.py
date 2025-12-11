@@ -4,9 +4,9 @@ from fastapi.templating import Jinja2Templates
 from pathlib import Path
 import logging
 import os
-from backend.app.auth import get_current_user, get_current_active_user
+from auth import get_current_user, get_current_active_user
 from fastapi.exception_handlers import http_exception_handler
-from backend.app.database import SessionLocal
+from database import SessionLocal
 
 # Get database session
 db = SessionLocal()
@@ -151,9 +151,9 @@ async def check_auth(request: Request, current_user = Depends(get_current_active
 async def get_dashboard_kpi(current_user = Depends(get_current_active_user)):
     """Get dashboard KPI data"""
     from sqlalchemy import func
-    from backend.app.models.blog import BlogPost
-    from backend.app.models.contact import Contact
-    from backend.app.models.blog import NewsletterSubscriber
+    from models.blog import BlogPost
+    from models.contact import Contact
+    from models.blog import NewsletterSubscriber
 
     try:
         # Get total posts
@@ -193,7 +193,7 @@ async def get_dashboard_kpi(current_user = Depends(get_current_active_user)):
 @router.get("/api/admin/dashboard/popular-content")
 async def get_popular_content(current_user = Depends(get_current_active_user)):
     """Get popular content data"""
-    from backend.app.models.blog import BlogPost
+    from models.blog import BlogPost
 
     try:
         # Get top 5 posts by views (placeholder - implement real view tracking)
@@ -270,7 +270,7 @@ async def get_quick_stats(current_user = Depends(get_current_active_user)):
 async def get_blog_posts(current_user = Depends(get_current_active_user)):
     """Get blog posts data for admin interface"""
     auth_logger.info("🗂️ get_blog_posts endpoint hit at /admin/api/blog/posts or /api/admin/blog/posts")
-    from backend.app.models.blog import BlogPost
+    from models.blog import BlogPost
     from sqlalchemy import func
 
     try:
@@ -341,7 +341,7 @@ async def get_blog_posts(current_user = Depends(get_current_active_user)):
 @router.post("/admin/api/blog/posts")
 async def create_blog_post(post_data: dict, current_user = Depends(get_current_active_user)):
     """Create a new blog post"""
-    from backend.app.models.blog import BlogPost
+    from models.blog import BlogPost
     from datetime import datetime
 
     try:
@@ -381,7 +381,7 @@ async def create_blog_post(post_data: dict, current_user = Depends(get_current_a
 @router.put("/admin/api/blog/posts/{post_id}")
 async def update_blog_post(post_id: int, post_data: dict, current_user = Depends(get_current_active_user)):
     """Update a blog post"""
-    from backend.app.models.blog import BlogPost
+    from models.blog import BlogPost
 
     try:
         post = db.query(BlogPost).filter(BlogPost.id == post_id).first()
@@ -404,7 +404,7 @@ async def update_blog_post(post_id: int, post_data: dict, current_user = Depends
 @router.get("/admin/api/blog/posts/{post_id}")
 async def get_blog_post(post_id: int, current_user = Depends(get_current_active_user)):
     """Get a single blog post for admin interface"""
-    from backend.app.models.blog import BlogPost
+    from models.blog import BlogPost
 
     try:
         post = db.query(BlogPost).filter(BlogPost.id == post_id).first()
@@ -437,7 +437,7 @@ async def get_blog_post(post_id: int, current_user = Depends(get_current_active_
 @router.delete("/admin/api/blog/posts/{post_id}")
 async def delete_blog_post(post_id: int, current_user = Depends(get_current_active_user)):
     """Delete a blog post"""
-    from backend.app.models.blog import BlogPost
+    from models.blog import BlogPost
 
     try:
         post = db.query(BlogPost).filter(BlogPost.id == post_id).first()
@@ -561,7 +561,7 @@ async def render_blog_template(template_name: str, current_user = Depends(get_cu
 @router.get("/api/blog/posts/section/{section}")
 async def get_posts_by_section(section: str, limit: int = 10):
     """Get published posts for a specific section (public API - no auth required)"""
-    from backend.app.models.blog import BlogPost
+    from models.blog import BlogPost
 
     try:
         # Map section names to database queries

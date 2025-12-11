@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
-from backend.app.database import get_db
-from backend.app.services.search_service import SearchService
-from backend.app.schemas.blog import (
+from database import get_db
+from services.search_service import SearchService
+from schemas.blog import (
     SearchRequest, SearchResponse, SearchSuggestions,
     SearchAnalyticsCreate, SearchFilters
 )
@@ -104,7 +104,7 @@ async def get_search_stats(db: Session = Depends(get_db)):
     """Get search statistics and insights"""
     try:
         from sqlalchemy import func
-        from backend.app.models.blog import SearchAnalytics
+        from models.blog import SearchAnalytics
 
         # Get basic stats
         total_searches = db.query(func.count(SearchAnalytics.id)).scalar()
