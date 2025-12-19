@@ -12,7 +12,7 @@ class BlogPost(Base):
     template_type = Column(String(50))  # 'banner_text', 'video_text', 'image_text'
     featured_image = Column(String(500))
     video_url = Column(String(500))
-    published_at = Column(DateTime(timezone=True), server_default=func.now())
+    published_at = Column(DateTime(timezone=True), nullable=True)
     tags = Column(JSON)  # Changed from ARRAY(String) to JSON for SQLite compatibility
 
     # New fields for search and organization

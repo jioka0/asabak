@@ -49,6 +49,13 @@ async def admin_contact(request: Request):
     auth_logger.info(f"📄 ADMIN CONTACT PAGE REQUEST - IP: {request.client.host}")
     return templates.TemplateResponse("admin_contact.html", {"request": request})
 
+@router.get("/admin/blog/editor")
+@router.get("/admin/blog/editor/")
+async def admin_blog_editor_page(request: Request):
+    """Serve standalone blog editor page - Authentication handled by JavaScript"""
+    auth_logger.info(f"📄 ADMIN BLOG EDITOR PAGE REQUEST - IP: {request.client.host}")
+    return templates.TemplateResponse("admin_blog_editor.html", {"request": request})
+
 @router.get("/admin/{section}/{page}", response_class=HTMLResponse)
 async def admin_section_page(request: Request, section: str, page: str):
     """Serve admin section pages dynamically - Authentication handled by JavaScript"""
@@ -275,15 +282,21 @@ async def get_blog_posts(current_user = Depends(get_current_active_user)):
 
     try:
         # Get all posts with basic info
-        posts_query = db.query(BlogPost).order_by(BlogPost.published_at.desc())
+        posts_query = db.query(BlogPost).order_by(BlogPost.published_at.desc().nullslast())
         posts = posts_query.all()
 
-        # Get stats
+        # Get stats with proper draft counting
         total_posts = db.query(func.count(BlogPost.id)).scalar() or 0
-        # Status field not present in model yet; approximate counts
-        published_count = total_posts
-        draft_count = 0
-        scheduled_count = 0
+        
+        # Count published posts (where published_at is not None)
+        published_count = db.query(func.count(BlogPost.id)).filter(BlogPost.published_at.isnot(None)).scalar() or 0
+        
+        # Count draft posts (where published_at is None) - this is the key fix
+        draft_count = db.query(func.count(BlogPost.id)).filter(BlogPost.published_at.is_(None)).scalar() or 0
+        
+        scheduled_count = 0  # Placeholder for future implementation
+
+        auth_logger.info(f"📊 POST STATS - Total: {total_posts}, Published: {published_count}, Drafts: {draft_count}")
 
         # Get categories with counts (using 'section' field instead of missing 'category')
         categories = db.query(
@@ -293,32 +306,68 @@ async def get_blog_posts(current_user = Depends(get_current_active_user)):
             BlogPost.section.isnot(None)
         ).group_by(BlogPost.section).all()
 
-        # Mock tags for now (implement when you have tags model)
-        tags = [
-            {"id": "tech", "name": "Technology", "count": 8},
-            {"id": "design", "name": "Design", "count": 5},
-            {"id": "business", "name": "Business", "count": 4},
-            {"id": "ai", "name": "AI", "count": 6},
-            {"id": "tutorial", "name": "Tutorial", "count": 3}
-        ]
+        # Get real tags from database
+        from models.blog import BlogTag
+        tags_query = db.query(BlogTag).order_by(BlogTag.name.asc())
+        tags_db = tags_query.all()
+        
+        # Calculate actual tag counts from posts
+        tags = []
+        for tag in tags_db:
+            # Count posts that have this tag
+            tag_count = db.query(func.count(BlogPost.id)).filter(
+                BlogPost.tags.contains([tag.slug])
+            ).scalar() or 0
+            
+            tags.append({
+                "id": str(tag.id),
+                "name": tag.name,
+                "slug": tag.slug,
+                "count": tag_count
+            })
+        
+        # If no real tags exist, provide some default ones for demo
+        if not tags:
+            tags = [
+                {"id": "tech", "name": "Technology", "count": 8},
+                {"id": "design", "name": "Design", "count": 5},
+                {"id": "business", "name": "Business", "count": 4},
+                {"id": "ai", "name": "AI", "count": 6},
+                {"id": "tutorial", "name": "Tutorial", "count": 3}
+            ]
 
-        posts_data = [
-            {
+        posts_data = []
+        for post in posts:
+            # Determine status based on published_at field
+            is_published = getattr(post, "published_at", None) is not None
+            status = "published" if is_published else "draft"
+            
+            # For drafts, ensure they have a proper slug (may be generated during save)
+            slug = getattr(post, "slug", None)
+            if not is_published and not slug:
+                # Generate a temporary slug for drafts that don't have one
+                slug = f"draft-{post.id}"
+            
+            post_data = {
                 "id": str(post.id),
-                "title": post.title,
+                "title": post.title or "Untitled Draft" if not is_published else post.title,
                 "excerpt": post.excerpt or (post.content[:100] + "...") if post.content else "No content",
-                "status": "published" if getattr(post, "published_at", None) else "draft",
-                "author": "NekwasaR",  # Default author
+                "status": status,
+                "author": post.author or "NekwasaR",
                 "category": getattr(post, "section", None) or "Uncategorized",
-                "categoryId": getattr(post, "section", None),  # For filtering
-                "tags": [],  # Implement when you have tags
+                "categoryId": getattr(post, "section", None),
+                "tags": post.tags if post.tags else [],
                 "updatedAt": post.published_at.isoformat() if getattr(post, "published_at", None) else None,
-                "createdAt": post.published_at.isoformat() if getattr(post, "published_at", None) else None,
+                "createdAt": getattr(post, "created_at", None) or getattr(post, "published_at", None),
                 "contentLength": len(post.content or ""),
-                "views": getattr(post, "view_count", 0) or 0
+                "views": getattr(post, "view_count", 0) or 0,
+                "slug": slug,
+                "isDraft": not is_published,  # Add explicit draft flag
+                "publishedAt": post.published_at.isoformat() if getattr(post, "published_at", None) else None
             }
-            for post in posts
-        ]
+            posts_data.append(post_data)
+
+        auth_logger.info(f"📝 PROCESSED {len(posts_data)} POSTS - Drafts: {sum(1 for p in posts_data if p['status'] == 'draft')}")
 
         return {
             "posts": posts_data,
@@ -336,6 +385,8 @@ async def get_blog_posts(current_user = Depends(get_current_active_user)):
         }
     except Exception as e:
         auth_logger.error(f"❌ Error getting blog posts: {e}")
+        import traceback
+        auth_logger.error(f"❌ Traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail="Failed to load blog posts")
 
 @router.post("/admin/api/blog/posts")
@@ -372,11 +423,82 @@ async def create_blog_post(post_data: dict, current_user = Depends(get_current_a
         db.commit()
         db.refresh(new_post)
 
-        return {"success": True, "post_id": new_post.id}
+        return {"success": True, "post_id": new_post.id, "slug": new_post.slug}
     except Exception as e:
         auth_logger.error(f"❌ Error creating blog post: {e}")
         db.rollback()
         raise HTTPException(status_code=500, detail="Failed to create blog post")
+
+@router.post("/admin/api/blog/drafts")
+async def save_blog_draft(draft_data: dict, current_user = Depends(get_current_active_user)):
+    """Save a blog post as draft"""
+    from models.blog import BlogPost
+    from datetime import datetime
+    import uuid
+
+    try:
+        auth_logger.info(f"📝 SAVING DRAFT - User: {current_user.username}")
+        auth_logger.info(f"📝 DRAFT DATA KEYS: {list(draft_data.keys())}")
+
+        # Check if this is an update to an existing draft or a new draft
+        post_id = draft_data.get("id")
+        
+        if post_id:
+            # Update existing draft
+            post = db.query(BlogPost).filter(BlogPost.id == post_id).first()
+            if not post:
+                raise HTTPException(status_code=404, detail="Draft not found")
+            
+            auth_logger.info(f"📝 UPDATING EXISTING DRAFT - Post ID: {post_id}")
+        else:
+            # Create new draft
+            auth_logger.info(f"📝 CREATING NEW DRAFT")
+            post = BlogPost()
+            db.add(post)
+
+        # Generate a unique slug for drafts if not provided
+        title = draft_data.get("title", "Untitled Draft")
+        if not draft_data.get("slug"):
+            # Generate a unique slug for drafts
+            unique_id = str(uuid.uuid4())[:8]
+            slug_base = title.lower().replace(" ", "-")[:50]
+            post.slug = f"draft-{slug_base}-{unique_id}"
+            auth_logger.info(f"🔗 GENERATED UNIQUE SLUG: {post.slug}")
+        else:
+            post.slug = draft_data.get("slug")
+
+        # Update draft content (always leave published_at as None for drafts)
+        post.title = title
+        post.content = draft_data.get("content", "")
+        post.excerpt = draft_data.get("excerpt", "")
+        post.template_type = draft_data.get("template_type", "template1")
+        post.featured_image = draft_data.get("featured_image", "")
+        post.video_url = draft_data.get("video_url", "")
+        post.tags = draft_data.get("tags", [])
+        post.section = draft_data.get("section", "others")
+        post.priority = draft_data.get("priority", 0)
+        post.is_featured = draft_data.get("is_featured", False)
+        post.published_at = None  # Ensure this is a draft
+        post.author = current_user.username or "NekwasaR"
+
+        # Generate search index for better discoverability
+        search_content = f"{post.title} {post.content[:500]}"
+        post.search_index = search_content
+
+        # Flush to ensure the draft is saved with None published_at
+        db.flush()
+        db.commit()
+        db.refresh(post)
+
+        auth_logger.info(f"✅ DRAFT SAVED SUCCESSFULLY - Post ID: {post.id}, Slug: {post.slug}")
+        return {"success": True, "post_id": post.id, "slug": post.slug, "message": "Draft saved successfully"}
+    except Exception as e:
+        auth_logger.error(f"❌ Error saving draft: {e}")
+        auth_logger.error(f"❌ Exception type: {type(e).__name__}")
+        import traceback
+        auth_logger.error(f"❌ Traceback: {traceback.format_exc()}")
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to save draft: {str(e)}")
 
 @router.put("/admin/api/blog/posts/{post_id}")
 async def update_blog_post(post_id: int, post_data: dict, current_user = Depends(get_current_active_user)):
@@ -453,12 +575,121 @@ async def delete_blog_post(post_id: int, current_user = Depends(get_current_acti
         db.rollback()
         raise HTTPException(status_code=500, detail="Failed to delete blog post")
 
+# Blog Tags API endpoints
+@router.post("/admin/api/blog/tags")
+async def create_blog_tag(tag_data: dict, current_user = Depends(get_current_active_user)):
+    """Create a new blog tag"""
+    from models.blog import BlogTag
+    import re
+
+    try:
+        auth_logger.info(f"🏷️ Creating new tag: {tag_data}")
+        
+        # Generate slug from name
+        name = tag_data.get("name", "").strip()
+        if not name:
+            raise HTTPException(status_code=400, detail="Tag name is required")
+        
+        # Create slug (URL-friendly version of the name)
+        slug = re.sub(r'[^a-zA-Z0-9\s-]', '', name.lower())
+        slug = re.sub(r'\s+', '-', slug).strip('-')
+        
+        # Check if tag already exists
+        existing_tag = db.query(BlogTag).filter(
+            (BlogTag.name == name) | (BlogTag.slug == slug)
+        ).first()
+        
+        if existing_tag:
+            raise HTTPException(status_code=400, detail="Tag with this name or slug already exists")
+        
+        # Create new tag
+        new_tag = BlogTag(
+            name=name,
+            slug=slug,
+            description=tag_data.get("description", ""),
+            color=tag_data.get("color", "#6366f1"),  # Default color
+            is_featured=tag_data.get("is_featured", False)
+        )
+        
+        db.add(new_tag)
+        db.commit()
+        db.refresh(new_tag)
+        
+        auth_logger.info(f"✅ Tag created successfully: {new_tag.name} (ID: {new_tag.id})")
+        
+        return {
+            "success": True,
+            "tag": {
+                "id": str(new_tag.id),
+                "name": new_tag.name,
+                "slug": new_tag.slug,
+                "description": new_tag.description,
+                "color": new_tag.color,
+                "post_count": new_tag.post_count,
+                "is_featured": new_tag.is_featured
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        auth_logger.error(f"❌ Error creating tag: {e}")
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to create tag")
+
+@router.get("/admin/api/blog/tags")
+async def get_blog_tags(current_user = Depends(get_current_active_user)):
+    """Get all blog tags"""
+    from models.blog import BlogTag
+    from sqlalchemy import func
+
+    try:
+        auth_logger.info("🏷️ Fetching all blog tags")
+        
+        # Get all tags with post counts
+        tags_query = db.query(BlogTag).order_by(BlogTag.name.asc())
+        tags = tags_query.all()
+        
+        # Format tags for frontend
+        tags_data = []
+        for tag in tags:
+            # Get actual post count for this tag
+            actual_count = db.query(func.count(BlogPost.id)).filter(
+                BlogPost.tags.contains([tag.slug])  # Check if tag is in the JSON array
+            ).scalar() or 0
+            
+            # Update post_count if it's outdated
+            if tag.post_count != actual_count:
+                tag.post_count = actual_count
+                db.flush()  # Update without committing
+            
+            tags_data.append({
+                "id": str(tag.id),
+                "name": tag.name,
+                "slug": tag.slug,
+                "description": tag.description or "",
+                "color": tag.color,
+                "count": actual_count,
+                "is_featured": tag.is_featured
+            })
+        
+        db.commit()  # Commit any post_count updates
+        
+        auth_logger.info(f"✅ Retrieved {len(tags_data)} tags")
+        return {"tags": tags_data}
+        
+    except Exception as e:
+        auth_logger.error(f"❌ Error getting tags: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch tags")
+
 @router.get("/admin/api/blog/render-template/{template_name}")
 @router.get("/api/admin/blog/render-template/{template_name}")
 async def render_blog_template(template_name: str, current_user = Depends(get_current_active_user)):
     """Render a blog template for the editor"""
     from pathlib import Path
     import re
+    from jinja2 import Environment, FileSystemLoader
+    from datetime import datetime
 
     try:
         auth_logger.info(f"🎨 RENDERING TEMPLATE: {template_name} for user {current_user.username}")
@@ -486,32 +717,88 @@ async def render_blog_template(template_name: str, current_user = Depends(get_cu
             auth_logger.error(f"❌ Template file not found: {template_path}")
             raise HTTPException(status_code=404, detail="Template file not found")
 
-        # Read the template
+        # Read the template file
         with open(template_path, 'r', encoding='utf-8') as f:
-            content = f.read()
+            template_content = f.read()
 
-        auth_logger.info(f"📖 Template content length: {len(content)}")
+        auth_logger.info(f"📖 Template content length: {len(template_content)}")
 
         # Extract the content block (between {% block content %} and {% endblock %})
-        content_match = re.search(r'{% block content %}(.*?){% endblock %}', content, re.DOTALL | re.IGNORECASE)
+        content_match = re.search(r'{% block content %}(.*?){% endblock %}', template_content, re.DOTALL | re.IGNORECASE)
         if not content_match:
             auth_logger.error("❌ Could not extract template content block")
             raise HTTPException(status_code=500, detail="Could not extract template content")
 
-        template_content = content_match.group(1).strip()
-        auth_logger.info(f"✂️ Extracted content length: {len(template_content)}")
+        template_content_block = content_match.group(1).strip()
+        auth_logger.info(f"✂️ Extracted content block length: {len(template_content_block)}")
 
-        # Extract and remove styles from content
-        style_match = re.search(r'<style>(.*?)</style>', template_content, re.DOTALL | re.IGNORECASE)
+        # For the editor, we'll use the raw content block and let the frontend handle variable replacement
+        # Replace Jinja2 variables with sample data for preview
+        rendered_html = template_content_block
+        rendered_html = rendered_html.replace('{% if post_data and post_data.featured_image %}', '')
+        rendered_html = rendered_html.replace('{% else %}', '')
+        rendered_html = rendered_html.replace('{% endif %}', '')
+        rendered_html = rendered_html.replace('{{ post_data.title }}', 'Sample Post Title')
+        rendered_html = rendered_html.replace('{{ post_data.excerpt }}', 'This is a sample excerpt for the blog post.')
+        rendered_html = rendered_html.replace('{{ post_data.author }}', 'NekwasaR')
+        rendered_html = rendered_html.replace('{{ post_data.featured_image }}', 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1920&h=1080&fit=crop&crop=center')
+        rendered_html = rendered_html.replace('{{ post_data.tags[0] }}', 'Technology')
+        rendered_html = rendered_html.replace('{{ post_data.published_at | strftime(\'%B %d, %Y\') }}', 'November 6, 2025')
+
+        # Add special classes for editor-specific behavior
+        # Make comment count dynamic and non-editable, start with 0 comments
+        rendered_html = rendered_html.replace(
+            '<span class="bg-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold">47 Comments</span>',
+            '<span class="bg-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold comment-count-display">0 Comments</span>'
+        )
+
+        # Make entire comment section non-editable
+        rendered_html = rendered_html.replace(
+            '<section id="comments" class="bg-white rounded-lg border border-gray-200 mt-6 no-edit">',
+            '<section id="comments" class="bg-white rounded-lg border border-gray-200 mt-6 no-edit comment-section">'
+        )
+
+        # Add special classes for related/trending posts to make them editable via modal
+        rendered_html = rendered_html.replace(
+            '<a href="/blog/ai-revolutionizing-healthcare" class="flex gap-3 group">',
+            '<a href="/blog/ai-revolutionizing-healthcare" class="flex gap-3 group related-post-item" data-post-index="0" data-section="related">'
+        )
+        rendered_html = rendered_html.replace(
+            '<a href="/blog/rise-of-quantum-computing" class="flex gap-3 group">',
+            '<a href="/blog/rise-of-quantum-computing" class="flex gap-3 group related-post-item" data-post-index="1" data-section="related">'
+        )
+        rendered_html = rendered_html.replace(
+            '<a href="/blog/machine-learning-ethics" class="flex gap-3 group">',
+            '<a href="/blog/machine-learning-ethics" class="flex gap-3 group related-post-item" data-post-index="2" data-section="related">'
+        )
+
+        # Trending posts
+        rendered_html = rendered_html.replace(
+            '<a href="/blog/ai-changing-finance" class="flex gap-3 group">',
+            '<a href="/blog/ai-changing-finance" class="flex gap-3 group trending-post-item" data-post-index="0" data-section="trending">'
+        )
+        rendered_html = rendered_html.replace(
+            '<a href="/blog/crypto-market-2025" class="flex gap-3 group">',
+            '<a href="/blog/crypto-market-2025" class="flex gap-3 group trending-post-item" data-post-index="1" data-section="trending">'
+        )
+        rendered_html = rendered_html.replace(
+            '<a href="/blog/real-estate-trends" class="flex gap-3 group">',
+            '<a href="/blog/real-estate-trends" class="flex gap-3 group trending-post-item" data-post-index="2" data-section="trending">'
+        )
+
+        auth_logger.info(f"📖 Content processed for editor, length: {len(rendered_html)}")
+
+        # Extract and remove styles from rendered content
+        style_match = re.search(r'<style[^>]*>(.*?)</style>', rendered_html, re.DOTALL | re.IGNORECASE)
         if style_match:
             template_styles = style_match.group(1).strip()
             # Remove the style tag from content
-            template_content = re.sub(r'<style>.*?</style>', '', template_content, flags=re.DOTALL | re.IGNORECASE).strip()
+            rendered_html = re.sub(r'<style[^>]*>.*?</style>', '', rendered_html, flags=re.DOTALL | re.IGNORECASE).strip()
         else:
             template_styles = ""
 
         auth_logger.info(f"🎨 Extracted styles length: {len(template_styles)}")
-        auth_logger.info(f"📄 Final content length: {len(template_content)}")
+        auth_logger.info(f"📄 Final rendered content length: {len(rendered_html)}")
 
         # Load global blog template assets (CSS/JS) so the editor can render everything
         global_styles = ""
@@ -540,9 +827,9 @@ async def render_blog_template(template_name: str, current_user = Depends(get_cu
         except Exception as e:
             auth_logger.error(f"❌ Error reading global JS: {e}")
 
-        # Return the extracted content, template-scoped styles, and global assets
+        # Return the rendered content, template-scoped styles, and global assets
         result = {
-            "html": template_content,
+            "html": rendered_html,
             "styles": template_styles,
             "globalStyles": global_styles,
             "globalScripts": global_scripts,
@@ -557,6 +844,7 @@ async def render_blog_template(template_name: str, current_user = Depends(get_cu
         import traceback
         auth_logger.error(f"💥 Traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Failed to render template: {str(e)}")
+
 
 @router.get("/api/blog/posts/section/{section}")
 async def get_posts_by_section(section: str, limit: int = 10):

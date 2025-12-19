@@ -35,6 +35,7 @@
     safe(initSmoothScrolling, 'initSmoothScrolling');
     safe(initAnimations, 'initAnimations');
     safe(initCardLinks, 'initCardLinks');
+    safe(initPostModal, 'initPostModal');
     safe(forceTextWrapping, 'forceTextWrapping');
   }
 
@@ -1256,12 +1257,177 @@
   function initCardLinks() {
     document.querySelectorAll('.card-link, .post-link, .slide-link, .banner-link, .tag-item').forEach(card => {
       card.addEventListener('click', function(e) {
+        // Check if this is a related or trending post link
+        if (this.closest('.related-posts, .trending-now')) {
+          e.preventDefault();
+          const href = this.getAttribute('data-href') || this.getAttribute('href');
+          if (href) {
+            openPostModal(href);
+          }
+          return;
+        }
+
         const href = this.getAttribute('data-href');
         if (href) {
           window.location.href = href;
         }
       });
     });
+  }
+
+  // Post Modal Functionality
+  function openPostModal(postUrl) {
+    const modal = document.getElementById('postModal');
+    const content = document.getElementById('postModalContent');
+    const title = document.querySelector('.post-modal-title-text');
+    const category = document.querySelector('.post-modal-category');
+
+    if (!modal || !content) return;
+
+    // Show loading state
+    content.innerHTML = `
+      <div class="post-modal-loading">
+        <div class="loading-spinner"></div>
+        <p>Loading post content...</p>
+      </div>
+    `;
+
+    // Set default title
+    if (title) title.textContent = 'Loading...';
+    if (category) category.textContent = 'Article';
+
+    // Show modal
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+
+    // Fetch post content (mock for now - replace with real API call)
+    loadPostContent(postUrl);
+  }
+
+  function closePostModal() {
+    const modal = document.getElementById('postModal');
+    if (modal) {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  }
+
+  async function loadPostContent(postUrl) {
+    try {
+      // Extract post slug from URL
+      const slug = postUrl.split('/').pop();
+      const apiUrl = `/api/blog/posts/${slug}`;
+
+      const response = await fetch(apiUrl);
+      const postData = await response.json();
+
+      renderPostInModal(postData);
+    } catch (error) {
+      console.error('Error loading post:', error);
+      // Fallback to mock content
+      renderMockPostInModal(postUrl);
+    }
+  }
+
+  function renderPostInModal(postData) {
+    const content = document.getElementById('postModalContent');
+    const title = document.querySelector('.post-modal-title-text');
+    const category = document.querySelector('.post-modal-category');
+
+    if (!content) return;
+
+    // Update title and category
+    if (title) title.textContent = postData.title || 'Post Title';
+    if (category) category.textContent = postData.category || 'Article';
+
+    // Render content
+    content.innerHTML = `
+      <div class="post-meta">
+        <span class="author">${postData.author || 'NekwasaR'}</span>
+        <span class="date">${postData.published_at ? new Date(postData.published_at).toLocaleDateString() : 'Recent'}</span>
+        <span class="views">${postData.view_count || 0} views</span>
+      </div>
+      <div class="post-content">
+        ${postData.content || '<p>Post content would appear here...</p>'}
+      </div>
+    `;
+  }
+
+  function renderMockPostInModal(postUrl) {
+    const content = document.getElementById('postModalContent');
+    const title = document.querySelector('.post-modal-title-text');
+    const category = document.querySelector('.post-modal-category');
+
+    if (!content) return;
+
+    // Mock data based on URL
+    const mockPosts = {
+      'ai-revolutionizing-healthcare': {
+        title: 'How AI is Revolutionizing Healthcare',
+        category: 'Technology',
+        author: 'NekwasaR',
+        content: `
+          <h2>The Future of Medical Diagnosis</h2>
+          <p>Artificial Intelligence is transforming healthcare in unprecedented ways. From early disease detection to personalized treatment plans, AI systems are becoming indispensable tools for medical professionals.</p>
+
+          <h3>Key Applications</h3>
+          <ul>
+            <li>Medical imaging analysis</li>
+            <li>Drug discovery acceleration</li>
+            <li>Patient risk prediction</li>
+            <li>Telemedicine enhancement</li>
+          </ul>
+
+          <blockquote>
+            "AI doesn't replace doctors—it empowers them to make better decisions faster."
+          </blockquote>
+
+          <p>The integration of AI in healthcare represents one of the most promising developments of our time, with the potential to save millions of lives and improve healthcare outcomes worldwide.</p>
+        `
+      },
+      'rise-of-quantum-computing': {
+        title: 'The Rise of Quantum Computing',
+        category: 'Technology',
+        author: 'NekwasaR',
+        content: `
+          <h2>Understanding Quantum Advantage</h2>
+          <p>Quantum computing represents a paradigm shift in computational power. Unlike classical computers that use bits, quantum computers use quantum bits or qubits that can exist in multiple states simultaneously.</p>
+
+          <h3>Current Developments</h3>
+          <p>Major tech companies and research institutions are racing to build practical quantum computers. Recent breakthroughs in error correction and qubit stability have brought us closer to quantum advantage.</p>
+
+          <h3>Real-World Applications</h3>
+          <ul>
+            <li>Cryptographic systems</li>
+            <li>Drug discovery</li>
+            <li>Financial modeling</li>
+            <li>Climate simulation</li>
+          </ul>
+        `
+      }
+    };
+
+    const slug = postUrl.split('/').pop();
+    const postData = mockPosts[slug] || {
+      title: 'Post Title',
+      category: 'Article',
+      author: 'NekwasaR',
+      content: '<p>This is a preview of the post content. Click "Read Full Article" to view the complete post.</p>'
+    };
+
+    if (title) title.textContent = postData.title;
+    if (category) category.textContent = postData.category;
+
+    content.innerHTML = `
+      <div class="post-meta">
+        <span class="author">${postData.author}</span>
+        <span class="date">Recent</span>
+        <span class="views">1.2k views</span>
+      </div>
+      <div class="post-content">
+        ${postData.content}
+      </div>
+    `;
   }
 
   // Animation Triggers

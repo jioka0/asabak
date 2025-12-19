@@ -307,6 +307,55 @@
         </div>
     </div>
 
+    <!-- Post Modal -->
+    <div class="post-modal-overlay" id="postModal">
+        <div class="post-modal-container">
+            <div class="post-modal-header">
+                <div class="post-modal-nav">
+                    <button class="post-modal-nav-btn" id="postModalPrev" disabled>
+                        <i class="ph-bold ph-caret-left"></i>
+                    </button>
+                    <div class="post-modal-title">
+                        <span class="post-modal-category">Loading...</span>
+                        <h2 class="post-modal-title-text">Loading post...</h2>
+                    </div>
+                    <button class="post-modal-nav-btn" id="postModalNext" disabled>
+                        <i class="ph-bold ph-caret-right"></i>
+                    </button>
+                </div>
+                <button class="post-modal-close" id="postModalClose">
+                    <i class="ph-bold ph-x"></i>
+                </button>
+            </div>
+            <div class="post-modal-content" id="postModalContent">
+                <div class="post-modal-loading">
+                    <div class="loading-spinner"></div>
+                    <p>Loading post content...</p>
+                </div>
+            </div>
+            <div class="post-modal-footer">
+                <div class="post-modal-actions">
+                    <button class="post-modal-action-btn" id="postModalLike">
+                        <i class="ph-bold ph-heart"></i>
+                        <span class="action-count">0</span>
+                    </button>
+                    <button class="post-modal-action-btn" id="postModalShare">
+                        <i class="ph-bold ph-share-network"></i>
+                        <span>Share</span>
+                    </button>
+                    <button class="post-modal-action-btn" id="postModalBookmark">
+                        <i class="ph-bold ph-bookmark"></i>
+                        <span>Save</span>
+                    </button>
+                </div>
+                <button class="post-modal-read-full" id="postModalReadFull">
+                    <span>Read Full Article</span>
+                    <i class="ph-bold ph-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div class="scroll-to-top" id="scrollToTop">
         <div class="scroll-progress" id="scrollProgress"></div>
         <i class="ph-bold ph-arrow-up"></i>

@@ -136,7 +136,7 @@ tailwind.config = {
             <div class="retro-panel-title">FOLDERS</div>
             <div class="retro-tree-view">
                 <!-- All Posts -->
-                <div class="retro-tree-item active" data-folder="all">
+                <div class="retro-tree-item active" data-filter="all" onclick="navigateToFolder('all')">
                     <div class="retro-tree-content">
                         <i class="retro-tree-icon">📄</i>
                         <span class="retro-tree-text">ALL POSTS</span>
@@ -162,6 +162,7 @@ tailwind.config = {
                         <i class="retro-tree-icon">🏷️</i>
                         <span class="retro-tree-text">TAGS</span>
                         <i class="retro-tree-arrow">▶</i>
+                        <button class="add-tag-btn" onclick="event.stopPropagation(); console.log('➕ ADD TAG BUTTON CLICKED'); showAddTagModal();" title="Add New Tag">+</button>
                     </div>
                     <div class="retro-tree-children hidden" id="tagsTree">
                         <!-- Tags will be populated here -->
@@ -176,21 +177,21 @@ tailwind.config = {
                         <i class="retro-tree-arrow">▶</i>
                     </div>
                     <div class="retro-tree-children" id="statusTree">
-                        <div class="retro-tree-item" data-filter="status-published">
+                        <div class="retro-tree-item" data-filter="status-published" onclick="navigateToFolder('status-published')">
                             <div class="retro-tree-content">
                                 <i class="retro-tree-icon">✅</i>
                                 <span class="retro-tree-text">PUBLISHED</span>
                                 <span class="retro-tree-count" id="publishedCount">18</span>
                             </div>
                         </div>
-                        <div class="retro-tree-item" data-filter="status-draft">
+                        <div class="retro-tree-item" data-filter="status-draft" onclick="navigateToFolder('status-draft')">
                             <div class="retro-tree-content">
                                 <i class="retro-tree-icon">📝</i>
                                 <span class="retro-tree-text">DRAFT</span>
                                 <span class="retro-tree-count" id="draftCount">4</span>
                             </div>
                         </div>
-                        <div class="retro-tree-item" data-filter="status-scheduled">
+                        <div class="retro-tree-item" data-filter="status-scheduled" onclick="navigateToFolder('status-scheduled')">
                             <div class="retro-tree-content">
                                 <i class="retro-tree-icon">⏰</i>
                                 <span class="retro-tree-text">SCHEDULED</span>
@@ -265,8 +266,8 @@ tailwind.config = {
                 <!-- Details view header -->
                 <div class="retro-list-header">
                     <div class="retro-col-select">
-                        <input type="checkbox" class="retro-checkbox">
-                        <label class="retro-checkbox-label"></label>
+                        <input type="checkbox" class="retro-checkbox" id="selectAllDetails">
+                        <label for="selectAllDetails" class="retro-checkbox-label"></label>
                     </div>
                     <div class="retro-col-name">NAME</div>
                     <div class="retro-col-status">STATUS</div>
@@ -335,7 +336,6 @@ tailwind.config = {
     font-size: 14px;
     line-height: 1.4;
     position: relative;
-    max-width: 1000px;
     width: 100%;
 }
 
@@ -651,6 +651,25 @@ tailwind.config = {
     color: #888;
 }
 
+.add-tag-btn {
+    background: #00ff00;
+    color: #000;
+    border: none;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    font-size: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-left: auto;
+    transition: all 0.2s;
+}
+
+.add-tag-btn:hover {
+    background: #88ff88;
+    transform: scale(1.1);
+}
+
 .retro-tree-children {
     margin-left: 16px;
     margin-top: 2px;
@@ -718,7 +737,7 @@ tailwind.config = {
 
 .retro-list-header {
     display: grid;
-    grid-template-columns: 30px 2fr 1fr 1fr 80px;
+    grid-template-columns: 30px minmax(300px, 1fr) 120px 140px 80px;
     gap: 8px;
     background: #1a1a1a;
     padding: 8px;
@@ -738,7 +757,7 @@ tailwind.config = {
 
 .retro-post-item {
     display: grid;
-    grid-template-columns: 30px 2fr 1fr 1fr 80px;
+    grid-template-columns: 30px minmax(300px, 1fr) 120px 140px 80px;
     gap: 8px;
     padding: 6px 8px;
     border-bottom: 1px solid #222;
@@ -777,6 +796,7 @@ tailwind.config = {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 .retro-post-meta {
@@ -877,11 +897,11 @@ tailwind.config = {
 
 /* Details View */
 .details-view .retro-list-header {
-    grid-template-columns: 30px 2fr 1fr 1fr 1fr 60px 1fr;
+    grid-template-columns: 30px minmax(300px, 1fr) 120px 120px 120px 60px 140px;
 }
 
 .details-view .retro-post-item {
-    grid-template-columns: 30px 2fr 1fr 1fr 1fr 60px 1fr;
+    grid-template-columns: 30px minmax(300px, 1fr) 120px 120px 120px 60px 140px;
 }
 
 .retro-post-category,
@@ -1134,7 +1154,7 @@ tailwind.config = {
 
     .retro-list-header,
     .retro-post-item {
-        grid-template-columns: 25px 2fr 1fr 1fr 60px;
+        grid-template-columns: 25px minmax(200px, 1fr) 100px 120px 60px;
         font-size: 9px;
     }
 
@@ -1163,6 +1183,28 @@ tailwind.config = {
 
     .property-value {
         font-size: 13px;
+    }
+}
+
+/* Additional responsive breakpoint for very small screens */
+@media (max-width: 480px) {
+    .retro-list-header,
+    .retro-post-item {
+        grid-template-columns: 20px minmax(150px, 1fr) 80px 100px 50px;
+        font-size: 8px;
+        gap: 4px;
+        padding: 4px 6px;
+    }
+
+    .retro-post-title {
+        font-size: 10px;
+    }
+
+    .retro-post-meta,
+    .retro-post-status,
+    .retro-post-modified,
+    .retro-post-size {
+        font-size: 8px;
     }
 }
 </style>
@@ -1228,13 +1270,41 @@ async function loadPostsData() {
         }
 
         const data = await response.json();
-        console.log(LOG, 'Parsed JSON', { postsCount: (data.posts || []).length, hasStats: !!data.stats });
+        console.log(LOG, 'Parsed JSON', {
+            postsCount: (data.posts || []).length,
+            hasStats: !!data.stats,
+            statsData: data.stats,
+            tagsCount: (data.tags || []).length,
+            categoriesCount: (data.categories || []).length
+        });
 
         allPosts = data.posts || [];
+
+        // Debug: Log sample post with tags
+        if (allPosts.length > 0) {
+            console.log(LOG, 'SAMPLE POST DATA:', {
+                id: allPosts[0].id,
+                title: allPosts[0].title,
+                tags: allPosts[0].tags,
+                category: allPosts[0].category,
+                status: allPosts[0].status
+            });
+        }
+        
+        // Log post statuses for debugging
+        const draftCount = allPosts.filter(post => post.status === 'draft' || post.isDraft).length;
+        const publishedCount = allPosts.filter(post => post.status === 'published' || !post.isDraft).length;
+        console.log(LOG, '📊 POST STATUS ANALYSIS:', {
+            totalPosts: allPosts.length,
+            draftPosts: draftCount,
+            publishedPosts: publishedCount,
+            draftPostsList: allPosts.filter(post => post.status === 'draft' || post.isDraft).map(p => ({ id: p.id, title: p.title, status: p.status }))
+        });
+
         updateSidebarCounts(data.stats || {
             totalPosts: allPosts.length,
-            publishedCount: 0,
-            draftCount: 0,
+            publishedCount: publishedCount,
+            draftCount: draftCount,
             scheduledCount: 0,
             categories: [],
             tags: []
@@ -1256,12 +1326,30 @@ function updateSidebarCounts(stats) {
     // Update categories and tags trees
     renderCategoriesTree(stats.categories || []);
     renderTagsTree(stats.tags || []);
+    
+    // Ensure tags tree is expanded and loaded
+    const tagsTreeItem = document.querySelector('.retro-tree-item [onclick*="showAddTagModal"]')?.closest('.retro-tree-item');
+    if (tagsTreeItem && stats.tags && stats.tags.length > 0) {
+        // Auto-expand tags if we have tags to show
+        const tagsChildren = tagsTreeItem.querySelector('.retro-tree-children');
+        const tagsArrow = tagsTreeItem.querySelector('.retro-tree-arrow');
+        if (tagsChildren && tagsChildren.classList.contains('hidden')) {
+            tagsChildren.classList.remove('hidden');
+            tagsTreeItem.classList.add('expanded');
+            if (tagsArrow) tagsArrow.classList.add('rotate-90');
+        }
+    }
 }
 
 function renderCategoriesTree(categories) {
+    console.log(`📂 RENDERING CATEGORIES TREE: ${categories.length} categories`);
+    categories.forEach(cat => {
+        console.log(`  - Category: ${cat.name} (id: ${cat.id}, count: ${cat.count})`);
+    });
+
     const container = document.getElementById('categoriesTree');
     container.innerHTML = categories.map(category => `
-        <div class="retro-tree-item" data-filter="category-${category.id}">
+        <div class="retro-tree-item" data-filter="category-${category.id}" onclick="navigateToFolder('category-${category.id}')">
             <div class="retro-tree-content">
                 <i class="retro-tree-icon">📂</i>
                 <span class="retro-tree-text">${category.name}</span>
@@ -1269,12 +1357,19 @@ function renderCategoriesTree(categories) {
             </div>
         </div>
     `).join('');
+
+    console.log('✅ CATEGORIES TREE RENDERED');
 }
 
 function renderTagsTree(tags) {
+    console.log(`🏷️ RENDERING TAGS TREE: ${tags.length} tags`);
+    tags.forEach(tag => {
+        console.log(`  - Tag: ${tag.name} (slug: ${tag.slug}, count: ${tag.count})`);
+    });
+
     const container = document.getElementById('tagsTree');
     container.innerHTML = tags.map(tag => `
-        <div class="retro-tree-item" data-filter="tag-${tag.id}">
+        <div class="retro-tree-item" data-filter="tag-${tag.slug}" onclick="navigateToFolder('tag-${tag.slug}')">
             <div class="retro-tree-content">
                 <i class="retro-tree-icon">🏷️</i>
                 <span class="retro-tree-text">${tag.name}</span>
@@ -1282,6 +1377,8 @@ function renderTagsTree(tags) {
             </div>
         </div>
     `).join('');
+
+    console.log('✅ TAGS TREE RENDERED');
 }
 
 function renderCurrentView() {
@@ -1312,12 +1409,37 @@ function filterPosts() {
         if (currentFolder.startsWith('category-')) {
             const categoryId = currentFolder.replace('category-', '');
             filtered = filtered.filter(post => post.categoryId === categoryId);
+            console.log(`📂 CATEGORY FILTER: Looking for category "${categoryId}", found ${filtered.length} posts`);
         } else if (currentFolder.startsWith('tag-')) {
-            const tagId = currentFolder.replace('tag-', '');
-            filtered = filtered.filter(post => post.tags && post.tags.includes(tagId));
+            const tagSlug = currentFolder.replace('tag-', '');
+            filtered = filtered.filter(post => {
+                const hasTag = post.tags && post.tags.includes(tagSlug);
+                if (hasTag) {
+                    console.log(`🏷️ TAG FILTER: Post "${post.title}" has tag "${tagSlug}"`);
+                }
+                return hasTag;
+            });
+            console.log(`🏷️ TAG FILTER: Looking for tag "${tagSlug}", found ${filtered.length} posts`);
         } else if (currentFolder.startsWith('status-')) {
             const status = currentFolder.replace('status-', '');
-            filtered = filtered.filter(post => post.status === status);
+
+            // Clean filtering based on status field (no redundant slug checking needed)
+            filtered = filtered.filter(post => {
+                // Ensure we have a valid status
+                const postStatus = post.status || 'draft';
+
+                if (status === 'draft') {
+                    // Match posts that are explicitly drafts
+                    return postStatus === 'draft' || post.isDraft === true;
+                } else if (status === 'published') {
+                    // Match posts that are explicitly published
+                    return postStatus === 'published' || post.isDraft === false;
+                } else {
+                    // For other statuses, match exactly
+                    return postStatus === status;
+                }
+            });
+            console.log(`📊 STATUS FILTER: Looking for status "${status}", found ${filtered.length} posts`);
         }
     }
 
@@ -1328,8 +1450,10 @@ function filterPosts() {
             post.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
             post.author.toLowerCase().includes(searchTerm.toLowerCase())
         );
+        console.log(`🔍 SEARCH FILTER: "${searchTerm}" found ${filtered.length} posts`);
     }
 
+    console.log(`🔍 FILTER RESULTS: ${filtered.length} posts after filtering (folder: ${currentFolder})`);
     return filtered;
 }
 
@@ -1338,7 +1462,7 @@ function renderListView(posts) {
     container.innerHTML = posts.map(post => `
         <div class="retro-post-item ${selectedItems.has(post.id) ? 'selected' : ''}" data-post-id="${post.id}" onclick="selectItem('${post.id}', event)" ondblclick="openPost('${post.id}')" oncontextmenu="showContextMenu(event, '${post.id}')">
             <div>
-                <input type="checkbox" class="retro-checkbox" ${selectedItems.has(post.id) ? 'checked' : ''} onchange="toggleSelection('${post.id}')">
+                <input type="checkbox" class="retro-checkbox" ${selectedItems.has(post.id) ? 'checked' : ''} onchange="toggleSelection('${post.id}', event); event.stopPropagation();" onclick="event.stopPropagation()">
             </div>
             <div>
                 <i class="retro-tree-icon">📄</i>
@@ -1386,7 +1510,7 @@ function renderDetailsView(posts) {
     container.innerHTML = posts.map(post => `
         <div class="retro-post-item ${selectedItems.has(post.id) ? 'selected' : ''}" data-post-id="${post.id}" onclick="selectItem('${post.id}', event)" ondblclick="openPost('${post.id}')" oncontextmenu="showContextMenu(event, '${post.id}')">
             <div>
-                <input type="checkbox" class="retro-checkbox" ${selectedItems.has(post.id) ? 'checked' : ''} onchange="toggleSelection('${post.id}')">
+                <input type="checkbox" class="retro-checkbox" ${selectedItems.has(post.id) ? 'checked' : ''} onchange="toggleSelection('${post.id}', event); event.stopPropagation();" onclick="event.stopPropagation()">
             </div>
             <div>
                 <i class="retro-tree-icon">📄</i>
@@ -1463,11 +1587,21 @@ function selectItem(postId, event) {
     updateSelectionUI();
 }
 
-function toggleSelection(postId) {
-    if (selectedItems.has(postId)) {
-        selectedItems.delete(postId);
+function toggleSelection(postId, event) {
+    if (event && (event.ctrlKey || event.metaKey)) {
+        // Multi-select with Ctrl+click
+        if (selectedItems.has(postId)) {
+            selectedItems.delete(postId);
+        } else {
+            selectedItems.add(postId);
+        }
     } else {
-        selectedItems.add(postId);
+        // Regular toggle - add if not selected, remove if selected
+        if (selectedItems.has(postId)) {
+            selectedItems.delete(postId);
+        } else {
+            selectedItems.add(postId);
+        }
     }
     updateSelectionUI();
 }
@@ -1480,13 +1614,22 @@ function updateSelectionUI() {
         checkbox.checked = selectedItems.has(postId);
     });
 
-    // Update selectAll checkbox state
+    // Update selectAll checkbox state (main list view)
     const selectAllCheckbox = document.getElementById('selectAll');
     if (selectAllCheckbox) {
         const totalPosts = document.querySelectorAll('[data-post-id]').length;
         const selectedPosts = selectedItems.size;
         selectAllCheckbox.checked = totalPosts > 0 && selectedPosts === totalPosts;
         selectAllCheckbox.indeterminate = selectedPosts > 0 && selectedPosts < totalPosts;
+    }
+
+    // Update selectAll checkbox state (details view)
+    const selectAllDetailsCheckbox = document.getElementById('selectAllDetails');
+    if (selectAllDetailsCheckbox) {
+        const totalPosts = document.querySelectorAll('[data-post-id]').length;
+        const selectedPosts = selectedItems.size;
+        selectAllDetailsCheckbox.checked = totalPosts > 0 && selectedPosts === totalPosts;
+        selectAllDetailsCheckbox.indeterminate = selectedPosts > 0 && selectedPosts < totalPosts;
     }
 
     // Update visual selection
@@ -1519,43 +1662,106 @@ function updateStatusBarText() {
 }
 
 function toggleTreeItem(element) {
-    const children = element.querySelector('.tree-children');
-    const arrow = element.querySelector('.tree-arrow');
+    console.log('🔽 TOGGLE TREE ITEM:', element.querySelector('.retro-tree-text')?.textContent);
+
+    // Fix: Use correct class names from the HTML
+    const children = element.querySelector('.retro-tree-children');
+    const arrow = element.querySelector('.retro-tree-arrow');
+
+    if (!children || !arrow) {
+        console.warn('toggleTreeItem: Could not find children or arrow elements');
+        return;
+    }
 
     if (children.classList.contains('hidden')) {
         children.classList.remove('hidden');
         element.classList.add('expanded');
-        arrow.classList.add('rotate-90');
+        arrow.style.transform = 'rotate(90deg)';
+        console.log('📂 TREE ITEM EXPANDED');
     } else {
         children.classList.add('hidden');
         element.classList.remove('expanded');
-        arrow.classList.remove('rotate-90');
+        arrow.style.transform = 'rotate(0deg)';
+        console.log('📂 TREE ITEM COLLAPSED');
     }
 }
 
 function setupEventListeners() {
+    console.log('🎧 SETTING UP EVENT LISTENERS');
+
     // Search
     document.getElementById('searchInput').oninput = debounce((e) => {
         searchTerm = e.target.value;
         renderCurrentView();
     }, 300);
 
-    // Tree navigation
+    // Tree navigation - Add specific click handlers for tree items
     document.addEventListener('click', (e) => {
         const treeItem = e.target.closest('.retro-tree-item[data-filter]');
         if (treeItem) {
+            e.preventDefault();
+            e.stopPropagation();
             const filter = treeItem.dataset.filter;
+            console.log(`🖱️ TREE ITEM CLICKED: ${filter}`);
             navigateToFolder(filter);
         }
     });
+
+    // Also add direct click handlers to tree items for redundancy
+    document.querySelectorAll('.retro-tree-item[data-filter]').forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const filter = item.dataset.filter;
+            console.log(`🖱️ DIRECT TREE ITEM CLICK: ${filter}`);
+            navigateToFolder(filter);
+        });
+    });
+
+    // Select All checkbox (main list view)
+    const selectAllCheckbox = document.getElementById('selectAll');
+    if (selectAllCheckbox) {
+        selectAllCheckbox.onchange = (e) => {
+            if (e.target.checked) {
+                selectAll();
+            } else {
+                // Clear all selections
+                selectedItems.clear();
+                updateSelectionUI();
+            }
+        };
+    }
+
+    // Select All checkbox (details view)
+    const selectAllDetailsCheckbox = document.getElementById('selectAllDetails');
+    if (selectAllDetailsCheckbox) {
+        selectAllDetailsCheckbox.onchange = (e) => {
+            if (e.target.checked) {
+                selectAll();
+            } else {
+                // Clear all selections
+                selectedItems.clear();
+                updateSelectionUI();
+            }
+        };
+    }
+
+    console.log('✅ EVENT LISTENERS SETUP COMPLETE');
 }
 
 function navigateToFolder(folder) {
+    console.log(`🗂️ NAVIGATE TO FOLDER: ${folder}`);
     currentFolder = folder;
 
     // Update active tree item
     document.querySelectorAll('.retro-tree-item').forEach(item => item.classList.remove('active'));
-    document.querySelector(`[data-filter="${folder}"]`)?.classList.add('active');
+    const activeItem = document.querySelector(`[data-filter="${folder}"]`);
+    if (activeItem) {
+        activeItem.classList.add('active');
+        console.log(`✅ ACTIVE ITEM SET: ${folder}`);
+    } else {
+        console.log(`❌ ACTIVE ITEM NOT FOUND: ${folder}`);
+    }
 
     // Update path display
     updatePathDisplay(folder);
@@ -1743,13 +1949,8 @@ function showFallbackPostsData() {
 
 // Action functions
 function newPost() {
-    // Prefer the wizard if present (injected earlier in the template)
-    if (window.__BlogNewPostWizard && typeof window.__BlogNewPostWizard.open === 'function') {
-        window.__BlogNewPostWizard.open();
-        return;
-    }
-    // Fallback: notify (should not happen if wizard loaded)
-    showNotification('Launching New Post wizard...', 'info');
+    // Redirect to standalone editor page
+    window.location.href = '/admin/blog/editor';
 }
 
 async function openPost(postId) {
@@ -1796,46 +1997,8 @@ async function editPost(postId) {
         }
     }
 
-    try {
-        // Get post details
-        const token = localStorage.getItem('token');
-        const response = await fetch(`/admin/api/blog/posts/${postId}`, {
-            method: 'GET',
-            headers: token ? { 'Authorization': `Bearer ${token}` } : {}
-        });
-
-        if (!response.ok) {
-            throw new Error(`Failed to fetch post: ${response.status}`);
-        }
-
-        const post = await response.json();
-
-        // Set up wizard state for editing
-        const editState = {
-            selectedTemplate: post.template_type || 'template1',
-            includeOnHomepage: post.section ? true : false,
-            includeOnRoutePages: false, // Will be determined by routes
-            selectedRoutes: [],
-            deferredHomeSection: post.section || null,
-            currentStep: 1,
-            editMode: true,
-            editPostId: postId,
-            editPostData: post
-        };
-
-        // Save to localStorage
-        localStorage.setItem('blogNewPostWizardState', JSON.stringify(editState));
-
-        // Open the wizard
-        if (window.__BlogNewPostWizard && typeof window.__BlogNewPostWizard.open === 'function') {
-            window.__BlogNewPostWizard.open();
-        } else {
-            showNotification('Edit functionality requires the New Post Wizard', 'warning');
-        }
-    } catch (error) {
-        console.error('Error editing post:', error);
-        showNotification('Failed to edit post', 'error');
-    }
+    // Redirect to standalone editor page with edit mode
+    window.location.href = `/admin/blog/editor?edit=${postId}`;
 }
 
 async function duplicatePost(postId) {
@@ -1848,53 +2011,8 @@ async function duplicatePost(postId) {
         }
     }
 
-    try {
-        // Get post details
-        const token = localStorage.getItem('token');
-        const response = await fetch(`/admin/api/blog/posts/${postId}`, {
-            method: 'GET',
-            headers: token ? { 'Authorization': `Bearer ${token}` } : {}
-        });
-
-        if (!response.ok) {
-            throw new Error(`Failed to fetch post: ${response.status}`);
-        }
-
-        const post = await response.json();
-
-        // Create duplicate state
-        const duplicateState = {
-            selectedTemplate: post.template_type || 'template1',
-            includeOnHomepage: post.section ? true : false,
-            includeOnRoutePages: false,
-            selectedRoutes: [],
-            deferredHomeSection: post.section || null,
-            currentStep: 1,
-            duplicateMode: true,
-            originalPostId: postId,
-            duplicatePostData: {
-                ...post,
-                title: `${post.title} (Copy)`,
-                slug: `${post.slug}-copy`,
-                id: undefined,
-                published_at: undefined
-            }
-        };
-
-        // Save to localStorage
-        localStorage.setItem('blogNewPostWizardState', JSON.stringify(duplicateState));
-
-        // Open the wizard
-        if (window.__BlogNewPostWizard && typeof window.__BlogNewPostWizard.open === 'function') {
-            window.__BlogNewPostWizard.open();
-            showNotification('Post duplicated. Edit the copy as needed.', 'success');
-        } else {
-            showNotification('Duplicate functionality requires the New Post Wizard', 'warning');
-        }
-    } catch (error) {
-        console.error('Error duplicating post:', error);
-        showNotification('Failed to duplicate post', 'error');
-    }
+    // Redirect to standalone editor page with duplicate mode
+    window.location.href = `/admin/blog/editor?duplicate=${postId}`;
 }
 
 async function deleteSelected() {
@@ -2019,7 +2137,17 @@ async function pasteItems() {
     }
 }
 
-function refreshView() { loadPostsData(); showNotification('View refreshed', 'success'); }
+function refreshView() {
+    console.log('[PostsExplorer] Manual refresh triggered');
+    loadPostsData();
+    showNotification('View refreshed', 'success');
+}
+
+// Helper function to refresh data after draft operations
+function refreshPostsData() {
+    console.log('[PostsExplorer] Refreshing posts data after draft operation...');
+    loadPostsData();
+}
 
 async function showProperties(postId) {
     if (!postId) {
@@ -2305,6 +2433,120 @@ function showNotification(message, type = 'info') {
     console.log(`${type.toUpperCase()}: ${message}`);
 }
 
+function showAddTagModal() {
+    console.log('[Tags] Opening Add Tag Modal...');
+    
+    // Create modal HTML
+    const modalHTML = `
+        <div id="addTagModalBackdrop" class="explorer-backdrop"></div>
+        <div id="addTagModal" class="editor-shell" style="width: 500px; height: auto; max-height: 80vh;">
+            <div class="editor-header">
+                <div class="editor-title">
+                    <span class="editor-icon">🏷️</span>
+                    <h2>ADD NEW TAG</h2>
+                </div>
+                <div class="editor-actions">
+                    <button class="ed-btn danger" id="addTagClose">Close</button>
+                </div>
+            </div>
+            <div class="editor-content" style="padding: 24px;">
+                <div class="form-group">
+                    <label class="form-label">Tag Name *</label>
+                    <input type="text" id="tagNameInput" class="futuristic-input" placeholder="Enter tag name..." required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea id="tagDescriptionInput" class="futuristic-textarea" rows="3" placeholder="Tag description (optional)"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tag Type</label>
+                    <select id="tagTypeSelect" class="futuristic-select">
+                        <option value="manual">Manual</option>
+                        <option value="ai-generated">AI Generated</option>
+                        <option value="suggested">Suggested</option>
+                        <option value="auto">Auto-created</option>
+                    </select>
+                </div>
+                <div class="form-actions" style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+                    <button class="ed-btn secondary" id="addTagCancel">Cancel</button>
+                    <button class="ed-btn primary" id="addTagSubmit">Add Tag</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Add to document
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Wire events
+    document.getElementById('addTagClose').onclick = closeAddTagModal;
+    document.getElementById('addTagCancel').onclick = closeAddTagModal;
+    document.getElementById('addTagSubmit').onclick = addNewTag;
+    
+    // Close on backdrop click
+    document.getElementById('addTagModalBackdrop').onclick = closeAddTagModal;
+    
+    // Focus on input
+    setTimeout(() => {
+        document.getElementById('tagNameInput').focus();
+    }, 100);
+}
+
+function closeAddTagModal() {
+    console.log('[Tags] Closing Add Tag Modal...');
+    const modal = document.getElementById('addTagModal');
+    const backdrop = document.getElementById('addTagModalBackdrop');
+    
+    if (modal) modal.remove();
+    if (backdrop) backdrop.remove();
+}
+
+async function addNewTag() {
+    console.log('[Tags] Adding new tag...');
+    
+    const tagName = document.getElementById('tagNameInput').value.trim();
+    const tagDescription = document.getElementById('tagDescriptionInput').value.trim();
+    const tagType = document.getElementById('tagTypeSelect').value;
+    
+    if (!tagName) {
+        alert('Please enter a tag name');
+        document.getElementById('tagNameInput').focus();
+        return;
+    }
+    
+    try {
+        const response = await fetch('/admin/api/blog/tags', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+            },
+            body: JSON.stringify({
+                name: tagName,
+                description: tagDescription,
+                type: tagType
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Failed to create tag: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        console.log('[Tags] Tag created successfully:', result);
+        
+        showNotification(`Tag "${tagName}" created successfully!`, 'success');
+        closeAddTagModal();
+        
+        // Refresh the sidebar to show new tag
+        loadPostsData();
+        
+    } catch (error) {
+        console.error('[Tags] Error creating tag:', error);
+        showNotification('Failed to create tag: ' + error.message, 'error');
+    }
+}
+
 // Initialize when page loads
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initBlogPosts);
@@ -2587,7 +2829,9 @@ if (document.readyState === 'loading') {
 
 .publish-input,
 .publish-select,
-.publish-textarea {
+.publish-textarea,
+.futuristic-input,
+.futuristic-textarea {
   border: 1px solid #333;
   background: #0a0a0a;
   color: #00ff00;
@@ -2600,7 +2844,9 @@ if (document.readyState === 'loading') {
 
 .publish-input:focus,
 .publish-select:focus,
-.publish-textarea:focus {
+.publish-textarea:focus,
+.futuristic-input:focus,
+.futuristic-textarea:focus {
   outline: none;
   border-color: #00ff00;
   box-shadow: 0 0 8px rgba(0,255,0,0.3);
@@ -2608,17 +2854,29 @@ if (document.readyState === 'loading') {
 }
 
 .publish-input::placeholder,
-.publish-textarea::placeholder {
+.publish-textarea::placeholder,
+.futuristic-input::placeholder,
+.futuristic-textarea::placeholder {
   color: #557755;
 }
 
-.publish-textarea {
+.publish-textarea,
+.futuristic-textarea {
   resize: vertical;
   min-height: 80px;
   font-family: 'Courier New', monospace;
 }
 
 .publish-select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 8px center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+  padding-right: 36px;
+}
+
+.futuristic-select {
   cursor: pointer;
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
   background-position: right 8px center;
@@ -2727,6 +2985,69 @@ if (document.readyState === 'loading') {
   color: #00ff00;
   text-align: right;
   font-size: 12px;
+}
+
+/* Add Tag Modal Styles */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: #88ff88;
+  margin-bottom: 6px;
+}
+
+.form-actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.ed-btn {
+  border: 1px solid #333;
+  background: #0a0a0a;
+  color: #00ff00;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.ed-btn:hover {
+  border-color: #00ff00;
+  background: rgba(0,255,0,0.08);
+}
+
+.ed-btn.primary {
+  border-color: #00ff00;
+  background: rgba(0,255,0,0.15);
+  font-weight: bold;
+}
+
+.ed-btn.secondary {
+  color: #88ff88;
+  border-color: #333;
+}
+
+.ed-btn.secondary:hover {
+  border-color: #88ff88;
+  background: rgba(136,255,136,0.08);
+}
+
+.ed-btn.danger {
+  color: #ff6666;
+  border-color: #333;
+}
+
+.ed-btn.danger:hover {
+  border-color: #ff6666;
+  background: rgba(255,102,102,0.08);
 }
 
 @media (max-width: 768px) {
@@ -3200,8 +3521,10 @@ if (document.readyState === 'loading') {
     hideWizard();
     console.log(LOG_PREFIX, '[CONTINUE] Wizard hidden');
 
-    console.log(LOG_PREFIX, '[CONTINUE] Opening editor modal');
-    openEditorModal();
+    console.log(LOG_PREFIX, '[CONTINUE] Redirecting to editor page');
+    // Redirect to the standalone editor page with the selected template
+    const templateParam = state.selectedTemplate ? `?template=${state.selectedTemplate}` : '';
+    window.location.href = `/admin/blog/editor${templateParam}`;
   }
 
   function openEditorModal() {
@@ -3486,9 +3809,64 @@ if (document.readyState === 'loading') {
     console.log(LOG_PREFIX, '[EDITABLE] ✅ Content made editable');
   }
 
-  function saveDraft() {
+  async function saveDraft() {
     console.log(LOG_PREFIX, '[SAVE DRAFT] Save draft clicked');
-    alert('Draft save functionality will be implemented.');
+
+    try {
+      // Get HTML content from editor
+      const container = document.querySelector('#editorCanvas > div');
+      if (!container) {
+        alert('No content to save');
+        return;
+      }
+
+      // Extract title from the content (first heading)
+      const titleEl = container.querySelector('h1, h2, h3');
+      const title = titleEl ? titleEl.textContent.trim() : 'Untitled Draft';
+
+      // Create draft data
+      const draftData = {
+        title: title,
+        content: container.innerHTML,
+        excerpt: container.querySelector('p') ? container.querySelector('p').textContent.trim().substring(0, 200) : '',
+        template_type: state.selectedTemplate || 'template1',
+        tags: [],
+        section: 'others',
+        author: 'NekwasaR'
+      };
+
+      console.log(LOG_PREFIX, '[SAVE DRAFT] Saving draft data:', draftData);
+
+      // Send to API
+      const response = await fetch('/admin/api/blog/drafts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+        },
+        body: JSON.stringify(draftData)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to save draft: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log(LOG_PREFIX, '[SAVE DRAFT] Draft saved successfully:', result);
+
+      // Show success message
+      alert('Draft saved successfully!');
+      
+      // Refresh the posts data to show the new draft
+      refreshPostsData();
+
+      // Close the editor modal
+      closeEditorModal();
+
+    } catch (error) {
+      console.error(LOG_PREFIX, '[SAVE DRAFT] Error saving draft:', error);
+      alert('Failed to save draft: ' + error.message);
+    }
   }
 
   function publishPost() {

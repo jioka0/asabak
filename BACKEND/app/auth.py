@@ -121,7 +121,8 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
 
     except jwt.ExpiredSignatureError as e:
         auth_logger.error(f"❌ TOKEN EXPIRED - {e}")
-        auth_logger.error(f"❌ EXPIRATION DETAILS - Token exp: {payload.get('exp')}, Current time: {datetime.utcnow().timestamp()}")
+        # Note: payload is not available here since decode failed, so we can't show expiration details
+        auth_logger.error(f"❌ TOKEN EXPIRED - Please refresh your session")
         raise credentials_exception
     except jwt.InvalidTokenError as e:
         auth_logger.error(f"❌ INVALID TOKEN - {e}")

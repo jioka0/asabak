@@ -35,6 +35,28 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 BLOG_DIR = PROJECT_ROOT / "blog"
 blog_templates = Jinja2Templates(directory=str(BLOG_DIR / "templates"))
 
+# Add strftime filter to blog templates
+from jinja2 import Environment, PackageLoader, select_autoescape
+from datetime import datetime
+
+def strftime_filter(value, format):
+    if not value:
+        return ''
+    # Handle both datetime objects and ISO format strings
+    if isinstance(value, str):
+        try:
+            # Parse ISO format string to datetime object
+            dt = datetime.fromisoformat(value.replace('Z', '+00:00'))
+            return dt.strftime(format)
+        except (ValueError, AttributeError):
+            return value
+    elif isinstance(value, datetime):
+        return value.strftime(format)
+    else:
+        return str(value)
+
+blog_templates.env.filters['strftime'] = strftime_filter
+
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
