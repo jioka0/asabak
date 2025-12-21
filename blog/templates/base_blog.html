@@ -339,13 +339,14 @@
                         <i class="ph-bold ph-heart"></i>
                         <span class="action-count">0</span>
                     </button>
-                    <button class="post-modal-action-btn" id="postModalShare">
-                        <i class="ph-bold ph-share-network"></i>
-                        <span>Share</span>
-                    </button>
+
                     <button class="post-modal-action-btn" id="postModalBookmark">
                         <i class="ph-bold ph-bookmark"></i>
                         <span>Save</span>
+                    </button>
+                    <button class="post-modal-action-btn" id="postModalShare">
+                        <i class="ph-bold ph-share-network"></i>
+                        <span>Share</span>
                     </button>
                 </div>
                 <button class="post-modal-read-full" id="postModalReadFull">
@@ -355,6 +356,46 @@
             </div>
         </div>
     </div>
+
+    <!-- Share Modal Start -->
+    <div id="share-modal" class="share-modal">
+      <div class="share-modal__overlay"></div>
+      <div class="share-modal__content">
+        <div class="share-modal__header">
+          <h3>Share this article</h3>
+          <button class="share-modal__close" id="share-modal-close">&times;</button>
+        </div>
+        <div class="share-modal__body">
+          <div class="share-links">
+            <a href="https://twitter.com/intent/tweet?url={{ request.url }}&text={{ post_data.title or 'Check out this article' }}" target="_blank" class="share-link">
+              <i class="ph-bold ph-x-logo"></i>
+              <span>Twitter</span>
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url }}" target="_blank" class="share-link">
+              <i class="ph-bold ph-facebook-logo"></i>
+              <span>Facebook</span>
+            </a>
+            <a href="https://www.instagram.com/nekwasar" target="_blank" class="share-link">
+              <i class="ph-bold ph-instagram-logo"></i>
+              <span>Instagram</span>
+            </a>
+            <a href="https://www.reddit.com/submit?url={{ request.url }}&title={{ post_data.title or 'Check out this article' }}" target="_blank" class="share-link">
+              <i class="ph-bold ph-reddit-logo"></i>
+              <span>Reddit</span>
+            </a>
+            <a href="https://wa.me/?text={{ post_data.title or 'Check out this article' }}%20{{ request.url }}" target="_blank" class="share-link">
+              <i class="ph-bold ph-whatsapp-logo"></i>
+              <span>WhatsApp</span>
+            </a>
+          </div>
+          <button id="copy-link-btn" class="btn btn-default btn-fullwidth copy-link-btn">
+            <span class="btn-caption">Copy Link</span>
+            <i class="ph-bold ph-copy"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- Share Modal End -->
 
     <div class="scroll-to-top" id="scrollToTop">
         <div class="scroll-progress" id="scrollProgress"></div>

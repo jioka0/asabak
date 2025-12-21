@@ -87,6 +87,39 @@ async def like_post(post_id: int, like: LikeCreate, db: Session = Depends(get_db
 
     return db_like
 
+@router.delete("/{post_id}/likes")
+async def unlike_post(post_id: int, user_identifier: str, db: Session = Depends(get_db)):
+    """Unlike a blog post"""
+    # Find existing like
+    existing = db.query(BlogLike).filter(
+        BlogLike.blog_post_id == post_id,
+        BlogLike.user_identifier == user_identifier
+    ).first()
+
+    if not existing:
+        raise HTTPException(404, "Like not found")
+
+    # Delete like
+    db.delete(existing)
+
+    # Update like count
+    post = db.query(BlogPost).filter(BlogPost.id == post_id).first()
+    if post.like_count > 0:
+        post.like_count -= 1
+    db.commit()
+
+    return {"message": "Post unliked successfully"}
+
+@router.get("/{post_id}/likes/status")
+async def get_like_status(post_id: int, user_identifier: str, db: Session = Depends(get_db)):
+    """Check if user has liked a post"""
+    existing = db.query(BlogLike).filter(
+        BlogLike.blog_post_id == post_id,
+        BlogLike.user_identifier == user_identifier
+    ).first()
+
+    return {"liked": existing is not None}
+
 @router.get("/{post_id}/comments", response_model=list[Comment])
 async def get_comments(post_id: int, db: Session = Depends(get_db)):
     """Get approved comments for a blog post"""
@@ -153,6 +186,23 @@ async def delete_blog_post(post_id: int, db: Session = Depends(get_db)):
     db.delete(post)
     db.commit()
     return {"message": "Blog post deleted"}
+
+# Section-based endpoints for homepage
+@router.get("/posts/section/{section}", response_model=list[BlogPost])
+async def get_posts_by_section(section: str, limit: int = 10, db: Session = Depends(get_db)):
+    """Get blog posts by section (latest, popular, featured, others)"""
+    if section == "latest":
+        posts = db.query(BlogPost).order_by(BlogPost.published_at.desc()).limit(limit).all()
+    elif section == "popular":
+        posts = db.query(BlogPost).order_by(BlogPost.view_count.desc()).limit(limit).all()
+    elif section == "featured":
+        posts = db.query(BlogPost).filter(BlogPost.priority > 0).order_by(BlogPost.priority.desc(), BlogPost.published_at.desc()).limit(limit).all()
+    elif section == "others":
+        posts = db.query(BlogPost).order_by(BlogPost.published_at.desc()).limit(limit).all()
+    else:
+        raise HTTPException(400, f"Invalid section: {section}")
+
+    return posts
 
 @router.get("/blog/media", response_class=HTMLResponse)
 @router.get("/blog/media/", response_class=HTMLResponse)

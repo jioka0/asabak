@@ -36,6 +36,7 @@
     safe(initAnimations, 'initAnimations');
     safe(initCardLinks, 'initCardLinks');
     safe(initPostModal, 'initPostModal');
+    safe(initShareModal, 'initShareModal');
     safe(forceTextWrapping, 'forceTextWrapping');
   }
 
@@ -1257,25 +1258,45 @@
   function initCardLinks() {
     document.querySelectorAll('.card-link, .post-link, .slide-link, .banner-link, .tag-item').forEach(card => {
       card.addEventListener('click', function(e) {
-        // Check if this is a related or trending post link
-        if (this.closest('.related-posts, .trending-now')) {
-          e.preventDefault();
-          const href = this.getAttribute('data-href') || this.getAttribute('href');
-          if (href) {
-            openPostModal(href);
-          }
-          return;
-        }
-
-        const href = this.getAttribute('data-href');
+        const href = this.getAttribute('data-href') || this.getAttribute('href');
         if (href) {
-          window.location.href = href;
+          e.preventDefault();
+          openPostModal(href);
         }
       });
     });
   }
 
   // Post Modal Functionality
+  function initPostModal() {
+    const modal = document.getElementById('postModal');
+    const closeBtn = document.getElementById('postModalClose');
+    const overlay = document.getElementById('postModal');
+
+    if (!modal) return;
+
+    // Close button functionality
+    if (closeBtn) {
+      closeBtn.addEventListener('click', closePostModal);
+    }
+
+    // Overlay click to close
+    if (overlay) {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          closePostModal();
+        }
+      });
+    }
+
+    // Escape key to close
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('active')) {
+        closePostModal();
+      }
+    });
+  }
+
   function openPostModal(postUrl) {
     const modal = document.getElementById('postModal');
     const content = document.getElementById('postModalContent');
@@ -1429,6 +1450,7 @@
       </div>
     `;
   }
+
 
   // Animation Triggers
   function initAnimations() {

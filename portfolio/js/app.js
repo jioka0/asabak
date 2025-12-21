@@ -551,4 +551,117 @@ window.addEventListener('DOMContentLoaded', () => {
 // Color Switch End
 // --------------------------------------------- //
 
+// --------------------------------------------- //
+// Share Modal Start
+// --------------------------------------------- //
+const shareModal = document.getElementById('share-modal');
+const shareTrigger = document.getElementById('share-trigger');
+const shareModalClose = document.getElementById('share-modal-close');
+const copyLinkBtn = document.getElementById('copy-link-btn');
+
+function showShareModal() {
+  if (shareModal) {
+    shareModal.classList.add('show');
+    document.body.style.overflow = 'hidden'; // Prevent background scroll
+  }
+}
+
+function hideShareModal() {
+  if (shareModal) {
+    shareModal.classList.remove('show');
+    document.body.style.overflow = ''; // Restore scroll
+  }
+}
+
+function copyToClipboard(text) {
+  // Try modern clipboard API first
+  if (navigator.clipboard && window.isSecureContext) {
+    return navigator.clipboard.writeText(text).then(() => {
+      return true;
+    }).catch(() => {
+      return fallbackCopyTextToClipboard(text);
+    });
+  } else {
+    return fallbackCopyTextToClipboard(text);
+  }
+}
+
+function fallbackCopyTextToClipboard(text) {
+  const textArea = document.createElement("textarea");
+  textArea.value = text;
+
+  // Avoid scrolling to bottom
+  textArea.style.top = "0";
+  textArea.style.left = "0";
+  textArea.style.position = "fixed";
+  textArea.style.opacity = "0";
+
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+
+  try {
+    const successful = document.execCommand('copy');
+    document.body.removeChild(textArea);
+    return successful;
+  } catch (err) {
+    document.body.removeChild(textArea);
+    return false;
+  }
+}
+
+if (shareTrigger) {
+  shareTrigger.addEventListener('click', showShareModal);
+}
+
+if (shareModalClose) {
+  shareModalClose.addEventListener('click', hideShareModal);
+}
+
+if (shareModal) {
+  const overlay = shareModal.querySelector('.share-modal__overlay');
+  if (overlay) {
+    overlay.addEventListener('click', hideShareModal);
+  }
+}
+
+if (copyLinkBtn) {
+  copyLinkBtn.addEventListener('click', async () => {
+    const url = 'https://nekwasar.com';
+    const success = await copyToClipboard(url);
+
+    if (success) {
+      // Temporarily change button text to show success
+      const originalText = copyLinkBtn.innerHTML;
+      copyLinkBtn.innerHTML = '<span class="btn-caption">Copied!</span><i class="ph-bold ph-check"></i>';
+      copyLinkBtn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+
+      setTimeout(() => {
+        copyLinkBtn.innerHTML = originalText;
+        copyLinkBtn.style.background = '';
+      }, 2000);
+    } else {
+      // Show error
+      const originalText = copyLinkBtn.innerHTML;
+      copyLinkBtn.innerHTML = '<span class="btn-caption">Failed to copy</span><i class="ph-bold ph-x"></i>';
+      copyLinkBtn.style.background = 'linear-gradient(135deg, #dc3545, #fd7e14)';
+
+      setTimeout(() => {
+        copyLinkBtn.innerHTML = originalText;
+        copyLinkBtn.style.background = '';
+      }, 2000);
+    }
+  });
+}
+
+// Close modal on Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && shareModal && shareModal.classList.contains('show')) {
+    hideShareModal();
+  }
+});
+// --------------------------------------------- //
+// Share Modal End
+// --------------------------------------------- //
+
 })(); // Close the IIFE wrapper

@@ -153,11 +153,27 @@ async def startup_event():
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
     """Render the blog homepage for testing"""
+    # Provide default post_data for homepage sharing
+    default_post_data = {
+        'title': 'NekwasaR Blog - Professional Insights & Innovation',
+        'slug': '',
+        'excerpt': 'Explore professional insights, analysis, and storytelling from NekwasaR.',
+        'content': '',
+        'author': 'NekwasaR',
+        'published_at': None,
+        'featured_image': None,
+        'tags': [],
+        'view_count': 0,
+        'like_count': 0,
+        'comment_count': 0
+    }
+
     return blog_templates.TemplateResponse(
         "index.html",
         {
             "request": request,
-            "current_year": datetime.utcnow().year
+            "current_year": datetime.utcnow().year,
+            "post_data": default_post_data
         }
     )
 
