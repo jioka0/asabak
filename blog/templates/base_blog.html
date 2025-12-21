@@ -367,17 +367,13 @@
         </div>
         <div class="share-modal__body">
           <div class="share-links">
-            <a href="https://twitter.com/intent/tweet?url={{ request.url }}&text={{ post_data.title or 'Check out this article' }}" target="_blank" class="share-link">
-              <i class="ph-bold ph-x-logo"></i>
-              <span>Twitter</span>
-            </a>
             <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url }}" target="_blank" class="share-link">
               <i class="ph-bold ph-facebook-logo"></i>
               <span>Facebook</span>
             </a>
-            <a href="https://www.instagram.com/nekwasar" target="_blank" class="share-link">
-              <i class="ph-bold ph-instagram-logo"></i>
-              <span>Instagram</span>
+            <a href="https://t.me/share/url?url={{ request.url }}&text={{ post_data.title or 'Check out this article' }}" target="_blank" class="share-link">
+              <i class="ph-bold ph-telegram-logo"></i>
+              <span>Telegram</span>
             </a>
             <a href="https://www.reddit.com/submit?url={{ request.url }}&title={{ post_data.title or 'Check out this article' }}" target="_blank" class="share-link">
               <i class="ph-bold ph-reddit-logo"></i>

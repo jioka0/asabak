@@ -1628,4 +1628,29 @@
   // Expose re-init for SPA route swaps
   window.BlogPageInit = initBlog;
 
+  // Share functions for inline social buttons
+  window.shareOnFacebook = function() {
+    const url = encodeURIComponent(window.location.href);
+    const title = encodeURIComponent(document.title);
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&title=${title}`, '_blank', 'width=600,height=400');
+  };
+
+  window.shareOnTelegram = function() {
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent(document.title);
+    window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank');
+  };
+
+  window.shareOnReddit = function() {
+    const url = encodeURIComponent(window.location.href);
+    const title = encodeURIComponent(document.title);
+    window.open(`https://www.reddit.com/submit?url=${url}&title=${title}`, '_blank');
+  };
+
+  window.shareOnWhatsApp = function() {
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent(document.title);
+    window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
+  };
+
 })();
