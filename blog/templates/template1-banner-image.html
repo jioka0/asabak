@@ -521,7 +521,7 @@
             // Show loading state
             commentsContainer.innerHTML = '<div class="text-center py-8"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div><p class="text-gray-500 mt-2">Loading comments...</p></div>';
 
-            const response = await fetch(`/api/blogs/posts/${postId}/comments-tree`);
+            const response = await fetch(`/api/blogs/${postId}/comments-tree`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -729,7 +729,7 @@
                 parent_id: replyToCommentId
             };
 
-            const response = await fetch(`/api/blogs/posts/${currentPostId}/comments`, {
+            const response = await fetch(`/api/blogs/${currentPostId}/comments`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -992,7 +992,7 @@
     async function checkLikeStatus(postId) {
         try {
             const userIdentifier = getUserIdentifier();
-            const response = await fetch(`/api/blogs/posts/${postId}/likes/status?user_identifier=${encodeURIComponent(userIdentifier)}`);
+            const response = await fetch(`/api/blogs/${postId}/likes/status?user_identifier=${encodeURIComponent(userIdentifier)}`);
             if (response.ok) {
                 const data = await response.json();
                 updateLikeUI(data.liked);
@@ -1035,12 +1035,12 @@
             let response;
             if (isCurrentlyLiked) {
                 // Unlike the post
-                response = await fetch(`/api/blogs/posts/${postId}/likes?user_identifier=${encodeURIComponent(userIdentifier)}`, {
+                response = await fetch(`/api/blogs/${postId}/likes?user_identifier=${encodeURIComponent(userIdentifier)}`, {
                     method: 'DELETE'
                 });
             } else {
                 // Like the post
-                response = await fetch(`/api/blogs/posts/${postId}/likes`, {
+                response = await fetch(`/api/blogs/${postId}/likes`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

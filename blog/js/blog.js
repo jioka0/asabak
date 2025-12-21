@@ -36,7 +36,6 @@
     safe(initAnimations, 'initAnimations');
     safe(initCardLinks, 'initCardLinks');
     safe(initPostModal, 'initPostModal');
-    safe(initShareModal, 'initShareModal');
     safe(forceTextWrapping, 'forceTextWrapping');
   }
 
@@ -1295,6 +1294,9 @@
         closePostModal();
       }
     });
+
+    // Initialize like functionality
+    initPostLike();
   }
 
   function openPostModal(postUrl) {
@@ -1333,11 +1335,101 @@
     }
   }
 
+  // Like functionality for post modal
+  function initPostLike() {
+    const likeBtn = document.getElementById('postModalLike');
+    if (!likeBtn) return;
+
+    let isLiked = false;
+    let currentLikes = 0;
+    let currentPostId = null;
+
+    // Function to reset like state for new post
+    window.resetPostLike = function(postId, likeCount = 0) {
+      currentPostId = postId;
+      currentLikes = likeCount;
+      isLiked = false; // Reset to not liked for new post
+
+      const countSpan = likeBtn.querySelector('.action-count');
+      const icon = likeBtn.querySelector('i');
+
+      if (countSpan) {
+        countSpan.textContent = currentLikes;
+      }
+      if (icon) {
+        icon.className = 'ph-bold ph-heart';
+      }
+    };
+
+    likeBtn.addEventListener('click', async () => {
+      const countSpan = likeBtn.querySelector('.action-count');
+      const icon = likeBtn.querySelector('i');
+
+      try {
+        // Toggle like state
+        isLiked = !isLiked;
+
+        // Update UI immediately
+        if (isLiked) {
+          icon.className = 'ph-fill ph-heart text-red-500';
+          currentLikes++;
+        } else {
+          icon.className = 'ph-bold ph-heart';
+          currentLikes--;
+        }
+
+        if (countSpan) {
+          countSpan.textContent = currentLikes;
+        }
+
+        // Send like/unlike request to backend API
+        const userIdentifier = 'user_' + Date.now(); // Simple identifier for demo
+
+        if (isLiked) {
+          // Like the post
+          const response = await fetch(`/api/blogs/${currentPostId}/likes`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_identifier: userIdentifier })
+          });
+
+          if (!response.ok) {
+            throw new Error(`Like failed: ${response.status}`);
+          }
+        } else {
+          // Unlike the post
+          const response = await fetch(`/api/blogs/${currentPostId}/likes?user_identifier=${userIdentifier}`, {
+            method: 'DELETE'
+          });
+
+          if (!response.ok) {
+            throw new Error(`Unlike failed: ${response.status}`);
+          }
+        }
+
+      } catch (error) {
+        console.error('Like error:', error);
+        // Revert UI on error
+        isLiked = !isLiked;
+        if (isLiked) {
+          icon.className = 'ph-fill ph-heart text-red-500';
+          currentLikes++;
+        } else {
+          icon.className = 'ph-bold ph-heart';
+          currentLikes--;
+        }
+        if (countSpan) {
+          countSpan.textContent = currentLikes;
+        }
+      }
+    });
+  }
+
   async function loadPostContent(postUrl) {
     try {
       // Extract post slug from URL
       const slug = postUrl.split('/').pop();
-      const apiUrl = `/api/blog/posts/${slug}`;
+      const apiUrl = `/api/blogs/${slug}`;
 
       const response = await fetch(apiUrl);
       const postData = await response.json();
@@ -1360,6 +1452,11 @@
     // Update title and category
     if (title) title.textContent = postData.title || 'Post Title';
     if (category) category.textContent = postData.category || 'Article';
+
+    // Reset like state for new post
+    if (window.resetPostLike) {
+      window.resetPostLike(postData.id || postData.slug, postData.like_count || 0);
+    }
 
     // Render content
     content.innerHTML = `
@@ -1387,6 +1484,7 @@
         title: 'How AI is Revolutionizing Healthcare',
         category: 'Technology',
         author: 'NekwasaR',
+        like_count: 42,
         content: `
           <h2>The Future of Medical Diagnosis</h2>
           <p>Artificial Intelligence is transforming healthcare in unprecedented ways. From early disease detection to personalized treatment plans, AI systems are becoming indispensable tools for medical professionals.</p>
@@ -1410,6 +1508,7 @@
         title: 'The Rise of Quantum Computing',
         category: 'Technology',
         author: 'NekwasaR',
+        like_count: 28,
         content: `
           <h2>Understanding Quantum Advantage</h2>
           <p>Quantum computing represents a paradigm shift in computational power. Unlike classical computers that use bits, quantum computers use quantum bits or qubits that can exist in multiple states simultaneously.</p>
@@ -1433,11 +1532,17 @@
       title: 'Post Title',
       category: 'Article',
       author: 'NekwasaR',
+      like_count: 0,
       content: '<p>This is a preview of the post content. Click "Read Full Article" to view the complete post.</p>'
     };
 
     if (title) title.textContent = postData.title;
     if (category) category.textContent = postData.category;
+
+    // Reset like state for new post
+    if (window.resetPostLike) {
+      window.resetPostLike(slug, postData.like_count);
+    }
 
     content.innerHTML = `
       <div class="post-meta">

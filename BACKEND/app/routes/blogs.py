@@ -4,7 +4,7 @@ from fastapi.templating import Jinja2Templates
 from pathlib import Path
 from sqlalchemy.orm import Session
 from database import get_db
-from models.blog import BlogPost, BlogComment, BlogLike
+from models.blog import BlogPost as BlogPostModel, BlogComment, BlogLike
 from schemas import BlogPost, BlogPostCreate, Comment, CommentCreate, Like, LikeCreate
 import logging
 
@@ -21,13 +21,13 @@ templates = Jinja2Templates(directory=str(templates_dir))
 @router.get("/", response_model=list[BlogPost])
 async def get_blog_posts(limit: int = 10, db: Session = Depends(get_db)):
     """Get latest blog posts for homepage"""
-    posts = db.query(BlogPost).order_by(BlogPost.published_at.desc()).limit(limit).all()
+    posts = db.query(BlogPostModel).order_by(BlogPostModel.published_at.desc()).limit(limit).all()
     return posts
 
 @router.get("/{post_id}", response_model=BlogPost)
 async def get_blog_post(post_id: int, db: Session = Depends(get_db)):
     """Get single blog post with comments"""
-    post = db.query(BlogPost).filter(BlogPost.id == post_id).first()
+    post = db.query(BlogPostModel).filter(BlogPostModel.id == post_id).first()
     if not post:
         raise HTTPException(404, "Blog post not found")
 
@@ -40,7 +40,7 @@ async def get_blog_post(post_id: int, db: Session = Depends(get_db)):
 @router.post("/", response_model=BlogPost)
 async def create_blog_post(post: BlogPostCreate, db: Session = Depends(get_db)):
     """Create new blog post (admin only)"""
-    db_post = BlogPost(**post.dict())
+    db_post = BlogPostModel(**post.dict())
     db.add(db_post)
     db.commit()
     db.refresh(db_post)
@@ -49,7 +49,7 @@ async def create_blog_post(post: BlogPostCreate, db: Session = Depends(get_db)):
 @router.post("/{post_id}/comments", response_model=Comment)
 async def create_comment(post_id: int, comment: CommentCreate, db: Session = Depends(get_db)):
     """Create new comment (pending approval)"""
-    post = db.query(BlogPost).filter(BlogPost.id == post_id).first()
+    post = db.query(BlogPostModel).filter(BlogPostModel.id == post_id).first()
     if not post:
         raise HTTPException(404, "Blog post not found")
 
@@ -80,7 +80,7 @@ async def like_post(post_id: int, like: LikeCreate, db: Session = Depends(get_db
     db.add(db_like)
 
     # Update like count
-    post = db.query(BlogPost).filter(BlogPost.id == post_id).first()
+    post = db.query(BlogPostModel).filter(BlogPostModel.id == post_id).first()
     post.like_count += 1
     db.commit()
     db.refresh(db_like)
@@ -103,7 +103,7 @@ async def unlike_post(post_id: int, user_identifier: str, db: Session = Depends(
     db.delete(existing)
 
     # Update like count
-    post = db.query(BlogPost).filter(BlogPost.id == post_id).first()
+    post = db.query(BlogPostModel).filter(BlogPostModel.id == post_id).first()
     if post.like_count > 0:
         post.like_count -= 1
     db.commit()
@@ -179,7 +179,7 @@ async def approve_comment(comment_id: int, db: Session = Depends(get_db)):
 @router.delete("/{post_id}")
 async def delete_blog_post(post_id: int, db: Session = Depends(get_db)):
     """Delete blog post (admin only)"""
-    post = db.query(BlogPost).filter(BlogPost.id == post_id).first()
+    post = db.query(BlogPostModel).filter(BlogPostModel.id == post_id).first()
     if not post:
         raise HTTPException(404, "Blog post not found")
 
@@ -192,13 +192,13 @@ async def delete_blog_post(post_id: int, db: Session = Depends(get_db)):
 async def get_posts_by_section(section: str, limit: int = 10, db: Session = Depends(get_db)):
     """Get blog posts by section (latest, popular, featured, others)"""
     if section == "latest":
-        posts = db.query(BlogPost).order_by(BlogPost.published_at.desc()).limit(limit).all()
+        posts = db.query(BlogPostModel).order_by(BlogPostModel.published_at.desc()).limit(limit).all()
     elif section == "popular":
-        posts = db.query(BlogPost).order_by(BlogPost.view_count.desc()).limit(limit).all()
+        posts = db.query(BlogPostModel).order_by(BlogPostModel.view_count.desc()).limit(limit).all()
     elif section == "featured":
-        posts = db.query(BlogPost).filter(BlogPost.priority > 0).order_by(BlogPost.priority.desc(), BlogPost.published_at.desc()).limit(limit).all()
+        posts = db.query(BlogPostModel).filter(BlogPostModel.priority > 0).order_by(BlogPostModel.priority.desc(), BlogPostModel.published_at.desc()).limit(limit).all()
     elif section == "others":
-        posts = db.query(BlogPost).order_by(BlogPost.published_at.desc()).limit(limit).all()
+        posts = db.query(BlogPostModel).order_by(BlogPostModel.published_at.desc()).limit(limit).all()
     else:
         raise HTTPException(400, f"Invalid section: {section}")
 
