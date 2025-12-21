@@ -73,7 +73,7 @@
             <div class="max-w-4xl px-4 sm:px-6 lg:px-8 pb-8 sm:pb-16 w-full">
                 <div class="max-w-4xl">
                     <!-- Category Tag -->
-                    <div class="inline-flex items-center px-3 py-1 rounded-full bg-purple-600 text-white text-xs font-medium mb-3 sm:mb-4">
+                    <div class="inline-flex items-center px-3 py-1 rounded-full bg-purple-600 dark:bg-purple-500 text-white text-xs font-medium mb-3 sm:mb-4">
                         {% if post_data and post_data.tags %}{{ post_data.tags[0] }}{% else %}Technology{% endif %}
                     </div>
 
@@ -109,11 +109,11 @@
     </section>
 
     <!-- Engagement Header Area -->
-    <section class="bg-gray-50 border-b border-gray-200">
+    <section class="bg-gray-50 dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
                 <!-- Engagement Stats -->
-                <div class="flex flex-wrap items-center gap-4 sm:gap-6 text-xs sm:text-sm text-gray-600">
+                <div class="flex flex-wrap items-center gap-4 sm:gap-6 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                     <span class="flex items-center gap-2">
                         <i class="ph-bold ph-chat-circle text-sm sm:text-base"></i>
                         <span class="hidden sm:inline">{{ post_data.comment_count or 0 }} Comments</span>
@@ -125,7 +125,7 @@
                         <span class="sm:hidden">{{ post_data.view_count or 0 }}</span>
                     </span>
                     <span class="flex items-center gap-2 like-section" data-post-id="{{ post_data.id or 1 }}">
-                        <button onclick="toggleLike()" class="flex items-center gap-2 hover:text-red-500 transition-colors">
+                        <button onclick="toggleLike()" class="flex items-center gap-2 hover:text-red-500 dark:hover:text-red-400 transition-colors">
                             <i class="ph-bold ph-heart text-sm sm:text-base like-icon"></i>
                             <span class="like-count hidden sm:inline">{{ post_data.like_count or 0 }}</span>
                             <span class="like-count sm:hidden">{{ post_data.like_count or 0 }}</span>
@@ -133,7 +133,7 @@
                         </button>
                     </span>
                     <span class="flex items-center gap-2">
-                        <button onclick="openShareModal()" class="flex items-center gap-2 hover:text-purple-600 transition-colors">
+                        <button onclick="openShareModal()" class="flex items-center gap-2 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
                             <i class="ph-bold ph-share-network text-sm sm:text-base"></i>
                             <span class="hidden sm:inline">Share</span>
                         </button>
@@ -141,7 +141,7 @@
                 </div>
 
                 <!-- Join Conversation Button -->
-                <button onclick="scrollToComments()" class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-purple-600 text-white text-xs sm:text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors w-full sm:w-auto justify-center">
+                <button onclick="scrollToComments()" class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-purple-600 dark:bg-purple-500 text-white text-xs sm:text-sm font-medium rounded-lg hover:bg-purple-700 dark:hover:bg-purple-600 transition-colors w-full sm:w-auto justify-center">
                     <i class="ph-bold ph-chat-circle-dots text-sm sm:text-base"></i>
                     <span class="hidden sm:inline">Join the Conversation</span>
                     <span class="sm:hidden">Comment</span>
@@ -151,10 +151,10 @@
     </section>
 
     <!-- Introductory Section -->
-    <section class="py-16 bg-white">
+    <section class="py-16 bg-white dark:bg-gray-950">
         <div class="max-w-4xl px-4 sm:px-6 lg:px-8">
             <!-- Intro Text -->
-            <p class="text-lg text-gray-700 leading-relaxed mb-8">
+            <p class="text-lg text-gray-700 dark:text-gray-200 leading-relaxed mb-8">
                 Artificial Intelligence represents one of the most significant technological breakthroughs of our time.
                 As we stand at the precipice of a new digital age, AI is not just transforming how we work and live—it's
                 fundamentally reshaping the very fabric of human society. From healthcare to finance, education to
@@ -163,39 +163,39 @@
 
             <!-- Inline Social Share -->
             <div class="flex items-center gap-4 mb-12">
-                <span class="text-sm font-medium text-gray-600">Share:</span>
-                <button onclick="shareOnTwitter()" class="p-2 text-gray-600 hover:text-purple-600 transition-colors">
+                <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Share:</span>
+                <button onclick="shareOnTwitter()" class="p-2 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
                     <i class="ph-bold ph-twitter-logo text-lg"></i>
                 </button>
-                <button onclick="shareOnLinkedIn()" class="p-2 text-gray-600 hover:text-purple-700 transition-colors">
+                <button onclick="shareOnLinkedIn()" class="p-2 text-gray-600 dark:text-gray-400 hover:text-purple-700 dark:hover:text-purple-500 transition-colors">
                     <i class="ph-bold ph-linkedin-logo text-lg"></i>
                 </button>
-                <button onclick="shareOnFacebook()" class="p-2 text-gray-600 hover:text-purple-800 transition-colors">
+                <button onclick="shareOnFacebook()" class="p-2 text-gray-600 dark:text-gray-400 hover:text-purple-800 dark:hover:text-purple-600 transition-colors">
                     <i class="ph-bold ph-facebook-logo text-lg"></i>
                 </button>
-                <button onclick="shareOnWhatsApp()" class="p-2 text-gray-600 hover:text-green-600 transition-colors">
+                <button onclick="shareOnWhatsApp()" class="p-2 text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors">
                     <i class="ph-bold ph-whatsapp-logo text-lg"></i>
                 </button>
             </div>
 
             <!-- Ad Banner #1 -->
-            <div class="bg-gray-100 border border-gray-200 rounded-lg p-8 text-center">
-                <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Advertisement</span>
-                <div class="mt-2 text-sm text-gray-600">Responsive Ad Banner</div>
+            <div class="bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-8 text-center">
+                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Advertisement</span>
+                <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">Responsive Ad Banner</div>
             </div>
         </div>
     </section>
 
     <!-- Main Content Layout -->
-    <section class="py-8 sm:py-12 lg:py-16 bg-gray-50">
+    <section class="py-8 sm:py-12 lg:py-16 bg-gray-50 dark:bg-gray-950">
         <div class="w-full px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
                 <!-- Left Sidebar -->
                 <aside class="lg:col-span-3 order-2 lg:order-1">
                     <div class="sticky top-20 sm:top-24 space-y-6">
                         <!-- Related Posts -->
-                        <div class="bg-white rounded-lg border border-gray-200 p-6">
-                            <h3 class="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                            <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
                                 <i class="ph-bold ph-link text-base"></i>
                                 Related Posts
                             </h3>
@@ -203,30 +203,30 @@
                                 <a href="/blog/ai-revolutionizing-healthcare" class="flex gap-3 group">
                                     <img src="https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=60&h=40&fit=crop" class="w-15 h-10 rounded object-cover" alt="">
                                     <div>
-                                        <h4 class="text-sm font-medium text-gray-900 line-clamp-2 group-hover:text-purple-600 transition-colors">How AI is Revolutionizing Healthcare</h4>
-                                        <span class="text-xs text-gray-500">12.5k views</span>
+                                        <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">How AI is Revolutionizing Healthcare</h4>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">12.5k views</span>
                                     </div>
                                 </a>
                                 <a href="/blog/rise-of-quantum-computing" class="flex gap-3 group">
                                     <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=60&h=40&fit=crop" class="w-15 h-10 rounded object-cover" alt="">
                                     <div>
-                                        <h4 class="text-sm font-medium text-gray-900 line-clamp-2 group-hover:text-purple-600 transition-colors">The Rise of Quantum Computing</h4>
-                                        <span class="text-xs text-gray-500">8.9k views</span>
+                                        <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">The Rise of Quantum Computing</h4>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">8.9k views</span>
                                     </div>
                                 </a>
                                 <a href="/blog/machine-learning-ethics" class="flex gap-3 group">
                                     <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=60&h=40&fit=crop" class="w-15 h-10 rounded object-cover" alt="">
                                     <div>
-                                        <h4 class="text-sm font-medium text-gray-900 line-clamp-2 group-hover:text-purple-600 transition-colors">Machine Learning Ethics</h4>
-                                        <span class="text-xs text-gray-500">6.7k views</span>
+                                        <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">Machine Learning Ethics</h4>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">6.7k views</span>
                                     </div>
                                 </a>
                             </div>
                         </div>
 
                         <!-- Trending Now -->
-                        <div class="bg-white rounded-lg border border-gray-200 p-6">
-                            <h3 class="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                            <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
                                 <i class="ph-bold ph-trend-up text-base"></i>
                                 Trending Now
                             </h3>
@@ -234,22 +234,22 @@
                                 <a href="/blog/ai-changing-finance" class="flex gap-3 group">
                                     <img src="https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=60&h=40&fit=crop" class="w-15 h-10 rounded object-cover" alt="">
                                     <div>
-                                        <h4 class="text-sm font-medium text-gray-900 line-clamp-2 group-hover:text-purple-600 transition-colors">How AI is Changing Finance</h4>
-                                        <span class="text-xs text-gray-500">2.1k views</span>
+                                        <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">How AI is Changing Finance</h4>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">2.1k views</span>
                                     </div>
                                 </a>
                                 <a href="/blog/crypto-market-2025" class="flex gap-3 group">
                                     <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=60&h=40&fit=crop" class="w-15 h-10 rounded object-cover" alt="">
                                     <div>
-                                        <h4 class="text-sm font-medium text-gray-900 line-clamp-2 group-hover:text-purple-600 transition-colors">Crypto Market Analysis 2025</h4>
-                                        <span class="text-xs text-gray-500">1.8k views</span>
+                                        <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">Crypto Market Analysis 2025</h4>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">1.8k views</span>
                                     </div>
                                 </a>
                                 <a href="/blog/real-estate-trends" class="flex gap-3 group">
                                     <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=60&h=40&fit=crop" class="w-15 h-10 rounded object-cover" alt="">
                                     <div>
-                                        <h4 class="text-sm font-medium text-gray-900 line-clamp-2 group-hover:text-purple-600 transition-colors">Real Estate Trends</h4>
-                                        <span class="text-xs text-gray-500">1.5k views</span>
+                                        <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">Real Estate Trends</h4>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">1.5k views</span>
                                     </div>
                                 </a>
                             </div>
@@ -259,10 +259,10 @@
 
                 <!-- Main Column -->
                 <main class="lg:col-span-6 order-1 lg:order-2">
-                    <article class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                    <article class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
                         <div class="p-6">
-                            <h2 class="text-2xl font-bold text-gray-900 mb-6">The Evolution of Wealth in 2025</h2>
-                            <p class="text-lg text-gray-700 leading-relaxed mb-6">
+                            <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">The Evolution of Wealth in 2025</h2>
+                            <p class="text-lg text-gray-700 dark:text-gray-200 leading-relaxed mb-6">
                                 The billionaire landscape has undergone significant transformation. Technology, renewable energy, and digital innovation now dominate the narratives shaping the global economy.
                             </p>
                             <div class="bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg p-8 mb-8">
@@ -271,100 +271,100 @@
                                     Video content has revolutionized how we communicate complex ideas. Here we dive deep into the methodologies that drive innovation.
                                 </p>
                             </div>
-     
+
                             <div class="prose prose-lg max-w-full">
-                                <h3 id="vision" class="text-2xl font-semibold text-gray-900">The Visionary's Perspective</h3>
-                                <p class="text-lg text-gray-700 leading-relaxed">
+                                <h3 id="vision" class="text-2xl font-semibold text-gray-900 dark:text-gray-100">The Visionary's Perspective</h3>
+                                <p class="text-lg text-gray-700 dark:text-gray-200 leading-relaxed">
                                     Innovation begins with vision—the ability to see beyond the present constraints and imagine new possibilities.
                                 </p>
-                                <blockquote class="border-l-4 border-purple-500 pl-6 italic text-gray-700 my-6">
+                                <blockquote class="border-l-4 border-purple-500 pl-6 italic text-gray-700 dark:text-gray-200 my-6">
                                     "Innovation is about understanding people and solving their real problems in ways they've never imagined."
                                 </blockquote>
-                                <h3 class="text-2xl font-semibold text-gray-900 mt-8">Innovation in Action</h3>
-                                <p class="text-lg text-gray-700 leading-relaxed">
+                                <h3 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-8">Innovation in Action</h3>
+                                <p class="text-lg text-gray-700 dark:text-gray-200 leading-relaxed">
                                     We studied teams that bring AI, deep tech, and human insight together to drive meaningful change.
                                 </p>
-                                <h3 class="text-2xl font-semibold text-gray-900 mt-8">The Human Element</h3>
-                                <p class="text-lg text-gray-700 leading-relaxed mb-6">
+                                <h3 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-8">The Human Element</h3>
+                                <p class="text-lg text-gray-700 dark:text-gray-200 leading-relaxed mb-6">
                                     High-performance teams combine psychological safety with a relentless focus on purpose.
                                 </p>
-     
-                                <div class="bg-purple-50 border border-purple-200 rounded-lg p-6 my-10 text-center">
-                                    <i class="ph-bold ph-chat-circle-dots text-2xl text-purple-600 mb-3 block"></i>
-                                    <h3 class="text-lg font-semibold text-gray-900 mb-2">What do you think so far?</h3>
-                                    <p class="text-gray-600 mb-4">Share your thoughts on the billionaire rankings</p>
-                                    <button onclick="scrollToComments()" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors">
+
+                                <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700 rounded-lg p-6 my-10 text-center">
+                                    <i class="ph-bold ph-chat-circle-dots text-2xl text-purple-600 dark:text-purple-400 mb-3 block"></i>
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">What do you think so far?</h3>
+                                    <p class="text-gray-600 dark:text-gray-400 mb-4">Share your thoughts on the billionaire rankings</p>
+                                    <button onclick="scrollToComments()" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 dark:bg-purple-500 text-white text-sm font-medium rounded-lg hover:bg-purple-700 dark:hover:bg-purple-600 transition-colors">
                                         Leave a Comment
                                     </button>
                                 </div>
-     
-                                <div class="bg-gray-100 border border-gray-200 rounded-lg p-8 text-center my-12">
-                                    <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Advertisement</span>
-                                    <div class="mt-2 text-sm text-gray-600">Mid-Article Banner Ad</div>
+
+                                <div class="bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-8 text-center my-12">
+                                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Advertisement</span>
+                                    <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">Mid-Article Banner Ad</div>
                                 </div>
-     
-                                <h3 class="text-xl font-semibold text-gray-900 mt-4">1. Elon Musk – $285 Billion</h3>
-                                <p class="text-lg text-gray-700 leading-relaxed mb-6">
+
+                                <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mt-4">1. Elon Musk – $285 Billion</h3>
+                                <p class="text-lg text-gray-700 dark:text-gray-200 leading-relaxed mb-6">
                                     Musk continues to shepherd electric vehicles, space exploration, and AI research, leveraging bold narratives to keep communities aligned with his grand vision of a multiplanetary, automated future.
                                 </p>
-                                <h3 class="text-xl font-semibold text-gray-900 mb-3">2. Jeff Bezos – $195 Billion</h3>
-                                <p class="text-lg text-gray-700 leading-relaxed mb-6">
+                                <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">2. Jeff Bezos – $195 Billion</h3>
+                                <p class="text-lg text-gray-700 dark:text-gray-200 leading-relaxed mb-6">
                                     While building Blue Origin, Bezos keeps Amazon's logistics automation and cloud infrastructure tightly focused, narrating every innovation as a customer-first evolution.
                                 </p>
-                                <h3 class="text-xl font-semibold text-gray-900 mb-3">3. Bernard Arnault – $180 Billion</h3>
-                                <p class="text-lg text-gray-700 leading-relaxed mb-6">
+                                <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">3. Bernard Arnault – $180 Billion</h3>
+                                <p class="text-lg text-gray-700 dark:text-gray-200 leading-relaxed mb-6">
                                     Arnault blends artistic direction with data-backed brand strategy, proving that culturally rich storytelling and innovation-driven craftsmanship can lift entire industries.
                                 </p>
                             </div>
-     
-                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-8 my-12">
-                                <h2 class="text-2xl font-bold text-gray-900 mb-4">The Future of Billionaire Wealth</h2>
-                                <p class="text-lg text-gray-700 leading-relaxed mb-6">
+
+                            <div class="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-8 my-12">
+                                <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">The Future of Billionaire Wealth</h2>
+                                <p class="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
                                     As we look toward the future, several trends are likely to shape the billionaire landscape. Technology innovation, sustainable energy, and digital transformation will continue to create new opportunities for wealth creation.
                                 </p>
-     
-                                <div class="bg-white border border-gray-200 rounded-lg p-6 mb-6">
-                                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Key Takeaways</h3>
-                                    <ul class="space-y-2 text-sm text-gray-700">
+
+                                <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 mb-6">
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Key Takeaways</h3>
+                                    <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
                                         <li class="flex items-start gap-2">
-                                            <span class="text-purple-600 mt-1">•</span>
+                                            <span class="text-purple-600 dark:text-purple-400 mt-1">•</span>
                                             Technology and innovation remain the primary drivers of wealth creation.
                                         </li>
                                         <li class="flex items-start gap-2">
-                                            <span class="text-blue-600 mt-1">•</span>
+                                            <span class="text-blue-600 dark:text-blue-400 mt-1">•</span>
                                             Diversification across multiple industries provides stability.
                                         </li>
                                         <li class="flex items-start gap-2">
-                                            <span class="text-blue-600 mt-1">•</span>
+                                            <span class="text-blue-600 dark:text-blue-400 mt-1">•</span>
                                             Strategic philanthropy can enhance both social impact and financial strategy.
                                         </li>
                                         <li class="flex items-start gap-2">
-                                            <span class="text-blue-600 mt-1">•</span>
+                                            <span class="text-blue-600 dark:text-blue-400 mt-1">•</span>
                                             Adaptability to market changes is crucial for long-term success.
                                         </li>
                                     </ul>
                                 </div>
-     
+
                                 <div class="text-center">
-                                    <h4 class="text-lg font-semibold text-gray-900 mb-4">Share this article</h4>
+                                    <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Share this article</h4>
                                     <div class="flex justify-center gap-3 flex-wrap">
-                                        <button onclick="shareOnTwitter()" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-500 text-white text-sm font-medium rounded-lg hover:bg-purple-600 transition-colors">
+                                        <button onclick="shareOnTwitter()" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-500 dark:bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-600 dark:hover:bg-purple-700 transition-colors">
                                             <i class="ph-bold ph-twitter-logo text-base"></i>
                                             Twitter
                                         </button>
-                                        <button onclick="shareOnLinkedIn()" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-700 text-white text-sm font-medium rounded-lg hover:bg-purple-800 transition-colors">
+                                        <button onclick="shareOnLinkedIn()" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-700 dark:bg-purple-800 text-white text-sm font-medium rounded-lg hover:bg-purple-800 dark:hover:bg-purple-900 transition-colors">
                                             <i class="ph-bold ph-linkedin-logo text-base"></i>
                                             LinkedIn
                                         </button>
-                                        <button onclick="shareOnFacebook()" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-800 text-white text-sm font-medium rounded-lg hover:bg-purple-900 transition-colors">
+                                        <button onclick="shareOnFacebook()" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-800 dark:bg-purple-900 text-white text-sm font-medium rounded-lg hover:bg-purple-900 dark:hover:bg-black transition-colors">
                                             <i class="ph-bold ph-facebook-logo text-base"></i>
                                             Facebook
                                         </button>
-                                        <button onclick="shareOnWhatsApp()" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors">
+                                        <button onclick="shareOnWhatsApp()" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 dark:bg-green-700 text-white text-sm font-medium rounded-lg hover:bg-green-700 dark:hover:bg-green-800 transition-colors">
                                             <i class="ph-bold ph-whatsapp-logo text-base"></i>
                                             WhatsApp
                                         </button>
-                                        <button onclick="copyLink()" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors">
+                                        <button onclick="copyLink()" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-600 dark:bg-gray-700 text-white text-sm font-medium rounded-lg hover:bg-gray-700 dark:hover:bg-gray-800 transition-colors">
                                             <i class="ph-bold ph-copy text-base"></i>
                                             Copy Link
                                         </button>
@@ -375,15 +375,15 @@
                     </article>
 
                     <!-- Comments Section -->
-                    <section id="comments" class="bg-white rounded-lg border border-gray-200 mt-6 no-edit">
+                    <section id="comments" class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 mt-6 no-edit">
                         <div class="p-6">
                             <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-5">
-                                <h2 class="text-xl font-bold text-gray-900">Join the Discussion</h2>
-                                <span class="bg-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold">{{ post_data.comment_count or 0 }} Comments</span>
+                                <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Join the Discussion</h2>
+                                <span class="bg-purple-600 dark:bg-purple-500 text-white px-3 py-1 rounded-full text-xs font-semibold">{{ post_data.comment_count or 0 }} Comments</span>
                             </div>
-                            <textarea class="w-full border border-gray-300 rounded-lg p-3 text-sm sm:text-base comment-textarea" rows="4" placeholder="Share your thoughts..."></textarea>
+                            <textarea class="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-3 text-sm sm:text-base comment-textarea bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400" rows="4" placeholder="Share your thoughts..."></textarea>
                             <div class="text-right mt-3">
-                                <button onclick="openCommentModal()" class="px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition-colors">
+                                <button onclick="openCommentModal()" class="px-4 py-2 bg-purple-600 dark:bg-purple-500 text-white text-sm rounded-lg hover:bg-purple-700 dark:hover:bg-purple-600 transition-colors">
                                     Post Comment
                                 </button>
                             </div>
@@ -414,28 +414,28 @@
                         </div>
 
                         <!-- Newsletter Signup -->
-                        <div class="bg-white rounded-lg border border-gray-200 p-6">
-                            <h4 class="text-sm font-semibold text-gray-900 mb-3">Stay Updated</h4>
-                            <p class="text-xs text-gray-600 mb-4">Get the latest insights on technology and wealth building.</p>
-                            <input type="email" placeholder="Your email address" class="w-full px-3 py-2 border border-gray-300 rounded-lg mb-3 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                            <button class="w-full px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors">
+                        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                            <h4 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Stay Updated</h4>
+                            <p class="text-xs text-gray-600 dark:text-gray-400 mb-4">Get the latest insights on technology and wealth building.</p>
+                            <input type="email" placeholder="Your email address" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg mb-3 text-sm focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400">
+                            <button class="w-full px-4 py-2 bg-purple-600 dark:bg-purple-500 text-white text-sm font-medium rounded-lg hover:bg-purple-700 dark:hover:bg-purple-600 transition-colors">
                                 Subscribe
                             </button>
                         </div>
 
                         <!-- Follow Button -->
-                        <div class="bg-white rounded-lg border border-gray-200 p-6">
-                            <h4 class="text-sm font-semibold text-gray-900 mb-3">Follow NekwasaR</h4>
-                            <button onclick="openFollowModal()" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors">
+                        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                            <h4 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Follow NekwasaR</h4>
+                            <button onclick="openFollowModal()" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 dark:bg-purple-500 text-white text-sm font-medium rounded-lg hover:bg-purple-700 dark:hover:bg-purple-600 transition-colors">
                                 <i class="ph-bold ph-user-plus text-base"></i>
                                 Follow
                             </button>
                         </div>
 
                         <!-- Ad Widget -->
-                        <div class="bg-gray-100 border border-gray-200 rounded-lg p-4 text-center editable">
-                            <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Sponsored</span>
-                            <p class="text-sm text-gray-600 mt-2">Sidebar Ad</p>
+                        <div class="bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 text-center editable">
+                            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Sponsored</span>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">Sidebar Ad</p>
                         </div>
                     </div>
                 </aside>
