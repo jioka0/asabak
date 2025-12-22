@@ -1176,143 +1176,6 @@ tailwind.config = {
     }
 }
 
-/* Tag Selector Styles */
-.tag-selector {
-    position: relative;
-    border: 1px solid #333;
-    border-radius: 6px;
-    background: #0a0a0a;
-    min-height: 40px;
-    padding: 8px;
-}
-
-.selected-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 8px;
-    min-height: 24px;
-}
-
-.selected-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(236, 72, 153, 0.3));
-    border: 1px solid rgba(168, 85, 247, 0.5);
-    border-radius: 12px;
-    padding: 4px 8px;
-    font-size: 11px;
-    color: #a855f7;
-}
-
-.selected-tag-remove {
-    background: none;
-    border: none;
-    color: #a855f7;
-    cursor: pointer;
-    font-size: 12px;
-    padding: 0;
-    margin-left: 2px;
-    opacity: 0.7;
-}
-
-.selected-tag-remove:hover {
-    opacity: 1;
-}
-
-.tag-selector-dropdown {
-    position: relative;
-}
-
-.tag-search-input {
-    width: 100%;
-    padding: 8px 12px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 6px;
-    color: #ffffff;
-    font-size: 12px;
-    margin-bottom: 8px;
-}
-
-.tag-search-input:focus {
-    outline: none;
-    border-color: rgba(168, 85, 247, 0.5);
-    background: rgba(255, 255, 255, 0.08);
-}
-
-.available-tags {
-    max-height: 200px;
-    overflow-y: auto;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 6px;
-    background: rgba(0, 0, 0, 0.5);
-}
-
-.available-tag {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    cursor: pointer;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    transition: all 0.2s ease;
-}
-
-.available-tag:hover {
-    background: rgba(168, 85, 247, 0.1);
-}
-
-.available-tag.selected {
-    background: rgba(168, 85, 247, 0.2);
-    border-left: 3px solid #a855f7;
-}
-
-.available-tag:last-child {
-    border-bottom: none;
-}
-
-.available-tag-checkbox {
-    width: 16px;
-    height: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 3px;
-    background: rgba(255, 255, 255, 0.05);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    color: #a855f7;
-}
-
-.available-tag-checkbox.checked {
-    background: #a855f7;
-    border-color: #a855f7;
-}
-
-.available-tag-info {
-    flex: 1;
-}
-
-.available-tag-name {
-    font-size: 12px;
-    color: #ffffff;
-    font-weight: 500;
-}
-
-.available-tag-count {
-    font-size: 10px;
-    color: rgba(255, 255, 255, 0.6);
-}
-
-.loading-tags {
-    padding: 20px;
-    text-align: center;
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 12px;
-}
 
 /* Additional responsive breakpoint for very small screens */
 @media (max-width: 480px) {
@@ -1344,7 +1207,6 @@ let selectedItems = new Set();
 let allPosts = [];
 let currentFolder = 'all';
 let searchTerm = '';
-let selectedPublishTags = new Set();
 let availablePublishTags = [];
 
 function initBlogPosts() {
@@ -3424,15 +3286,9 @@ if (document.readyState === 'loading') {
           </div>
           <div class="publish-field">
             <label for="publishTags">Tags</label>
-            <div id="publishTagsSelector" class="tag-selector">
-              <div class="selected-tags" id="selectedTagsContainer"></div>
-              <div class="tag-selector-dropdown">
-                <input type="text" id="tagSearchInput" class="tag-search-input" placeholder="Search tags...">
-                <div class="available-tags" id="availableTagsContainer">
-                  <div class="loading-tags">Loading tags...</div>
-                </div>
-              </div>
-            </div>
+            <select id="publishTags" class="publish-select">
+              <option value="">Select a tag...</option>
+            </select>
           </div>
           <div class="publish-field">
             <label for="publishAuthor">Author</label>
@@ -4407,9 +4263,11 @@ if (document.readyState === 'loading') {
       selectedRoutes: []
     };
 
-    // Reset selected tags
-    selectedPublishTags.clear();
-    updatePublishSelectedTagsDisplay();
+    // Reset selected tag in the select element
+    const tagsSelect = document.getElementById('publishTags');
+    if (tagsSelect) {
+      tagsSelect.value = '';
+    }
 
     // Reset UI states
     document.querySelectorAll('.choice-btn').forEach(btn => btn.classList.remove('active'));
@@ -4572,7 +4430,7 @@ if (document.readyState === 'loading') {
         title: document.getElementById('publishTitle').value.trim(),
         slug: document.getElementById('publishSlug').value.trim(),
         excerpt: document.getElementById('publishExcerpt').value.trim(),
-        tags: Array.from(selectedPublishTags), // Use selected tags from tag selector
+        tags: [document.getElementById('publishTags').value].filter(tag => tag), // Get single selected tag as array
         author: document.getElementById('publishAuthor').value.trim(),
         published_at: document.getElementById('publishDate').value || new Date().toISOString(),
         featured_image: document.getElementById('publishImage').value.trim(),
@@ -4674,8 +4532,8 @@ if (document.readyState === 'loading') {
   async function loadPublishTags() {
     console.log('🏷️ Loading tags for publish wizard...');
 
-    const container = document.getElementById('availableTagsContainer');
-    if (!container) return;
+    const selectElement = document.getElementById('publishTags');
+    if (!selectElement) return;
 
     try {
       const token = localStorage.getItem('token');
@@ -4692,92 +4550,31 @@ if (document.readyState === 'loading') {
       availablePublishTags = data.tags || [];
 
       console.log(`✅ Loaded ${availablePublishTags.length} tags for publish wizard`);
-      renderAvailablePublishTags();
+
+      // Clear existing options except the first one
+      selectElement.innerHTML = '<option value="">Select a tag...</option>';
+
+      if (availablePublishTags.length === 0) {
+        const option = document.createElement('option');
+        option.value = '';
+        option.textContent = 'No tags available';
+        option.disabled = true;
+        selectElement.appendChild(option);
+        return;
+      }
+
+      // Add all tags as options
+      availablePublishTags.forEach(tag => {
+        const option = document.createElement('option');
+        option.value = tag.slug;
+        option.textContent = `${tag.name} (${tag.count} posts)`;
+        selectElement.appendChild(option);
+      });
 
     } catch (error) {
       console.error('❌ Error loading publish tags:', error);
-      container.innerHTML = '<div class="loading-tags">Failed to load tags</div>';
+      selectElement.innerHTML = '<option value="">Select a tag...</option><option value="" disabled>Failed to load tags</option>';
     }
-  }
-
-  function renderAvailablePublishTags() {
-    const container = document.getElementById('availableTagsContainer');
-    if (!container || !availablePublishTags.length) {
-      container.innerHTML = '<div class="loading-tags">No tags available</div>';
-      return;
-    }
-
-    const tagHTML = availablePublishTags.map(tag => `
-      <div class="available-tag ${selectedPublishTags.has(tag.slug) ? 'selected' : ''}"
-           data-tag-slug="${tag.slug}"
-           onclick="togglePublishTag('${tag.slug}')">
-        <div class="available-tag-checkbox ${selectedPublishTags.has(tag.slug) ? 'checked' : ''}">
-          ${selectedPublishTags.has(tag.slug) ? '✓' : ''}
-        </div>
-        <div class="available-tag-info">
-          <div class="available-tag-name">${tag.name}</div>
-          <div class="available-tag-count">${tag.count} posts</div>
-        </div>
-      </div>
-    `).join('');
-
-    container.innerHTML = tagHTML;
-    setupPublishTagSearch();
-  }
-
-  function togglePublishTag(tagSlug) {
-    if (selectedPublishTags.has(tagSlug)) {
-      selectedPublishTags.delete(tagSlug);
-    } else {
-      selectedPublishTags.add(tagSlug);
-    }
-    updatePublishSelectedTagsDisplay();
-    renderAvailablePublishTags();
-  }
-
-  function updatePublishSelectedTagsDisplay() {
-    const container = document.getElementById('selectedTagsContainer');
-    if (!container) return;
-
-    if (selectedPublishTags.size === 0) {
-      container.innerHTML = '<span style="color: rgba(255,255,255,0.5); font-size: 12px;">No tags selected</span>';
-      return;
-    }
-
-    const tagHTML = Array.from(selectedPublishTags).map(tagSlug => {
-      const tag = availablePublishTags.find(t => t.slug === tagSlug);
-      const tagName = tag ? tag.name : tagSlug;
-      return `
-        <span class="selected-tag">
-          ${tagName}
-          <button class="selected-tag-remove" onclick="removePublishTag('${tagSlug}')">×</button>
-        </span>
-      `;
-    }).join('');
-
-    container.innerHTML = tagHTML;
-  }
-
-  function removePublishTag(tagSlug) {
-    selectedPublishTags.delete(tagSlug);
-    updatePublishSelectedTagsDisplay();
-    renderAvailablePublishTags();
-  }
-
-  function setupPublishTagSearch() {
-    const searchInput = document.getElementById('tagSearchInput');
-    if (!searchInput) return;
-
-    searchInput.addEventListener('input', function() {
-      const searchTerm = this.value.toLowerCase();
-      const tagElements = document.querySelectorAll('.available-tag');
-
-      tagElements.forEach(element => {
-        const tagName = element.querySelector('.available-tag-name').textContent.toLowerCase();
-        const isVisible = !searchTerm || tagName.includes(searchTerm);
-        element.style.display = isVisible ? 'flex' : 'none';
-      });
-    });
   }
 
   // Call this when the editor modal is opened

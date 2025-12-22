@@ -1215,7 +1215,9 @@
                         </div>
                         <div class="publish-field">
                             <label for="publishTags">Tags</label>
-                            <input type="text" id="publishTags" class="publish-input" placeholder="tech, ai, tutorial (comma-separated)">
+                            <select id="publishTags" class="publish-select">
+                                <option value="">Select a tag...</option>
+                            </select>
                         </div>
                         <div class="publish-field">
                             <label for="publishAuthor">Author</label>
@@ -1801,13 +1803,19 @@
 
         function resetPublishWizard() {
             // Reset form fields
-            const inputs = document.querySelectorAll('#publishWizard input, #publishWizard textarea, #publishWizard select');
+            const inputs = document.querySelectorAll('#publishWizard input, #publishWizard textarea');
             inputs.forEach(input => {
                 if (input.type === 'checkbox') {
                     input.checked = false;
                 } else {
                     input.value = '';
                 }
+            });
+
+            // Reset select elements
+            const selects = document.querySelectorAll('#publishWizard select');
+            selects.forEach(select => {
+                select.value = '';
             });
 
             // Reset publish state
@@ -1921,7 +1929,7 @@
                     title: document.getElementById('publishTitle').value.trim(),
                     slug: document.getElementById('publishSlug').value.trim(),
                     excerpt: document.getElementById('publishExcerpt').value.trim(),
-                    tags: document.getElementById('publishTags').value.split(',').map(t => t.trim()).filter(t => t),
+                    tags: [document.getElementById('publishTags').value].filter(tag => tag), // Get single selected tag as array
                     author: document.getElementById('publishAuthor').value.trim(),
                     published_at: document.getElementById('publishDate').value || new Date().toISOString(),
                     featured_image: document.getElementById('publishImage').value.trim(),
@@ -1975,6 +1983,55 @@
             }
         }
 
+        // Tag Selector Functions for Publish Wizard
+        async function loadPublishTags() {
+            console.log('🏷️ Loading tags for publish wizard...');
+
+            const selectElement = document.getElementById('publishTags');
+            if (!selectElement) return;
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/admin/api/blog/tags', {
+                    method: 'GET',
+                    headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                const availableTags = data.tags || [];
+
+                console.log(`✅ Loaded ${availableTags.length} tags for publish wizard`);
+
+                // Clear existing options except the first one
+                selectElement.innerHTML = '<option value="">Select a tag...</option>';
+
+                if (availableTags.length === 0) {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'No tags available';
+                    option.disabled = true;
+                    selectElement.appendChild(option);
+                    return;
+                }
+
+                // Add all tags as options
+                availableTags.forEach(tag => {
+                    const option = document.createElement('option');
+                    option.value = tag.slug;
+                    option.textContent = `${tag.name} (${tag.count} posts)`;
+                    selectElement.appendChild(option);
+                });
+
+            } catch (error) {
+                console.error('❌ Error loading publish tags:', error);
+                selectElement.innerHTML = '<option value="">Select a tag...</option><option value="" disabled>Failed to load tags</option>';
+            }
+        }
+
         // Wire publish wizard events
         function wirePublishWizardEvents() {
             const closeBtn = document.getElementById('publishCloseBtn');
@@ -2003,6 +2060,9 @@
                 imageInput.addEventListener('input', updateImagePreview);
                 imageInput.addEventListener('blur', updateImagePreview);
             }
+
+            // Load tags for the select dropdown
+            loadPublishTags();
         }
 
         function updateImagePreview() {
