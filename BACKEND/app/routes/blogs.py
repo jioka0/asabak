@@ -63,7 +63,7 @@ async def create_comment(post_id: int, comment: CommentCreate, db: Session = Dep
 
     return db_comment
 
-@router.post("/{post_id}/likes", response_model=Like)
+@router.post("/{post_id}/likes")
 async def like_post(post_id: int, like: LikeCreate, db: Session = Depends(get_db)):
     """Like a blog post"""
     # Check if already liked
@@ -72,20 +72,25 @@ async def like_post(post_id: int, like: LikeCreate, db: Session = Depends(get_db
         BlogLike.user_identifier == like.user_identifier
     ).first()
 
+    liked = False
     if existing:
-        raise HTTPException(400, "Already liked this post")
+        # Already liked, just return success
+        liked = True
+    else:
+        # Create like
+        db_like = BlogLike(blog_post_id=post_id, **like.dict())
+        db.add(db_like)
 
-    # Create like
-    db_like = BlogLike(blog_post_id=post_id, **like.dict())
-    db.add(db_like)
+        # Update like count
+        post = db.query(BlogPostModel).filter(BlogPostModel.id == post_id).first()
+        post.like_count += 1
+        liked = True
+        db.commit()
+        db.refresh(db_like)
 
-    # Update like count
+    # Get updated count
     post = db.query(BlogPostModel).filter(BlogPostModel.id == post_id).first()
-    post.like_count += 1
-    db.commit()
-    db.refresh(db_like)
-
-    return db_like
+    return {"liked": liked, "like_count": post.like_count}
 
 @router.delete("/{post_id}/likes")
 async def unlike_post(post_id: int, user_identifier: str, db: Session = Depends(get_db)):
@@ -96,19 +101,21 @@ async def unlike_post(post_id: int, user_identifier: str, db: Session = Depends(
         BlogLike.user_identifier == user_identifier
     ).first()
 
-    if not existing:
-        raise HTTPException(404, "Like not found")
+    unliked = False
+    if existing:
+        # Delete like
+        db.delete(existing)
 
-    # Delete like
-    db.delete(existing)
+        # Update like count
+        post = db.query(BlogPostModel).filter(BlogPostModel.id == post_id).first()
+        if post.like_count > 0:
+            post.like_count -= 1
+        unliked = True
+        db.commit()
 
-    # Update like count
+    # Get updated count
     post = db.query(BlogPostModel).filter(BlogPostModel.id == post_id).first()
-    if post.like_count > 0:
-        post.like_count -= 1
-    db.commit()
-
-    return {"message": "Post unliked successfully"}
+    return {"unliked": unliked, "like_count": post.like_count}
 
 @router.get("/{post_id}/likes/status")
 async def get_like_status(post_id: int, user_identifier: str, db: Session = Depends(get_db)):
