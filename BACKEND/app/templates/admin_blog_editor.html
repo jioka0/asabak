@@ -531,16 +531,18 @@
         }
 
         /* Special cursor for editable post items */
-        .related-post-item, .trending-post-item {
+        .related-post-item, .trending-post-item, a[href*="/blog/"] {
             cursor: pointer !important;
             position: relative;
+            pointer-events: auto !important;
+            z-index: 10;
         }
 
-        .related-post-item:hover, .trending-post-item:hover {
+        .related-post-item:hover, .trending-post-item:hover, a[href*="/blog/"]:hover {
             background: rgba(0, 123, 255, 0.05) !important;
         }
 
-        .related-post-item::after, .trending-post-item::after {
+        .related-post-item::after, .trending-post-item::after, a[href*="/blog/"]::after {
             content: "✏️";
             position: absolute;
             top: 5px;
@@ -548,10 +550,59 @@
             font-size: 12px;
             opacity: 0;
             transition: opacity 0.3s ease;
+            z-index: 20;
         }
 
-        .related-post-item:hover::after, .trending-post-item:hover::after {
+        .related-post-item:hover::after, .trending-post-item:hover::after, a[href*="/blog/"]:hover::after {
             opacity: 0.7;
+        }
+
+        /* Ensure post items are not editable */
+        .related-post-item *,
+        .trending-post-item *,
+        a[href*="/blog/"] * {
+            contenteditable: false !important;
+        }
+
+        /* Dynamic content styling - not editable */
+        .views-count, .dynamic-content {
+            cursor: default !important;
+            pointer-events: none !important;
+        }
+
+        .views-count:hover, .dynamic-content:hover {
+            background: transparent !important;
+        }
+
+        .views-count::after, .dynamic-content::after {
+            display: none !important;
+        }
+
+        /* Context menu styles */
+        .post-context-menu {
+            position: fixed;
+            background: var(--base);
+            border: 1px solid var(--stroke-elements);
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            z-index: 10000;
+            padding: 12px;
+            min-width: 180px;
+        }
+
+        .context-menu-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 14px;
+            color: var(--t-medium);
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .context-menu-item:hover {
+            background: var(--base-tint);
+            color: var(--t-bright);
         }
 
         /* Mobile adjustments */
@@ -896,24 +947,39 @@
             loadPublishedPosts();
 
             // Make all text elements editable without any visual changes
-            const textElements = templateContainer.querySelectorAll('p, h1, h2, h3, h4, h5, h6, span, div:not(.image-edit-overlay), a, li');
-            textElements.forEach(el => {
+            const textElements = templateContainer.querySelectorAll('p, h1, h2, h3, h4, h5, h6, span, div:not(.image-edit-overlay):not(.related-post-item):not(.trending-post-item):not(.views-count):not(.dynamic-content), a:not([href*="/blog/"]), li');
+            
+            let editableCount = 0;
+            textElements.forEach((el, index) => {
                 if (el.textContent && el.textContent.trim() &&
                     !el.querySelector('input, textarea, select, button') &&
                     !el.closest('.image-edit-overlay') &&
                     !el.closest('.editor-controls') &&
                     !el.classList.contains('comment-count-display') && // Don't make comment count editable
                     !el.closest('.comment-count-display') &&
-                    !el.closest('.comment-section')) { // Don't make anything in comment section editable
+                    !el.closest('.comment-section') &&
+                    !el.closest('.related-post-item') &&
+                    !el.closest('.trending-post-item') &&
+                    !el.closest('.views-count') &&
+                    !el.closest('.dynamic-content') &&
+                    !el.closest('a[href*="/blog/"]')) { // Don't make blog links editable
                     el.contentEditable = 'true';
-                    // No styling changes - elements look exactly as published
+                    editableCount++;
                 }
+            });
+
+            // Explicitly disable contenteditable on post selection items and dynamic content
+            const postItems = document.querySelectorAll('.related-post-item, .trending-post-item, a[href*="/blog/"], .views-count, .dynamic-content');
+            
+            postItems.forEach((item, index) => {
+                item.contentEditable = 'false';
+                item.style.pointerEvents = 'auto';
             });
 
             // Make images editable with minimal overlay (except in special sections)
             const images = templateContainer.querySelectorAll('img');
             images.forEach(img => {
-                // Skip images in related/trending posts - they have special editing
+                // Skip images in related/trending posts - they have special editing via context menu
                 // Skip images in comment section - they should not be editable
                 if (img.closest('.related-post-item') || img.closest('.trending-post-item') || img.closest('.comment-section')) {
                     return;
@@ -945,6 +1011,515 @@
 
             // Update comment counts dynamically
             updateCommentCounts();
+            
+            // Load dynamic content (views, likes, etc.)
+            loadDynamicContent();
+        }
+
+        // Setup click handlers for related/trending post items with event delegation
+        function setupPostSelectionHandlers() {
+            // Remove any existing handlers first
+            templateContainer.removeEventListener('click', handlePostClick);
+            templateContainer.removeEventListener('dblclick', handlePostDblClick);
+            templateContainer.removeEventListener('contextmenu', handlePostContextMenu);
+            
+            // Use event delegation to handle clicks on post items
+            templateContainer.addEventListener('click', handlePostClick);
+            templateContainer.addEventListener('dblclick', handlePostDblClick);
+            templateContainer.addEventListener('contextmenu', handlePostContextMenu);
+
+            // Also add direct handlers as fallback
+            const postItems = document.querySelectorAll('.related-post-item, .trending-post-item, a[href*="/blog/"]');
+            
+            postItems.forEach((item, index) => {
+                item.removeEventListener('click', handleDirectPostClick);
+                item.removeEventListener('dblclick', handleDirectPostDblClick);
+                item.removeEventListener('contextmenu', handleDirectPostContextMenu);
+                item.addEventListener('click', handleDirectPostClick);
+                item.addEventListener('dblclick', handleDirectPostDblClick);
+                item.addEventListener('contextmenu', handleDirectPostContextMenu);
+            });
+        }
+
+        // Load dynamic content (views, likes, etc.)
+        async function loadDynamicContent() {
+            try {
+                // Get all view count elements
+                const viewElements = document.querySelectorAll('.views-count, [class*="view"], [class*="views"]');
+                
+                viewElements.forEach(async (element) => {
+                    // Extract post ID or slug from the element or its parent
+                    const postSlug = element.dataset.postSlug ||
+                                   element.closest('[data-post-id]')?.dataset.postId ||
+                                   element.closest('a')?.href?.split('/').pop();
+                    
+                    if (postSlug) {
+                        try {
+                            const response = await fetch(`/api/blogs/slug/${postSlug}/stats`);
+                            if (response.ok) {
+                                const data = await response.json();
+                                const viewCount = data.view_count || 0;
+                                
+                                // Format the view count (e.g., 1.2k, 12k, 1.5m)
+                                const formattedViews = formatViewCount(viewCount);
+                                element.textContent = `${formattedViews} Views`;
+                            }
+                        } catch (error) {
+                            console.warn('Failed to load view count for:', postSlug);
+                        }
+                    }
+                });
+            } catch (error) {
+                console.warn('Failed to load dynamic content:', error);
+            }
+        }
+
+        // Format view count (e.g., 1200 -> 1.2k)
+        function formatViewCount(count) {
+            if (count >= 1000000) {
+                return (count / 1000000).toFixed(1) + 'm';
+            } else if (count >= 1000) {
+                return (count / 1000).toFixed(1) + 'k';
+            } else {
+                return count.toString();
+            }
+        }
+
+        // Setup click handlers for related/trending post items with event delegation
+        function setupPostSelectionHandlers() {
+            // Remove any existing handlers first
+            templateContainer.removeEventListener('click', handlePostClick);
+            templateContainer.removeEventListener('dblclick', handlePostDblClick);
+            templateContainer.removeEventListener('contextmenu', handlePostContextMenu);
+            
+            // Use event delegation to handle clicks on post items
+            templateContainer.addEventListener('click', handlePostClick);
+            templateContainer.addEventListener('dblclick', handlePostDblClick);
+            templateContainer.addEventListener('contextmenu', handlePostContextMenu);
+
+            // Also add direct handlers as fallback
+            const postItems = document.querySelectorAll('.related-post-item, .trending-post-item, a[href*="/blog/"]');
+            
+            postItems.forEach((item, index) => {
+                item.removeEventListener('click', handleDirectPostClick);
+                item.removeEventListener('dblclick', handleDirectPostDblClick);
+                item.removeEventListener('contextmenu', handleDirectPostContextMenu);
+                item.addEventListener('click', handleDirectPostClick);
+                item.addEventListener('dblclick', handleDirectPostDblClick);
+                item.addEventListener('contextmenu', handleDirectPostContextMenu);
+            });
+        }
+
+        // Event handler for single click - edit text
+        function handlePostClick(e) {
+            const target = e.target.closest('.related-post-item, .trending-post-item, a[href*="/blog/"]');
+            
+            if (target) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Edit the text content
+                editPostText(target);
+            }
+        }
+
+        // Event handler for double click - edit link
+        function handlePostDblClick(e) {
+            const target = e.target.closest('.related-post-item, .trending-post-item, a[href*="/blog/"]');
+            
+            if (target) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Edit the link
+                editPostLink(target);
+            }
+        }
+
+        // Event handler for right click - show context menu
+        function handlePostContextMenu(e) {
+            const target = e.target.closest('.related-post-item, .trending-post-item, a[href*="/blog/"]');
+            
+            if (target) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Show context menu
+                showPostContextMenu(e, target);
+            }
+        }
+
+        // Direct event handler for single click - edit text
+        function handleDirectPostClick(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Edit the text content
+            editPostText(this);
+        }
+
+        // Direct event handler for double click - edit link
+        function handleDirectPostDblClick(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Edit the link
+            editPostLink(this);
+        }
+
+        // Direct event handler for right click - show context menu
+        function handleDirectPostContextMenu(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Show context menu
+            showPostContextMenu(e, this);
+        }
+
+        // Show context menu for post items
+        function showPostContextMenu(e, postElement) {
+            // Remove any existing context menus
+            const existingMenu = document.querySelector('.post-context-menu');
+            if (existingMenu) {
+                existingMenu.remove();
+            }
+
+            // Create context menu
+            const menu = document.createElement('div');
+            menu.className = 'post-context-menu';
+            menu.style.position = 'fixed';
+            menu.style.left = e.clientX + 'px';
+            menu.style.top = e.clientY + 'px';
+            menu.style.background = 'var(--base)';
+            menu.style.border = '1px solid var(--stroke-elements)';
+            menu.style.borderRadius = '8px';
+            menu.style.boxShadow = '0 10px 25px rgba(0,0,0,0.2)';
+            menu.style.zIndex = '10000';
+            menu.style.padding = '12px';
+            menu.style.minWidth = '180px';
+
+            // Create menu items
+            const editImageItem = document.createElement('div');
+            editImageItem.className = 'context-menu-item';
+            editImageItem.textContent = 'Edit Image';
+            editImageItem.style.padding = '10px 12px';
+            editImageItem.style.cursor = 'pointer';
+            editImageItem.style.borderRadius = '6px';
+            editImageItem.style.fontSize = '14px';
+            editImageItem.style.color = 'var(--t-medium)';
+            editImageItem.style.transition = 'all 0.2s ease';
+            editImageItem.style.fontWeight = '500';
+            
+            editImageItem.addEventListener('mouseenter', () => {
+                editImageItem.style.background = 'var(--base-tint)';
+                editImageItem.style.color = 'var(--t-bright)';
+            });
+            editImageItem.addEventListener('mouseleave', () => {
+                editImageItem.style.background = 'transparent';
+                editImageItem.style.color = 'var(--t-medium)';
+            });
+            editImageItem.addEventListener('click', () => {
+                menu.remove();
+                editPostImage(postElement);
+            });
+
+            const editTitleItem = document.createElement('div');
+            editTitleItem.className = 'context-menu-item';
+            editTitleItem.textContent = 'Edit Title';
+            editTitleItem.style.padding = '10px 12px';
+            editTitleItem.style.cursor = 'pointer';
+            editTitleItem.style.borderRadius = '6px';
+            editTitleItem.style.fontSize = '14px';
+            editTitleItem.style.color = 'var(--t-medium)';
+            editTitleItem.style.transition = 'all 0.2s ease';
+            editTitleItem.style.fontWeight = '500';
+            
+            editTitleItem.addEventListener('mouseenter', () => {
+                editTitleItem.style.background = 'var(--base-tint)';
+                editTitleItem.style.color = 'var(--t-bright)';
+            });
+            editTitleItem.addEventListener('mouseleave', () => {
+                editTitleItem.style.background = 'transparent';
+                editTitleItem.style.color = 'var(--t-medium)';
+            });
+            editTitleItem.addEventListener('click', () => {
+                menu.remove();
+                editPostText(postElement);
+            });
+
+            const editUrlItem = document.createElement('div');
+            editUrlItem.className = 'context-menu-item';
+            editUrlItem.textContent = 'Edit URL';
+            editUrlItem.style.padding = '10px 12px';
+            editUrlItem.style.cursor = 'pointer';
+            editUrlItem.style.borderRadius = '6px';
+            editUrlItem.style.fontSize = '14px';
+            editUrlItem.style.color = 'var(--t-medium)';
+            editUrlItem.style.transition = 'all 0.2s ease';
+            editUrlItem.style.fontWeight = '500';
+            
+            editUrlItem.addEventListener('mouseenter', () => {
+                editUrlItem.style.background = 'var(--base-tint)';
+                editUrlItem.style.color = 'var(--t-bright)';
+            });
+            editUrlItem.addEventListener('mouseleave', () => {
+                editUrlItem.style.background = 'transparent';
+                editUrlItem.style.color = 'var(--t-medium)';
+            });
+            editUrlItem.addEventListener('click', () => {
+                menu.remove();
+                editPostLink(postElement);
+            });
+
+            // Add menu items to menu
+            menu.appendChild(editImageItem);
+            menu.appendChild(editTitleItem);
+            menu.appendChild(editUrlItem);
+
+            // Add click outside to close menu
+            document.addEventListener('click', function closeMenu() {
+                menu.remove();
+                document.removeEventListener('click', closeMenu);
+            }, { once: true });
+
+            // Add to document
+            document.body.appendChild(menu);
+        }
+
+        // Edit post text function
+        function editPostText(postElement) {
+            // Find the text element to edit (h4, h3, h2, h1, span, div)
+            const textElement = postElement.querySelector('h4') || postElement.querySelector('h3') || postElement.querySelector('h2') || postElement.querySelector('h1') || postElement.querySelector('span') || postElement.querySelector('div');
+            
+            if (!textElement) {
+                return;
+            }
+            
+            // Get current text
+            const currentText = textElement.textContent.trim();
+            
+            // Create input field for editing
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentText;
+            input.style.width = '100%';
+            input.style.padding = '12px 16px';
+            input.style.border = '2px solid var(--stroke-elements)';
+            input.style.borderRadius = '8px';
+            input.style.fontSize = '14px';
+            input.style.outline = 'none';
+            input.style.background = 'var(--base)';
+            input.style.color = 'var(--t-bright)';
+            input.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+            input.style.transition = 'all 0.2s ease';
+            input.style.fontFamily = 'inherit';
+            
+            // Focus and select all text
+            input.addEventListener('focus', () => {
+                input.style.borderColor = 'var(--accent)';
+                input.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)';
+            });
+            
+            input.addEventListener('blur', () => {
+                input.style.borderColor = 'var(--stroke-elements)';
+                input.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+            });
+            
+            // Replace text element with input
+            const textParent = textElement.parentNode;
+            textParent.replaceChild(input, textElement);
+            
+            // Focus and select all text
+            input.focus();
+            input.select();
+            
+            // Handle input events
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    saveTextEdit(input, textParent, textElement);
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    cancelTextEdit(input, textParent, textElement);
+                }
+            });
+            
+            // Handle blur (click outside)
+            input.addEventListener('blur', function() {
+                saveTextEdit(input, textParent, textElement);
+            });
+        }
+
+        // Save text edit
+        function saveTextEdit(input, parent, originalElement) {
+            const newText = input.value.trim();
+            
+            // Update the original element
+            originalElement.textContent = newText;
+            
+            // Replace input with original element
+            parent.replaceChild(originalElement, input);
+        }
+
+        // Cancel text edit
+        function cancelTextEdit(input, parent, originalElement) {
+            // Replace input with original element
+            parent.replaceChild(originalElement, input);
+        }
+
+        // Edit post image function
+        function editPostImage(postElement) {
+            // Find the image element
+            const imgElement = postElement.querySelector('img');
+            
+            if (!imgElement) {
+                return;
+            }
+            
+            // Get current image src
+            const currentSrc = imgElement.src;
+            
+            // Create input field for editing
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentSrc;
+            input.style.width = '100%';
+            input.style.padding = '12px 16px';
+            input.style.border = '2px solid var(--stroke-elements)';
+            input.style.borderRadius = '8px';
+            input.style.fontSize = '14px';
+            input.style.outline = 'none';
+            input.style.background = 'var(--base)';
+            input.style.color = 'var(--t-bright)';
+            input.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+            input.style.transition = 'all 0.2s ease';
+            input.style.fontFamily = 'inherit';
+            
+            // Focus and select all text
+            input.addEventListener('focus', () => {
+                input.style.borderColor = 'var(--accent)';
+                input.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)';
+            });
+            
+            input.addEventListener('blur', () => {
+                input.style.borderColor = 'var(--stroke-elements)';
+                input.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+            });
+            
+            // Replace image with input
+            const imgParent = imgElement.parentNode;
+            imgParent.replaceChild(input, imgElement);
+            
+            // Focus and select all text
+            input.focus();
+            input.select();
+            
+            // Handle input events
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    saveImageEdit(input, imgParent, imgElement);
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    cancelImageEdit(input, imgParent, imgElement);
+                }
+            });
+            
+            // Handle blur (click outside)
+            input.addEventListener('blur', function() {
+                saveImageEdit(input, imgParent, imgElement);
+            });
+        }
+
+        // Save image edit
+        function saveImageEdit(input, parent, originalImage) {
+            const newSrc = input.value.trim();
+            
+            // Update the original image
+            originalImage.src = newSrc;
+            
+            // Replace input with original image
+            parent.replaceChild(originalImage, input);
+        }
+
+        // Cancel image edit
+        function cancelImageEdit(input, parent, originalImage) {
+            // Replace input with original image
+            parent.replaceChild(originalImage, input);
+        }
+
+        // Edit post link function
+        function editPostLink(linkElement) {
+            // Get current href
+            const currentHref = linkElement.getAttribute('href') || '';
+            
+            // Create input field for editing
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentHref;
+            input.style.width = '100%';
+            input.style.padding = '12px 16px';
+            input.style.border = '2px solid var(--stroke-elements)';
+            input.style.borderRadius = '8px';
+            input.style.fontSize = '14px';
+            input.style.outline = 'none';
+            input.style.background = 'var(--base)';
+            input.style.color = 'var(--t-bright)';
+            input.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+            input.style.transition = 'all 0.2s ease';
+            input.style.fontFamily = 'inherit';
+            
+            // Focus and select all text
+            input.addEventListener('focus', () => {
+                input.style.borderColor = 'var(--accent)';
+                input.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)';
+            });
+            
+            input.addEventListener('blur', () => {
+                input.style.borderColor = 'var(--stroke-elements)';
+                input.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+            });
+            
+            // Replace link with input
+            const linkParent = linkElement.parentNode;
+            linkParent.replaceChild(input, linkElement);
+            
+            // Focus and select all text
+            input.focus();
+            input.select();
+            
+            // Handle input events
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    saveLinkEdit(input, linkParent, linkElement);
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    cancelLinkEdit(input, linkParent, linkElement);
+                }
+            });
+            
+            // Handle blur (click outside)
+            input.addEventListener('blur', function() {
+                saveLinkEdit(input, linkParent, linkElement);
+            });
+        }
+
+        // Save link edit
+        function saveLinkEdit(input, parent, originalLink) {
+            const newHref = input.value.trim();
+            
+            // Update the original link
+            originalLink.setAttribute('href', newHref);
+            
+            // Replace input with original link
+            parent.replaceChild(originalLink, input);
+        }
+
+        // Cancel link edit
+        function cancelLinkEdit(input, parent, originalLink) {
+            // Replace input with original link
+            parent.replaceChild(originalLink, input);
         }
 
         // Load published posts for selection
@@ -981,95 +1556,11 @@
             });
         }
 
-        // Setup click handlers for related/trending post items
-        function setupPostSelectionHandlers() {
-            // Related posts
-            document.querySelectorAll('.related-post-item').forEach(item => {
-                item.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    openPostSelectionModal(item, 'related');
-                });
-            });
+        // Setup click handlers for related/trending post items - REMOVED, replaced with new handlers
 
-            // Trending posts
-            document.querySelectorAll('.trending-post-item').forEach(item => {
-                item.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    openPostSelectionModal(item, 'trending');
-                });
-            });
-        }
+        // Close post selection modal - REMOVED, no longer needed
 
-        // Open post selection modal
-        function openPostSelectionModal(postElement, section) {
-            currentEditingPost = { element: postElement, section: section };
-
-            // Pre-fill modal with current data
-            const titleElement = postElement.querySelector('h4');
-            const imgElement = postElement.querySelector('img');
-
-            document.getElementById('displayTitle').value = titleElement ? titleElement.textContent.trim() : '';
-            document.getElementById('displayImage').value = imgElement ? imgElement.src : '';
-
-            // Find matching post in selector
-            const href = postElement.getAttribute('href');
-            if (href) {
-                const slug = href.split('/').pop();
-                const selector = document.getElementById('postSelector');
-                for (let option of selector.options) {
-                    if (option.dataset.slug === slug) {
-                        selector.value = option.value;
-                        break;
-                    }
-                }
-            }
-
-            document.getElementById('postSelectionModal').classList.add('show');
-        }
-
-        // Close post selection modal
-        function closePostSelectionModal() {
-            document.getElementById('postSelectionModal').classList.remove('show');
-            currentEditingPost = null;
-        }
-
-        // Apply post selection
-        function applyPostSelection() {
-            if (!currentEditingPost) return;
-
-            const selector = document.getElementById('postSelector');
-            const selectedPostId = selector.value;
-            const displayTitle = document.getElementById('displayTitle').value.trim();
-            const displayImage = document.getElementById('displayImage').value.trim();
-
-            if (!selectedPostId) {
-                alert('Please select a post');
-                return;
-            }
-
-            const selectedPost = publishedPosts.find(p => p.id === selectedPostId);
-            if (!selectedPost) return;
-
-            // Update the post element
-            const postElement = currentEditingPost.element;
-            const titleElement = postElement.querySelector('h4');
-            const imgElement = postElement.querySelector('img');
-
-            // Update href with new slug
-            postElement.setAttribute('href', `/blog/${selectedPost.slug}`);
-
-            // Update title
-            if (titleElement) {
-                titleElement.textContent = displayTitle || selectedPost.title;
-            }
-
-            // Update image
-            if (imgElement) {
-                imgElement.src = displayImage || selectedPost.featured_image || 'https://via.placeholder.com/60x40?text=No+Image';
-            }
-
-            closePostSelectionModal();
-        }
+        // Apply post selection - REMOVED, no longer needed
 
         // Update comment counts dynamically
         async function updateCommentCounts() {
