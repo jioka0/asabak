@@ -870,10 +870,19 @@
     }
 
     function handleTextareaKeydown(e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            if (this.value.trim()) {
-                openCommentModal();
+        // Enter key submits comment, Shift+Enter creates new line
+        if (e.key === 'Enter') {
+            if (e.shiftKey) {
+                // Shift+Enter: allow default behavior (new line)
+                return;
+            } else {
+                // Enter: submit comment
+                e.preventDefault();
+                if (this.value.trim()) {
+                    openCommentModal();
+                } else {
+                    showNotification('Please write a comment before submitting.', 'warning');
+                }
             }
         }
     }
