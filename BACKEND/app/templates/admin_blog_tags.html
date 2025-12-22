@@ -49,20 +49,12 @@
                 </div>
                 <div class="action-grid">
                     <button class="futuristic-btn primary" onclick="createTag()">
-                        <div class="btn-icon">✨</div>
-                        <div class="btn-text">GENERATE</div>
+                        <div class="btn-icon">➕</div>
+                        <div class="btn-text">ADD TAG</div>
                     </button>
-                    <button class="futuristic-btn secondary" onclick="autoTag()">
-                        <div class="btn-icon">🤖</div>
-                        <div class="btn-text">AUTO TAG</div>
-                    </button>
-                    <button class="futuristic-btn secondary" onclick="mergeTags()">
-                        <div class="btn-icon">🔗</div>
-                        <div class="btn-text">MERGE</div>
-                    </button>
-                    <button class="futuristic-btn danger" onclick="pruneTags()">
-                        <div class="btn-icon">✂️</div>
-                        <div class="btn-text">PRUNE</div>
+                    <button class="futuristic-btn danger" onclick="deleteSelectedTags()">
+                        <div class="btn-icon">🗑️</div>
+                        <div class="btn-text">DELETE TAG</div>
                     </button>
                 </div>
             </div>
@@ -75,15 +67,15 @@
                 <div class="stats-panel">
                     <div class="stat-item">
                         <div class="stat-label">Total Tags</div>
-                        <div class="stat-value" data-count="12">12</div>
+                        <div class="stat-value" data-count="0">0</div>
                     </div>
                     <div class="stat-item">
                         <div class="stat-label">Most Used</div>
-                        <div class="stat-value highlight">JavaScript</div>
+                        <div class="stat-value highlight">None</div>
                     </div>
                     <div class="stat-item">
                         <div class="stat-label">Tag Accuracy</div>
-                        <div class="stat-value" data-count="94.2">94.2%</div>
+                        <div class="stat-value" data-count="0">0%</div>
                     </div>
                 </div>
             </div>
@@ -169,54 +161,11 @@
                     <div class="floating-particle particle-5"></div>
                 </div>
                 
-                <div class="tag-cloud-grid">
-                    <div class="tag-chip featured" data-tag="javascript" data-count="342">
-                        <span class="tag-text">JavaScript</span>
-                        <span class="tag-count">342</span>
-                    </div>
-                    <div class="tag-chip featured" data-tag="web-development" data-count="298">
-                        <span class="tag-text">Web Development</span>
-                        <span class="tag-count">298</span>
-                    </div>
-                    <div class="tag-chip popular" data-tag="react" data-count="187">
-                        <span class="tag-text">React</span>
-                        <span class="tag-count">187</span>
-                    </div>
-                    <div class="tag-chip popular" data-tag="python" data-count="156">
-                        <span class="tag-text">Python</span>
-                        <span class="tag-count">156</span>
-                    </div>
-                    <div class="tag-chip popular" data-tag="css" data-count="143">
-                        <span class="tag-text">CSS</span>
-                        <span class="tag-count">143</span>
-                    </div>
-                    <div class="tag-chip trending" data-tag="ai" data-count="134">
-                        <span class="tag-text">AI</span>
-                        <span class="tag-count">134</span>
-                    </div>
-                    <div class="tag-chip trending" data-tag="machine-learning" data-count="123">
-                        <span class="tag-text">Machine Learning</span>
-                        <span class="tag-count">123</span>
-                    </div>
-                    <div class="tag-chip" data-tag="nodejs" data-count="112">
-                        <span class="tag-text">Node.js</span>
-                        <span class="tag-count">112</span>
-                    </div>
-                    <div class="tag-chip" data-tag="design" data-count="98">
-                        <span class="tag-text">Design</span>
-                        <span class="tag-count">98</span>
-                    </div>
-                    <div class="tag-chip" data-tag="backend" data-count="76">
-                        <span class="tag-text">Backend</span>
-                        <span class="tag-count">76</span>
-                    </div>
-                    <div class="tag-chip" data-tag="database" data-count="58">
-                        <span class="tag-text">Database</span>
-                        <span class="tag-count">58</span>
-                    </div>
-                    <div class="tag-chip" data-tag="security" data-count="47">
-                        <span class="tag-text">Security</span>
-                        <span class="tag-count">47</span>
+                <div class="tag-cloud-grid" id="tagCloudGrid">
+                    <!-- Tags will be loaded dynamically -->
+                    <div class="loading-tags">
+                        <div class="loading-spinner"></div>
+                        <div class="loading-text">Loading Neural Network...</div>
                     </div>
                 </div>
             </div>
@@ -823,8 +772,8 @@
 /* Tag Cloud Grid */
 .tag-cloud-grid {
     position: relative;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
     gap: 12px;
     padding: 20px;
     background: rgba(255, 255, 255, 0.02);
@@ -847,6 +796,8 @@
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
     text-align: center;
+    min-width: 100px;
+    flex: 0 0 auto;
 }
 
 .tag-chip:hover {
@@ -876,6 +827,13 @@
     background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2));
     border-color: rgba(16, 185, 129, 0.6);
     font-size: 10px;
+}
+
+.tag-chip.selected {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(236, 72, 153, 0.3));
+    border-color: rgba(168, 85, 247, 0.8);
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+    transform: translateY(-2px) scale(1.02);
 }
 
 .tag-text {
@@ -1267,6 +1225,141 @@
     overflow-x: hidden;
 }
 
+/* Loading States */
+.loading-tags {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(168, 85, 247, 0.3);
+    border-top: 3px solid #a855f7;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: #a855f7;
+}
+
+/* Error States */
+.error-tags {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.error-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    color: #ef4444;
+}
+
+.error-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #ef4444;
+    margin-bottom: 8px;
+}
+
+.error-text {
+    font-size: 12px;
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.retry-btn {
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid rgba(239, 68, 68, 0.5);
+    color: #ef4444;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.3s ease;
+}
+
+.retry-btn:hover {
+    background: rgba(239, 68, 68, 0.3);
+    border-color: #ef4444;
+}
+
+/* Multi-Select Indicator */
+.multi-select-indicator {
+    position: relative;
+    margin: 16px 20px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(236, 72, 153, 0.2));
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.indicator-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #a855f7;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.indicator-icon {
+    font-size: 14px;
+}
+
+.indicator-text {
+    flex: 1;
+}
+
+.indicator-close {
+    background: rgba(168, 85, 247, 0.2);
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    color: #a855f7;
+    border-radius: 6px;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    transition: all 0.3s ease;
+}
+
+.indicator-close:hover {
+    background: rgba(168, 85, 247, 0.4);
+}
+
 /* Scrollbar Styling */
 .futuristic-content::-webkit-scrollbar,
 .futuristic-sidebar::-webkit-scrollbar {
@@ -1292,31 +1385,187 @@
 
 <!-- Futuristic Tags JavaScript -->
 <script>
+let selectedTags = new Set();
+let multiSelectMode = false;
+
 function initTags() {
     console.log('Initializing Futuristic Tags Neural Network...');
-    
+
+    // Check if we're on the tags page
+    if (!document.querySelector('.futuristic-tags-container')) {
+        console.log('Tags page not detected, skipping initialization');
+        return;
+    }
+
+    // Load tags from API
+    loadTags();
+
     // Setup search functionality
     setupSearch();
-    
+
     // Setup view switching
     setupViewSwitching();
-    
+
     // Setup tag interactions
     setupTagInteractions();
-    
+
     // Setup modal functionality
     setupModal();
-    
+
     // Setup AI features
     setupAIFeatures();
-    
+
     // Animate particles
     animateParticles();
-    
+
     // Animate counters
     animateCounters();
-    
+
     console.log('Futuristic Tags Neural Network initialized successfully');
+}
+
+async function loadTags() {
+    console.log('🏷️ Loading tags from neural network...');
+
+    const container = document.getElementById('tagCloudGrid');
+    if (!container) {
+        console.error('❌ Tag cloud container not found');
+        return;
+    }
+
+    // Check if we have authentication token
+    const token = localStorage.getItem('token');
+    if (!token) {
+        console.warn('⚠️ No authentication token found, waiting...');
+        // Wait a bit for authentication to be established
+        setTimeout(() => loadTags(), 1000);
+        return;
+    }
+
+    // Show loading state
+    container.innerHTML = `
+        <div class="loading-tags">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Loading Neural Network...</div>
+        </div>
+    `;
+
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('/admin/api/blog/tags', {
+            method: 'GET',
+            headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        const tags = data.tags || [];
+
+        console.log(`✅ Loaded ${tags.length} tags from neural network`);
+
+        // Update stats
+        updateTagStats(tags);
+
+        // Render tags
+        renderTags(tags);
+
+    } catch (error) {
+        console.error('❌ Error loading tags:', error);
+        container.innerHTML = `
+            <div class="error-tags">
+                <div class="error-icon">❌</div>
+                <div class="error-title">Neural Network Error</div>
+                <div class="error-text">Failed to load tags from the system. Please check if you're logged in and try again.</div>
+                <button class="retry-btn" onclick="loadTags()">Retry Connection</button>
+                <div class="error-hint" style="margin-top: 12px; font-size: 11px; color: #557755;">
+                    Hint: Create tags using the + button in the blog posts page sidebar
+                </div>
+            </div>
+        `;
+    }
+}
+
+function updateTagStats(tags) {
+    const totalCount = tags.length;
+    const mostUsed = tags.reduce((max, tag) => tag.count > max.count ? tag : max, { count: 0 });
+
+    // Update total count
+    const totalElement = document.querySelector('[data-count]');
+    if (totalElement) {
+        totalElement.dataset.count = totalCount;
+        totalElement.textContent = totalCount;
+    }
+
+    // Update most used
+    const mostUsedElement = document.querySelector('.stat-value.highlight');
+    if (mostUsedElement && mostUsed.name) {
+        mostUsedElement.textContent = mostUsed.name;
+    }
+
+    // Update accuracy (simulate based on tag count)
+    const accuracyElement = document.querySelector('.stat-value[data-count="94.2"]');
+    if (accuracyElement) {
+        const accuracy = totalCount > 0 ? Math.min(95, 85 + (totalCount * 2)) : 85;
+        accuracyElement.dataset.count = accuracy.toFixed(1);
+        accuracyElement.textContent = accuracy.toFixed(1) + '%';
+    }
+
+    console.log(`📊 Updated stats: ${totalCount} tags, most used: ${mostUsed.name || 'None'}`);
+}
+
+function renderTags(tags) {
+    const container = document.getElementById('tagCloudGrid');
+    if (!container) return;
+
+    if (tags.length === 0) {
+        container.innerHTML = `
+            <div class="error-tags">
+                <div class="error-icon">📭</div>
+                <div class="error-title">No Tags Found</div>
+                <div class="error-text">The neural network has no tags to display</div>
+                <button class="futuristic-btn primary" onclick="createTag()">Create First Tag</button>
+            </div>
+        `;
+        return;
+    }
+
+    // Sort tags by count (most used first)
+    const sortedTags = tags.sort((a, b) => b.count - a.count);
+
+    const tagHTML = sortedTags.map(tag => {
+        const classes = getTagClasses(tag.count, sortedTags);
+        return `
+            <div class="tag-chip ${classes}" data-tag="${tag.slug}" data-count="${tag.count}" data-id="${tag.id}">
+                <span class="tag-text">${tag.name}</span>
+                <span class="tag-count">${tag.count}</span>
+            </div>
+        `;
+    }).join('');
+
+    container.innerHTML = tagHTML;
+
+    // Re-setup tag interactions for dynamically loaded tags
+    setupTagInteractions();
+
+    console.log(`🎨 Rendered ${tags.length} tags in neural network`);
+}
+
+function getTagClasses(count, allTags) {
+    const maxCount = Math.max(...allTags.map(t => t.count));
+    const classes = [];
+
+    if (count === maxCount && count > 0) {
+        classes.push('featured');
+    } else if (count >= maxCount * 0.7) {
+        classes.push('popular');
+    } else if (count >= maxCount * 0.4) {
+        classes.push('trending');
+    }
+
+    return classes.join(' ');
 }
 
 function setupSearch() {
@@ -1336,21 +1585,38 @@ function filterTags() {
     const searchTerm = document.getElementById('tagSearch').value.toLowerCase();
     const filter = document.getElementById('tagFilter').value;
     const chips = document.querySelectorAll('.tag-chip');
-    
+
     chips.forEach(chip => {
         const tagText = chip.querySelector('.tag-text').textContent.toLowerCase();
+        const tagCount = parseInt(chip.dataset.count) || 0;
         const matchesSearch = !searchTerm || tagText.includes(searchTerm);
-        
+
         // Apply filter logic
-        const shouldShow = matchesSearch && (filter === 'all' || 
-            (filter === 'popular' && chip.classList.contains('popular')) ||
-            (filter === 'trending' && chip.classList.contains('trending')) ||
-            (filter === 'ai-generated' && chip.classList.contains('ai-generated')) ||
-            (filter === 'unused' && !chip.classList.contains('popular') && !chip.classList.contains('trending'))
-        );
-        
+        let shouldShow = matchesSearch;
+
+        if (filter !== 'all') {
+            switch (filter) {
+                case 'popular':
+                    shouldShow = shouldShow && tagCount >= 50;
+                    break;
+                case 'trending':
+                    shouldShow = shouldShow && tagCount >= 20 && tagCount < 50;
+                    break;
+                case 'unused':
+                    shouldShow = shouldShow && tagCount === 0;
+                    break;
+                case 'ai-generated':
+                    // For now, assume all tags are manually created
+                    // This can be extended when AI-generated tags are implemented
+                    shouldShow = shouldShow && false;
+                    break;
+            }
+        }
+
         chip.style.display = shouldShow ? 'flex' : 'none';
     });
+
+    console.log(`🔍 Filtered tags: search="${searchTerm}", filter="${filter}"`);
 }
 
 function setupViewSwitching() {
@@ -1396,29 +1662,121 @@ function switchView(view) {
 
 function setupTagInteractions() {
     const chips = document.querySelectorAll('.tag-chip');
-    
+
     chips.forEach(chip => {
-        chip.addEventListener('click', function() {
-            const tag = this.dataset.tag;
-            const count = this.dataset.count;
-            handleTagClick(tag, count);
+        // Double-click to start multi-selection
+        chip.addEventListener('dblclick', function(e) {
+            e.preventDefault();
+            const tagId = this.dataset.id;
+            startMultiSelect(tagId);
         });
-        
+
+        // Single-click for selection (only in multi-select mode)
+        chip.addEventListener('click', function(e) {
+            if (multiSelectMode) {
+                e.preventDefault();
+                const tagId = this.dataset.id;
+                toggleTagSelection(tagId);
+            } else {
+                // Normal single-click behavior (could show details)
+                const tag = this.dataset.tag;
+                const count = this.dataset.count;
+                handleTagClick(tag, count);
+            }
+        });
+
         chip.addEventListener('mouseenter', function() {
             this.style.transform = 'translateY(-4px) scale(1.05)';
         });
-        
+
         chip.addEventListener('mouseleave', function() {
             this.style.transform = 'translateY(0) scale(1)';
         });
     });
 }
 
+function startMultiSelect(tagId) {
+    console.log(`Starting multi-select with tag: ${tagId}`);
+    multiSelectMode = true;
+    selectedTags.clear();
+    selectedTags.add(tagId);
+    updateTagSelectionUI();
+
+    // Show visual feedback that multi-select is active
+    showMultiSelectIndicator();
+}
+
+function toggleTagSelection(tagId) {
+    if (selectedTags.has(tagId)) {
+        selectedTags.delete(tagId);
+    } else {
+        selectedTags.add(tagId);
+    }
+    updateTagSelectionUI();
+
+    // Exit multi-select if no tags selected
+    if (selectedTags.size === 0) {
+        exitMultiSelect();
+    }
+}
+
+function updateTagSelectionUI() {
+    // Update visual selection state for all tags
+    document.querySelectorAll('.tag-chip').forEach(chip => {
+        const tagId = chip.dataset.id;
+        if (selectedTags.has(tagId)) {
+            chip.classList.add('selected');
+        } else {
+            chip.classList.remove('selected');
+        }
+    });
+
+    // Update delete button state
+    const deleteBtn = document.querySelector('.futuristic-btn.danger');
+    if (deleteBtn) {
+        deleteBtn.disabled = selectedTags.size === 0;
+        deleteBtn.style.opacity = selectedTags.size === 0 ? '0.5' : '1';
+    }
+}
+
+function exitMultiSelect() {
+    multiSelectMode = false;
+    selectedTags.clear();
+    updateTagSelectionUI();
+    hideMultiSelectIndicator();
+}
+
+function showMultiSelectIndicator() {
+    // Add visual indicator that multi-select is active
+    const container = document.querySelector('.futuristic-tags-container');
+    if (container && !container.querySelector('.multi-select-indicator')) {
+        const indicator = document.createElement('div');
+        indicator.className = 'multi-select-indicator';
+        indicator.innerHTML = `
+            <div class="indicator-content">
+                <span class="indicator-icon">🎯</span>
+                <span class="indicator-text">Multi-select active - Click tags to select/deselect</span>
+                <button class="indicator-close" onclick="exitMultiSelect()">✕</button>
+            </div>
+        `;
+        container.insertBefore(indicator, container.firstChild.nextSibling);
+    }
+}
+
+function hideMultiSelectIndicator() {
+    const indicator = document.querySelector('.multi-select-indicator');
+    if (indicator) {
+        indicator.remove();
+    }
+}
+
 function handleTagClick(tag, count) {
     console.log(`Tag clicked: ${tag} (${count} posts)`);
-    
-    // Show tag details modal
-    showTagDetails(tag, count);
+
+    // Show tag details modal (only in normal mode)
+    if (!multiSelectMode) {
+        showTagDetails(tag, count);
+    }
 }
 
 function showTagDetails(tag, count) {
@@ -1447,21 +1805,117 @@ function closeCreateModal() {
     modal?.classList.remove('show');
 }
 
-function generateTag() {
-    console.log('Generating new tag...');
-    closeCreateModal();
+async function generateTag() {
+    console.log('🚀 Generating new tag...');
+
+    const nameInput = document.querySelector('#createTagModal input[type="text"]');
+    const descriptionInput = document.querySelector('#createTagModal textarea');
+    const typeSelect = document.querySelector('#createTagModal select');
+
+    const tagName = nameInput?.value.trim();
+    const tagDescription = descriptionInput?.value.trim();
+    const tagType = typeSelect?.value || 'manual';
+
+    if (!tagName) {
+        alert('Please enter a tag name');
+        nameInput?.focus();
+        return;
+    }
+
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('/admin/api/blog/tags', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                name: tagName,
+                description: tagDescription,
+                type: tagType
+            })
+        });
+
+        if (!response.ok) {
+            const error = await response.text();
+            throw new Error(`Failed to create tag: ${error}`);
+        }
+
+        const result = await response.json();
+        console.log('✅ Tag created successfully:', result);
+
+        // Close modal and refresh tags
+        closeCreateModal();
+        loadTags();
+
+        // Clear form
+        if (nameInput) nameInput.value = '';
+        if (descriptionInput) descriptionInput.value = '';
+        if (typeSelect) typeSelect.value = 'manual';
+
+    } catch (error) {
+        console.error('❌ Error creating tag:', error);
+        alert('Failed to create tag: ' + error.message);
+    }
 }
 
-function autoTag() {
-    console.log('Starting auto-tagging process...');
-}
+async function deleteSelectedTags() {
+    if (selectedTags.size === 0) {
+        alert('Please select tags to delete first');
+        return;
+    }
 
-function mergeTags() {
-    console.log('Opening tag merge interface...');
-}
+    const confirmMessage = `Are you sure you want to delete ${selectedTags.size} tag${selectedTags.size > 1 ? 's' : ''}? This action cannot be undone.`;
+    if (!confirm(confirmMessage)) {
+        return;
+    }
 
-function pruneTags() {
-    console.log('Starting tag pruning process...');
+    console.log(`🗑️ Deleting ${selectedTags.size} tags:`, Array.from(selectedTags));
+
+    try {
+        const token = localStorage.getItem('token');
+        let successCount = 0;
+        let errorCount = 0;
+
+        // Delete each selected tag
+        for (const tagId of selectedTags) {
+            try {
+                const response = await fetch(`/admin/api/blog/tags/${tagId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    successCount++;
+                    console.log(`✅ Deleted tag ID: ${tagId}`);
+                } else {
+                    errorCount++;
+                    console.error(`❌ Failed to delete tag ID: ${tagId}`);
+                }
+            } catch (error) {
+                errorCount++;
+                console.error(`❌ Error deleting tag ID: ${tagId}:`, error);
+            }
+        }
+
+        // Show results
+        if (successCount > 0) {
+            alert(`Successfully deleted ${successCount} tag${successCount > 1 ? 's' : ''}${errorCount > 0 ? ` (${errorCount} failed)` : ''}`);
+        } else {
+            alert('Failed to delete any tags');
+        }
+
+        // Exit multi-select mode and refresh tags
+        exitMultiSelect();
+        loadTags();
+
+    } catch (error) {
+        console.error('❌ Error in delete operation:', error);
+        alert('An error occurred while deleting tags');
+    }
 }
 
 function setupAIFeatures() {

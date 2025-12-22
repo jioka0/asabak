@@ -56,6 +56,13 @@ async def admin_blog_editor_page(request: Request):
     auth_logger.info(f"📄 ADMIN BLOG EDITOR PAGE REQUEST - IP: {request.client.host}")
     return templates.TemplateResponse("admin_blog_editor.html", {"request": request})
 
+@router.get("/admin/blog/tags")
+@router.get("/admin/blog/tags/")
+async def admin_blog_tags_page(request: Request):
+    """Serve blog tags management page - Authentication handled by JavaScript"""
+    auth_logger.info(f"📄 ADMIN BLOG TAGS PAGE REQUEST - IP: {request.client.host}")
+    return templates.TemplateResponse("admin_blog_tags.html", {"request": request})
+
 @router.get("/admin/{section}/{page}", response_class=HTMLResponse)
 async def admin_section_page(request: Request, section: str, page: str):
     """Serve admin section pages dynamically - Authentication handled by JavaScript"""
@@ -362,6 +369,7 @@ async def get_blog_posts(current_user = Depends(get_current_active_user)):
                 "contentLength": len(post.content or ""),
                 "views": getattr(post, "view_count", 0) or 0,
                 "slug": slug,
+                "template_type": post.template_type,
                 "isDraft": not is_published,  # Add explicit draft flag
                 "publishedAt": post.published_at.isoformat() if getattr(post, "published_at", None) else None
             }
@@ -583,26 +591,39 @@ async def create_blog_tag(tag_data: dict, current_user = Depends(get_current_act
     import re
 
     try:
-        auth_logger.info(f"🏷️ Creating new tag: {tag_data}")
-        
+        auth_logger.info(f"🏷️ ===== STARTING TAG CREATION =====")
+        auth_logger.info(f"🏷️ User: {current_user.username} (ID: {current_user.id})")
+        auth_logger.info(f"🏷️ Raw tag data received: {tag_data}")
+
         # Generate slug from name
         name = tag_data.get("name", "").strip()
+        auth_logger.info(f"🏷️ Processing tag name: '{name}'")
+
         if not name:
+            auth_logger.warning(f"🏷️ ❌ VALIDATION FAILED: Tag name is empty")
             raise HTTPException(status_code=400, detail="Tag name is required")
-        
+
+        auth_logger.info(f"🏷️ ✅ VALIDATION PASSED: Tag name is valid")
+
         # Create slug (URL-friendly version of the name)
         slug = re.sub(r'[^a-zA-Z0-9\s-]', '', name.lower())
         slug = re.sub(r'\s+', '-', slug).strip('-')
-        
+        auth_logger.info(f"🏷️ Generated slug: '{slug}'")
+
         # Check if tag already exists
+        auth_logger.info(f"🏷️ Checking for existing tags with name '{name}' or slug '{slug}'")
         existing_tag = db.query(BlogTag).filter(
             (BlogTag.name == name) | (BlogTag.slug == slug)
         ).first()
-        
+
         if existing_tag:
+            auth_logger.warning(f"🏷️ ❌ DUPLICATE FOUND: Tag already exists - ID: {existing_tag.id}, Name: {existing_tag.name}")
             raise HTTPException(status_code=400, detail="Tag with this name or slug already exists")
-        
+
+        auth_logger.info(f"🏷️ ✅ NO DUPLICATES: Tag name and slug are unique")
+
         # Create new tag
+        auth_logger.info(f"🏷️ Creating new BlogTag object...")
         new_tag = BlogTag(
             name=name,
             slug=slug,
@@ -610,14 +631,21 @@ async def create_blog_tag(tag_data: dict, current_user = Depends(get_current_act
             color=tag_data.get("color", "#6366f1"),  # Default color
             is_featured=tag_data.get("is_featured", False)
         )
-        
+
+        auth_logger.info(f"🏷️ Adding tag to database session...")
         db.add(new_tag)
+
+        auth_logger.info(f"🏷️ Committing transaction...")
         db.commit()
+
+        auth_logger.info(f"🏷️ Refreshing tag object from database...")
         db.refresh(new_tag)
-        
-        auth_logger.info(f"✅ Tag created successfully: {new_tag.name} (ID: {new_tag.id})")
-        
-        return {
+
+        auth_logger.info(f"🏷️ ✅ TAG CREATED SUCCESSFULLY!")
+        auth_logger.info(f"🏷️ Tag details - ID: {new_tag.id}, Name: {new_tag.name}, Slug: {new_tag.slug}")
+        auth_logger.info(f"🏷️ Tag metadata - Description: '{new_tag.description}', Color: {new_tag.color}, Featured: {new_tag.is_featured}")
+
+        response_data = {
             "success": True,
             "tag": {
                 "id": str(new_tag.id),
@@ -629,27 +657,35 @@ async def create_blog_tag(tag_data: dict, current_user = Depends(get_current_act
                 "is_featured": new_tag.is_featured
             }
         }
-        
+
+        auth_logger.info(f"🏷️ ===== TAG CREATION COMPLETED SUCCESSFULLY =====")
+        return response_data
+
     except HTTPException:
+        auth_logger.info(f"🏷️ ===== TAG CREATION FAILED (HTTPException) =====")
         raise
     except Exception as e:
-        auth_logger.error(f"❌ Error creating tag: {e}")
+        auth_logger.error(f"🏷️ ===== TAG CREATION FAILED (Exception) =====")
+        auth_logger.error(f"🏷️ Error type: {type(e).__name__}")
+        auth_logger.error(f"🏷️ Error message: {str(e)}")
+        import traceback
+        auth_logger.error(f"🏷️ Full traceback: {traceback.format_exc()}")
         db.rollback()
         raise HTTPException(status_code=500, detail="Failed to create tag")
 
 @router.get("/admin/api/blog/tags")
 async def get_blog_tags(current_user = Depends(get_current_active_user)):
     """Get all blog tags"""
-    from models.blog import BlogTag
+    from models.blog import BlogTag, BlogPost
     from sqlalchemy import func
 
     try:
         auth_logger.info("🏷️ Fetching all blog tags")
-        
+
         # Get all tags with post counts
         tags_query = db.query(BlogTag).order_by(BlogTag.name.asc())
         tags = tags_query.all()
-        
+
         # Format tags for frontend
         tags_data = []
         for tag in tags:
@@ -657,12 +693,12 @@ async def get_blog_tags(current_user = Depends(get_current_active_user)):
             actual_count = db.query(func.count(BlogPost.id)).filter(
                 BlogPost.tags.contains([tag.slug])  # Check if tag is in the JSON array
             ).scalar() or 0
-            
+
             # Update post_count if it's outdated
             if tag.post_count != actual_count:
                 tag.post_count = actual_count
                 db.flush()  # Update without committing
-            
+
             tags_data.append({
                 "id": str(tag.id),
                 "name": tag.name,
@@ -672,15 +708,43 @@ async def get_blog_tags(current_user = Depends(get_current_active_user)):
                 "count": actual_count,
                 "is_featured": tag.is_featured
             })
-        
+
         db.commit()  # Commit any post_count updates
-        
+
         auth_logger.info(f"✅ Retrieved {len(tags_data)} tags")
         return {"tags": tags_data}
-        
+
     except Exception as e:
         auth_logger.error(f"❌ Error getting tags: {e}")
         raise HTTPException(status_code=500, detail="Failed to fetch tags")
+
+@router.delete("/admin/api/blog/tags/{tag_id}")
+async def delete_blog_tag(tag_id: int, current_user = Depends(get_current_active_user)):
+    """Delete a blog tag"""
+    from models.blog import BlogTag
+
+    try:
+        auth_logger.info(f"🗑️ Deleting tag with ID: {tag_id}")
+
+        # Find the tag
+        tag = db.query(BlogTag).filter(BlogTag.id == tag_id).first()
+        if not tag:
+            auth_logger.warning(f"🏷️ Tag not found: {tag_id}")
+            raise HTTPException(status_code=404, detail="Tag not found")
+
+        # Delete the tag
+        db.delete(tag)
+        db.commit()
+
+        auth_logger.info(f"✅ Tag deleted successfully: {tag.name} (ID: {tag_id})")
+        return {"success": True, "message": f"Tag '{tag.name}' deleted successfully"}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        auth_logger.error(f"❌ Error deleting tag: {e}")
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to delete tag")
 
 @router.get("/admin/api/blog/render-template/{template_name}")
 @router.get("/api/admin/blog/render-template/{template_name}")

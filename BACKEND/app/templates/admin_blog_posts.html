@@ -121,7 +121,6 @@ tailwind.config = {
         <div class="retro-nav-controls">
             <input type="text" class="retro-search-input" placeholder="SEARCH POSTS..." id="searchInput">
             <div class="retro-view-controls">
-                <button class="retro-view-btn" onclick="setViewMode('large-icons')" title="Large Icons">L</button>
                 <button class="retro-view-btn" onclick="setViewMode('medium-icons')" title="Medium Icons">M</button>
                 <button class="retro-view-btn active" onclick="setViewMode('list')" title="List">S</button>
                 <button class="retro-view-btn" onclick="setViewMode('details')" title="Details">D</button>
@@ -250,13 +249,8 @@ tailwind.config = {
             </div>
 
             <!-- Other view modes (hidden by default) -->
-            <div class="retro-posts-grid large-icons-view hidden" id="largeIconsView">
-                <div class="retro-grid-container" id="largeIconsGrid">
-                    <!-- Large icons will be populated here -->
-                </div>
-            </div>
 
-            <div class="retro-posts-grid medium-icons-view hidden" id="mediumIconsView">
+            <div class="retro-posts-grid medium-icons-view hidden" id="medium-iconsView">
                 <div class="retro-grid-container" id="mediumIconsGrid">
                     <!-- Medium icons will be populated here -->
                 </div>
@@ -881,10 +875,6 @@ tailwind.config = {
     margin-top: 2px;
 }
 
-/* Large Icons View */
-.large-icons-view .retro-grid-container {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-}
 
 /* Medium Icons View */
 .medium-icons-view .retro-grid-container {
@@ -1186,6 +1176,144 @@ tailwind.config = {
     }
 }
 
+/* Tag Selector Styles */
+.tag-selector {
+    position: relative;
+    border: 1px solid #333;
+    border-radius: 6px;
+    background: #0a0a0a;
+    min-height: 40px;
+    padding: 8px;
+}
+
+.selected-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+    min-height: 24px;
+}
+
+.selected-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(236, 72, 153, 0.3));
+    border: 1px solid rgba(168, 85, 247, 0.5);
+    border-radius: 12px;
+    padding: 4px 8px;
+    font-size: 11px;
+    color: #a855f7;
+}
+
+.selected-tag-remove {
+    background: none;
+    border: none;
+    color: #a855f7;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 0;
+    margin-left: 2px;
+    opacity: 0.7;
+}
+
+.selected-tag-remove:hover {
+    opacity: 1;
+}
+
+.tag-selector-dropdown {
+    position: relative;
+}
+
+.tag-search-input {
+    width: 100%;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: #ffffff;
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+
+.tag-search-input:focus {
+    outline: none;
+    border-color: rgba(168, 85, 247, 0.5);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.available-tags {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.available-tag {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.2s ease;
+}
+
+.available-tag:hover {
+    background: rgba(168, 85, 247, 0.1);
+}
+
+.available-tag.selected {
+    background: rgba(168, 85, 247, 0.2);
+    border-left: 3px solid #a855f7;
+}
+
+.available-tag:last-child {
+    border-bottom: none;
+}
+
+.available-tag-checkbox {
+    width: 16px;
+    height: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: #a855f7;
+}
+
+.available-tag-checkbox.checked {
+    background: #a855f7;
+    border-color: #a855f7;
+}
+
+.available-tag-info {
+    flex: 1;
+}
+
+.available-tag-name {
+    font-size: 12px;
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.available-tag-count {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.loading-tags {
+    padding: 20px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+}
+
 /* Additional responsive breakpoint for very small screens */
 @media (max-width: 480px) {
     .retro-list-header,
@@ -1216,8 +1344,15 @@ let selectedItems = new Set();
 let allPosts = [];
 let currentFolder = 'all';
 let searchTerm = '';
+let selectedPublishTags = new Set();
+let availablePublishTags = [];
 
 function initBlogPosts() {
+    // Only initialize if we're on the posts page (check for posts container)
+    if (!document.getElementById('postsExplorer')) {
+        return; // Skip initialization if not on posts page
+    }
+
     loadPostsData();
     setupEventListeners();
     setupContextMenu();
@@ -1301,22 +1436,30 @@ async function loadPostsData() {
             draftPostsList: allPosts.filter(post => post.status === 'draft' || post.isDraft).map(p => ({ id: p.id, title: p.title, status: p.status }))
         });
 
-        updateSidebarCounts(data.stats || {
-            totalPosts: allPosts.length,
-            publishedCount: publishedCount,
-            draftCount: draftCount,
-            scheduledCount: 0,
-            categories: [],
-            tags: []
-        });
+        updateSidebarCounts(data);
         renderCurrentView();
+
+        // Apply saved view mode after posts are loaded
+        loadSavedViewMode();
     } catch (error) {
         console.error(LOG, 'Fetch error:', error);
         showFallbackPostsData();
     }
 }
 
-function updateSidebarCounts(stats) {
+function updateSidebarCounts(data) {
+    // Only update sidebar counts if we're on the posts page
+    if (!document.getElementById('postsExplorer')) {
+        return;
+    }
+
+    const stats = data.stats || {
+        totalPosts: 0,
+        publishedCount: 0,
+        draftCount: 0,
+        scheduledCount: 0
+    };
+
     document.getElementById('allPostsCount').textContent = stats.totalPosts || 0;
     document.getElementById('publishedCount').textContent = stats.publishedCount || 0;
     document.getElementById('draftCount').textContent = stats.draftCount || 0;
@@ -1324,12 +1467,12 @@ function updateSidebarCounts(stats) {
     document.getElementById('totalPostsCount').textContent = stats.totalPosts || 0;
 
     // Update categories and tags trees
-    renderCategoriesTree(stats.categories || []);
-    renderTagsTree(stats.tags || []);
-    
+    renderCategoriesTree(data.categories || []);
+    renderTagsTree(data.tags || []);
+
     // Ensure tags tree is expanded and loaded
     const tagsTreeItem = document.querySelector('.retro-tree-item [onclick*="showAddTagModal"]')?.closest('.retro-tree-item');
-    if (tagsTreeItem && stats.tags && stats.tags.length > 0) {
+    if (tagsTreeItem && data.tags && data.tags.length > 0) {
         // Auto-expand tags if we have tags to show
         const tagsChildren = tagsTreeItem.querySelector('.retro-tree-children');
         const tagsArrow = tagsTreeItem.querySelector('.retro-tree-arrow');
@@ -1382,15 +1525,17 @@ function renderTagsTree(tags) {
 }
 
 function renderCurrentView() {
+    // Only render current view if we're on the posts page
+    if (!document.getElementById('postsExplorer')) {
+        return;
+    }
+
     const filteredPosts = filterPosts();
     updateStatusBar(filteredPosts.length);
 
     switch (currentViewMode) {
         case 'list':
             renderListView(filteredPosts);
-            break;
-        case 'large-icons':
-            renderLargeIconsView(filteredPosts);
             break;
         case 'medium-icons':
             renderMediumIconsView(filteredPosts);
@@ -1484,23 +1629,14 @@ function renderListView(posts) {
     `).join('');
 }
 
-function renderLargeIconsView(posts) {
-    const container = document.getElementById('largeIconsGrid');
-    container.innerHTML = posts.map(post => `
-        <div class="retro-grid-item ${selectedItems.has(post.id) ? 'selected' : ''}" data-post-id="${post.id}" onclick="selectItem('${post.id}', event)" ondblclick="openPost('${post.id}')" oncontextmenu="showContextMenu(event, '${post.id}')">
-            <div class="retro-grid-icon">📄</div>
-            <div class="retro-grid-name">${post.title}</div>
-            <div class="retro-grid-meta">${formatStatus(post.status)}</div>
-        </div>
-    `).join('');
-}
 
 function renderMediumIconsView(posts) {
     const container = document.getElementById('mediumIconsGrid');
     container.innerHTML = posts.map(post => `
         <div class="retro-grid-item ${selectedItems.has(post.id) ? 'selected' : ''}" data-post-id="${post.id}" onclick="selectItem('${post.id}', event)" ondblclick="openPost('${post.id}')" oncontextmenu="showContextMenu(event, '${post.id}')">
             <div class="retro-grid-icon">📄</div>
-            <div class="retro-grid-name">${post.title}</div>
+            <div class="retro-grid-name">${post.slug || 'No URL'}</div>
+            <div class="retro-grid-meta">${post.template_type || 'No template'}</div>
         </div>
     `).join('');
 }
@@ -1549,7 +1685,7 @@ function setViewMode(mode) {
     }
 
     // Hide all views
-    document.querySelectorAll('.large-icons-view, .medium-icons-view, .details-view').forEach(view => {
+    document.querySelectorAll('.medium-icons-view, .details-view').forEach(view => {
         view.classList.add('hidden');
     });
 
@@ -1562,8 +1698,28 @@ function setViewMode(mode) {
     }
 
     currentViewMode = mode;
+
+    // Save view mode to localStorage for persistence
+    try {
+        localStorage.setItem('blogPostsViewMode', mode);
+    } catch (e) {
+        console.warn('Failed to save view mode to localStorage:', e);
+    }
+
     updateStatusBarText();
     renderCurrentView();
+}
+
+function loadSavedViewMode() {
+    try {
+        const savedMode = localStorage.getItem('blogPostsViewMode');
+        if (savedMode && ['list', 'medium-icons', 'details'].includes(savedMode)) {
+            // Apply the saved view mode
+            setViewMode(savedMode);
+        }
+    } catch (e) {
+        console.warn('Failed to load saved view mode from localStorage:', e);
+    }
 }
 
 function selectItem(postId, event) {
@@ -1646,15 +1802,24 @@ function updateSelectionUI() {
 }
 
 function updateStatusBar(itemCount) {
+    // Only update status bar if we're on the posts page
+    if (!document.getElementById('postsExplorer')) {
+        return;
+    }
+
     document.getElementById('itemsCount').textContent = `${itemCount} item${itemCount !== 1 ? 's' : ''}`;
     document.getElementById('selectedCount').textContent = selectedItems.size;
     document.getElementById('selectedItemsInfo').textContent = `${selectedItems.size} selected`;
 }
 
 function updateStatusBarText() {
+    // Only update status bar text if we're on the posts page
+    if (!document.getElementById('postsExplorer')) {
+        return;
+    }
+
     const viewNames = {
         'list': 'List view',
-        'large-icons': 'Large icons view',
         'medium-icons': 'Medium icons view',
         'details': 'Details view'
     };
@@ -1689,11 +1854,14 @@ function toggleTreeItem(element) {
 function setupEventListeners() {
     console.log('🎧 SETTING UP EVENT LISTENERS');
 
-    // Search
-    document.getElementById('searchInput').oninput = debounce((e) => {
-        searchTerm = e.target.value;
-        renderCurrentView();
-    }, 300);
+    // Search - only if search input exists
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.oninput = debounce((e) => {
+            searchTerm = e.target.value;
+            renderCurrentView();
+        }, 300);
+    }
 
     // Tree navigation - Add specific click handlers for tree items
     document.addEventListener('click', (e) => {
@@ -1750,6 +1918,11 @@ function setupEventListeners() {
 }
 
 function navigateToFolder(folder) {
+    // Only navigate to folder if we're on the posts page
+    if (!document.getElementById('postsExplorer')) {
+        return;
+    }
+
     console.log(`🗂️ NAVIGATE TO FOLDER: ${folder}`);
     currentFolder = folder;
 
@@ -1770,6 +1943,11 @@ function navigateToFolder(folder) {
 }
 
 function updatePathDisplay(folder) {
+    // Only update path display if we're on the posts page
+    if (!document.getElementById('postsExplorer')) {
+        return;
+    }
+
     const pathBar = document.querySelector('.retro-path-bar');
     let pathText = 'BLOG POSTS\\ALL POSTS';
 
@@ -1793,6 +1971,12 @@ function updatePathDisplay(folder) {
 }
 
 function setupContextMenu() {
+    // Only setup context menu if the context menu element exists (posts page)
+    const contextMenu = document.getElementById('contextMenu');
+    if (!contextMenu) {
+        return; // Skip setup if not on posts page
+    }
+
     document.addEventListener('contextmenu', (e) => {
         const item = e.target.closest('[data-post-id]');
         if (item) {
@@ -1804,13 +1988,18 @@ function setupContextMenu() {
 
     // Hide context menu on click outside
     document.addEventListener('click', () => {
-        document.getElementById('contextMenu').classList.add('hidden');
+        contextMenu.classList.add('hidden');
     });
 }
 
 function showContextMenu(event, postId) {
     event.preventDefault();
     const menu = document.getElementById('contextMenu');
+
+    // Check if context menu exists (only on posts page)
+    if (!menu) {
+        return;
+    }
 
     // Select the item if not already selected
     if (!selectedItems.has(postId)) {
@@ -1825,6 +2014,11 @@ function showContextMenu(event, postId) {
 }
 
 function setupKeyboardShortcuts() {
+    // Only setup keyboard shortcuts if we're on the posts page
+    if (!document.getElementById('postsExplorer')) {
+        return;
+    }
+
     document.addEventListener('keydown', (e) => {
         // Ctrl+A to select all
         if (e.ctrlKey && e.key === 'a') {
@@ -1912,10 +2106,14 @@ function debounce(func, wait) {
 function showFallbackPostsData() {
     // Show sample data when API is not available
     updateSidebarCounts({
-        totalPosts: 24,
-        publishedCount: 18,
-        draftCount: 4,
-        scheduledCount: 2
+        stats: {
+            totalPosts: 24,
+            publishedCount: 18,
+            draftCount: 4,
+            scheduledCount: 2
+        },
+        categories: [],
+        tags: []
     });
 
     // Sample posts
@@ -2283,6 +2481,11 @@ function goUp() { navigateToFolder('all'); }
 let explorerState = sessionStorage.getItem('blogExplorerState') || 'normal';
 
 function setupWindowState() {
+    // Only setup window state if we're on the posts page
+    if (!document.getElementById('postsExplorer')) {
+        return;
+    }
+
     // Ensure valid state
     if (!['normal','maximized','minimized'].includes(explorerState)) {
         explorerState = 'normal';
@@ -2291,6 +2494,11 @@ function setupWindowState() {
 }
 
 function updateWindowButtons() {
+    // Only update window buttons if we're on the posts page
+    if (!document.getElementById('postsExplorer')) {
+        return;
+    }
+
     const minBtn = document.querySelector('.retro-window-btn.retro-minimize');
     const maxBtn = document.querySelector('.retro-window-btn.retro-maximize');
 
@@ -2502,48 +2710,89 @@ function closeAddTagModal() {
 }
 
 async function addNewTag() {
+    console.log('[Tags] ===== STARTING TAG CREATION =====');
     console.log('[Tags] Adding new tag...');
-    
+
     const tagName = document.getElementById('tagNameInput').value.trim();
     const tagDescription = document.getElementById('tagDescriptionInput').value.trim();
     const tagType = document.getElementById('tagTypeSelect').value;
-    
+
+    console.log('[Tags] Form data:', {
+        name: tagName,
+        description: tagDescription,
+        type: tagType
+    });
+
     if (!tagName) {
+        console.log('[Tags] ❌ VALIDATION FAILED: No tag name provided');
         alert('Please enter a tag name');
         document.getElementById('tagNameInput').focus();
         return;
     }
-    
+
+    console.log('[Tags] ✅ VALIDATION PASSED: Tag name provided');
+
     try {
+        console.log('[Tags] 🔄 MAKING API REQUEST to /admin/api/blog/tags');
+        console.log('[Tags] Request method: POST');
+        console.log('[Tags] Request headers:', {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token') ? '[TOKEN PRESENT]' : '[NO TOKEN]'}`
+        });
+
+        const requestBody = {
+            name: tagName,
+            description: tagDescription,
+            type: tagType
+        };
+        console.log('[Tags] Request body:', requestBody);
+
         const response = await fetch('/admin/api/blog/tags', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
             },
-            body: JSON.stringify({
-                name: tagName,
-                description: tagDescription,
-                type: tagType
-            })
+            body: JSON.stringify(requestBody)
         });
-        
+
+        console.log('[Tags] 📡 API RESPONSE RECEIVED');
+        console.log('[Tags] Response status:', response.status);
+        console.log('[Tags] Response ok:', response.ok);
+        console.log('[Tags] Response headers:', Object.fromEntries(response.headers.entries()));
+
         if (!response.ok) {
-            throw new Error(`Failed to create tag: ${response.status}`);
+            console.log('[Tags] ❌ API RESPONSE NOT OK');
+            const errorText = await response.text();
+            console.log('[Tags] Error response body:', errorText);
+            throw new Error(`Failed to create tag: ${response.status} - ${errorText}`);
         }
-        
+
+        console.log('[Tags] ✅ API RESPONSE OK');
         const result = await response.json();
-        console.log('[Tags] Tag created successfully:', result);
-        
+        console.log('[Tags] Response JSON:', result);
+
+        console.log('[Tags] 🎉 TAG CREATED SUCCESSFULLY!');
+        console.log('[Tags] Created tag details:', result);
+
         showNotification(`Tag "${tagName}" created successfully!`, 'success');
         closeAddTagModal();
-        
+
         // Refresh the sidebar to show new tag
+        console.log('[Tags] 🔄 REFRESHING POSTS DATA TO SHOW NEW TAG');
         loadPostsData();
-        
+
+        console.log('[Tags] ===== TAG CREATION COMPLETED SUCCESSFULLY =====');
+
     } catch (error) {
-        console.error('[Tags] Error creating tag:', error);
+        console.error('[Tags] 💥 ERROR DURING TAG CREATION:', error);
+        console.error('[Tags] Error name:', error.name);
+        console.error('[Tags] Error message:', error.message);
+        console.error('[Tags] Error stack:', error.stack);
+
         showNotification('Failed to create tag: ' + error.message, 'error');
+
+        console.log('[Tags] ===== TAG CREATION FAILED =====');
     }
 }
 
@@ -3175,7 +3424,15 @@ if (document.readyState === 'loading') {
           </div>
           <div class="publish-field">
             <label for="publishTags">Tags</label>
-            <input type="text" id="publishTags" class="publish-input" placeholder="tech, ai, tutorial (comma-separated)">
+            <div id="publishTagsSelector" class="tag-selector">
+              <div class="selected-tags" id="selectedTagsContainer"></div>
+              <div class="tag-selector-dropdown">
+                <input type="text" id="tagSearchInput" class="tag-search-input" placeholder="Search tags...">
+                <div class="available-tags" id="availableTagsContainer">
+                  <div class="loading-tags">Loading tags...</div>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="publish-field">
             <label for="publishAuthor">Author</label>
@@ -4150,6 +4407,10 @@ if (document.readyState === 'loading') {
       selectedRoutes: []
     };
 
+    // Reset selected tags
+    selectedPublishTags.clear();
+    updatePublishSelectedTagsDisplay();
+
     // Reset UI states
     document.querySelectorAll('.choice-btn').forEach(btn => btn.classList.remove('active'));
     document.getElementById('publishRoutesSelector').classList.add('hidden');
@@ -4311,7 +4572,7 @@ if (document.readyState === 'loading') {
         title: document.getElementById('publishTitle').value.trim(),
         slug: document.getElementById('publishSlug').value.trim(),
         excerpt: document.getElementById('publishExcerpt').value.trim(),
-        tags: document.getElementById('publishTags').value.split(',').map(t => t.trim()).filter(t => t),
+        tags: Array.from(selectedPublishTags), // Use selected tags from tag selector
         author: document.getElementById('publishAuthor').value.trim(),
         published_at: document.getElementById('publishDate').value || new Date().toISOString(),
         featured_image: document.getElementById('publishImage').value.trim(),
@@ -4409,10 +4670,121 @@ if (document.readyState === 'loading') {
     }
   }
 
+  // Tag Selector Functions for Publish Wizard
+  async function loadPublishTags() {
+    console.log('🏷️ Loading tags for publish wizard...');
+
+    const container = document.getElementById('availableTagsContainer');
+    if (!container) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/admin/api/blog/tags', {
+        method: 'GET',
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      availablePublishTags = data.tags || [];
+
+      console.log(`✅ Loaded ${availablePublishTags.length} tags for publish wizard`);
+      renderAvailablePublishTags();
+
+    } catch (error) {
+      console.error('❌ Error loading publish tags:', error);
+      container.innerHTML = '<div class="loading-tags">Failed to load tags</div>';
+    }
+  }
+
+  function renderAvailablePublishTags() {
+    const container = document.getElementById('availableTagsContainer');
+    if (!container || !availablePublishTags.length) {
+      container.innerHTML = '<div class="loading-tags">No tags available</div>';
+      return;
+    }
+
+    const tagHTML = availablePublishTags.map(tag => `
+      <div class="available-tag ${selectedPublishTags.has(tag.slug) ? 'selected' : ''}"
+           data-tag-slug="${tag.slug}"
+           onclick="togglePublishTag('${tag.slug}')">
+        <div class="available-tag-checkbox ${selectedPublishTags.has(tag.slug) ? 'checked' : ''}">
+          ${selectedPublishTags.has(tag.slug) ? '✓' : ''}
+        </div>
+        <div class="available-tag-info">
+          <div class="available-tag-name">${tag.name}</div>
+          <div class="available-tag-count">${tag.count} posts</div>
+        </div>
+      </div>
+    `).join('');
+
+    container.innerHTML = tagHTML;
+    setupPublishTagSearch();
+  }
+
+  function togglePublishTag(tagSlug) {
+    if (selectedPublishTags.has(tagSlug)) {
+      selectedPublishTags.delete(tagSlug);
+    } else {
+      selectedPublishTags.add(tagSlug);
+    }
+    updatePublishSelectedTagsDisplay();
+    renderAvailablePublishTags();
+  }
+
+  function updatePublishSelectedTagsDisplay() {
+    const container = document.getElementById('selectedTagsContainer');
+    if (!container) return;
+
+    if (selectedPublishTags.size === 0) {
+      container.innerHTML = '<span style="color: rgba(255,255,255,0.5); font-size: 12px;">No tags selected</span>';
+      return;
+    }
+
+    const tagHTML = Array.from(selectedPublishTags).map(tagSlug => {
+      const tag = availablePublishTags.find(t => t.slug === tagSlug);
+      const tagName = tag ? tag.name : tagSlug;
+      return `
+        <span class="selected-tag">
+          ${tagName}
+          <button class="selected-tag-remove" onclick="removePublishTag('${tagSlug}')">×</button>
+        </span>
+      `;
+    }).join('');
+
+    container.innerHTML = tagHTML;
+  }
+
+  function removePublishTag(tagSlug) {
+    selectedPublishTags.delete(tagSlug);
+    updatePublishSelectedTagsDisplay();
+    renderAvailablePublishTags();
+  }
+
+  function setupPublishTagSearch() {
+    const searchInput = document.getElementById('tagSearchInput');
+    if (!searchInput) return;
+
+    searchInput.addEventListener('input', function() {
+      const searchTerm = this.value.toLowerCase();
+      const tagElements = document.querySelectorAll('.available-tag');
+
+      tagElements.forEach(element => {
+        const tagName = element.querySelector('.available-tag-name').textContent.toLowerCase();
+        const isVisible = !searchTerm || tagName.includes(searchTerm);
+        element.style.display = isVisible ? 'flex' : 'none';
+      });
+    });
+  }
+
   // Call this when the editor modal is opened
   function initPublishWizard() {
     wirePublishWizardEvents();
     showPublishStep(1);
+    loadPublishTags(); // Load tags for the tag selector
   }
 
   // Public hook: override existing newPost() to open wizard
