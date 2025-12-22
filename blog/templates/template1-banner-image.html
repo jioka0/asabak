@@ -478,10 +478,11 @@
                             <div class="comment-section-expanded hidden" id="comment-section-expanded">
                                 <div class="relative group cursor-text" style="cursor: text !important;">
                                     <textarea
-                                        class="w-full border border-gray-200 dark:border-gray-600 rounded-xl p-4 text-sm sm:text-base comment-textarea bg-white dark:bg-gray-800 text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 caret-purple-600 dark:caret-purple-400 transition-all duration-300 focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent resize-none shadow-sm hover:shadow-md focus:shadow-lg focus:shadow-purple-200/50 dark:focus:shadow-purple-900/20"
+                                        class="w-full border border-gray-200 dark:border-gray-600 rounded-xl p-4 text-sm sm:text-base comment-textarea bg-white dark:bg-gray-800 placeholder-gray-500 dark:placeholder-gray-400 caret-purple-600 dark:caret-purple-400 transition-all duration-300 focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent resize-none shadow-sm hover:shadow-md focus:shadow-lg focus:shadow-purple-200/50 dark:focus:shadow-purple-900/20"
                                         rows="4"
                                         placeholder="Share your thoughts..."
-                                        style="min-height: 120px; max-height: 300px; color: black !important;">
+                                        style="min-height: 120px; max-height: 300px;"
+                                        id="comment-textarea-main">
                                     </textarea>
                                     <div class="absolute bottom-3 right-3 text-xs text-gray-400 dark:text-gray-500 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300">
                                         <span class="hidden sm:inline">Press Enter to submit</span>
@@ -712,6 +713,18 @@
             // Set up mutation observer for dynamically added elements
             setupMutationObserver();
 
+            // Set up theme change observer
+            setupThemeObserver();
+
+            // Set textarea color based on theme
+            updateTextareaTheme();
+
+            // Clear any default textarea content
+            const textarea = document.getElementById('comment-textarea-main');
+            if (textarea) {
+                textarea.value = '';
+            }
+
             window.commentSystemState.initialized = true;
         } catch (error) {
             console.error('Error initializing comment system:', error);
@@ -736,6 +749,22 @@
         observer.observe(document.body, {
             childList: true,
             subtree: true
+        });
+    }
+
+    // Theme change observer
+    function setupThemeObserver() {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    updateTextareaTheme();
+                }
+            });
+        });
+
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['class']
         });
     }
 
@@ -766,6 +795,15 @@
         const path = window.location.pathname;
         const match = path.match(/^\/blog\/(\d+)/);
         return match ? parseInt(match[1]) : (window.postData?.id || 1);
+    }
+
+    // Update textarea color based on theme
+    function updateTextareaTheme() {
+        const textarea = document.getElementById('comment-textarea-main');
+        if (textarea) {
+            const isDark = document.documentElement.classList.contains('dark');
+            textarea.style.color = isDark ? 'white' : 'black';
+        }
     }
 
     // Setup comment form (only when expanded)
