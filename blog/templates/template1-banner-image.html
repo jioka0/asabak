@@ -515,8 +515,8 @@
                                 <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Join the Discussion</h2>
                                 <span class="bg-purple-600 dark:bg-purple-500 text-white px-3 py-1 rounded-full text-xs font-semibold">{{ post_data.comment_count or 0 }} Comments</span>
                             </div>
-                            <!-- Collapsed Comment Box (Initial State) -->
-                            <div class="comment-section-collapsed cursor-pointer rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-300 p-4 text-center group"
+                            <!-- Collapsed Comment Box (Hidden Initially) -->
+                            <div class="comment-section-collapsed cursor-pointer rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-300 p-4 text-center group hidden"
                                  onclick="emergencyFunctionCaller('expandCommentSection')"
                                  id="comment-section-collapsed">
                                 <div class="flex flex-col items-center justify-center gap-2 text-gray-500 dark:text-gray-400">
@@ -525,8 +525,8 @@
                                 </div>
                             </div>
 
-                            <!-- Expanded Comment Box (Hidden Initially) -->
-                            <div class="comment-section-expanded hidden" id="comment-section-expanded">
+                            <!-- Expanded Comment Box (Visible by Default) -->
+                            <div class="comment-section-expanded" id="comment-section-expanded">
                                 <div class="relative group cursor-text" style="cursor: text !important;">
                                     <textarea
                                         class="w-full border border-gray-200 dark:border-gray-600 rounded-xl p-4 text-sm sm:text-base comment-textarea bg-white dark:bg-gray-800 placeholder-gray-500 dark:placeholder-gray-400 caret-purple-600 dark:caret-purple-400 transition-all duration-300 focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent resize-none shadow-sm hover:shadow-md focus:shadow-lg focus:shadow-purple-200/50 dark:focus:shadow-purple-900/20"
@@ -661,7 +661,7 @@
 
     // Global state
     window.commentSystemState = {
-        expanded: false,
+        expanded: true, // Start expanded by default
         initialized: false,
         postId: null,
         replyToId: null
@@ -1336,11 +1336,13 @@
         }
 
         try {
-            // Show loading state
-            const submitBtn = document.querySelector('button[onclick="submitComment()"]');
-            const originalText = submitBtn.textContent;
-            submitBtn.textContent = 'Posting...';
-            submitBtn.disabled = true;
+            // Show loading state - find submit button in modal
+            const submitBtn = document.querySelector('.modal-submit-btn');
+            const originalText = submitBtn ? submitBtn.textContent : 'Post Comment';
+            if (submitBtn) {
+                submitBtn.textContent = 'Posting...';
+                submitBtn.disabled = true;
+            }
 
             const commentData = {
                 author_name: name,
@@ -1375,9 +1377,22 @@
             }
             closeCommentModal();
             
-            // Reload comments
+            // Reload comments and update comment count
             setTimeout(() => {
                 loadComments(currentPostId);
+                // Update comment count in header
+                const commentCountSpans = document.querySelectorAll('span');
+                commentCountSpans.forEach(span => {
+                    const text = span.textContent.trim();
+                    if (text.includes('Comments') || /^\d+$/.test(text)) {
+                        const currentCount = parseInt(text.replace(' Comments', '')) || 0;
+                        if (text.includes('Comments')) {
+                            span.textContent = (currentCount + 1) + ' Comments';
+                        } else if (/^\d+$/.test(text)) {
+                            span.textContent = (currentCount + 1).toString();
+                        }
+                    }
+                });
             }, 1000);
             
         } catch (error) {
@@ -1385,7 +1400,7 @@
             showNotification('Failed to submit comment. Please try again.', 'error');
         } finally {
             // Reset button state
-            const submitBtn = document.querySelector('button[onclick="submitComment()"]');
+            const submitBtn = document.querySelector('.modal-submit-btn');
             if (submitBtn) {
                 submitBtn.textContent = 'Post Comment';
                 submitBtn.disabled = false;
@@ -1578,7 +1593,7 @@
         }
     };
 
-    // Scroll to comments section and expand if needed
+    // Scroll to comments section and focus textarea if needed
     function scrollToComments() {
         try {
             const commentsSection = document.getElementById('comments');
@@ -1590,16 +1605,11 @@
                     inline: 'nearest'
                 });
 
-                // Expand comment section after scrolling
+                // Focus the textarea after scrolling (since it's already expanded)
                 setTimeout(() => {
-                    if (!window.commentSystemState.expanded) {
-                        window.expandCommentSection();
-                    } else {
-                        // If already expanded, just focus the textarea
-                        const textarea = document.querySelector('.comment-textarea');
-                        if (textarea) {
-                            textarea.focus();
-                        }
+                    const textarea = document.querySelector('.comment-textarea');
+                    if (textarea) {
+                        textarea.focus();
                     }
                 }, 800);
             } else {

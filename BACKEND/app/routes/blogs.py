@@ -53,7 +53,7 @@ async def create_comment(post_id: int, comment: CommentCreate, db: Session = Dep
     if not post:
         raise HTTPException(404, "Blog post not found")
 
-    db_comment = BlogComment(blog_post_id=post_id, **comment.dict())
+    db_comment = BlogComment(blog_post_id=post_id, is_approved=True, **comment.dict())
     db.add(db_comment)
 
     # Update comment count
