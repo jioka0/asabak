@@ -66,8 +66,8 @@
 
     /* Comment section styles */
     .comment-section-collapsed {
-        width: 125px;
-        min-height: 80px;
+        width: 42px;
+        min-height: 27px;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -104,6 +104,57 @@
     .comment-section-collapsed:focus {
         outline: 2px solid rgb(168 85 247);
         outline-offset: 2px;
+    }
+
+    /* Modern modal animations */
+    .animate-in {
+        animation-fill-mode: both;
+    }
+
+    .fade-in {
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    .slide-up {
+        animation: slideUp 0.3s ease-out;
+    }
+
+    .fade-out {
+        animation: fadeOut 0.2s ease-in;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+
+    /* Enhanced focus states for modal */
+    [data-comment-modal] button:focus-visible,
+    [data-comment-modal] input:focus-visible {
+        outline: 2px solid rgb(168 85 247);
+        outline-offset: 2px;
+    }
+
+    /* Smooth transitions for all interactive elements */
+    [data-comment-modal] button,
+    [data-comment-modal] input {
+        transition: all 0.2s ease;
     }
 </style>
 
@@ -1044,63 +1095,234 @@
     }
 
     function createInlineModal() {
+        console.log('🎪 Creating inline modal with DEBUG features...');
+
+        // Create modal with modern structure and proper ARIA attributes
         const modal = document.createElement('div');
-        modal.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200';
-        modal.innerHTML = `
-            <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-md w-full p-6 border border-gray-100 dark:border-gray-800 transform animate-in slide-up duration-300">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Add Your Comment</h3>
-                    <button onclick="closeCommentModal()" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                        <i class="ph-bold ph-x text-gray-500 dark:text-gray-400 text-lg"></i>
+        modal.className = 'fixed inset-0 bg-black/60 flex items-center justify-center p-4 animate-in fade-in duration-300';
+        modal.style.zIndex = '9999'; // Higher z-index for proper layering
+        modal.setAttribute('role', 'dialog');
+        modal.setAttribute('aria-modal', 'true');
+        modal.setAttribute('aria-labelledby', 'comment-modal-title');
+        modal.setAttribute('data-comment-modal', 'true');
+
+        console.log('✅ Modal element created with debug styles');
+
+        // Create modal content with semantic HTML - EXTRA LARGE SIZE
+        const modalContent = document.createElement('div');
+        modalContent.className = 'bg-white dark:bg-gray-900 rounded-3xl shadow-2xl max-w-2xl w-full border-2 border-gray-100 dark:border-gray-800 transform animate-in slide-up duration-300 overflow-hidden';
+
+        modalContent.innerHTML = `
+            <!-- Modal Header - EXTRA LARGE -->
+            <div class="relative px-8 py-6 border-b-2 border-gray-100 dark:border-gray-800">
+                <div class="flex items-center justify-between">
+                    <h2 id="comment-modal-title" class="text-5xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-4">
+                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg">
+                            <i class="ph-bold ph-chat-circle-dots text-white text-3xl"></i>
+                        </div>
+                        Add Your Comment
+                    </h2>
+                    <button class="modal-close-btn p-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 group" aria-label="Close modal">
+                        <i class="ph-bold ph-x text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors text-2xl"></i>
                     </button>
                 </div>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name *</label>
-                        <input type="text" id="commentName" class="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200" placeholder="Your name">
+            </div>
+
+            <!-- Modal Body - EXTRA LARGE -->
+            <div class="px-8 py-8">
+                <form class="comment-form space-y-6">
+                    <!-- Name Field - EXTRA LARGE -->
+                    <div class="space-y-4">
+                        <label for="comment-name-input" class="block text-2xl font-bold text-gray-700 dark:text-gray-300">
+                            Name <span class="text-red-500 text-3xl">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none z-10">
+                                <i class="ph-bold ph-user text-gray-400 dark:text-gray-500 text-2xl"></i>
+                            </div>
+                            <input
+                                id="comment-name-input"
+                                name="name"
+                                type="text"
+                                required
+                                class="comment-name-input w-full pl-20 pr-6 py-8 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:ring-4 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200 text-2xl font-medium relative z-20"
+                                placeholder="Enter your name"
+                            >
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email (optional)</label>
-                        <input type="email" id="commentEmail" class="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200" placeholder="your@email.com">
+
+                    <!-- Email Field - EXTRA LARGE -->
+                    <div class="space-y-4">
+                        <label for="comment-email-input" class="block text-2xl font-bold text-gray-700 dark:text-gray-300">
+                            Email <span class="text-gray-400">(Optional)</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none z-10">
+                                <i class="ph-bold ph-envelope text-gray-400 dark:text-gray-500 text-2xl"></i>
+                            </div>
+                            <input
+                                id="comment-email-input"
+                                name="email"
+                                type="email"
+                                class="comment-email-input w-full pl-20 pr-6 py-8 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:ring-4 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200 text-2xl font-medium relative z-20"
+                                placeholder="your.email@example.com"
+                            >
+                        </div>
+                        <p class="text-xl text-gray-500 dark:text-gray-400">Your email will not be published.</p>
                     </div>
-                </div>
-                <div class="flex gap-3 mt-6">
-                    <button onclick="closeCommentModal()" class="flex-1 px-4 py-2.5 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200 font-medium">
-                        <span class="flex items-center justify-center gap-2">
-                            <i class="ph-bold ph-x-circle text-base"></i>
+                </form>
+            </div>
+
+            <!-- Modal Footer - EXTRA LARGE -->
+            <div class="px-8 py-6 bg-gray-50 dark:bg-gray-800/50 border-t-2 border-gray-100 dark:border-gray-700">
+                <div class="flex gap-4">
+                    <button class="modal-cancel-btn flex-1 px-8 py-5 border-2 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500 transition-all duration-200 font-bold text-2xl">
+                        <span class="flex items-center justify-center gap-3">
+                            <i class="ph-bold ph-x-circle text-3xl"></i>
                             <span>Cancel</span>
                         </span>
                     </button>
-                    <button onclick="submitComment()" class="flex-1 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-500 dark:to-purple-600 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 dark:hover:from-purple-600 dark:hover:to-purple-700 transition-all duration-300 transform hover:scale-105 font-medium shadow-lg">
-                        <span class="flex items-center justify-center gap-2">
-                            <i class="ph-bold ph-chat-circle-dots text-base"></i>
+                    <button class="modal-submit-btn flex-1 px-8 py-5 bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-500 dark:to-purple-600 text-white rounded-2xl hover:from-purple-700 hover:to-purple-800 dark:hover:from-purple-600 dark:hover:to-purple-700 transition-all duration-300 transform hover:scale-[1.02] font-bold text-2xl shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                        <span class="flex items-center justify-center gap-3">
+                            <i class="ph-bold ph-chat-circle-dots text-3xl"></i>
                             <span>Post Comment</span>
                         </span>
                     </button>
                 </div>
             </div>
         `;
-        
-        modal.onclick = function(e) {
+
+        // Assemble modal
+        modal.appendChild(modalContent);
+
+        // DEBUG: Event handlers replaced with direct attachment above
+
+        // DEBUG: Add comprehensive click logging
+        modal.addEventListener('click', (e) => {
+            console.log('🎯 MODAL clicked:', {
+                target: e.target,
+                currentTarget: e.currentTarget,
+                targetClass: e.target.className,
+                targetTag: e.target.tagName,
+                path: e.composedPath().slice(0, 5)
+            });
+        });
+
+        // DEBUG: Direct event listener attachment instead of delegation
+        console.log('🔧 Attaching modal event listeners (DIRECT)...');
+
+        // Close button - DIRECT
+        const closeBtn = modalContent.querySelector('.modal-close-btn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', (e) => {
+                console.log('❌ Close button clicked (DIRECT)');
+                e.preventDefault();
+                e.stopPropagation();
+                closeCommentModal();
+            });
+            console.log('✅ Close button listener attached (DIRECT)');
+        }
+
+        // Cancel button - DIRECT
+        const cancelBtn = modalContent.querySelector('.modal-cancel-btn');
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', (e) => {
+                console.log('🚫 Cancel button clicked (DIRECT)');
+                e.preventDefault();
+                e.stopPropagation();
+                closeCommentModal();
+            });
+            console.log('✅ Cancel button listener attached (DIRECT)');
+        }
+
+        // Submit button - DIRECT
+        const submitBtn = modalContent.querySelector('.modal-submit-btn');
+        if (submitBtn) {
+            submitBtn.addEventListener('click', (e) => {
+                console.log('📤 Submit button clicked (DIRECT)');
+                e.preventDefault();
+                e.stopPropagation();
+                submitComment();
+            });
+            console.log('✅ Submit button listener attached (DIRECT)');
+        }
+
+        // Overlay click - DIRECT
+        modal.addEventListener('click', (e) => {
             if (e.target === modal) {
+                console.log('🌫️ Overlay clicked (DIRECT)');
                 closeCommentModal();
             }
-        };
-        
+        });
+        console.log('✅ Overlay click listener attached (DIRECT)');
+
+        // Form submission - DIRECT
+        const form = modalContent.querySelector('.comment-form');
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                console.log('📝 Form submitted (DIRECT)');
+                e.preventDefault();
+                submitComment();
+            });
+            console.log('✅ Form submit listener attached (DIRECT)');
+        }
+
+        // Keyboard navigation - DIRECT
+        modal.addEventListener('keydown', (e) => {
+            console.log('⌨️ Key pressed:', e.key);
+            if (e.key === 'Escape') {
+                console.log('🎪 Escape pressed');
+                closeCommentModal();
+            }
+        });
+        console.log('✅ Keyboard listener attached (DIRECT)');
+
+        // Focus management
+        setTimeout(() => {
+            const nameInput = modalContent.querySelector('.comment-name-input');
+            if (nameInput) {
+                nameInput.focus();
+                // Scroll into view if needed
+                nameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, 150);
+
+        console.log('🎪 Modal creation complete with DEBUG features');
+
         return modal;
     }
 
     function closeCommentModal() {
-        const modal = document.querySelector('.fixed.inset-0.bg-black\/50');
+        const modal = document.querySelector('[data-comment-modal]');
         if (modal) {
-            modal.remove();
+            console.log('🔒 Closing modal (DEBUG version)...');
+
+            // DEBUG: Log before closing
+            console.log('Modal element:', modal);
+            console.log('Modal style:', modal.style.cssText);
+
+            // Animate out with smooth transition
+            modal.classList.add('animate-out', 'fade-out', 'duration-300');
+            modal.style.opacity = '0';
+            modal.style.transform = 'scale(0.95) translateY(-10px)';
+
+            // Remove after animation
+            setTimeout(() => {
+                if (modal.parentNode) {
+                    modal.parentNode.removeChild(modal);
+                    console.log('✅ Modal completely removed (DEBUG)');
+                }
+            }, 300);
         }
+
+        // Clean up pending comment
         delete window.pendingComment;
+        console.log('🧹 Pending comment cleaned up');
     }
 
     async function submitComment() {
-        const name = document.getElementById('commentName').value.trim();
-        const email = document.getElementById('commentEmail').value.trim();
+        const name = document.getElementById('comment-name-input').value.trim();
+        const email = document.getElementById('comment-email-input').value.trim();
         const content = window.pendingComment;
 
         if (!name) {
