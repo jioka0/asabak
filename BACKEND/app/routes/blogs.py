@@ -3,9 +3,10 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from database import get_db
-from models.blog import BlogPost as BlogPostModel, BlogComment, BlogLike
-from schemas import BlogPost, BlogPostCreate, Comment, CommentCreate, Like, LikeCreate
+from models.blog import BlogPost as BlogPostModel, BlogComment, BlogLike, TemporalUser as TemporalUserModel
+from schemas import BlogPost, BlogPostCreate, Comment, CommentCreate, Like, LikeCreate, TemporalUser, TemporalUserCreate
 import logging
 
 # Set up logging
@@ -49,19 +50,34 @@ async def create_blog_post(post: BlogPostCreate, db: Session = Depends(get_db)):
 @router.post("/{post_id}/comments", response_model=Comment)
 async def create_comment(post_id: int, comment: CommentCreate, db: Session = Depends(get_db)):
     """Create new comment (pending approval)"""
+    logger.info(f"🔥 COMMENT CREATE: Received request for post_id={post_id}")
+    logger.info(f"🔥 COMMENT CREATE: Comment data: author_name='{comment.author_name}', content_length={len(comment.content) if comment.content else 0}")
+
     post = db.query(BlogPostModel).filter(BlogPostModel.id == post_id).first()
     if not post:
+        logger.error(f"🔥 COMMENT CREATE: Post not found for id={post_id}")
         raise HTTPException(404, "Blog post not found")
+
+    logger.info(f"🔥 COMMENT CREATE: Found post, current comment_count={post.comment_count}")
 
     db_comment = BlogComment(blog_post_id=post_id, is_approved=True, **comment.dict())
     db.add(db_comment)
 
     # Update comment count
+    old_count = post.comment_count
     post.comment_count += 1
-    db.commit()
-    db.refresh(db_comment)
+    logger.info(f"🔥 COMMENT CREATE: Incrementing count from {old_count} to {post.comment_count}")
 
-    return db_comment
+    try:
+        db.commit()
+        logger.info(f"🔥 COMMENT CREATE: Database commit successful")
+        db.refresh(db_comment)
+        logger.info(f"🔥 COMMENT CREATE: Comment created with id={db_comment.id}, final post comment_count={post.comment_count}")
+        return db_comment
+    except Exception as e:
+        logger.error(f"🔥 COMMENT CREATE: Database commit failed: {str(e)}")
+        db.rollback()
+        raise HTTPException(500, "Failed to save comment")
 
 @router.post("/{post_id}/likes")
 async def like_post(post_id: int, like: LikeCreate, db: Session = Depends(get_db)):
@@ -282,3 +298,94 @@ async def blog_tags(request: Request):
         import traceback
         logger.error(f"🏷️ BLOG TAGS: Traceback: {traceback.format_exc()}")
         raise
+
+# Temporal User Management
+@router.post("/temporal-users", response_model=TemporalUser)
+async def create_temporal_user(user: TemporalUserCreate, request: Request, db: Session = Depends(get_db)):
+    """Create or update a temporal user based on fingerprint"""
+    logger.info(f'💾 CREATE TEMPORAL USER: fingerprint={user.fingerprint}, name={user.name}')
+    try:
+        # Check if user already exists
+        existing_user = db.query(TemporalUserModel).filter(TemporalUserModel.fingerprint == user.fingerprint).first()
+
+        if existing_user:
+            logger.info(f'💾 CREATE TEMPORAL USER: Updating existing user id={existing_user.id}')
+            # Update existing user
+            existing_user.name = user.name
+            existing_user.email = user.email
+            existing_user.device_info = user.device_info
+            existing_user.ip_address = user.ip_address or request.client.host
+            existing_user.user_agent = user.user_agent or request.headers.get('user-agent')
+            existing_user.last_seen = func.now()
+            
+            from datetime import datetime, timedelta
+            existing_user.expires_at = datetime.utcnow() + timedelta(days=3)
+            
+            db.commit()
+            db.refresh(existing_user)
+            logger.info(f'💾 CREATE TEMPORAL USER: Updated user id={existing_user.id}')
+            return existing_user
+        else:
+            # Create new user
+            from datetime import datetime, timedelta
+            expires_at = datetime.utcnow() + timedelta(days=3)
+
+            logger.info(f'💾 CREATE TEMPORAL USER: Creating new user with expires_at={expires_at}')
+            
+            db_user = TemporalUserModel(
+                fingerprint=user.fingerprint,
+                name=user.name,
+                email=user.email,
+                device_info=user.device_info,
+                ip_address=user.ip_address or request.client.host,
+                user_agent=user.user_agent or request.headers.get('user-agent'),
+                expires_at=expires_at
+            )
+            db.add(db_user)
+            db.commit()
+            db.refresh(db_user)
+            logger.info(f'💾 CREATE TEMPORAL USER: Created new user id={db_user.id}')
+            return db_user
+    except Exception as e:
+        logger.error(f'💾 CREATE TEMPORAL USER: Error: {type(e).__name__}: {str(e)}')
+        import traceback
+        logger.error(f'💾 CREATE TEMPORAL USER: Traceback: {traceback.format_exc()}')
+        raise HTTPException(500, f"Internal server error: {str(e)}")
+
+@router.get("/temporal-users/{fingerprint}", response_model=TemporalUser)
+async def get_temporal_user(fingerprint: str, db: Session = Depends(get_db)):
+    """Get temporal user by fingerprint"""
+    logger.info(f'🔍 GET TEMPORAL USER: Looking up fingerprint={fingerprint}')
+    try:
+        user = db.query(TemporalUserModel).filter(
+            TemporalUserModel.fingerprint == fingerprint,
+            TemporalUserModel.expires_at > func.now()
+        ).first()
+
+        if not user:
+            logger.info(f'🔍 GET TEMPORAL USER: User not found or expired for fingerprint={fingerprint}')
+            raise HTTPException(404, "User not found or expired")
+
+        # Update last seen
+        user.last_seen = func.now()
+        db.commit()
+        
+        logger.info(f'🔍 GET TEMPORAL USER: Found user id={user.id}, name={user.name}')
+        return user
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f'🔍 GET TEMPORAL USER: Error: {type(e).__name__}: {str(e)}')
+        import traceback
+        logger.error(f'🔍 GET TEMPORAL USER: Traceback: {traceback.format_exc()}')
+        raise HTTPException(500, f"Internal server error: {str(e)}")
+
+@router.delete("/temporal-users/expired")
+async def cleanup_expired_users(db: Session = Depends(get_db)):
+    """Clean up expired temporal users (should be called by scheduler)"""
+    expired_count = db.query(TemporalUserModel).filter(
+        TemporalUserModel.expires_at <= func.now()
+    ).delete()
+
+    db.commit()
+    return {"message": f"Cleaned up {expired_count} expired users"}

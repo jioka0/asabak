@@ -29,6 +29,8 @@
 {% endblock %}
 
 {% block content %}
+<!-- Hidden element to store post data for JavaScript -->
+<div id="post-data" data-post-data='{{ post_data | tojson if post_data else "null" }}' style="display:none;"></div>
 <style>
     /* Minimal container overrides for published layout */
     .section-container {
@@ -515,8 +517,8 @@
                                 <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Join the Discussion</h2>
                                 <span class="bg-purple-600 dark:bg-purple-500 text-white px-3 py-1 rounded-full text-xs font-semibold">{{ post_data.comment_count or 0 }} Comments</span>
                             </div>
-                            <!-- Collapsed Comment Box (Hidden Initially) -->
-                            <div class="comment-section-collapsed cursor-pointer rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-300 p-4 text-center group hidden"
+                            <!-- Collapsed Comment Box (Initial State) -->
+                            <div class="comment-section-collapsed cursor-pointer rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-300 p-4 text-center group"
                                  onclick="emergencyFunctionCaller('expandCommentSection')"
                                  id="comment-section-collapsed">
                                 <div class="flex flex-col items-center justify-center gap-2 text-gray-500 dark:text-gray-400">
@@ -525,8 +527,8 @@
                                 </div>
                             </div>
 
-                            <!-- Expanded Comment Box (Visible by Default) -->
-                            <div class="comment-section-expanded" id="comment-section-expanded">
+                            <!-- Expanded Comment Box (Hidden Initially) -->
+                            <div class="comment-section-expanded hidden" id="comment-section-expanded">
                                 <div class="relative group cursor-text" style="cursor: text !important;">
                                     <textarea
                                         class="w-full border border-gray-200 dark:border-gray-600 rounded-xl p-4 text-sm sm:text-base comment-textarea bg-white dark:bg-gray-800 placeholder-gray-500 dark:placeholder-gray-400 caret-purple-600 dark:caret-purple-400 transition-all duration-300 focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400 focus:border-transparent resize-none shadow-sm hover:shadow-md focus:shadow-lg focus:shadow-purple-200/50 dark:focus:shadow-purple-900/20"
@@ -655,13 +657,44 @@
 
 {% block extra_scripts %}
 <script>
+// Initialize post data from hidden element
+(function() {
+    const postDataElement = document.getElementById('post-data');
+    if (postDataElement) {
+        try {
+            const postDataValue = postDataElement.getAttribute('data-post-data');
+            
+            if (!postDataValue || postDataValue === 'null' || postDataValue === 'undefined' || postDataValue.trim() === '') {
+                window.postData = null;
+            } else {
+                try {
+                    window.postData = JSON.parse(postDataValue);
+                } catch (parseError) {
+                    // Try to clean up malformed JSON
+                    const cleanedValue = postDataValue.replace(/[\r\n\t]/g, ' ').trim();
+                    try {
+                        window.postData = JSON.parse(cleanedValue);
+                    } catch (secondError) {
+                        window.postData = null;
+                    }
+                }
+            }
+        } catch (e) {
+            window.postData = null;
+        }
+    } else {
+        window.postData = null;
+    }
+})();
+</script>
+<script>
 // IMMEDIATE EVENT ATTACHMENT - Runs before DOMContentLoaded
 (function() {
     'use strict';
 
     // Global state
     window.commentSystemState = {
-        expanded: true, // Start expanded by default
+        expanded: false,
         initialized: false,
         postId: null,
         replyToId: null
@@ -1242,7 +1275,13 @@
                 console.log('📤 Submit button clicked (DIRECT)');
                 e.preventDefault();
                 e.stopPropagation();
-                submitComment();
+                const name = document.getElementById('comment-name-input').value.trim();
+                const email = document.getElementById('comment-email-input').value.trim();
+                saveUserInfo(name, email).then(function() {
+                    submitComment(name, email, window.pendingComment);
+                }).catch(function() {
+                    submitComment(name, email, window.pendingComment);
+                });
             });
             console.log('✅ Submit button listener attached (DIRECT)');
         }
@@ -1262,7 +1301,13 @@
             form.addEventListener('submit', (e) => {
                 console.log('📝 Form submitted (DIRECT)');
                 e.preventDefault();
-                submitComment();
+                const name = document.getElementById('comment-name-input').value.trim();
+                const email = document.getElementById('comment-email-input').value.trim();
+                saveUserInfo(name, email).then(function() {
+                    submitComment(name, email, window.pendingComment);
+                }).catch(function() {
+                    submitComment(name, email, window.pendingComment);
+                });
             });
             console.log('✅ Form submit listener attached (DIRECT)');
         }
@@ -1318,94 +1363,6 @@
         // Clean up pending comment
         delete window.pendingComment;
         console.log('🧹 Pending comment cleaned up');
-    }
-
-    async function submitComment() {
-        const name = document.getElementById('comment-name-input').value.trim();
-        const email = document.getElementById('comment-email-input').value.trim();
-        const content = window.pendingComment;
-
-        if (!name) {
-            showNotification('Please enter your name.', 'warning');
-            return;
-        }
-
-        if (!content) {
-            showNotification('No comment content found.', 'error');
-            return;
-        }
-
-        try {
-            // Show loading state - find submit button in modal
-            const submitBtn = document.querySelector('.modal-submit-btn');
-            const originalText = submitBtn ? submitBtn.textContent : 'Post Comment';
-            if (submitBtn) {
-                submitBtn.textContent = 'Posting...';
-                submitBtn.disabled = true;
-            }
-
-            const commentData = {
-                author_name: name,
-                author_email: email || null,
-                content: content,
-                parent_id: replyToCommentId
-            };
-
-            const response = await fetch(`/api/blogs/${currentPostId}/comments`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(commentData)
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const result = await response.json();
-            
-            showNotification('Comment submitted successfully! It will be visible after moderation.', 'success');
-            
-            // Clear form and close modal
-            const textarea = document.querySelector('.comment-textarea');
-            if (textarea) {
-                textarea.value = '';
-                // Reset textarea height
-                textarea.style.height = 'auto';
-                textarea.style.height = '120px';
-            }
-            closeCommentModal();
-            
-            // Reload comments and update comment count
-            setTimeout(() => {
-                loadComments(currentPostId);
-                // Update comment count in header
-                const commentCountSpans = document.querySelectorAll('span');
-                commentCountSpans.forEach(span => {
-                    const text = span.textContent.trim();
-                    if (text.includes('Comments') || /^\d+$/.test(text)) {
-                        const currentCount = parseInt(text.replace(' Comments', '')) || 0;
-                        if (text.includes('Comments')) {
-                            span.textContent = (currentCount + 1) + ' Comments';
-                        } else if (/^\d+$/.test(text)) {
-                            span.textContent = (currentCount + 1).toString();
-                        }
-                    }
-                });
-            }, 1000);
-            
-        } catch (error) {
-            console.error('Error submitting comment:', error);
-            showNotification('Failed to submit comment. Please try again.', 'error');
-        } finally {
-            // Reset button state
-            const submitBtn = document.querySelector('.modal-submit-btn');
-            if (submitBtn) {
-                submitBtn.textContent = 'Post Comment';
-                submitBtn.disabled = false;
-            }
-        }
     }
 
     // Reply functionality
@@ -1593,7 +1550,7 @@
         }
     };
 
-    // Scroll to comments section and focus textarea if needed
+    // Scroll to comments section and expand if needed
     function scrollToComments() {
         try {
             const commentsSection = document.getElementById('comments');
@@ -1605,11 +1562,16 @@
                     inline: 'nearest'
                 });
 
-                // Focus the textarea after scrolling (since it's already expanded)
+                // Expand comment section after scrolling
                 setTimeout(() => {
-                    const textarea = document.querySelector('.comment-textarea');
-                    if (textarea) {
-                        textarea.focus();
+                    if (!window.commentSystemState.expanded) {
+                        window.expandCommentSection();
+                    } else {
+                        // If already expanded, just focus the textarea
+                        const textarea = document.querySelector('.comment-textarea');
+                        if (textarea) {
+                            textarea.focus();
+                        }
                     }
                 }, 800);
             } else {
@@ -2091,6 +2053,269 @@
     window.openFollowModal = function() {
         alert('Follow functionality coming soon!');
     };
+
+    // =====================================================
+    // TEMPORAL USER API INTEGRATION
+    // =====================================================
+    
+    // Device fingerprinting for user identification
+    let cachedFingerprint = null;
+    
+    async function getFingerprint() {
+        if (cachedFingerprint) return cachedFingerprint;
+        
+        const components = [];
+        components.push(navigator.userAgent);
+        components.push(navigator.language || navigator.languages?.join(','));
+        components.push(navigator.platform);
+        components.push(navigator.hardwareConcurrency || 'unknown');
+        components.push(navigator.deviceMemory || 'unknown');
+        components.push(navigator.maxTouchPoints || 0);
+        components.push(screen.width + 'x' + screen.height);
+        components.push(screen.colorDepth);
+        components.push(screen.pixelDepth);
+        components.push(window.devicePixelRatio || 1);
+        components.push(new Date().getTimezoneOffset());
+        components.push(Intl.DateTimeFormat().resolvedOptions().timeZone);
+        
+        // Canvas fingerprint
+        try {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.textBaseline = 'top';
+            ctx.font = '14px Arial';
+            ctx.fillText('FingerprintTest123', 2, 2);
+            ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
+            ctx.fillRect(100, 5, 80, 20);
+            ctx.fillStyle = '#f60';
+            ctx.fillText('ExtendedFingerprint', 4, 45);
+            ctx.strokeStyle = 'rgb(120, 180, 0)';
+            ctx.strokeRect(2, 50, 150, 30);
+            components.push(canvas.toDataURL());
+        } catch (e) {
+            components.push('canvas-error');
+        }
+        
+        // WebGL fingerprint
+        try {
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            if (gl) {
+                const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                if (debugInfo) {
+                    components.push(gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL));
+                    components.push(gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL));
+                }
+                components.push(gl.getParameter(gl.VERSION));
+                components.push(gl.getParameter(gl.SHADING_LANGUAGE_VERSION));
+            }
+        } catch (e) {
+            components.push('webgl-error');
+        }
+        
+        // Audio fingerprint
+        try {
+            const audio = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audio.createOscillator();
+            const analyser = audio.createAnalyser();
+            const gain = audio.createGain();
+            osc.connect(gain);
+            gain.connect(analyser);
+            analyser.connect(audio.destination);
+            osc.frequency.value = 1000;
+            osc.type = 'sine';
+            const buf = new Float32Array(analyser.frequencyBinCount);
+            analyser.getFloatFrequencyData(buf);
+            let hash = 0;
+            for (let i = 0; i < buf.length; i++) hash += Math.abs(buf[i]);
+            components.push(hash.toString());
+            audio.close();
+        } catch (e) {
+            components.push('audio-error');
+        }
+        
+        // Session storage check
+        try {
+            sessionStorage.setItem('test', 'test');
+            sessionStorage.removeItem('test');
+            components.push('sessionStorage:true');
+        } catch (e) {
+            components.push('sessionStorage:false');
+        }
+        
+        components.push('cookies:' + navigator.cookieEnabled);
+        components.push('doNotTrack:' + navigator.doNotTrack);
+        components.push('onLine:' + navigator.onLine);
+        
+        // Hash all components
+        let hash = 0;
+        const str = components.join('|');
+        for (let i = 0; i < str.length; i++) {
+            hash = ((hash << 5) - hash) + str.charCodeAt(i);
+            hash = hash & hash;
+        }
+        cachedFingerprint = Math.abs(hash).toString(36);
+        return cachedFingerprint;
+    }
+    
+    // Save user info to temporal users API
+    async function saveUserInfo(name, email) {
+        const fingerprint = await getFingerprint();
+        
+        const deviceInfo = {
+            userAgent: navigator.userAgent,
+            platform: navigator.platform,
+            language: navigator.language,
+            screenResolution: screen.width + 'x' + screen.height,
+            colorDepth: screen.colorDepth,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            hardwareConcurrency: navigator.hardwareConcurrency,
+            cookieEnabled: navigator.cookieEnabled,
+            doNotTrack: navigator.doNotTrack,
+            onLine: navigator.onLine
+        };
+        
+        try {
+            const response = await fetch('/api/blogs/temporal-users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    fingerprint: fingerprint,
+                    name: name,
+                    email: email,
+                    device_info: deviceInfo
+                })
+            });
+            
+            if (!response.ok && response.status !== 409) {
+                console.error('Failed to save user info:', response.status);
+            }
+        } catch (error) {
+            console.error('Error saving user info:', error);
+        }
+    }
+    
+    // Get user info from temporal users API
+    async function getUserInfo() {
+        const fingerprint = await getFingerprint();
+        
+        try {
+            const response = await fetch('/api/blogs/temporal-users/' + encodeURIComponent(fingerprint));
+            
+            if (response.status === 404) {
+                return null; // User not found
+            }
+            
+            if (!response.ok) {
+                return null;
+            }
+            
+            return await response.json();
+        } catch (error) {
+            console.error('Error getting user info:', error);
+            return null;
+        }
+    }
+    
+    // Modified openCommentModal - checks for existing user first
+    async function openCommentModal() {
+        const textarea = document.querySelector('.comment-textarea');
+        const commentText = textarea ? textarea.value.trim() : '';
+
+        if (!commentText) {
+            showNotification('Please write a comment before submitting.', 'warning');
+            if (textarea) textarea.focus();
+            return;
+        }
+
+        // Store comment text
+        window.pendingComment = commentText;
+        
+        // Check if user already exists
+        const userInfo = await getUserInfo();
+        
+        if (userInfo) {
+            // User is known, submit immediately without showing modal
+            console.log('Known user detected:', userInfo.name);
+            submitComment(userInfo.name, userInfo.email, commentText);
+        } else {
+            // New user, show modal to collect name/email
+            const modal = createInlineModal();
+            document.body.appendChild(modal);
+        }
+    }
+    
+    // Modified submitComment - accepts name, email, content parameters
+    async function submitComment(name, email, content) {
+        if (!name) {
+            showNotification('Please enter your name.', 'warning');
+            return;
+        }
+
+        if (!content) {
+            showNotification('No comment content found.', 'error');
+            return;
+        }
+
+        try {
+            // Show loading state
+            const submitBtn = document.querySelector('button[onclick="submitComment()"]');
+            if (submitBtn) {
+                submitBtn.textContent = 'Posting...';
+                submitBtn.disabled = true;
+            }
+
+            const commentData = {
+                author_name: name,
+                author_email: email || null,
+                content: content,
+                parent_id: replyToCommentId
+            };
+
+            const response = await fetch(`/api/blogs/${currentPostId}/comments`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(commentData)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            
+            showNotification('Comment submitted successfully! It will be visible after moderation.', 'success');
+            
+            // Clear form and close modal
+            const textarea = document.querySelector('.comment-textarea');
+            if (textarea) {
+                textarea.value = '';
+                textarea.style.height = 'auto';
+                textarea.style.height = '120px';
+            }
+            closeCommentModal();
+            
+            // Reload comments
+            setTimeout(() => {
+                loadComments(currentPostId);
+            }, 1000);
+            
+        } catch (error) {
+            console.error('Error submitting comment:', error);
+            showNotification('Failed to submit comment. Please try again.', 'error');
+        } finally {
+            // Reset button state
+            const submitBtn = document.querySelector('button[onclick="submitComment()"]');
+            if (submitBtn) {
+                submitBtn.textContent = 'Post Comment';
+                submitBtn.disabled = false;
+            }
+        }
+    }
     
 })();
 </script>

@@ -35,9 +35,24 @@ class BlogComment(Base):
     author_name = Column(String(255), nullable=False)
     author_email = Column(String(255))
     content = Column(Text, nullable=False)
-    is_approved = Column(Boolean, default=False)
+    is_approved = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     parent_id = Column(Integer, ForeignKey("blog_comments.id"))
+
+class TemporalUser(Base):
+    __tablename__ = "temporal_users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    fingerprint = Column(String(500), nullable=False, unique=True, index=True)
+    name = Column(String(255), nullable=False)
+    email = Column(String(255))
+    device_info = Column(JSON)  # Store extensive device fingerprinting data
+    ip_address = Column(String(45))  # Support IPv6
+    user_agent = Column(Text)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    last_seen = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    is_active = Column(Boolean, default=True)
 
 class BlogLike(Base):
     __tablename__ = "blog_likes"

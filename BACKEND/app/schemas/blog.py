@@ -134,6 +134,27 @@ class Comment(CommentBase):
     class Config:
         from_attributes = True
 
+class TemporalUserBase(BaseModel):
+    fingerprint: str
+    name: str
+    email: Optional[str] = None
+    device_info: dict
+    ip_address: Optional[str] = None
+    user_agent: Optional[str] = None
+
+class TemporalUserCreate(TemporalUserBase):
+    pass
+
+class TemporalUser(TemporalUserBase):
+    id: int
+    created_at: datetime
+    last_seen: datetime
+    expires_at: datetime
+    is_active: bool
+
+    class Config:
+        from_attributes = True
+
 class LikeCreate(BaseModel):
     user_identifier: str
 
