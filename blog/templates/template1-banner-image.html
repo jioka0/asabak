@@ -216,8 +216,8 @@
                 <div class="flex flex-wrap items-center gap-6 sm:gap-8 text-sm sm:text-base lg:text-lg text-gray-600 dark:text-gray-400">
                     <span class="flex items-center gap-3 sm:gap-4">
                         <i class="ph-bold ph-chat-circle text-lg sm:text-xl lg:text-2xl"></i>
-                        <span class="hidden sm:inline text-base sm:text-lg lg:text-xl text-black dark:text-white">{{ post_data.comment_count or 0 }} Comments</span>
-                        <span class="sm:hidden text-base text-black dark:text-white">{{ post_data.comment_count or 0 }}</span>
+                        <span id="comment-count-large" class="hidden sm:inline text-base sm:text-lg lg:text-xl text-black dark:text-white">{{ post_data.comment_count or 0 }} Comments</span>
+                        <span id="comment-count-small" class="sm:hidden text-base text-black dark:text-white">{{ post_data.comment_count or 0 }}</span>
                     </span>
                     <span class="flex items-center gap-3 sm:gap-4">
                         <i class="ph-bold ph-eye text-lg sm:text-xl lg:text-2xl"></i>
@@ -515,7 +515,7 @@
                         <div class="p-6">
                             <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-5">
                                 <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Join the Discussion</h2>
-                                <span class="bg-purple-600 dark:bg-purple-500 text-white px-3 py-1 rounded-full text-xs font-semibold">{{ post_data.comment_count or 0 }} Comments</span>
+                                <span id="comment-count-badge" class="bg-purple-600 dark:bg-purple-500 text-white px-3 py-1 rounded-full text-xs font-semibold">{{ post_data.comment_count or 0 }} Comments</span>
                             </div>
                             <!-- Collapsed Comment Box (Initial State) -->
                             <div class="comment-section-collapsed cursor-pointer rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-300 p-4 text-center group"
@@ -1418,6 +1418,36 @@
         }
     }
 
+    // Update comment count UI immediately
+    function updateCommentCount(increment = true) {
+        const countLarge = document.getElementById('comment-count-large');
+        const countSmall = document.getElementById('comment-count-small');
+        const countBadge = document.getElementById('comment-count-badge');
+        
+        // Get current count from badge (most reliable)
+        let currentCount = 0;
+        if (countBadge) {
+            const text = countBadge.textContent;
+            const match = text.match(/(\d+)/);
+            if (match) currentCount = parseInt(match[1]);
+        }
+        
+        const newCount = increment ? currentCount + 1 : Math.max(0, currentCount - 1);
+        
+        // Update all count elements
+        if (countLarge) {
+            countLarge.textContent = newCount + ' Comments';
+        }
+        if (countSmall) {
+            countSmall.textContent = newCount;
+        }
+        if (countBadge) {
+            countBadge.textContent = newCount + ' Comments';
+        }
+        
+        console.log('📊 Comment count updated:', newCount);
+    }
+
     // Notification system
     function showNotification(message, type = 'info') {
         const notification = document.createElement('div');
@@ -1594,6 +1624,7 @@
     window.expandCommentSection = expandCommentSection;
     window.collapseCommentSection = collapseCommentSection;
     window.scrollToComments = scrollToComments;
+    window.updateCommentCount = updateCommentCount;
 
     // Global error handler for comment system
     window.addEventListener('error', function(e) {
@@ -2287,6 +2318,9 @@
             }
 
             const result = await response.json();
+            
+            // Update comment count immediately
+            updateCommentCount(true);
             
             showNotification('Comment submitted successfully! It will be visible after moderation.', 'success');
             
