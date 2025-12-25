@@ -1978,31 +1978,8 @@ function showFallbackPostsData() {
         tags: []
     });
 
-    // Sample posts
-    allPosts = [
-        {
-            id: '1',
-            title: 'Getting Started with React',
-            excerpt: 'Learn the basics of React development',
-            status: 'published',
-            author: 'NekwasaR',
-            category: 'Technology',
-            updatedAt: '2024-01-15T10:30:00Z',
-            contentLength: 2456,
-            views: 1250
-        },
-        {
-            id: '2',
-            title: 'Advanced CSS Techniques',
-            excerpt: 'Master modern CSS with these advanced techniques',
-            status: 'draft',
-            author: 'NekwasaR',
-            category: 'Design',
-            updatedAt: '2024-01-14T09:15:00Z',
-            contentLength: 1890,
-            views: 0
-        }
-    ];
+    // Sample posts - removed hardcoded posts
+    allPosts = [];
 
     renderCurrentView();
 }

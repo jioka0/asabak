@@ -292,16 +292,13 @@ async def get_blog_posts(current_user = Depends(get_current_active_user)):
         posts_query = db.query(BlogPost).order_by(BlogPost.published_at.desc().nullslast())
         posts = posts_query.all()
 
-        # Get stats with proper draft counting
+        # Get stats with proper counting
         total_posts = db.query(func.count(BlogPost.id)).scalar() or 0
-        
-        # Count published posts (where published_at is not None)
-        published_count = db.query(func.count(BlogPost.id)).filter(BlogPost.published_at.isnot(None)).scalar() or 0
-        
-        # Count draft posts (where published_at is None) - this is the key fix
-        draft_count = db.query(func.count(BlogPost.id)).filter(BlogPost.published_at.is_(None)).scalar() or 0
-        
-        scheduled_count = 0  # Placeholder for future implementation
+
+        # Count posts by status
+        published_count = db.query(func.count(BlogPost.id)).filter(BlogPost.status == 'published').scalar() or 0
+        draft_count = db.query(func.count(BlogPost.id)).filter(BlogPost.status == 'draft').scalar() or 0
+        scheduled_count = db.query(func.count(BlogPost.id)).filter(BlogPost.status == 'scheduled').scalar() or 0
 
         auth_logger.info(f"📊 POST STATS - Total: {total_posts}, Published: {published_count}, Drafts: {draft_count}")
 
@@ -345,33 +342,33 @@ async def get_blog_posts(current_user = Depends(get_current_active_user)):
 
         posts_data = []
         for post in posts:
-            # Determine status based on published_at field
-            is_published = getattr(post, "published_at", None) is not None
-            status = "published" if is_published else "draft"
-            
+            # Use the status field directly
+            status = getattr(post, "status", "draft") or "draft"
+
             # For drafts, ensure they have a proper slug (may be generated during save)
             slug = getattr(post, "slug", None)
-            if not is_published and not slug:
+            if status == "draft" and not slug:
                 # Generate a temporary slug for drafts that don't have one
                 slug = f"draft-{post.id}"
-            
+
             post_data = {
                 "id": str(post.id),
-                "title": post.title or "Untitled Draft" if not is_published else post.title,
+                "title": post.title or "Untitled Draft" if status == "draft" else post.title,
                 "excerpt": post.excerpt or (post.content[:100] + "...") if post.content else "No content",
                 "status": status,
                 "author": post.author or "NekwasaR",
                 "category": getattr(post, "section", None) or "Uncategorized",
                 "categoryId": getattr(post, "section", None),
                 "tags": post.tags if post.tags else [],
-                "updatedAt": post.published_at.isoformat() if getattr(post, "published_at", None) else None,
+                "updatedAt": post.published_at.isoformat() if getattr(post, "published_at", None) else getattr(post, "scheduled_at", None).isoformat() if getattr(post, "scheduled_at", None) else None,
                 "createdAt": getattr(post, "created_at", None) or getattr(post, "published_at", None),
                 "contentLength": len(post.content or ""),
                 "views": getattr(post, "view_count", 0) or 0,
                 "slug": slug,
                 "template_type": post.template_type,
-                "isDraft": not is_published,  # Add explicit draft flag
-                "publishedAt": post.published_at.isoformat() if getattr(post, "published_at", None) else None
+                "isDraft": status == "draft",  # Add explicit draft flag
+                "publishedAt": post.published_at.isoformat() if getattr(post, "published_at", None) else None,
+                "scheduledAt": post.scheduled_at.isoformat() if getattr(post, "scheduled_at", None) else None
             }
             posts_data.append(post_data)
 
@@ -436,6 +433,68 @@ async def create_blog_post(post_data: dict, current_user = Depends(get_current_a
         auth_logger.error(f"❌ Error creating blog post: {e}")
         db.rollback()
         raise HTTPException(status_code=500, detail="Failed to create blog post")
+
+@router.post("/admin/api/blog/posts/schedule")
+async def schedule_blog_post(post_data: dict, current_user = Depends(get_current_active_user)):
+    """Schedule a blog post for future publication"""
+    from models.blog import BlogPost
+    from datetime import datetime
+    from schemas import BlogPostSchedule
+
+    try:
+        auth_logger.info(f"📅 SCHEDULE POST: Scheduling post '{post_data.get('title')}' for {post_data.get('scheduled_at')} in {post_data.get('scheduled_timezone')}")
+
+        # Validate required fields
+        if not post_data.get('title'):
+            raise HTTPException(status_code=400, detail="Title is required")
+        if not post_data.get('slug'):
+            raise HTTPException(status_code=400, detail="Slug is required")
+        if not post_data.get('scheduled_at'):
+            raise HTTPException(status_code=400, detail="Scheduled date and time is required")
+
+        # Check if slug already exists
+        existing = db.query(BlogPost).filter(BlogPost.slug == post_data['slug']).first()
+        if existing:
+            auth_logger.error(f"📅 SCHEDULE POST: Slug '{post_data['slug']}' already exists")
+            raise HTTPException(400, f"Post with slug '{post_data['slug']}' already exists")
+
+        # Parse scheduled datetime
+        try:
+            scheduled_at = datetime.fromisoformat(post_data['scheduled_at'].replace('Z', '+00:00'))
+        except:
+            raise HTTPException(status_code=400, detail="Invalid scheduled date format")
+
+        # Create the scheduled post
+        new_post = BlogPost(
+            title=post_data.get("title", ""),
+            content=post_data.get("content", ""),
+            excerpt=post_data.get("excerpt"),
+            template_type=post_data.get("template_type", "template1"),
+            featured_image=post_data.get("featured_image"),
+            video_url=post_data.get("video_url"),
+            tags=post_data.get("tags", []),
+            section=post_data.get("section", "others"),
+            slug=post_data.get("slug"),
+            priority=post_data.get("priority", 0),
+            is_featured=post_data.get("is_featured", False),
+            author=post_data.get("author", current_user.username or "NekwasaR"),
+            status='scheduled',
+            scheduled_at=scheduled_at,
+            scheduled_timezone=post_data.get("scheduled_timezone", "UTC")
+        )
+
+        db.add(new_post)
+        db.commit()
+        db.refresh(new_post)
+
+        auth_logger.info(f"📅 SCHEDULE POST: Post scheduled successfully with id={new_post.id}")
+        return {"success": True, "post_id": new_post.id, "message": f"Post scheduled for {scheduled_at.isoformat()}"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        auth_logger.error(f"❌ Error scheduling blog post: {e}")
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to schedule blog post")
 
 @router.post("/admin/api/blog/drafts")
 async def save_blog_draft(draft_data: dict, current_user = Depends(get_current_active_user)):

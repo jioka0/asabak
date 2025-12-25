@@ -84,6 +84,15 @@
             background: rgba(0, 123, 255, 0.9);
         }
 
+        .editor-btn.secondary {
+            background: rgba(108, 117, 125, 0.8);
+            border-color: rgba(108, 117, 125, 0.5);
+        }
+
+        .editor-btn.secondary:hover {
+            background: rgba(108, 117, 125, 0.9);
+        }
+
         .editor-btn.danger {
             background: rgba(220, 53, 69, 0.8);
             border-color: rgba(220, 53, 69, 0.5);
@@ -711,6 +720,9 @@
     <div class="editor-controls">
         <button class="editor-btn" id="saveDraftBtn">
             💾 Save Draft
+        </button>
+        <button class="editor-btn secondary" id="scheduleBtn">
+            📅 Schedule
         </button>
         <button class="editor-btn primary" id="publishBtn">
             🚀 Publish
@@ -2351,6 +2363,16 @@
                     .trim();
                 document.getElementById('publishSlug').value = slug;
             }
+
+            // Set default publish date to current date and time
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const dateTimeString = `${year}-${month}-${day}T${hours}:${minutes}`;
+            document.getElementById('publishDate').value = dateTimeString;
         }
 
         function showPublishStep(step) {
@@ -2581,10 +2603,629 @@
             }
         }
 
+        function updateScheduleImagePreview() {
+            const imageInput = document.getElementById('scheduleImage');
+            const previewDiv = document.getElementById('scheduleImagePreview');
+            const previewImg = document.getElementById('schedulePreviewImg');
+
+            if (!imageInput || !previewDiv || !previewImg) return;
+
+            const url = imageInput.value.trim();
+
+            if (url) {
+                previewImg.src = url;
+                previewImg.onerror = () => {
+                    previewDiv.classList.add('hidden');
+                    console.warn('[Schedule Image Preview] Failed to load image:', url);
+                };
+                previewImg.onload = () => {
+                    previewDiv.classList.remove('hidden');
+                    console.log('[Schedule Image Preview] Image loaded successfully:', url);
+                };
+            } else {
+                previewDiv.classList.add('hidden');
+                previewImg.src = '';
+            }
+        }
+
         // Update publish button to open publish wizard
         document.getElementById('publishBtn').addEventListener('click', () => {
             openPublishWizard();
         });
+
+        // Schedule Post Modal State
+        let scheduleState = {
+            includeOnHomepage: null,
+            includeOnRoutePages: null,
+            selectedRoutes: [],
+            section: null
+        };
+
+        // Schedule modal homepage and routes functionality
+        function selectScheduleHomepage(include) {
+            scheduleState.includeOnHomepage = !!include;
+            document.getElementById('scheduleHomepageYes').classList.toggle('active', include === true);
+            document.getElementById('scheduleHomepageNo').classList.toggle('active', include === false);
+
+            const sectionField = document.getElementById('scheduleSectionField');
+            const sectionSelect = document.getElementById('scheduleSection');
+
+            if (include) {
+                sectionField.classList.remove('hidden');
+                if (!sectionSelect.value) {
+                    sectionSelect.value = 'latest';
+                }
+            } else {
+                sectionField.classList.add('hidden');
+                sectionSelect.value = '';
+            }
+        }
+
+        function toggleScheduleRoutesInclude(include) {
+            scheduleState.includeOnRoutePages = !!include;
+            document.getElementById('scheduleRoutesYes').classList.toggle('active', include === true);
+            document.getElementById('scheduleRoutesNo').classList.toggle('active', include === false);
+
+            const rs = document.getElementById('scheduleRoutesSelector');
+            if (include) {
+                rs.classList.remove('hidden');
+                rs.setAttribute('aria-hidden', 'false');
+            } else {
+                rs.classList.add('hidden');
+                rs.setAttribute('aria-hidden', 'true');
+                scheduleState.selectedRoutes = [];
+                document.querySelectorAll('.schedule-route-checkbox').forEach(cb => cb.checked = false);
+            }
+        }
+
+        function buildScheduleRoutesGrid() {
+            const ROUTE_PAGES = ['featured', 'latest', 'others', 'popular', 'topics'];
+            const container = document.getElementById('scheduleRoutesGrid');
+            if (!container) return;
+            if (container.dataset.built === '1') {
+                // hydrate checked states if any
+                document.querySelectorAll('.schedule-route-checkbox').forEach(cb => {
+                    cb.checked = scheduleState.selectedRoutes.includes(cb.value);
+                });
+                return;
+            }
+            container.innerHTML = ROUTE_PAGES.map(r => {
+                const label = r.toUpperCase();
+                const checked = scheduleState.selectedRoutes.includes(r) ? 'checked' : '';
+                return `
+                    <label class="route-pill">
+                        <input type="checkbox" class="schedule-route-checkbox" value="${r}" ${checked}>
+                        <span>${label}</span>
+                    </label>
+                `;
+            }).join('');
+
+            container.addEventListener('change', (e) => {
+                const cb = e.target.closest('.schedule-route-checkbox');
+                if (!cb) return;
+                const val = cb.value;
+                if (cb.checked && !scheduleState.selectedRoutes.includes(val)) scheduleState.selectedRoutes.push(val);
+                if (!cb.checked) scheduleState.selectedRoutes = scheduleState.selectedRoutes.filter(x => x !== val);
+            });
+
+            container.dataset.built = '1';
+        }
+
+        // Schedule Post Modal Functions
+        function openScheduleModal() {
+            const modal = document.getElementById('scheduleModal');
+            const backdrop = document.getElementById('scheduleModalBackdrop');
+
+            if (!modal) {
+                console.error('[Schedule Modal] Modal element not found');
+                return;
+            }
+
+            // Load current content metadata
+            loadScheduleMetaFromEditor();
+
+            // Build routes grid
+            buildScheduleRoutesGrid();
+
+            // Load tags
+            loadScheduleTags();
+
+            // Show modal
+            modal.classList.remove('hidden');
+            backdrop.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
+            // Focus first input
+            setTimeout(() => {
+                const firstInput = modal.querySelector('input');
+                if (firstInput) firstInput.focus();
+            }, 100);
+        }
+
+        function closeScheduleModal() {
+            const modal = document.getElementById('scheduleModal');
+            const backdrop = document.getElementById('scheduleModalBackdrop');
+
+            if (modal) modal.classList.add('hidden');
+            if (backdrop) backdrop.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function loadScheduleMetaFromEditor() {
+            // Extract metadata from the current template content
+            const container = document.getElementById('templateContainer');
+            if (!container) return;
+
+            // Try to extract title from h1, h2, etc.
+            const titleEl = container.querySelector('h1, h2, h3');
+            if (titleEl && titleEl.textContent) {
+                document.getElementById('scheduleTitle').value = titleEl.textContent.trim();
+            }
+
+            // Try to extract excerpt from first paragraph
+            const excerptEl = container.querySelector('p');
+            if (excerptEl && excerptEl.textContent) {
+                document.getElementById('scheduleExcerpt').value = excerptEl.textContent.trim().substring(0, 200);
+            }
+
+            // Generate slug from title
+            const title = document.getElementById('scheduleTitle').value;
+            if (title) {
+                const slug = title.toLowerCase()
+                    .replace(/[^\w\s-]/g, '') // Remove special chars
+                    .replace(/\s+/g, '-') // Replace spaces with hyphens
+                    .replace(/-+/g, '-') // Replace multiple hyphens with single
+                    .trim();
+                document.getElementById('scheduleSlug').value = slug;
+            }
+
+            // Set default schedule date to tomorrow at current time
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const year = tomorrow.getFullYear();
+            const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+            const day = String(tomorrow.getDate()).padStart(2, '0');
+            const hours = String(tomorrow.getHours()).padStart(2, '0');
+            const minutes = String(tomorrow.getMinutes()).padStart(2, '0');
+            const dateTimeString = `${year}-${month}-${day}T${hours}:${minutes}`;
+            document.getElementById('scheduleDateTime').value = dateTimeString;
+
+            // Set default timezone to user's timezone or UTC
+            const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            document.getElementById('scheduleTimezone').value = userTimezone;
+        }
+
+        function buildScheduleRoutesGrid() {
+            const ROUTE_PAGES = ['featured', 'latest', 'others', 'popular', 'topics'];
+            const container = document.getElementById('scheduleRoutesGrid');
+            if (!container) return;
+            if (container.dataset.built === '1') {
+                // hydrate checked states if any
+                document.querySelectorAll('.schedule-route-checkbox').forEach(cb => {
+                    cb.checked = scheduleState.selectedRoutes.includes(cb.value);
+                });
+                return;
+            }
+            container.innerHTML = ROUTE_PAGES.map(r => {
+                const label = r.toUpperCase();
+                const checked = scheduleState.selectedRoutes.includes(r) ? 'checked' : '';
+                return `
+                    <label class="route-pill">
+                        <input type="checkbox" class="schedule-route-checkbox" value="${r}" ${checked}>
+                        <span>${label}</span>
+                    </label>
+                `;
+            }).join('');
+
+            container.addEventListener('change', (e) => {
+                const cb = e.target.closest('.schedule-route-checkbox');
+                if (!cb) return;
+                const val = cb.value;
+                if (cb.checked && !scheduleState.selectedRoutes.includes(val)) scheduleState.selectedRoutes.push(val);
+                if (!cb.checked) scheduleState.selectedRoutes = scheduleState.selectedRoutes.filter(x => x !== val);
+            });
+
+            container.dataset.built = '1';
+        }
+
+        function selectScheduleHomepage(include) {
+            scheduleState.includeOnHomepage = !!include;
+            document.getElementById('scheduleHomepageYes').classList.toggle('active', include === true);
+            document.getElementById('scheduleHomepageNo').classList.toggle('active', include === false);
+
+            const sectionSelector = document.getElementById('scheduleSectionField');
+            const sectionSelect = document.getElementById('scheduleSection');
+
+            if (include) {
+                sectionSelector.classList.remove('hidden');
+                sectionSelector.setAttribute('aria-hidden', 'false');
+                // Set default section if none selected
+                if (!sectionSelect.value) {
+                    sectionSelect.value = 'latest';
+                }
+            } else {
+                sectionSelector.classList.add('hidden');
+                sectionSelector.setAttribute('aria-hidden', 'true');
+                // Clear section selection when homepage is disabled
+                sectionSelect.value = '';
+            }
+        }
+
+        function toggleScheduleRoutesInclude(include) {
+            scheduleState.includeOnRoutePages = !!include;
+            document.getElementById('scheduleRoutesYes').classList.toggle('active', include === true);
+            document.getElementById('scheduleRoutesNo').classList.toggle('active', include === false);
+
+            const rs = document.getElementById('scheduleRoutesSelector');
+            if (include) {
+                rs.classList.remove('hidden');
+                rs.setAttribute('aria-hidden', 'false');
+            } else {
+                rs.classList.add('hidden');
+                rs.setAttribute('aria-hidden', 'true');
+                scheduleState.selectedRoutes = [];
+                document.querySelectorAll('.schedule-route-checkbox').forEach(cb => cb.checked = false);
+            }
+        }
+
+        async function loadScheduleTags() {
+            console.log('🏷️ Loading tags for schedule modal...');
+
+            const selectElement = document.getElementById('scheduleTags');
+            if (!selectElement) return;
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/admin/api/blog/tags', {
+                    method: 'GET',
+                    headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                const availableTags = data.tags || [];
+
+                console.log(`✅ Loaded ${availableTags.length} tags for schedule modal`);
+
+                // Clear existing options except the first one
+                selectElement.innerHTML = '<option value="">Select a tag...</option>';
+
+                if (availableTags.length === 0) {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'No tags available';
+                    option.disabled = true;
+                    selectElement.appendChild(option);
+                    return;
+                }
+
+                // Add all tags as options
+                availableTags.forEach(tag => {
+                    const option = document.createElement('option');
+                    option.value = tag.slug;
+                    option.textContent = `${tag.name} (${tag.count} posts)`;
+                    selectElement.appendChild(option);
+                });
+
+            } catch (error) {
+                console.error('❌ Error loading schedule tags:', error);
+                selectElement.innerHTML = '<option value="">Select a tag...</option><option value="" disabled>Failed to load tags</option>';
+            }
+        }
+
+        async function schedulePost() {
+            // Validate required fields
+            const title = document.getElementById('scheduleTitle').value.trim();
+            const slug = document.getElementById('scheduleSlug').value.trim();
+            const dateTime = document.getElementById('scheduleDateTime').value;
+            const timezone = document.getElementById('scheduleTimezone').value;
+
+            if (!title) {
+                alert('Please enter a title');
+                document.getElementById('scheduleTitle').focus();
+                return;
+            }
+
+            if (!slug) {
+                alert('Please enter a URL slug');
+                document.getElementById('scheduleSlug').focus();
+                return;
+            }
+
+            if (!dateTime) {
+                alert('Please select a date and time');
+                document.getElementById('scheduleDateTime').focus();
+                return;
+            }
+
+            // If homepage was enabled, validate section
+            const scheduleSectionField = document.getElementById('scheduleSectionField');
+            if (scheduleSectionField && !scheduleSectionField.classList.contains('hidden')) {
+                const section = document.getElementById('scheduleSection').value;
+                if (!section) {
+                    alert('Please select a homepage section');
+                    document.getElementById('scheduleSection').focus();
+                    return;
+                }
+            }
+
+            // Collect all post data
+            const postData = {
+                title: title,
+                slug: slug,
+                excerpt: document.getElementById('scheduleExcerpt').value.trim(),
+                content: document.getElementById('templateContainer').innerHTML,
+                tags: [document.getElementById('scheduleTags').value].filter(tag => tag), // Get single selected tag as array
+                author: document.getElementById('scheduleAuthor').value.trim(),
+                scheduled_at: new Date(dateTime).toISOString(),
+                scheduled_timezone: timezone,
+                featured_image: document.getElementById('scheduleImage').value.trim(),
+                template_type: templateParam || 'template1',
+                section: scheduleState.includeOnHomepage ? document.getElementById('scheduleSection').value : null,
+                is_featured: scheduleState.includeOnHomepage || false
+            };
+
+            try {
+                // Send to API
+                const response = await fetch('/admin/api/blog/posts/schedule', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+                    },
+                    body: JSON.stringify(postData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || `Failed to schedule: ${response.status}`);
+                }
+
+                const result = await response.json();
+                console.log('[Schedule] Post scheduled successfully:', result);
+
+                alert(`Post "${title}" has been scheduled for publication on ${new Date(dateTime).toLocaleString()} in ${timezone} timezone.`);
+
+                closeScheduleModal();
+
+                // Refresh the posts data to show the new scheduled post
+                if (typeof loadPostsData === 'function') {
+                    loadPostsData();
+                }
+
+            } catch (error) {
+                console.error('[Schedule] Error scheduling post:', error);
+                alert('Failed to schedule post: ' + error.message);
+            }
+        }
+
+        // Image preview functionality for schedule modal
+        function updateScheduleImagePreview() {
+            const imageInput = document.getElementById('scheduleImage');
+            const previewDiv = document.getElementById('scheduleImagePreview');
+            const previewImg = document.getElementById('schedulePreviewImg');
+
+            if (!imageInput || !previewDiv || !previewImg) return;
+
+            const url = imageInput.value.trim();
+
+            if (url) {
+                previewImg.src = url;
+                previewImg.onerror = () => {
+                    previewDiv.classList.add('hidden');
+                    console.warn('[Schedule Image Preview] Failed to load image:', url);
+                };
+                previewImg.onload = () => {
+                    previewDiv.classList.remove('hidden');
+                    console.log('[Schedule Image Preview] Image loaded successfully:', url);
+                };
+            } else {
+                previewDiv.classList.add('hidden');
+                previewImg.src = '';
+            }
+        }
+
+        // Load tags for schedule modal
+        async function loadScheduleTags() {
+            console.log('🏷️ Loading tags for schedule modal...');
+
+            const selectElement = document.getElementById('scheduleTags');
+            if (!selectElement) return;
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/admin/api/blog/tags', {
+                    method: 'GET',
+                    headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                const availableTags = data.tags || [];
+
+                console.log(`✅ Loaded ${availableTags.length} tags for schedule modal`);
+
+                // Clear existing options except the first one
+                selectElement.innerHTML = '<option value="">Select a tag...</option>';
+
+                if (availableTags.length === 0) {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'No tags available';
+                    option.disabled = true;
+                    selectElement.appendChild(option);
+                    return;
+                }
+
+                // Add all tags as options
+                availableTags.forEach(tag => {
+                    const option = document.createElement('option');
+                    option.value = tag.slug;
+                    option.textContent = `${tag.name} (${tag.count} posts)`;
+                    selectElement.appendChild(option);
+                });
+
+            } catch (error) {
+                console.error('❌ Error loading schedule tags:', error);
+                selectElement.innerHTML = '<option value="">Select a tag...</option><option value="" disabled>Failed to load tags</option>';
+            }
+        }
+
+        // Wire schedule button
+        document.getElementById('scheduleBtn').addEventListener('click', () => {
+            openScheduleModal();
+        });
+
+        // Wire schedule modal events
+        document.getElementById('scheduleCloseBtn').addEventListener('click', closeScheduleModal);
+        document.getElementById('scheduleCancelBtn').addEventListener('click', closeScheduleModal);
+        document.getElementById('scheduleConfirmBtn').addEventListener('click', schedulePost);
+
+        // Image preview functionality for schedule modal
+        const scheduleImgInput = document.getElementById('scheduleImage');
+        if (scheduleImgInput) {
+            scheduleImgInput.addEventListener('input', updateScheduleImagePreview);
+            scheduleImgInput.addEventListener('blur', updateScheduleImagePreview);
+        }
+
+        // Load tags for schedule modal
+        loadScheduleTags();
+
+        // Wire up schedule homepage choice buttons
+        document.getElementById('scheduleHomepageYes').addEventListener('click', () => selectScheduleHomepage(true));
+        document.getElementById('scheduleHomepageNo').addEventListener('click', () => selectScheduleHomepage(false));
+
+        // Wire up schedule routes choice buttons
+        document.getElementById('scheduleRoutesYes').addEventListener('click', () => toggleScheduleRoutesInclude(true));
+        document.getElementById('scheduleRoutesNo').addEventListener('click', () => toggleScheduleRoutesInclude(false));
+
+        // Wire up schedule homepage choice buttons
+        document.getElementById('scheduleHomepageYes').addEventListener('click', () => selectScheduleHomepage(true));
+        document.getElementById('scheduleHomepageNo').addEventListener('click', () => selectScheduleHomepage(false));
+
+        // Schedule image preview functionality
+        const scheduleImageInput = document.getElementById('scheduleImage');
+        if (scheduleImageInput) {
+            scheduleImageInput.addEventListener('input', updateScheduleImagePreview);
+            scheduleImageInput.addEventListener('blur', updateScheduleImagePreview);
+        }
     </script>
+
+    <!-- Schedule Post Modal -->
+    <div id="scheduleModalBackdrop" class="wizard-backdrop hidden"></div>
+    <div id="scheduleModal" class="wizard-modal hidden" role="dialog" aria-modal="true" aria-labelledby="scheduleTitleLabel">
+        <div class="wizard-shell">
+            <div class="wizard-header">
+                <div class="wizard-title">
+                    <span class="wizard-icon">📅</span>
+                    <h2 id="scheduleTitleLabel">SCHEDULE POST</h2>
+                </div>
+                <button class="wizard-close-btn" title="Close (Esc)" id="scheduleCloseBtn">×</button>
+            </div>
+
+            <div class="wizard-content">
+                <section class="wizard-step">
+                    <h3 class="wizard-section-title">Schedule Details</h3>
+                    <div class="wizard-form">
+                        <div class="publish-field">
+                            <label for="scheduleTitle">Title *</label>
+                            <input type="text" id="scheduleTitle" class="publish-input" placeholder="Enter post title" required>
+                        </div>
+                        <div class="publish-field">
+                            <label for="scheduleSlug">URL Slug *</label>
+                            <input type="text" id="scheduleSlug" class="publish-input" placeholder="top-10-best-footballers" required>
+                            <small class="wizard-hint">This will be the URL: /your-slug-here</small>
+                        </div>
+                        <div class="publish-field">
+                            <label for="scheduleExcerpt">Excerpt</label>
+                            <textarea id="scheduleExcerpt" class="publish-textarea" rows="3" placeholder="Brief description (optional)"></textarea>
+                        </div>
+                        <div class="publish-field">
+                            <label for="scheduleTags">Tags</label>
+                            <select id="scheduleTags" class="publish-select">
+                                <option value="">Select a tag...</option>
+                            </select>
+                        </div>
+                        <div class="publish-field">
+                            <label for="scheduleAuthor">Author</label>
+                            <input type="text" id="scheduleAuthor" class="publish-input" placeholder="NekwasaR" value="NekwasaR">
+                        </div>
+                        <div class="publish-field">
+                            <label for="scheduleDateTime">Schedule Date & Time *</label>
+                            <input type="datetime-local" id="scheduleDateTime" class="publish-input" required>
+                            <small class="wizard-hint">When should this post be published?</small>
+                        </div>
+                        <div class="publish-field">
+                            <label for="scheduleTimezone">Timezone *</label>
+                            <select id="scheduleTimezone" class="publish-select" required>
+                                <option value="UTC">UTC (Coordinated Universal Time)</option>
+                                <option value="America/New_York">Eastern Time (ET)</option>
+                                <option value="America/Chicago">Central Time (CT)</option>
+                                <option value="America/Denver">Mountain Time (MT)</option>
+                                <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                                <option value="Europe/London">London (GMT/BST)</option>
+                                <option value="Europe/Paris">Paris (CET/CEST)</option>
+                                <option value="Asia/Tokyo">Tokyo (JST)</option>
+                                <option value="Australia/Sydney">Sydney (AEDT/AEST)</option>
+                            </select>
+                            <small class="wizard-hint">Select the timezone for the schedule time</small>
+                        </div>
+                        <div class="publish-field">
+                            <label for="scheduleImage">Featured Image URL</label>
+                            <input type="url" id="scheduleImage" class="publish-input" placeholder="https://example.com/image.jpg">
+                            <div id="scheduleImagePreview" class="image-preview hidden">
+                                <img id="schedulePreviewImg" src="" alt="Image preview" style="max-width: 200px; max-height: 150px; border: 1px solid #333; margin-top: 8px;">
+                            </div>
+                        </div>
+                        <div class="publish-field hidden" id="scheduleSectionField">
+                            <label for="scheduleSection">Section *</label>
+                            <select id="scheduleSection" class="publish-select" required>
+                                <option value="">Select section</option>
+                                <option value="latest">Latest</option>
+                                <option value="popular">Popular</option>
+                                <option value="featured">Featured</option>
+                                <option value="others">Others</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Homepage and Routes Choices -->
+                    <div class="wizard-choices" id="scheduleHomepageChoices">
+                        <button class="choice-btn" data-choice="homepage-yes" id="scheduleHomepageYes">YES</button>
+                        <button class="choice-btn" data-choice="homepage-no" id="scheduleHomepageNo">NO</button>
+                    </div>
+
+                    <div id="scheduleRoutesSelector" class="routes-selector hidden" aria-hidden="true">
+                        <p class="wizard-subtitle">Select the route pages where this post should appear:</p>
+                        <div class="routes-grid" id="scheduleRoutesGrid">
+                            <!-- Routes will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="wizard-choices" id="scheduleRoutesChoices">
+                        <button class="choice-btn" data-choice="routes-yes" id="scheduleRoutesYes">YES</button>
+                        <button class="choice-btn" data-choice="routes-no" id="scheduleRoutesNo">NO</button>
+                    </div>
+
+                    <p class="wizard-hint">Schedule your post to be published automatically at the specified date and time with all publishing details.</p>
+                </section>
+            </div>
+
+            <div class="wizard-footer">
+                <div class="wizard-footer-left">
+                </div>
+                <div class="wizard-footer-right">
+                    <button class="wizard-btn ghost" id="scheduleCancelBtn">Cancel</button>
+                    <button class="wizard-btn success" id="scheduleConfirmBtn" title="Schedule Post">Schedule Post</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

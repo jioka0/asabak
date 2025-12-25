@@ -22,6 +22,11 @@ class BlogPost(Base):
     priority = Column(Integer, default=0)  # For featured content ordering
     is_featured = Column(Boolean, default=False)  # Featured post flag
 
+    # Scheduling fields
+    status = Column(String(20), default='draft')  # draft, scheduled, published
+    scheduled_at = Column(DateTime(timezone=True), nullable=True)  # When to publish if scheduled
+    scheduled_timezone = Column(String(50), nullable=True)  # Timezone for scheduled_at
+
     view_count = Column(Integer, default=0)
     like_count = Column(Integer, default=0)
     comment_count = Column(Integer, default=0)
@@ -59,6 +64,14 @@ class BlogLike(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     blog_post_id = Column(Integer, ForeignKey("blog_posts.id", ondelete="CASCADE"))
+    user_identifier = Column(String(255))  # IP or session ID
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class CommentLike(Base):
+    __tablename__ = "comment_likes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    comment_id = Column(Integer, ForeignKey("blog_comments.id", ondelete="CASCADE"))
     user_identifier = Column(String(255))  # IP or session ID
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 

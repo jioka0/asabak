@@ -1040,6 +1040,16 @@
                     const commentHtml = createCommentHTML(comment);
                     commentsContainer.appendChild(commentHtml);
                 });
+                
+                // Check like status for all comments after loading
+                data.comments.forEach(comment => {
+                    checkCommentLikeStatus(comment.id);
+                    if (comment.replies && comment.replies.length > 0) {
+                        comment.replies.forEach(reply => {
+                            checkCommentLikeStatus(reply.id);
+                        });
+                    }
+                });
             } else {
                 commentsContainer.innerHTML = '<div class="flex flex-col items-center justify-center py-16"><div class="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white text-2xl mb-4"><i class="ph-bold ph-chat-circle"></i></div><p class="text-gray-500 dark:text-gray-400 text-lg">No comments yet. Be the first to share your thoughts!</p></div>';
             }
@@ -1077,7 +1087,7 @@
                     <div class="flex items-center gap-4">
                         <button onclick="toggleCommentLike(${comment.id})" class="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors comment-like-btn">
                             <i class="ph-bold ph-heart text-xl"></i>
-                            <span class="comment-like-count text-base font-medium">0</span>
+                            <span class="comment-like-count text-base font-medium">${comment.like_count || 0}</span>
                         </button>
                         <button onclick="replyToComment(${comment.id})" class="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-gray-600 dark:text-gray-400">
                             <i class="ph-bold ph-arrow-u-up-left text-xl"></i>
@@ -1086,17 +1096,20 @@
                     </div>
                 </div>
             </div>
-            ${comment.replies && comment.replies.length > 0 ? 
-                `<div class="mt-6 space-y-4">${comment.replies.map(reply => createReplyHTML(reply)).join('')}</div>` : 
+            ${comment.replies && comment.replies.length > 0 ?
+                `<div class="mt-6 space-y-4">${comment.replies.map(reply => createReplyHTML(reply)).join('')}</div>` :
                 ''
             }
         `;
+
+        // Check like status for this comment
+        checkCommentLikeStatus(comment.id);
 
         return commentDiv;
     }
 
     function createReplyHTML(reply) {
-        return `
+        const replyHtml = `
             <div class="comment-item pl-8 sm:pl-12 border-l-2 border-gray-100 dark:border-gray-700" data-comment-id="${reply.id}">
                 <div class="flex gap-4 p-5 rounded-xl bg-gray-50 dark:bg-gray-800/30">
                     <div class="w-12 h-12 rounded-xl flex-shrink-0 bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-md">
@@ -1112,13 +1125,18 @@
                         <div class="flex items-center gap-3">
                             <button onclick="toggleCommentLike(${reply.id})" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors comment-like-btn">
                                 <i class="ph-bold ph-heart text-lg"></i>
-                                <span class="comment-like-count text-sm font-medium">0</span>
+                                <span class="comment-like-count text-sm font-medium">${reply.like_count || 0}</span>
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
         `;
+        
+        // Check like status for this reply
+        checkCommentLikeStatus(reply.id);
+        
+        return replyHtml;
     }
 
     function formatDate(dateString) {
@@ -1426,7 +1444,6 @@
     // Like functionality
     async function toggleCommentLike(commentId) {
         try {
-            // For now, just toggle UI state
             const commentItem = document.querySelector(`[data-comment-id="${commentId}"]`);
             const likeBtn = commentItem.querySelector('.comment-like-btn');
             const likeIcon = likeBtn.querySelector('i');
@@ -1434,34 +1451,58 @@
 
             const isLiked = likeIcon.classList.contains('text-red-500');
             const currentCount = parseInt(likeCount.textContent) || 0;
-            const newCount = isLiked ? currentCount - 1 : currentCount + 1;
 
-            // Toggle visual state
+            // Get user identifier
+            const userIdentifier = getUserIdentifier();
+            
+            let response;
             if (isLiked) {
-                likeIcon.classList.remove('text-red-500', 'ph-fill');
-                likeIcon.classList.add('ph-bold');
+                // Unlike the comment
+                response = await fetch(`/api/blogs/comments/${commentId}/likes?user_identifier=${encodeURIComponent(userIdentifier)}`, {
+                    method: 'DELETE'
+                });
             } else {
-                likeIcon.classList.add('text-red-500', 'ph-fill');
-                likeIcon.classList.remove('ph-bold');
+                // Like the comment
+                response = await fetch(`/api/blogs/comments/${commentId}/likes`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_identifier: userIdentifier
+                    })
+                });
             }
 
-            likeCount.textContent = newCount;
+            if (response.ok) {
+                const data = await response.json();
+                
+                // Toggle visual state
+                if (isLiked) {
+                    likeIcon.classList.remove('text-red-500', 'ph-fill');
+                    likeIcon.classList.add('ph-bold');
+                } else {
+                    likeIcon.classList.add('text-red-500', 'ph-fill');
+                    likeIcon.classList.remove('ph-bold');
+                }
 
-            // Store in localStorage for now (could be enhanced to call backend)
-            const likedComments = JSON.parse(localStorage.getItem('likedComments') || '[]');
-            if (isLiked) {
-                const index = likedComments.indexOf(commentId.toString());
-                if (index > -1) likedComments.splice(index, 1);
+                // Update count from server response
+                if (data.like_count !== undefined) {
+                    likeCount.textContent = data.like_count;
+                } else {
+                    // Fallback to client-side calculation
+                    likeCount.textContent = isLiked ? Math.max(0, currentCount - 1) : currentCount + 1;
+                }
+
+                showNotification(isLiked ? 'Comment unliked' : 'Comment liked', 'success');
             } else {
-                likedComments.push(commentId.toString());
+                const errorData = await response.json();
+                showNotification(errorData.detail || 'Failed to update like', 'error');
             }
-            localStorage.setItem('likedComments', JSON.stringify(likedComments));
-
-            showNotification(isLiked ? 'Comment unliked' : 'Comment liked', 'success');
             
         } catch (error) {
             console.error('Error toggling comment like:', error);
-            showNotification('Failed to like comment. Please try again.', 'error');
+            showNotification('Failed to update like. Please try again.', 'error');
         }
     }
 
@@ -1896,6 +1937,35 @@
             localStorage.setItem('userIdentifier', identifier);
         }
         return identifier;
+    }
+
+    // Check comment like status
+    async function checkCommentLikeStatus(commentId) {
+        try {
+            const userIdentifier = getUserIdentifier();
+            const response = await fetch(`/api/blogs/comments/${commentId}/likes/status?user_identifier=${encodeURIComponent(userIdentifier)}`);
+            
+            if (response.ok) {
+                const data = await response.json();
+                const commentItem = document.querySelector(`[data-comment-id="${commentId}"]`);
+                if (commentItem) {
+                    const likeBtn = commentItem.querySelector('.comment-like-btn');
+                    const likeIcon = likeBtn.querySelector('i');
+                    const likeCount = commentItem.querySelector('.comment-like-count');
+                    
+                    if (data.liked) {
+                        likeIcon.classList.add('text-red-500', 'ph-fill');
+                        likeIcon.classList.remove('ph-bold');
+                    } else {
+                        likeIcon.classList.remove('text-red-500', 'ph-fill');
+                        likeIcon.classList.add('ph-bold');
+                    }
+                    
+                }
+            }
+        } catch (error) {
+            console.error('Error checking comment like status:', error);
+        }
     }
 
     // Check like status on page load

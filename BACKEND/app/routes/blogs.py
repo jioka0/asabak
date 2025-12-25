@@ -5,8 +5,8 @@ from pathlib import Path
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from database import get_db
-from models.blog import BlogPost as BlogPostModel, BlogComment, BlogLike, TemporalUser as TemporalUserModel
-from schemas import BlogPost, BlogPostCreate, Comment, CommentCreate, Like, LikeCreate, TemporalUser, TemporalUserCreate
+from models.blog import BlogPost as BlogPostModel, BlogComment, BlogLike, CommentLike, TemporalUser as TemporalUserModel
+from schemas import BlogPost, BlogPostCreate, BlogPostSchedule, Comment, CommentCreate, Like, LikeCreate, TemporalUser, TemporalUserCreate, CommentLike as CommentLikeSchema, CommentLikeCreate
 import logging
 
 # Set up logging
@@ -22,7 +22,13 @@ templates = Jinja2Templates(directory=str(templates_dir))
 @router.get("/", response_model=list[BlogPost])
 async def get_blog_posts(limit: int = 10, db: Session = Depends(get_db)):
     """Get latest blog posts for homepage"""
-    posts = db.query(BlogPostModel).order_by(BlogPostModel.published_at.desc()).limit(limit).all()
+    posts = db.query(BlogPostModel).filter(BlogPostModel.status == 'published').order_by(BlogPostModel.published_at.desc()).limit(limit).all()
+    return posts
+
+@router.get("/scheduled", response_model=list[BlogPost])
+async def get_scheduled_posts(db: Session = Depends(get_db)):
+    """Get scheduled blog posts for admin"""
+    posts = db.query(BlogPostModel).filter(BlogPostModel.status == 'scheduled').order_by(BlogPostModel.scheduled_at.asc()).all()
     return posts
 
 @router.get("/{post_id}", response_model=BlogPost)
@@ -45,6 +51,32 @@ async def create_blog_post(post: BlogPostCreate, db: Session = Depends(get_db)):
     db.add(db_post)
     db.commit()
     db.refresh(db_post)
+    return db_post
+
+@router.post("/schedule", response_model=BlogPost)
+async def schedule_blog_post(post: BlogPostSchedule, db: Session = Depends(get_db)):
+    """Schedule a blog post for future publication"""
+    logger.info(f"📅 SCHEDULE POST: Scheduling post '{post.title}' for {post.scheduled_at} in {post.scheduled_timezone}")
+
+    # Check if slug already exists
+    existing = db.query(BlogPostModel).filter(BlogPostModel.slug == post.slug).first()
+    if existing:
+        logger.error(f"📅 SCHEDULE POST: Slug '{post.slug}' already exists")
+        raise HTTPException(400, f"Post with slug '{post.slug}' already exists")
+
+    # Create the scheduled post
+    db_post = BlogPostModel(
+        **post.dict(exclude={'scheduled_at', 'scheduled_timezone', 'include_on_homepage', 'include_on_route_pages', 'selected_routes'}),
+        status='scheduled',
+        scheduled_at=post.scheduled_at,
+        scheduled_timezone=post.scheduled_timezone
+    )
+
+    db.add(db_post)
+    db.commit()
+    db.refresh(db_post)
+
+    logger.info(f"📅 SCHEDULE POST: Post scheduled successfully with id={db_post.id}")
     return db_post
 
 @router.post("/{post_id}/comments", response_model=Comment)
@@ -73,6 +105,8 @@ async def create_comment(post_id: int, comment: CommentCreate, db: Session = Dep
         logger.info(f"🔥 COMMENT CREATE: Database commit successful")
         db.refresh(db_comment)
         logger.info(f"🔥 COMMENT CREATE: Comment created with id={db_comment.id}, final post comment_count={post.comment_count}")
+        # Set like_count for the new comment (always 0 for new comments)
+        db_comment.like_count = 0
         return db_comment
     except Exception as e:
         logger.error(f"🔥 COMMENT CREATE: Database commit failed: {str(e)}")
@@ -143,42 +177,135 @@ async def get_like_status(post_id: int, user_identifier: str, db: Session = Depe
 
     return {"liked": existing is not None}
 
+@router.post("/comments/{comment_id}/likes")
+async def like_comment(comment_id: int, like: CommentLikeCreate, db: Session = Depends(get_db)):
+    """Like a comment"""
+    # Check if comment exists
+    comment = db.query(BlogComment).filter(BlogComment.id == comment_id).first()
+    if not comment:
+        raise HTTPException(404, "Comment not found")
+
+    # Check if already liked
+    existing = db.query(CommentLike).filter(
+        CommentLike.comment_id == comment_id,
+        CommentLike.user_identifier == like.user_identifier
+    ).first()
+
+    liked = False
+    if existing:
+        # Already liked, just return success
+        liked = True
+    else:
+        # Create like
+        db_like = CommentLike(comment_id=comment_id, **like.dict())
+        db.add(db_like)
+        liked = True
+        db.commit()
+        db.refresh(db_like)
+
+    # Get updated like count
+    like_count = db.query(func.count(CommentLike.id)).filter(CommentLike.comment_id == comment_id).scalar()
+
+    return {"liked": liked, "like_count": like_count}
+
+@router.delete("/comments/{comment_id}/likes")
+async def unlike_comment(comment_id: int, user_identifier: str, db: Session = Depends(get_db)):
+    """Unlike a comment"""
+    # Find existing like
+    existing = db.query(CommentLike).filter(
+        CommentLike.comment_id == comment_id,
+        CommentLike.user_identifier == user_identifier
+    ).first()
+
+    unliked = False
+    if existing:
+        # Delete like
+        db.delete(existing)
+        unliked = True
+        db.commit()
+
+    # Get updated like count
+    like_count = db.query(func.count(CommentLike.id)).filter(CommentLike.comment_id == comment_id).scalar()
+
+    return {"unliked": unliked, "like_count": like_count}
+
+@router.get("/comments/{comment_id}/likes/status")
+async def get_comment_like_status(comment_id: int, user_identifier: str, db: Session = Depends(get_db)):
+    """Check if user has liked a comment"""
+    existing = db.query(CommentLike).filter(
+        CommentLike.comment_id == comment_id,
+        CommentLike.user_identifier == user_identifier
+    ).first()
+
+    return {"liked": existing is not None}
+
 @router.get("/{post_id}/comments", response_model=list[Comment])
 async def get_comments(post_id: int, db: Session = Depends(get_db)):
     """Get approved comments for a blog post"""
-    comments = db.query(BlogComment).filter(
+    from sqlalchemy import func
+    comments_with_likes = db.query(
+        BlogComment,
+        func.count(CommentLike.id).label('like_count')
+    ).outerjoin(CommentLike, BlogComment.id == CommentLike.comment_id).filter(
         BlogComment.blog_post_id == post_id,
         BlogComment.is_approved == True
-    ).order_by(BlogComment.created_at).all()
+    ).group_by(BlogComment.id).order_by(BlogComment.created_at).all()
 
-    return comments
+    # Update like_count on each comment
+    for comment, like_count in comments_with_likes:
+        comment.like_count = like_count
+
+    return [comment for comment, _ in comments_with_likes]
+
+@router.get("/comments/{comment_id}")
+async def get_comment(comment_id: int, db: Session = Depends(get_db)):
+    """Get a single comment with like count"""
+    from sqlalchemy import func
+    comment_with_likes = db.query(
+        BlogComment,
+        func.count(CommentLike.id).label('like_count')
+    ).outerjoin(CommentLike, BlogComment.id == CommentLike.comment_id).filter(
+        BlogComment.id == comment_id
+    ).group_by(BlogComment.id).first()
+
+    if not comment_with_likes:
+        raise HTTPException(404, "Comment not found")
+
+    comment, like_count = comment_with_likes
+    comment.like_count = like_count
+    return comment
 
 @router.get("/{post_id}/comments-tree")
 async def get_comments_tree(post_id: int, db: Session = Depends(get_db)):
     """Get approved comments for a blog post with nested replies"""
-    # Get all approved comments for this post
-    all_comments = db.query(BlogComment).filter(
+    # Get all approved comments for this post with like counts
+    from sqlalchemy import func
+    comments_with_likes = db.query(
+        BlogComment,
+        func.count(CommentLike.id).label('like_count')
+    ).outerjoin(CommentLike, BlogComment.id == CommentLike.comment_id).filter(
         BlogComment.blog_post_id == post_id,
         BlogComment.is_approved == True
-    ).order_by(BlogComment.created_at).all()
+    ).group_by(BlogComment.id).order_by(BlogComment.created_at).all()
 
     # Build comment tree
     comment_dict = {}
     root_comments = []
 
     # First pass: create comment objects
-    for comment in all_comments:
+    for comment, like_count in comments_with_likes:
         comment_data = {
             "id": comment.id,
             "author": comment.author_name,
             "content": comment.content,
             "created_at": comment.created_at.isoformat(),
+            "like_count": like_count,
             "replies": []
         }
         comment_dict[comment.id] = comment_data
 
     # Second pass: build hierarchy
-    for comment in all_comments:
+    for comment, _ in comments_with_likes:
         if comment.parent_id and comment.parent_id in comment_dict:
             # This is a reply
             comment_dict[comment.parent_id]["replies"].append(comment_dict[comment.id])

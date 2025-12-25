@@ -1,9 +1,15 @@
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
+from apscheduler.triggers.interval import IntervalTrigger
 from services.newsletter_service import NewsletterService
 from database import get_db
 from sqlalchemy.orm import Session
+from models.blog import BlogPost
+from datetime import datetime
 import asyncio
+import logging
+
+logger = logging.getLogger(__name__)
 
 scheduler = AsyncIOScheduler()
 
@@ -24,6 +30,45 @@ async def send_weekly_newsletter_job():
     finally:
         db.close()
 
+async def publish_scheduled_posts_job():
+    """Check for scheduled posts that are ready to be published"""
+    try:
+        # Get database session
+        db = next(get_db())
+
+        # Get current time
+        now = datetime.utcnow()
+
+        # Find scheduled posts that are due
+        scheduled_posts = db.query(BlogPost).filter(
+            BlogPost.status == 'scheduled',
+            BlogPost.scheduled_at <= now
+        ).all()
+
+        published_count = 0
+        for post in scheduled_posts:
+            logger.info(f"🚀 PUBLISHING SCHEDULED POST: '{post.title}' (ID: {post.id})")
+
+            # Update post status to published and set published_at
+            post.status = 'published'
+            post.published_at = now
+            post.scheduled_at = None  # Clear the scheduled time
+            post.scheduled_timezone = None
+
+            published_count += 1
+
+        if published_count > 0:
+            db.commit()
+            logger.info(f"✅ Published {published_count} scheduled posts")
+        else:
+            logger.debug("No scheduled posts ready for publication")
+
+    except Exception as e:
+        logger.error(f"❌ Publish scheduled posts job failed: {e}")
+        db.rollback()
+    finally:
+        db.close()
+
 def init_scheduler():
     """Initialize the scheduler with jobs"""
     # Schedule weekly newsletter for every Monday at 9:00 AM
@@ -35,7 +80,17 @@ def init_scheduler():
         replace_existing=True
     )
 
-    print("Newsletter scheduler initialized - Weekly newsletter scheduled for every Monday at 9 AM")
+    # Schedule post publishing check every minute
+    scheduler.add_job(
+        publish_scheduled_posts_job,
+        trigger=IntervalTrigger(minutes=1),
+        id='publish_scheduled_posts',
+        name='Publish Scheduled Posts',
+        replace_existing=True
+    )
+
+    print("Scheduler initialized - Weekly newsletter scheduled for every Monday at 9 AM")
+    print("Scheduler initialized - Scheduled posts will be checked every minute")
 
 def start_scheduler():
     """Start the scheduler"""

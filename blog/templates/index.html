@@ -603,15 +603,15 @@
     async function loadHomepagePosts() {
         try {
             // Load latest posts
-            const latestResponse = await fetch('/api/blog/posts/section/latest?limit=3');
+            const latestResponse = await fetch('/api/blogs/posts/section/latest?limit=3');
             const latestData = await latestResponse.json();
 
             // Load popular posts
-            const popularResponse = await fetch('/api/blog/posts/section/popular?limit=6');
+            const popularResponse = await fetch('/api/blogs/posts/section/popular?limit=6');
             const popularData = await popularResponse.json();
 
             // Load featured posts
-            const featuredResponse = await fetch('/api/blog/posts/section/featured?limit=3');
+            const featuredResponse = await fetch('/api/blogs/posts/section/featured?limit=3');
             const featuredData = await featuredResponse.json();
 
             // Update latest section

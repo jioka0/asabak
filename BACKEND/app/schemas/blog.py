@@ -14,13 +14,37 @@ class BlogPostBase(BaseModel):
     slug: Optional[str] = None
     priority: Optional[int] = 0
     is_featured: Optional[bool] = False
+    status: Optional[str] = 'draft'
+    scheduled_at: Optional[datetime] = None
+    scheduled_timezone: Optional[str] = None
 
 class BlogPostCreate(BlogPostBase):
     pass
 
+class BlogPostSchedule(BlogPostCreate):
+    scheduled_at: datetime
+    scheduled_timezone: str
+
+class BlogPostSchedule(BaseModel):
+    title: str
+    slug: str
+    excerpt: Optional[str] = None
+    content: str
+    tags: Optional[List[str]] = None
+    author: str
+    scheduled_at: datetime
+    scheduled_timezone: str
+    featured_image: Optional[str] = None
+    template_type: Optional[str] = None
+    section: Optional[str] = None
+    is_featured: Optional[bool] = False
+    include_on_homepage: Optional[bool] = False
+    include_on_route_pages: Optional[bool] = False
+    selected_routes: Optional[List[str]] = None
+
 class BlogPost(BlogPostBase):
     id: int
-    published_at: datetime
+    published_at: Optional[datetime] = None
     view_count: int
     like_count: int
     comment_count: int
@@ -130,6 +154,7 @@ class Comment(CommentBase):
     blog_post_id: int
     is_approved: bool
     created_at: datetime
+    like_count: int
 
     class Config:
         from_attributes = True
@@ -161,6 +186,18 @@ class LikeCreate(BaseModel):
 class Like(BaseModel):
     id: int
     blog_post_id: int
+    user_identifier: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class CommentLikeCreate(BaseModel):
+    user_identifier: str
+
+class CommentLike(BaseModel):
+    id: int
+    comment_id: int
     user_identifier: str
     created_at: datetime
 
