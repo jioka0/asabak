@@ -26,7 +26,6 @@ templates = Jinja2Templates(directory=str(templates_dir))
 @router.get("/admin/403", response_class=HTMLResponse)
 async def admin_403_error(request: Request):
     """Serve custom 403 error page"""
-    auth_logger.info("🚫 403 ERROR PAGE ACCESSED - Unauthenticated user attempted admin access")
     return templates.TemplateResponse("admin_403_error.html", {"request": request})
 
 @router.get("/admin", response_class=HTMLResponse)
@@ -39,34 +38,29 @@ async def admin_login(request: Request):
 @router.get("/admin/dashboard/", response_class=HTMLResponse)
 async def admin_dashboard(request: Request):
     """Serve admin dashboard HTML page - Authentication handled by JavaScript"""
-    auth_logger.info(f"📄 ADMIN DASHBOARD PAGE REQUEST - IP: {request.client.host}")
     return templates.TemplateResponse("admin_base.html", {"request": request})
 
 @router.get("/admin/contact", response_class=HTMLResponse)
 @router.get("/admin/contact/", response_class=HTMLResponse)
 async def admin_contact(request: Request):
     """Serve admin contact management - Authentication handled by JavaScript"""
-    auth_logger.info(f"📄 ADMIN CONTACT PAGE REQUEST - IP: {request.client.host}")
     return templates.TemplateResponse("admin_contact.html", {"request": request})
 
 @router.get("/admin/blog/editor")
 @router.get("/admin/blog/editor/")
 async def admin_blog_editor_page(request: Request):
     """Serve standalone blog editor page - Authentication handled by JavaScript"""
-    auth_logger.info(f"📄 ADMIN BLOG EDITOR PAGE REQUEST - IP: {request.client.host}")
     return templates.TemplateResponse("admin_blog_editor.html", {"request": request})
 
 @router.get("/admin/blog/tags")
 @router.get("/admin/blog/tags/")
 async def admin_blog_tags_page(request: Request):
     """Serve blog tags management page - Authentication handled by JavaScript"""
-    auth_logger.info(f"📄 ADMIN BLOG TAGS PAGE REQUEST - IP: {request.client.host}")
     return templates.TemplateResponse("admin_blog_tags.html", {"request": request})
 
 @router.get("/admin/{section}/{page}", response_class=HTMLResponse)
 async def admin_section_page(request: Request, section: str, page: str):
     """Serve admin section pages dynamically - Authentication handled by JavaScript"""
-    auth_logger.info(f"📄 ADMIN SECTION PAGE REQUEST - Section: {section}, Page: {page}, IP: {request.client.host}")
     return templates.TemplateResponse("admin_base.html", {"request": request})
 
 # API endpoints for dynamic page loading - PROTECTED
@@ -74,48 +68,20 @@ async def admin_section_page(request: Request, section: str, page: str):
 async def get_admin_template(template_name: str, current_user = Depends(get_current_active_user)):
     """Serve admin page templates dynamically - REQUIRES AUTHENTICATION"""
     try:
-        auth_logger.info(f"🗓️ TEMPLATE REQUEST - User: {current_user.username}, Template: {template_name}")
-        
-        # Log auth details
-        auth_logger.info(f"🔐 Auth user ID: {current_user.id}, Username: {current_user.username}, is_superuser: {current_user.is_superuser}")
-        
-        # Log templates_dir path
-        auth_logger.info(f"📁 templates_dir path: {templates_dir}")
-        auth_logger.info(f"📁 templates_dir exists: {templates_dir.exists()}")
-        auth_logger.info(f"📁 templates_dir absolute: {templates_dir.absolute()}")
-        auth_logger.info(f"📁 Current working directory: {os.getcwd()}")
-        
-        # Log constructed template path
         template_path = templates_dir / template_name
-        auth_logger.info(f"🔗 Constructed template path: {template_path}")
-        auth_logger.info(f"🔗 Template path exists: {template_path.exists()}")
-        auth_logger.info(f"🔗 Template path absolute: {template_path.absolute()}")
-        
-        # Check parent directories
-        auth_logger.info(f"📂 Parent directory: {template_path.parent}")
-        auth_logger.info(f"📂 Parent directory exists: {template_path.parent.exists()}")
-        
+
         if template_path.exists():
             try:
-                auth_logger.info(f"📖 Attempting to read file: {template_path}")
                 with open(template_path, 'r', encoding='utf-8') as f:
                     content = f.read()
-                auth_logger.info(f"✅ File read successfully! Content length: {len(content)} characters")
-                
-                auth_logger.info(f"🚀 Returning HTML response for {template_name}")
                 return HTMLResponse(content=content, media_type="text/html")
-                
+
             except Exception as e:
-                auth_logger.error(f"❌ Error reading file {template_path}: {str(e)}")
-                auth_logger.error(f"❌ Exception type: {type(e).__name__}")
                 raise HTTPException(500, f"Error reading template file: {str(e)}")
         else:
-            auth_logger.warning(f"❌ Template file not found: {template_path}")
             raise HTTPException(404, f"Template {template_name} not found")
-            
+
     except Exception as e:
-        auth_logger.error(f"💥 General error in get_admin_template: {str(e)}")
-        auth_logger.error(f"💥 Exception type: {type(e).__name__}")
         raise HTTPException(500, f"Error loading template: {str(e)}")
 
 @router.post("/admin/logout")
@@ -134,16 +100,7 @@ async def admin_logout(current_user = Depends(get_current_active_user)):
 @router.get("/admin/check-auth")
 async def check_auth(request: Request, current_user = Depends(get_current_active_user)):
     """Check if user is authenticated - used by frontend"""
-    auth_logger.info("🚀 CHECK-AUTH ENDPOINT CALLED")
-    auth_logger.info(f"🌐 REQUEST INFO - IP: {request.client.host}, Method: {request.method}, URL: {request.url}")
-    auth_logger.info(f"🔍 HEADERS - Authorization: {'Bearer ***' if request.headers.get('authorization') else 'None'}")
-
     from fastapi.responses import JSONResponse
-
-    auth_logger.info("✅ AUTH CHECK PASSED - User validation successful")
-    auth_logger.info(f"👤 USER DETAILS - ID: {current_user.id}, Username: {current_user.username}, Email: {current_user.email}")
-    auth_logger.info(f"🔐 USER STATUS - Active: {current_user.is_active}, Superuser: {current_user.is_superuser}")
-    auth_logger.info(f"📅 USER TIMESTAMPS - Created: {current_user.created_at}, Last Login: {current_user.last_login}")
 
     response_data = {
         "authenticated": True,
@@ -153,9 +110,6 @@ async def check_auth(request: Request, current_user = Depends(get_current_active
             "email": current_user.email
         }
     }
-
-    auth_logger.info(f"📤 RESPONSE DATA - {response_data}")
-    auth_logger.info("✅ CHECK-AUTH COMPLETED SUCCESSFULLY")
 
     return JSONResponse(response_data)
 
@@ -283,7 +237,6 @@ async def get_quick_stats(current_user = Depends(get_current_active_user)):
 @router.get("/api/admin/blog/posts")
 async def get_blog_posts(current_user = Depends(get_current_active_user)):
     """Get blog posts data for admin interface"""
-    auth_logger.info("🗂️ get_blog_posts endpoint hit at /admin/api/blog/posts or /api/admin/blog/posts")
     from models.blog import BlogPost
     from sqlalchemy import func
 
@@ -294,16 +247,14 @@ async def get_blog_posts(current_user = Depends(get_current_active_user)):
 
         # Get stats with proper draft counting
         total_posts = db.query(func.count(BlogPost.id)).scalar() or 0
-        
+
         # Count published posts (where published_at is not None)
         published_count = db.query(func.count(BlogPost.id)).filter(BlogPost.published_at.isnot(None)).scalar() or 0
-        
+
         # Count draft posts (where published_at is None) - this is the key fix
         draft_count = db.query(func.count(BlogPost.id)).filter(BlogPost.published_at.is_(None)).scalar() or 0
-        
-        scheduled_count = 0  # Placeholder for future implementation
 
-        auth_logger.info(f"📊 POST STATS - Total: {total_posts}, Published: {published_count}, Drafts: {draft_count}")
+        scheduled_count = 0  # Placeholder for future implementation
 
         # Get categories with counts (using 'section' field instead of missing 'category')
         categories = db.query(
@@ -375,8 +326,6 @@ async def get_blog_posts(current_user = Depends(get_current_active_user)):
             }
             posts_data.append(post_data)
 
-        auth_logger.info(f"📝 PROCESSED {len(posts_data)} POSTS - Drafts: {sum(1 for p in posts_data if p['status'] == 'draft')}")
-
         return {
             "posts": posts_data,
             "stats": {
@@ -445,22 +394,16 @@ async def save_blog_draft(draft_data: dict, current_user = Depends(get_current_a
     import uuid
 
     try:
-        auth_logger.info(f"📝 SAVING DRAFT - User: {current_user.username}")
-        auth_logger.info(f"📝 DRAFT DATA KEYS: {list(draft_data.keys())}")
-
         # Check if this is an update to an existing draft or a new draft
         post_id = draft_data.get("id")
-        
+
         if post_id:
             # Update existing draft
             post = db.query(BlogPost).filter(BlogPost.id == post_id).first()
             if not post:
                 raise HTTPException(status_code=404, detail="Draft not found")
-            
-            auth_logger.info(f"📝 UPDATING EXISTING DRAFT - Post ID: {post_id}")
         else:
             # Create new draft
-            auth_logger.info(f"📝 CREATING NEW DRAFT")
             post = BlogPost()
             db.add(post)
 
@@ -471,7 +414,6 @@ async def save_blog_draft(draft_data: dict, current_user = Depends(get_current_a
             unique_id = str(uuid.uuid4())[:8]
             slug_base = title.lower().replace(" ", "-")[:50]
             post.slug = f"draft-{slug_base}-{unique_id}"
-            auth_logger.info(f"🔗 GENERATED UNIQUE SLUG: {post.slug}")
         else:
             post.slug = draft_data.get("slug")
 
@@ -591,39 +533,25 @@ async def create_blog_tag(tag_data: dict, current_user = Depends(get_current_act
     import re
 
     try:
-        auth_logger.info(f"🏷️ ===== STARTING TAG CREATION =====")
-        auth_logger.info(f"🏷️ User: {current_user.username} (ID: {current_user.id})")
-        auth_logger.info(f"🏷️ Raw tag data received: {tag_data}")
-
         # Generate slug from name
         name = tag_data.get("name", "").strip()
-        auth_logger.info(f"🏷️ Processing tag name: '{name}'")
 
         if not name:
-            auth_logger.warning(f"🏷️ ❌ VALIDATION FAILED: Tag name is empty")
             raise HTTPException(status_code=400, detail="Tag name is required")
-
-        auth_logger.info(f"🏷️ ✅ VALIDATION PASSED: Tag name is valid")
 
         # Create slug (URL-friendly version of the name)
         slug = re.sub(r'[^a-zA-Z0-9\s-]', '', name.lower())
         slug = re.sub(r'\s+', '-', slug).strip('-')
-        auth_logger.info(f"🏷️ Generated slug: '{slug}'")
 
         # Check if tag already exists
-        auth_logger.info(f"🏷️ Checking for existing tags with name '{name}' or slug '{slug}'")
         existing_tag = db.query(BlogTag).filter(
             (BlogTag.name == name) | (BlogTag.slug == slug)
         ).first()
 
         if existing_tag:
-            auth_logger.warning(f"🏷️ ❌ DUPLICATE FOUND: Tag already exists - ID: {existing_tag.id}, Name: {existing_tag.name}")
             raise HTTPException(status_code=400, detail="Tag with this name or slug already exists")
 
-        auth_logger.info(f"🏷️ ✅ NO DUPLICATES: Tag name and slug are unique")
-
         # Create new tag
-        auth_logger.info(f"🏷️ Creating new BlogTag object...")
         new_tag = BlogTag(
             name=name,
             slug=slug,
@@ -632,18 +560,9 @@ async def create_blog_tag(tag_data: dict, current_user = Depends(get_current_act
             is_featured=tag_data.get("is_featured", False)
         )
 
-        auth_logger.info(f"🏷️ Adding tag to database session...")
         db.add(new_tag)
-
-        auth_logger.info(f"🏷️ Committing transaction...")
         db.commit()
-
-        auth_logger.info(f"🏷️ Refreshing tag object from database...")
         db.refresh(new_tag)
-
-        auth_logger.info(f"🏷️ ✅ TAG CREATED SUCCESSFULLY!")
-        auth_logger.info(f"🏷️ Tag details - ID: {new_tag.id}, Name: {new_tag.name}, Slug: {new_tag.slug}")
-        auth_logger.info(f"🏷️ Tag metadata - Description: '{new_tag.description}', Color: {new_tag.color}, Featured: {new_tag.is_featured}")
 
         response_data = {
             "success": True,
@@ -658,18 +577,11 @@ async def create_blog_tag(tag_data: dict, current_user = Depends(get_current_act
             }
         }
 
-        auth_logger.info(f"🏷️ ===== TAG CREATION COMPLETED SUCCESSFULLY =====")
         return response_data
 
     except HTTPException:
-        auth_logger.info(f"🏷️ ===== TAG CREATION FAILED (HTTPException) =====")
         raise
     except Exception as e:
-        auth_logger.error(f"🏷️ ===== TAG CREATION FAILED (Exception) =====")
-        auth_logger.error(f"🏷️ Error type: {type(e).__name__}")
-        auth_logger.error(f"🏷️ Error message: {str(e)}")
-        import traceback
-        auth_logger.error(f"🏷️ Full traceback: {traceback.format_exc()}")
         db.rollback()
         raise HTTPException(status_code=500, detail="Failed to create tag")
 
@@ -680,8 +592,6 @@ async def get_blog_tags(current_user = Depends(get_current_active_user)):
     from sqlalchemy import func
 
     try:
-        auth_logger.info("🏷️ Fetching all blog tags")
-
         # Get all tags with post counts
         tags_query = db.query(BlogTag).order_by(BlogTag.name.asc())
         tags = tags_query.all()
@@ -711,11 +621,9 @@ async def get_blog_tags(current_user = Depends(get_current_active_user)):
 
         db.commit()  # Commit any post_count updates
 
-        auth_logger.info(f"✅ Retrieved {len(tags_data)} tags")
         return {"tags": tags_data}
 
     except Exception as e:
-        auth_logger.error(f"❌ Error getting tags: {e}")
         raise HTTPException(status_code=500, detail="Failed to fetch tags")
 
 @router.delete("/admin/api/blog/tags/{tag_id}")
@@ -724,25 +632,20 @@ async def delete_blog_tag(tag_id: int, current_user = Depends(get_current_active
     from models.blog import BlogTag
 
     try:
-        auth_logger.info(f"🗑️ Deleting tag with ID: {tag_id}")
-
         # Find the tag
         tag = db.query(BlogTag).filter(BlogTag.id == tag_id).first()
         if not tag:
-            auth_logger.warning(f"🏷️ Tag not found: {tag_id}")
             raise HTTPException(status_code=404, detail="Tag not found")
 
         # Delete the tag
         db.delete(tag)
         db.commit()
 
-        auth_logger.info(f"✅ Tag deleted successfully: {tag.name} (ID: {tag_id})")
         return {"success": True, "message": f"Tag '{tag.name}' deleted successfully"}
 
     except HTTPException:
         raise
     except Exception as e:
-        auth_logger.error(f"❌ Error deleting tag: {e}")
         db.rollback()
         raise HTTPException(status_code=500, detail="Failed to delete tag")
 
@@ -756,8 +659,6 @@ async def render_blog_template(template_name: str, current_user = Depends(get_cu
     from datetime import datetime
 
     try:
-        auth_logger.info(f"🎨 RENDERING TEMPLATE: {template_name} for user {current_user.username}")
-
         # Map template names
         template_map = {
             'template1': 'template1-banner-image.html',
@@ -766,35 +667,25 @@ async def render_blog_template(template_name: str, current_user = Depends(get_cu
         }
 
         if template_name not in template_map:
-            auth_logger.error(f"❌ Template {template_name} not in map")
             raise HTTPException(status_code=404, detail="Template not found")
 
         template_file = template_map[template_name]
         project_root = Path(__file__).resolve().parents[3]
-        auth_logger.info(f"🗂️ Project root resolved: {project_root}")
         template_path = project_root / "blog" / "templates" / template_file
 
-        auth_logger.info(f"📁 Template path: {template_path}")
-        auth_logger.info(f"📁 Template exists: {template_path.exists()}")
-
         if not template_path.exists():
-            auth_logger.error(f"❌ Template file not found: {template_path}")
             raise HTTPException(status_code=404, detail="Template file not found")
 
         # Read the template file
         with open(template_path, 'r', encoding='utf-8') as f:
             template_content = f.read()
 
-        auth_logger.info(f"📖 Template content length: {len(template_content)}")
-
         # Extract the content block (between {% block content %} and {% endblock %})
         content_match = re.search(r'{% block content %}(.*?){% endblock %}', template_content, re.DOTALL | re.IGNORECASE)
         if not content_match:
-            auth_logger.error("❌ Could not extract template content block")
             raise HTTPException(status_code=500, detail="Could not extract template content")
 
         template_content_block = content_match.group(1).strip()
-        auth_logger.info(f"✂️ Extracted content block length: {len(template_content_block)}")
 
         # For the editor, we'll use the raw content block and let the frontend handle variable replacement
         # Replace Jinja2 variables with sample data for preview
@@ -850,8 +741,6 @@ async def render_blog_template(template_name: str, current_user = Depends(get_cu
             '<a href="/blog/real-estate-trends" class="flex gap-3 group trending-post-item" data-post-index="2" data-section="trending">'
         )
 
-        auth_logger.info(f"📖 Content processed for editor, length: {len(rendered_html)}")
-
         # Extract and remove styles from rendered content
         style_match = re.search(r'<style[^>]*>(.*?)</style>', rendered_html, re.DOTALL | re.IGNORECASE)
         if style_match:
@@ -861,35 +750,24 @@ async def render_blog_template(template_name: str, current_user = Depends(get_cu
         else:
             template_styles = ""
 
-        auth_logger.info(f"🎨 Extracted styles length: {len(template_styles)}")
-        auth_logger.info(f"📄 Final rendered content length: {len(rendered_html)}")
-
         # Load global blog template assets (CSS/JS) so the editor can render everything
         global_styles = ""
         global_scripts = ""
         try:
             project_root = Path(__file__).resolve().parents[3]
             base_css_path = project_root / "blog" / "templates" / "css" / "blog-templates.css"
-            auth_logger.info(f"🧩 Global CSS path: {base_css_path} exists: {base_css_path.exists()}")
             if base_css_path.exists():
                 global_styles = base_css_path.read_text(encoding="utf-8")
-                auth_logger.info(f"🧩 Global CSS length: {len(global_styles)}")
-            else:
-                auth_logger.warning(f"⚠️ Global CSS not found at {base_css_path}")
         except Exception as e:
-            auth_logger.error(f"❌ Error reading global CSS: {e}")
+            pass
 
         try:
             project_root = Path(__file__).resolve().parents[3]
             base_js_path = project_root / "blog" / "templates" / "js" / "blog-templates.js"
-            auth_logger.info(f"🧩 Global JS path: {base_js_path} exists: {base_js_path.exists()}")
             if base_js_path.exists():
                 global_scripts = base_js_path.read_text(encoding="utf-8")
-                auth_logger.info(f"🧩 Global JS length: {len(global_scripts)}")
-            else:
-                auth_logger.warning(f"⚠️ Global JS not found at {base_js_path}")
         except Exception as e:
-            auth_logger.error(f"❌ Error reading global JS: {e}")
+            pass
 
         # Return the rendered content, template-scoped styles, and global assets
         result = {
@@ -899,14 +777,9 @@ async def render_blog_template(template_name: str, current_user = Depends(get_cu
             "globalScripts": global_scripts,
             "template": template_name
         }
-        auth_logger.info(f"✅ Template rendered successfully for {template_name}")
         return result
 
     except Exception as e:
-        auth_logger.error(f"💥 Error rendering template {template_name}: {str(e)}")
-        auth_logger.error(f"💥 Exception type: {type(e).__name__}")
-        import traceback
-        auth_logger.error(f"💥 Traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Failed to render template: {str(e)}")
 
 

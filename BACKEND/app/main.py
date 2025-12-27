@@ -17,7 +17,7 @@ from scheduler import init_scheduler, start_scheduler, stop_scheduler
 from models.user import AdminUser
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
 
 # Create FastAPI app
@@ -91,7 +91,6 @@ from routes.admin import templates
 async def custom_403_handler(request: Request, exc: HTTPException):
     """Custom handler for 401/403 errors to show custom 403 page"""
     if exc.status_code in [403, 401]:
-        logger.info(f"🔐 {exc.status_code} ERROR - Returning custom 403 error page for unauthenticated access")
         return templates.TemplateResponse("admin_403_error.html", {"request": request})
     # Fall back to default handler for other HTTP errors
     return await http_exception_handler(request, exc)
@@ -106,23 +105,19 @@ def create_default_admin_user():
         admin_user = db.query(AdminUser).filter(AdminUser.username == "gojominitia").first()
         
         if admin_user:
-            logger.info("Admin user already exists, skipping creation")
             return
-        
+
         # Create default admin user
         hashed_password = hashlib.sha256("gojominitiA@".encode()).hexdigest()
         default_admin = AdminUser(
             username="gojominitia",
-            email="gojominitia@nekwasar.com", 
+            email="gojominitia@nekwasar.com",
             hashed_password=hashed_password,
             is_active=True,
             is_superuser=True
         )
         db.add(default_admin)
         db.commit()
-        logger.info("✅ Default admin user created successfully!")
-        logger.info("Username: gojominitia")
-        logger.info("Password: gojominitiA@")
         
     except Exception as e:
         logger.error(f"❌ Error creating admin user: {str(e)}")
@@ -133,18 +128,8 @@ def create_default_admin_user():
 @app.on_event("startup")
 async def startup_event():
     """Create database tables and initialize scheduler on startup"""
-    logger.info("🚀 Starting up application...")
-
-    # Create database tables
-    logger.info("📋 Creating database tables...")
     create_tables()
-
-    # Create default admin user
-    logger.info("👤 Creating default admin user...")
     create_default_admin_user()
-
-    # Initialize scheduler
-    logger.info("⏰ Initializing scheduler...")
     init_scheduler()
     start_scheduler()
 
@@ -382,5 +367,6 @@ if __name__ == "__main__":
         app,
         host=settings.api_host,
         port=settings.api_port,
-        reload=True
+        reload=True,
+        log_level="warning"
     )

@@ -94,46 +94,33 @@ async def get_media_files(
 ):
     """Get list of uploaded media files with stats and folder structure"""
     logger = logging.getLogger(__name__)
-    
+
     try:
         from models.blog import MediaFile as MediaFileModel
         from datetime import datetime, timedelta
         from sqlalchemy import func
-        
-        logger.info(f"🐛 MEDIA API: Request received - file_type={file_type}, limit={limit}, offset={offset}")
-        logger.info(f"🐛 MEDIA API: Database session exists: {db is not None}")
-        
+
         # Check if MediaFileModel exists
         try:
             from models.blog import MediaFile
-            logger.info(f"🐛 MEDIA API: MediaFile model imported successfully")
         except ImportError as e:
             logger.error(f"🐛 MEDIA API: Failed to import MediaFile model: {e}")
             raise HTTPException(500, f"MediaFile model import failed: {e}")
 
         query = db.query(MediaFileModel)
-        logger.info(f"🐛 MEDIA API: Initial query created: {query}")
 
         if file_type:
             query = query.filter(MediaFileModel.file_type == file_type)
-            logger.info(f"🐛 MEDIA API: Applied file_type filter: {file_type}")
 
         media_files = query.order_by(MediaFileModel.created_at.desc()).offset(offset).limit(limit).all()
-        logger.info(f"🐛 MEDIA API: Retrieved {len(media_files)} media files")
-        
-        # Log each media file for debugging
-        for i, file in enumerate(media_files):
-            logger.info(f"🐛 MEDIA API: File {i+1} - ID: {file.id}, Filename: {file.filename}, Type: {file.file_type}")
 
         # Calculate stats with detailed logging
         total_files = db.query(func.count(MediaFileModel.id)).scalar() or 0
-        logger.info(f"🐛 MEDIA API: Total files count: {total_files}")
-        
+
         recent_files = db.query(func.count(MediaFileModel.id)).filter(
             MediaFileModel.created_at >= datetime.now() - timedelta(days=7)
         ).scalar() or 0
-        logger.info(f"🐛 MEDIA API: Recent files count (last 7 days): {recent_files}")
-        
+
         # Mock folder structure (in real implementation, you'd have a folder model)
         folder_structure = [
             {"id": "images", "name": "Images", "count": len([f for f in media_files if f.file_type and f.file_type.startswith('image/')])},
@@ -142,8 +129,6 @@ async def get_media_files(
             {"id": "audio", "name": "Audio", "count": len([f for f in media_files if f.file_type and f.file_type.startswith('audio/')])},
             {"id": "archives", "name": "Archives", "count": len([f for f in media_files if f.file_type and 'zip' in f.file_type])}
         ]
-        
-        logger.info(f"🐛 MEDIA API: Folder structure: {folder_structure}")
 
         # Transform media files to match expected format
         transformed_media = []
@@ -162,7 +147,6 @@ async def get_media_files(
                     "caption": file.caption or ""
                 }
                 transformed_media.append(transformed_file)
-                logger.info(f"🐛 MEDIA API: Transformed file {file.id}: {transformed_file}")
             except Exception as e:
                 logger.error(f"🐛 MEDIA API: Error transforming file {file.id}: {e}")
 
@@ -175,10 +159,7 @@ async def get_media_files(
             },
             "folders": folder_structure
         }
-        
-        logger.info(f"🐛 MEDIA API: Final response data prepared with {len(transformed_media)} media items")
-        logger.info(f"🐛 MEDIA API: Response stats - totalFiles: {total_files}, totalFolders: {len(folder_structure)}, recentFiles: {recent_files}")
-        
+
         return response_data
         
     except HTTPException:

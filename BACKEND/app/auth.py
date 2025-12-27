@@ -38,22 +38,16 @@ def get_password_hash(password: str) -> str:
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     """Create JWT access token"""
-    auth_logger.info(f"🔐 TOKEN CREATION START - Data: {data}, Expires delta: {expires_delta}")
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
-        auth_logger.info(f"🔐 USING CUSTOM EXPIRE DELTA - {expires_delta}")
     else:
         expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-        auth_logger.info(f"🔐 USING DEFAULT EXPIRE - {ACCESS_TOKEN_EXPIRE_MINUTES} minutes")
 
-    auth_logger.info(f"🔐 TOKEN EXPIRE TIME - UTC: {expire}, Local: {expire.astimezone()}")
     to_encode.update({"exp": expire})
 
     try:
         encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-        auth_logger.info(f"✅ JWT CREATED SUCCESS - User: {data.get('sub')}, Expires: {expire}, Token length: {len(encoded_jwt)}")
-        auth_logger.info(f"🔍 TOKEN PAYLOAD - {to_encode}")
         return encoded_jwt
     except Exception as e:
         auth_logger.error(f"❌ JWT CREATION FAILED - Error: {e}")
@@ -61,33 +55,21 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 
 def authenticate_user(db: Session, username: str, password: str):
     """Authenticate user with username and password"""
-    auth_logger.info(f"🔍 AUTH ATTEMPT - Username: {username}, Time: {datetime.now()}")
     user = db.query(AdminUser).filter(AdminUser.username == username).first()
-    
+
     if not user:
-        auth_logger.warning(f"❌ AUTH FAILED - User not found: {username}")
         return False
-    
-    auth_logger.info(f"👤 USER FOUND - ID: {user.id}, Username: {user.username}, Active: {user.is_active}")
-    
+
     if not verify_password(password, user.hashed_password):
-        auth_logger.warning(f"❌ AUTH FAILED - Wrong password for: {username}")
         return False
-    
+
     if not user.is_active:
-        auth_logger.warning(f"❌ AUTH FAILED - User inactive: {username}")
         return False
-        
-    auth_logger.info(f"✅ AUTH SUCCESS - User authenticated: {username}")
+
     return user
 
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security), db: Session = Depends(get_db)):
     """Get current authenticated user"""
-    auth_logger.info("🚀 GET_CURRENT_USER STARTED")
-    auth_logger.info(f"🔍 CREDENTIALS TYPE - {type(credentials)}")
-    auth_logger.info(f"🔍 CREDENTIALS SCHEME - {credentials.scheme}")
-    auth_logger.info(f"🔍 CREDENTIALS LENGTH - {len(credentials.credentials) if credentials.credentials else 0}")
-
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -95,29 +77,14 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
     )
 
     try:
-        auth_logger.info("🔐 JWT DECODE ATTEMPT START")
-        auth_logger.info(f"🔐 SECRET_KEY LENGTH - {len(SECRET_KEY)}")
-        auth_logger.info(f"🔐 ALGORITHM - {ALGORITHM}")
-        auth_logger.info(f"🔐 TOKEN PREFIX - {credentials.credentials[:20]}...")
-
         payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
-        auth_logger.info("✅ JWT DECODE SUCCESS")
-        auth_logger.info(f"📋 FULL PAYLOAD - {payload}")
 
         username: str = payload.get("sub")
-        exp_time = payload.get("exp")
-        auth_logger.info(f"👤 USERNAME FROM TOKEN - {username}")
-        auth_logger.info(f"⏰ EXPIRATION TIME - {exp_time} (UTC timestamp)")
-        auth_logger.info(f"📅 EXPIRATION DATE - {datetime.fromtimestamp(exp_time) if exp_time else 'None'}")
-        auth_logger.info(f"⏳ CURRENT TIME - {datetime.utcnow()}")
-        auth_logger.info(f"🔍 TIME REMAINING - {(datetime.fromtimestamp(exp_time) - datetime.utcnow()) if exp_time else 'N/A'}")
 
         if username is None:
-            auth_logger.error("❌ NO USERNAME IN TOKEN")
             raise credentials_exception
 
         token_data = TokenData(username=username)
-        auth_logger.info(f"✅ TOKEN DATA CREATED - {token_data.username}")
 
     except jwt.ExpiredSignatureError as e:
         auth_logger.error(f"❌ TOKEN EXPIRED - {e}")
@@ -136,22 +103,15 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
         auth_logger.error(f"💥 ERROR TYPE - {type(e).__name__}")
         raise credentials_exception
 
-    auth_logger.info("🔍 DATABASE QUERY START")
     try:
         user = db.query(AdminUser).filter(AdminUser.username == token_data.username).first()
-        auth_logger.info(f"📊 QUERY RESULT - User found: {user is not None}")
 
         if user is None:
-            auth_logger.error(f"❌ USER NOT FOUND IN DB - Username: {token_data.username}")
             raise credentials_exception
 
-        auth_logger.info(f"✅ USER RETRIEVED - ID: {user.id}, Username: {user.username}, Active: {user.is_active}, Superuser: {user.is_superuser}")
-        auth_logger.info("🚀 GET_CURRENT_USER COMPLETED SUCCESSFULLY")
         return user
 
     except Exception as e:
-        auth_logger.error(f"💥 DATABASE ERROR - {e}")
-        auth_logger.error(f"💥 DB ERROR TYPE - {type(e).__name__}")
         raise credentials_exception
 
 def get_current_active_user(current_user: AdminUser = Depends(get_current_user)):

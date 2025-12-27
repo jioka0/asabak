@@ -50,32 +50,21 @@ async def create_blog_post(post: BlogPostCreate, db: Session = Depends(get_db)):
 @router.post("/{post_id}/comments", response_model=Comment)
 async def create_comment(post_id: int, comment: CommentCreate, db: Session = Depends(get_db)):
     """Create new comment (pending approval)"""
-    logger.info(f"🔥 COMMENT CREATE: Received request for post_id={post_id}")
-    logger.info(f"🔥 COMMENT CREATE: Comment data: author_name='{comment.author_name}', content_length={len(comment.content) if comment.content else 0}")
-
     post = db.query(BlogPostModel).filter(BlogPostModel.id == post_id).first()
     if not post:
-        logger.error(f"🔥 COMMENT CREATE: Post not found for id={post_id}")
         raise HTTPException(404, "Blog post not found")
-
-    logger.info(f"🔥 COMMENT CREATE: Found post, current comment_count={post.comment_count}")
 
     db_comment = BlogComment(blog_post_id=post_id, is_approved=True, **comment.dict())
     db.add(db_comment)
 
     # Update comment count
-    old_count = post.comment_count
     post.comment_count += 1
-    logger.info(f"🔥 COMMENT CREATE: Incrementing count from {old_count} to {post.comment_count}")
 
     try:
         db.commit()
-        logger.info(f"🔥 COMMENT CREATE: Database commit successful")
         db.refresh(db_comment)
-        logger.info(f"🔥 COMMENT CREATE: Comment created with id={db_comment.id}, final post comment_count={post.comment_count}")
         return db_comment
     except Exception as e:
-        logger.error(f"🔥 COMMENT CREATE: Database commit failed: {str(e)}")
         db.rollback()
         raise HTTPException(500, "Failed to save comment")
 
@@ -231,85 +220,51 @@ async def get_posts_by_section(section: str, limit: int = 10, db: Session = Depe
 @router.get("/blog/media/", response_class=HTMLResponse)
 async def blog_media(request: Request):
     """Serve blog media library page"""
-    logger.info(f"📚 BLOG MEDIA: Media page accessed - Method: {request.method}, URL: {request.url}")
-    logger.info(f"📚 BLOG MEDIA: Request headers: {dict(request.headers)}")
-    logger.info(f"📚 BLOG MEDIA: Template path exists: {(templates_dir / 'admin_blog_media.html').exists()}")
-    
     try:
         response = templates.TemplateResponse("admin_blog_media.html", {"request": request})
-        logger.info(f"📚 BLOG MEDIA: Template response created successfully")
         return response
     except Exception as e:
-        logger.error(f"📚 BLOG MEDIA: Error creating template response: {type(e).__name__}: {str(e)}")
-        import traceback
-        logger.error(f"📚 BLOG MEDIA: Traceback: {traceback.format_exc()}")
         raise
 
 @router.get("/blog/drafts", response_class=HTMLResponse)
 @router.get("/blog/drafts/", response_class=HTMLResponse)
 async def blog_drafts(request: Request):
     """Serve blog drafts management page"""
-    logger.info(f"📝 BLOG DRAFTS: Drafts page accessed - Method: {request.method}, URL: {request.url}")
-    logger.info(f"📝 BLOG DRAFTS: Request headers: {dict(request.headers)}")
-    logger.info(f"📝 BLOG DRAFTS: Template path exists: {(templates_dir / 'admin_blog_drafts.html').exists()}")
-    
     try:
         response = templates.TemplateResponse("admin_blog_drafts.html", {"request": request})
-        logger.info(f"📝 BLOG DRAFTS: Template response created successfully")
         return response
     except Exception as e:
-        logger.error(f"📝 BLOG DRAFTS: Error creating template response: {type(e).__name__}: {str(e)}")
-        import traceback
-        logger.error(f"📝 BLOG DRAFTS: Traceback: {traceback.format_exc()}")
         raise
 
 @router.get("/blog/categories", response_class=HTMLResponse)
 @router.get("/blog/categories/", response_class=HTMLResponse)
 async def blog_categories(request: Request):
     """Serve blog categories management page"""
-    logger.info(f"🏷️ BLOG CATEGORIES: Categories page accessed - Method: {request.method}, URL: {request.url}")
-    logger.info(f"🏷️ BLOG CATEGORIES: Request headers: {dict(request.headers)}")
-    logger.info(f"🏷️ BLOG CATEGORIES: Template path exists: {(templates_dir / 'admin_blog_categories.html').exists()}")
-    
     try:
         response = templates.TemplateResponse("admin_blog_categories.html", {"request": request})
-        logger.info(f"🏷️ BLOG CATEGORIES: Template response created successfully")
         return response
     except Exception as e:
-        logger.error(f"🏷️ BLOG CATEGORIES: Error creating template response: {type(e).__name__}: {str(e)}")
-        import traceback
-        logger.error(f"🏷️ BLOG CATEGORIES: Traceback: {traceback.format_exc()}")
         raise
 
 @router.get("/blog/tags", response_class=HTMLResponse)
 @router.get("/blog/tags/", response_class=HTMLResponse)
 async def blog_tags(request: Request):
     """Serve blog tags management page"""
-    logger.info(f"🏷️ BLOG TAGS: Tags page accessed - Method: {request.method}, URL: {request.url}")
-    logger.info(f"🏷️ BLOG TAGS: Request headers: {dict(request.headers)}")
-    logger.info(f"🏷️ BLOG TAGS: Template path exists: {(templates_dir / 'admin_blog_tags.html').exists()}")
-    
     try:
         response = templates.TemplateResponse("admin_blog_tags.html", {"request": request})
-        logger.info(f"🏷️ BLOG TAGS: Template response created successfully")
         return response
     except Exception as e:
-        logger.error(f"🏷️ BLOG TAGS: Error creating template response: {type(e).__name__}: {str(e)}")
-        import traceback
-        logger.error(f"🏷️ BLOG TAGS: Traceback: {traceback.format_exc()}")
         raise
 
 # Temporal User Management
 @router.post("/temporal-users", response_model=TemporalUser)
 async def create_temporal_user(user: TemporalUserCreate, request: Request, db: Session = Depends(get_db)):
     """Create or update a temporal user based on fingerprint"""
-    logger.info(f'💾 CREATE TEMPORAL USER: fingerprint={user.fingerprint}, name={user.name}')
     try:
         # Check if user already exists
         existing_user = db.query(TemporalUserModel).filter(TemporalUserModel.fingerprint == user.fingerprint).first()
 
         if existing_user:
-            logger.info(f'💾 CREATE TEMPORAL USER: Updating existing user id={existing_user.id}')
             # Update existing user
             existing_user.name = user.name
             existing_user.email = user.email
@@ -317,21 +272,18 @@ async def create_temporal_user(user: TemporalUserCreate, request: Request, db: S
             existing_user.ip_address = user.ip_address or request.client.host
             existing_user.user_agent = user.user_agent or request.headers.get('user-agent')
             existing_user.last_seen = func.now()
-            
+
             from datetime import datetime, timedelta
             existing_user.expires_at = datetime.utcnow() + timedelta(days=3)
-            
+
             db.commit()
             db.refresh(existing_user)
-            logger.info(f'💾 CREATE TEMPORAL USER: Updated user id={existing_user.id}')
             return existing_user
         else:
             # Create new user
             from datetime import datetime, timedelta
             expires_at = datetime.utcnow() + timedelta(days=3)
 
-            logger.info(f'💾 CREATE TEMPORAL USER: Creating new user with expires_at={expires_at}')
-            
             db_user = TemporalUserModel(
                 fingerprint=user.fingerprint,
                 name=user.name,
@@ -344,12 +296,8 @@ async def create_temporal_user(user: TemporalUserCreate, request: Request, db: S
             db.add(db_user)
             db.commit()
             db.refresh(db_user)
-            logger.info(f'💾 CREATE TEMPORAL USER: Created new user id={db_user.id}')
             return db_user
     except Exception as e:
-        logger.error(f'💾 CREATE TEMPORAL USER: Error: {type(e).__name__}: {str(e)}')
-        import traceback
-        logger.error(f'💾 CREATE TEMPORAL USER: Traceback: {traceback.format_exc()}')
         raise HTTPException(500, f"Internal server error: {str(e)}")
 
 @router.get("/temporal-users/{fingerprint}", response_model=TemporalUser)
