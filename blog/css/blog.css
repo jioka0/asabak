@@ -277,7 +277,7 @@ body {
 
 .main-nav {
   display: flex;
-  gap: 3rem;
+  gap: 12rem;
 }
 
 .nav-link {
@@ -2725,7 +2725,7 @@ section[id^="route-"] .route-title {
 .mobile-nav {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 4rem;
   margin-bottom: 3rem;
 }
 
