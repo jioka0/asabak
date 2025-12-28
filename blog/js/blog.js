@@ -1292,18 +1292,21 @@
         if (href) {
           e.preventDefault();
 
-          // If it's a blog post, try to open in modal or navigate via SPA
-          if (href.startsWith('/blog/')) {
-            const slug = href.replace('/blog/', '');
+          // If it's a blog post (direct slug or /blog/ prefix), try to open in modal
+          const isBlogPost = href.startsWith('/blog/') || (!href.includes('?') && !['latest', 'popular', 'featured', 'others', 'topics', 'home'].some(r => href.includes(`/${r}`)));
+
+          if (isBlogPost) {
+            const slug = href.replace('/blog/', '').replace('/', '');
             if (window.openPostModal && typeof window.openPostModal === 'function') {
               window.openPostModal(slug);
             } else {
               window.location.href = href;
             }
           } else if (window.RouteManager && typeof window.RouteManager.navigate === 'function') {
-            // Handle regular SPA routes
-            const route = href.startsWith('/') ? href.substring(1) : href;
-            window.RouteManager.navigate(route || 'home');
+            // Handle regular SPA routes with query parameters support
+            let fullPath = href.startsWith('/') ? href.substring(1) : href;
+            let [route, query] = fullPath.split('?');
+            window.RouteManager.navigate(route || 'home', query ? `?${query}` : '');
           } else {
             window.location.href = href;
           }
@@ -1671,6 +1674,130 @@
       // navigator.serviceWorker.register('/sw.js');
     });
   }
+
+  // --- Topics & Tags Functionality ---
+
+  async function initTopics() {
+    const params = new URLSearchParams(window.location.search);
+    const activeTagSlug = params.get('tag');
+
+    // Update UI for active tag
+    const indicator = document.getElementById('active-tag-indicator');
+    const tagNameSpan = document.getElementById('active-tag-name');
+    const topicsTitle = document.getElementById('topics-title');
+    const topicsDescription = document.getElementById('topics-description');
+
+    if (activeTagSlug) {
+      indicator?.classList.remove('hidden');
+      if (tagNameSpan) tagNameSpan.textContent = activeTagSlug.charAt(0).toUpperCase() + activeTagSlug.slice(1);
+      if (topicsTitle) topicsTitle.textContent = `#${activeTagSlug}`;
+      if (topicsDescription) topicsDescription.textContent = `Browse all articles featuring the #${activeTagSlug} tag.`;
+    } else {
+      indicator?.classList.add('hidden');
+      if (topicsTitle) topicsTitle.textContent = 'Explore Everything';
+      if (topicsDescription) topicsDescription.textContent = 'Dive into curated bundles, expert lists, and detailed guides across various disciplines.';
+    }
+
+    try {
+      // 1. Fetch and render tag cloud
+      const tagsRes = await fetch('/api/blogs/tags');
+      const tagsData = await tagsRes.json();
+      renderTagCloud(tagsData.tags, activeTagSlug);
+
+      // 2. Fetch and render posts
+      const searchBody = activeTagSlug ? { tags: [activeTagSlug], limit: 20 } : { query: '', limit: 20 };
+      const postsRes = await fetch('/api/search/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(searchBody)
+      });
+      const postsData = await postsRes.json();
+      renderTopicResults(postsData.results);
+
+    } catch (error) {
+      console.error('Error loading topics:', error);
+    }
+  }
+
+  function renderTagCloud(tags, activeSlug) {
+    const cloud = document.getElementById('topics-tag-cloud');
+    if (!cloud) return;
+
+    if (!tags || tags.length === 0) {
+      cloud.innerHTML = '<p class="text-t-muted text-sm italic">No tags found.</p>';
+      return;
+    }
+
+    cloud.innerHTML = tags.map(tag => `
+      <a href="/topics?tag=${tag.slug}" 
+         class="tag-pill px-5 py-2 border border-stroke-elements rounded-full text-sm font-semibold transition-colors ${tag.slug === activeSlug ? 'active bg-purple-600 text-white' : 'text-t-bright bg-white'}"
+         onclick="event.preventDefault(); window.RouteManager.navigate('topics', '?tag=${tag.slug}')">
+        #${tag.name}
+      </a>
+    `).join('');
+  }
+
+  function renderTopicResults(posts) {
+    const container = document.getElementById('topics-results');
+    const emptyState = document.getElementById('topics-empty');
+    if (!container) return;
+
+    if (!posts || posts.length === 0) {
+      container.classList.add('hidden');
+      emptyState?.classList.remove('hidden');
+      return;
+    }
+
+    container.classList.remove('hidden');
+    emptyState?.classList.add('hidden');
+
+    container.innerHTML = posts.map(post => `
+      <article class="article-card rounded-[1.5rem] border border-stroke-elements bg-white overflow-hidden flex flex-col shadow-sm hover:shadow-xl transition-all h-full">
+        <div class="card-link cursor-pointer h-full flex flex-col" data-href="/${post.slug}">
+          <div class="relative aspect-video overflow-hidden">
+            <img src="${post.featured_image || 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&h=400&fit=crop'}" 
+                 class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" 
+                 alt="${post.title}" loading="lazy">
+            <div class="absolute top-4 left-4 bg-purple-600 text-white px-3 py-1 rounded-full text-xs font-bold">${(post.tags && post.tags.length) ? post.tags[0] : 'Tech'}</div>
+          </div>
+          <div class="p-6 flex flex-col flex-grow">
+            <div class="flex items-center gap-2 text-xs text-t-muted mb-3">
+              <span>${post.published_at ? new Date(post.published_at).toLocaleDateString() : 'Recent'}</span>
+              <span>•</span>
+              <span>${post.view_count || 0} views</span>
+            </div>
+            <h3 class="text-xl font-bold text-t-bright leading-tight mb-3 line-clamp-2">${post.title}</h3>
+            <p class="text-sm text-t-medium line-clamp-3 mb-4">${post.excerpt || 'Read this insightful article from our collection...'}</p>
+            <div class="mt-auto flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-widest text-purple-600 hover:text-purple-700">Read More →</span>
+              <div class="flex items-center gap-3 text-t-muted text-xs">
+                <span class="flex items-center gap-1"><i class="ph-bold ph-heart"></i> ${post.like_count || 0}</span>
+                <span class="flex items-center gap-1"><i class="ph-bold ph-chat-circle"></i> ${post.comment_count || 0}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    `).join('');
+
+    // Re-bind click events for new cards
+    if (window.initCardLinks) window.initCardLinks();
+
+    // Re-trigger entrance animations
+    initAnimations();
+  }
+
+  window.clearTagFilter = function () {
+    if (window.RouteManager) {
+      window.RouteManager.navigate('topics');
+    } else {
+      window.location.href = '/topics';
+    }
+  };
+
+  window.initTopics = initTopics;
+
+  // --- End Topics & Tags ---
 
   // Expose re-init for SPA route swaps
   window.BlogPageInit = initBlog;

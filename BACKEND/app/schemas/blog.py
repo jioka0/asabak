@@ -20,7 +20,7 @@ class BlogPostCreate(BlogPostBase):
 
 class BlogPost(BlogPostBase):
     id: int
-    published_at: datetime
+    published_at: Optional[datetime] = None
     view_count: int
     like_count: int
     comment_count: int

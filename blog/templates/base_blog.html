@@ -1,406 +1,458 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}NekwasaR Blog{% endblock %}</title>
-    <meta name="description" content="Professional insights, analysis, and storytelling from NekwasaR.">
-    <meta name="author" content="NekwasaR">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}NekwasaR Blog{% endblock %}</title>
+  <meta name="description" content="Professional insights, analysis, and storytelling from NekwasaR.">
+  <meta name="author" content="NekwasaR">
 
-    {% block head_extra %}{% endblock %}
+  {% block head_extra %}{% endblock %}
 
-    <!-- Early theme bootstrap: apply saved theme ASAP and provide global fallbacks -->
-    <script>
-      (function () {
-        try {
-          var root = document.documentElement;
+  <!-- Early theme bootstrap: apply saved theme ASAP and provide global fallbacks -->
+  <script>
+    (function () {
+      try {
+        var root = document.documentElement;
 
-          function readTheme() {
-            var t = localStorage.getItem('blog.theme') || localStorage.getItem('color-scheme');
-            if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-            return t === 'dark' ? 'dark' : 'light';
-          }
-
-          function applyTheme(theme) {
-            var isLight = theme === 'light';
-            root.setAttribute('color-scheme', isLight ? 'light' : 'dark');
-            root.setAttribute('data-theme', theme);
-            if (isLight) { root.classList.remove('dark'); } else { root.classList.add('dark'); }
-            try { root.style.colorScheme = isLight ? 'light' : 'dark'; } catch (e) {}
-
-            try {
-              localStorage.setItem('blog.theme', theme);
-              localStorage.setItem('color-scheme', theme);
-            } catch (e) {}
-
-            // Update header icon if present
-            var btn = document.getElementById('theme-toggle') ||
-                      document.getElementById('themeToggle') ||
-                      document.getElementById('menu-theme-toggle') ||
-                      document.getElementById('menuThemeToggle');
-            if (btn) {
-              var i = btn.querySelector('i') || document.createElement('i');
-              i.className = isLight ? 'ph ph-sun' : 'ph ph-moon-stars';
-              if (!i.parentNode) { btn.innerHTML = ''; btn.appendChild(i); }
-              btn.setAttribute('aria-label', isLight ? 'Switch to dark mode' : 'Switch to light mode');
-            }
-          }
-
-          // Expose globals for any inline/on-demand use and SPA re-sync
-          window.__applyTheme = applyTheme;
-          window.__toggleTheme = function () {
-            var next = readTheme() === 'dark' ? 'light' : 'dark';
-            applyTheme(next);
-          };
-          // Signal that early theme bootstrap is active (prevents duplicate listeners)
-          window.__themeBootstrap = true;
-
-          // Apply immediately to avoid FOUC and guarantee correct initial state
-          applyTheme(readTheme());
-
-          /* Removed delegated fallback click handler to prevent double-toggles.
-             Toggling is handled by [initThemeToggle()](blog/js/blog.js:218) and direct button bindings. */
-        } catch (e) {
-          // fail-safe: do nothing
+        function readTheme() {
+          var t = localStorage.getItem('blog.theme') || localStorage.getItem('color-scheme');
+          if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          return t === 'dark' ? 'dark' : 'light';
         }
-      })();
-    </script>
 
-    <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syne:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
-    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/bold/style.css">
-    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+        function applyTheme(theme) {
+          var isLight = theme === 'light';
+          root.setAttribute('color-scheme', isLight ? 'light' : 'dark');
+          root.setAttribute('data-theme', theme);
+          if (isLight) { root.classList.remove('dark'); } else { root.classList.add('dark'); }
+          try { root.style.colorScheme = isLight ? 'light' : 'dark'; } catch (e) { }
 
-    <!-- TailwindCSS (CDN JIT) -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            fontFamily: {
-              inter: ['Inter', 'sans-serif'],
-              syne: ['Syne', 'sans-serif'],
-            },
-            colors: {
-              base: 'var(--base)',
-              'base-tint': 'var(--base-tint)',
-              't-bright': 'var(--t-bright)',
-              't-medium': 'var(--t-medium)',
-              't-muted': 'var(--t-muted)',
-              accent: 'var(--accent)',
-              secondary: 'var(--secondary)',
-              'stroke-elements': 'var(--stroke-elements)',
-            },
-            borderColor: {
-              DEFAULT: 'var(--stroke-elements)',
-            },
+          try {
+            localStorage.setItem('blog.theme', theme);
+            localStorage.setItem('color-scheme', theme);
+          } catch (e) { }
+
+          // Update header icon if present
+          var btn = document.getElementById('theme-toggle') ||
+            document.getElementById('themeToggle') ||
+            document.getElementById('menu-theme-toggle') ||
+            document.getElementById('menuThemeToggle');
+          if (btn) {
+            var i = btn.querySelector('i') || document.createElement('i');
+            i.className = isLight ? 'ph ph-sun' : 'ph ph-moon-stars';
+            if (!i.parentNode) { btn.innerHTML = ''; btn.appendChild(i); }
+            btn.setAttribute('aria-label', isLight ? 'Switch to dark mode' : 'Switch to light mode');
+          }
+        }
+
+        // Expose globals for any inline/on-demand use and SPA re-sync
+        window.__applyTheme = applyTheme;
+        window.__toggleTheme = function () {
+          var next = readTheme() === 'dark' ? 'light' : 'dark';
+          applyTheme(next);
+        };
+        // Signal that early theme bootstrap is active (prevents duplicate listeners)
+        window.__themeBootstrap = true;
+
+        // Apply immediately to avoid FOUC and guarantee correct initial state
+        applyTheme(readTheme());
+
+        /* Removed delegated fallback click handler to prevent double-toggles.
+           Toggling is handled by [initThemeToggle()](blog/js/blog.js:218) and direct button bindings. */
+      } catch (e) {
+        // fail-safe: do nothing
+      }
+    })();
+  </script>
+
+  <!-- Fonts & Icons -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syne:wght@400;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/bold/style.css">
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+
+  <!-- TailwindCSS (CDN JIT) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            inter: ['Inter', 'sans-serif'],
+            syne: ['Syne', 'sans-serif'],
+          },
+          colors: {
+            base: 'var(--base)',
+            'base-tint': 'var(--base-tint)',
+            't-bright': 'var(--t-bright)',
+            't-medium': 'var(--t-medium)',
+            't-muted': 'var(--t-muted)',
+            accent: 'var(--accent)',
+            secondary: 'var(--secondary)',
+            'stroke-elements': 'var(--stroke-elements)',
+          },
+          borderColor: {
+            DEFAULT: 'var(--stroke-elements)',
           },
         },
-        corePlugins: {
-          preflight: true
-        },
-      };
-    </script>
+      },
+      corePlugins: {
+        preflight: true
+      },
+    };
+  </script>
 
-    <!-- Design System -->
-    <link rel="stylesheet" href="/blog/templates/css/blog-templates.css">
-    <!-- Global Blog Styles -->
-    <link rel="stylesheet" href="/blog/css/blog.css">
+  <!-- Design System -->
+  <link rel="stylesheet" href="/blog/templates/css/blog-templates.css">
+  <!-- Global Blog Styles -->
+  <link rel="stylesheet" href="/blog/css/blog.css">
 
-    <!-- Fluid layout opt-in: neutralize Tailwind container clamps only within main[data-fluid="true"] -->
-    <style>
-      /* Remove Tailwind's max-w-* clamping (all variants, including -screen-* and -prose) */
-      main#route-container[data-fluid="true"] [class*="max-w-"],
-      main#route-container[data-fluid="true"] .container,
-      main#route-container[data-fluid="true"] .prose,
-      main#route-container[data-fluid="true"] .max-w-prose {
-        max-width: none !important;
-        width: 100% !important;
-      }
+  <!-- Fluid layout opt-in: neutralize Tailwind container clamps only within main[data-fluid="true"] -->
+  <style>
+    /* Remove Tailwind's max-w-* clamping (all variants, including -screen-* and -prose) */
+    main#route-container[data-fluid="true"] [class*="max-w-"],
+    main#route-container[data-fluid="true"] .container,
+    main#route-container[data-fluid="true"] .prose,
+    main#route-container[data-fluid="true"] .max-w-prose {
+      max-width: none !important;
+      width: 100% !important;
+    }
 
-      /* Neutralize centering via mx-auto including responsive variants (sm:, md:, lg:, xl:, 2xl:) */
-      main#route-container[data-fluid="true"] [class*="mx-auto"],
-      main#route-container[data-fluid="true"] .sm\:mx-auto,
-      main#route-container[data-fluid="true"] .md\:mx-auto,
-      main#route-container[data-fluid="true"] .lg\:mx-auto,
-      main#route-container[data-fluid="true"] .xl\:mx-auto,
-      main#route-container[data-fluid="true"] .\32xl\:mx-auto {
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-      }
+    /* Neutralize centering via mx-auto including responsive variants (sm:, md:, lg:, xl:, 2xl:) */
+    main#route-container[data-fluid="true"] [class*="mx-auto"],
+    main#route-container[data-fluid="true"] .sm\:mx-auto,
+    main#route-container[data-fluid="true"] .md\:mx-auto,
+    main#route-container[data-fluid="true"] .lg\:mx-auto,
+    main#route-container[data-fluid="true"] .xl\:mx-auto,
+    main#route-container[data-fluid="true"] .\32xl\:mx-auto {
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+    }
 
-      /* Ensure top-level sections inside fluid container stretch full width */
-      main#route-container[data-fluid="true"] section {
-        width: 100% !important;
-      }
+    /* Ensure top-level sections inside fluid container stretch full width */
+    main#route-container[data-fluid="true"] section {
+      width: 100% !important;
+    }
 
-      /* Sidebar spacing improvements in fluid mode (avoid jam-packed stacks) */
-      main#route-container[data-fluid="true"] aside .sticky > * + * {
-        margin-top: 1.5rem !important; /* 24px vertical rhythm between widgets */
-      }
-      main#route-container[data-fluid="true"] aside .space-y-3 > * + * {
-        margin-top: 1rem !important; /* normalize small stacks */
-      }
-      main#route-container[data-fluid="true"] aside .space-y-4 > * + * {
-        margin-top: 1.25rem !important; /* 20px */
-      }
+    /* Sidebar spacing improvements in fluid mode (avoid jam-packed stacks) */
+    main#route-container[data-fluid="true"] aside .sticky>*+* {
+      margin-top: 1.5rem !important;
+      /* 24px vertical rhythm between widgets */
+    }
 
-      /* Normalize Tailwind text scale in fluid mode (root html is 62.5% => 1rem = 10px).
+    main#route-container[data-fluid="true"] aside .space-y-3>*+* {
+      margin-top: 1rem !important;
+      /* normalize small stacks */
+    }
+
+    main#route-container[data-fluid="true"] aside .space-y-4>*+* {
+      margin-top: 1.25rem !important;
+      /* 20px */
+    }
+
+    /* Normalize Tailwind text scale in fluid mode (root html is 62.5% => 1rem = 10px).
          Map common text utilities to the intended px sizes as if 1rem = 16px. */
-      main#route-container[data-fluid="true"] .text-xs { font-size: 1.2rem !important; }  /* ~12px */
-      main#route-container[data-fluid="true"] .text-sm { font-size: 1.4rem !important; }  /* ~14px */
-      main#route-container[data-fluid="true"] .text-base { font-size: 1.6rem !important; }/* ~16px */
-      main#route-container[data-fluid="true"] .text-lg { font-size: 1.8rem !important; }  /* ~18px */
-      main#route-container[data-fluid="true"] .text-xl { font-size: 2.0rem !important; }  /* ~20px */
-      main#route-container[data-fluid="true"] .text-2xl { font-size: 2.4rem !important; } /* ~24px */
-      main#route-container[data-fluid="true"] .text-3xl { font-size: 3.0rem !important; } /* ~30px */
-      main#route-container[data-fluid="true"] .text-4xl { font-size: 4.0rem !important; } /* ~40px */
+    main#route-container[data-fluid="true"] .text-xs {
+      font-size: 1.2rem !important;
+    }
 
-      /* Headings scale consistent with homepage rhythm for fluid templates */
-      main#route-container[data-fluid="true"] h1 {
-        font-family: inherit !important;
-        font-weight: 700 !important;
-        font-size: 4.0rem !important;
-        line-height: 1.1 !important;
-      }
-      main#route-container[data-fluid="true"] h2 {
-        font-family: inherit !important;
-        font-weight: 700 !important;
-        font-size: 3.0rem !important;
-        line-height: 1.2 !important;
-      }
-      main#route-container[data-fluid="true"] h3 {
-        font-family: inherit !important;
-        font-weight: 700 !important;
-        font-size: 2.0rem !important;
-        line-height: 1.3 !important;
-      }
-    </style>
+    /* ~12px */
+    main#route-container[data-fluid="true"] .text-sm {
+      font-size: 1.4rem !important;
+    }
 
-    <!-- Favicon -->
-    <link rel="icon" href="https://nekwasar.com/favicon.png" sizes="any">
+    /* ~14px */
+    main#route-container[data-fluid="true"] .text-base {
+      font-size: 1.6rem !important;
+    }
+
+    /* ~16px */
+    main#route-container[data-fluid="true"] .text-lg {
+      font-size: 1.8rem !important;
+    }
+
+    /* ~18px */
+    main#route-container[data-fluid="true"] .text-xl {
+      font-size: 2.0rem !important;
+    }
+
+    /* ~20px */
+    main#route-container[data-fluid="true"] .text-2xl {
+      font-size: 2.4rem !important;
+    }
+
+    /* ~24px */
+    main#route-container[data-fluid="true"] .text-3xl {
+      font-size: 3.0rem !important;
+    }
+
+    /* ~30px */
+    main#route-container[data-fluid="true"] .text-4xl {
+      font-size: 4.0rem !important;
+    }
+
+    /* ~40px */
+
+    /* Headings scale consistent with homepage rhythm for fluid templates */
+    main#route-container[data-fluid="true"] h1 {
+      font-family: inherit !important;
+      font-weight: 700 !important;
+      font-size: 4.0rem !important;
+      line-height: 1.1 !important;
+    }
+
+    main#route-container[data-fluid="true"] h2 {
+      font-family: inherit !important;
+      font-weight: 700 !important;
+      font-size: 3.0rem !important;
+      line-height: 1.2 !important;
+    }
+
+    main#route-container[data-fluid="true"] h3 {
+      font-family: inherit !important;
+      font-weight: 700 !important;
+      font-size: 2.0rem !important;
+      line-height: 1.3 !important;
+    }
+  </style>
+
+  <!-- Favicon -->
+  <link rel="icon" href="https://nekwasar.com/favicon.png" sizes="any">
 </head>
+
 <body class="bg-base text-t-medium font-inter" data-use-routing="{% block routing_flag %}true{% endblock %}">
-    {% include 'includes/navbar.html' %}
+  {% include 'includes/navbar.html' %}
 
-    <main id="route-container" class="relative min-h-screen" data-fluid="{% block fluid_layout %}false{% endblock %}">
-        {% block hero %}{% endblock %}
-        {% block content %}{% endblock %}
-    </main>
+  <main id="route-container" class="relative min-h-screen" data-fluid="{% block fluid_layout %}false{% endblock %}">
+    {% block hero %}{% endblock %}
+    {% block content %}{% endblock %}
+  </main>
 
-    {% include 'includes/footer.html' %}
+  {% include 'includes/footer.html' %}
 
-    <!-- Shared Modals (available on all pages) -->
-    <div class="search-modal-overlay" id="searchOverlay">
-        <div class="search-modal-container">
-            <div class="search-header">
-                <div class="search-title">
-                    <i class="ph-bold ph-magnifying-glass"></i>
-                    <span>Discover Content</span>
-                </div>
-                <button class="search-close" id="searchClose">
-                    <i class="ph-bold ph-x"></i>
-                </button>
-            </div>
-            <div class="search-input-section">
-                <div class="search-input-wrapper">
-                    <input type="text" class="search-input" id="searchInput" placeholder="Search articles, topics, or authors...">
-                    <div class="search-input-accent"></div>
-                    <button class="search-submit" id="searchBtn">
-                        <i class="ph-bold ph-arrow-right"></i>
-                    </button>
-                </div>
-                <div class="search-suggestions" id="searchSuggestions">
-                    <div class="suggestion-item initial" data-type="trending">
-                        <i class="ph-bold ph-trend-up"></i>
-                        <span>Trending: AI Ethics</span>
-                    </div>
-                    <div class="suggestion-item initial" data-type="recent">
-                        <i class="ph-bold ph-clock"></i>
-                        <span>Recent: Web Development</span>
-                    </div>
-                    <div class="suggestion-item initial" data-type="popular">
-                        <i class="ph-bold ph-star"></i>
-                        <span>Popular: Blockchain Guide</span>
-                    </div>
-                </div>
-                <div class="search-typing-state" id="typingState">
-                    <div class="typing-message">
-                        <i class="ph-bold ph-magnifying-glass"></i>
-                        <span>Start typing to search...</span>
-                    </div>
-                </div>
-            </div>
-            <div class="search-filters">
-                <div class="filter-group">
-                    <label class="filter-label">Sections</label>
-                    <div class="filter-buttons">
-                        <button class="filter-btn active" data-section="all"><span>All</span></button>
-                        <button class="filter-btn" data-section="latest"><i class="ph-bold ph-clock"></i><span>Latest</span></button>
-                        <button class="filter-btn" data-section="popular"><i class="ph-bold ph-star"></i><span>Popular</span></button>
-                        <button class="filter-btn" data-section="others"><i class="ph-bold ph-grid-four"></i><span>Others</span></button>
-                        <button class="filter-btn" data-section="featured"><i class="ph-bold ph-star"></i><span>Featured</span></button>
-                    </div>
-                </div>
-                <div class="filter-group">
-                    <label class="filter-label">Topics</label>
-                    <div class="tag-filters" id="tagFilters">
-                        <span class="tag-chip" data-tag="ai"><span>AI</span><span class="tag-count">24</span></span>
-                        <span class="tag-chip" data-tag="startup"><span>Startup</span><span class="tag-count">18</span></span>
-                        <span class="tag-chip" data-tag="innovation"><span>Innovation</span><span class="tag-count">15</span></span>
-                        <span class="tag-chip" data-tag="opinions"><span>Opinions</span><span class="tag-count">12</span></span>
-                        <span class="tag-chip" data-tag="business"><span>Business</span><span class="tag-count">10</span></span>
-                    </div>
-                </div>
-            </div>
-            <div class="search-results-section">
-                <div class="results-header">
-                    <div class="results-meta">
-                        <span class="results-count" id="resultsCount">Start typing to search...</span>
-                        <div class="search-stats" id="searchStats"></div>
-                    </div>
-                    <div class="results-sort" id="resultsSort">
-                        <button class="sort-btn active" data-sort="relevance"><i class="ph-bold ph-target"></i><span>Relevance</span></button>
-                        <button class="sort-btn" data-sort="recent"><i class="ph-bold ph-clock"></i><span>Recent</span></button>
-                        <button class="sort-btn" data-sort="popular"><i class="ph-bold ph-heart"></i><span>Popular</span></button>
-                    </div>
-                </div>
-                <div class="search-results" id="searchResults">
-                    <div class="no-results">
-                        <div class="no-results-icon">
-                            <i class="ph-bold ph-magnifying-glass"></i>
-                        </div>
-                        <h3>Discover Amazing Content</h3>
-                        <p>Search through our collection of articles, tutorials, and insights</p>
-                    </div>
-                </div>
-                <div class="load-more-container" id="loadMoreContainer" style="display: none;">
-                    <button class="load-more-btn" id="loadMoreBtn">
-                        <span>Load More Results</span>
-                        <i class="ph-bold ph-arrow-down"></i>
-                    </button>
-                </div>
-            </div>
+  <!-- Shared Modals (available on all pages) -->
+  <div class="search-modal-overlay" id="searchOverlay">
+    <div class="search-modal-container">
+      <div class="search-header">
+        <div class="search-title">
+          <i class="ph-bold ph-magnifying-glass"></i>
+          <span>Discover Content</span>
         </div>
-    </div>
-
-    <div class="modal-overlay" id="menuOverlay">
-        <div class="modal-content menu-modal">
-            <div class="menu-header">
-                <div class="menu-logo">NekwasaR</div>
-                <div class="menu-actions">
-                    <button class="modal-close" id="menuClose">
-                        <i class="ph-bold ph-x"></i>
-                    </button>
-                </div>
-            </div>
-            <nav class="mobile-nav">
-                <a href="https://nekwasar.com" class="mobile-nav-link" target="_blank" rel="noopener">Back to Portfolio</a>
-                <a href="/latest" data-route="latest" class="mobile-nav-link">Latest</a>
-                <a href="/popular" data-route="popular" class="mobile-nav-link">Popular</a>
-                <a href="/others" data-route="others" class="mobile-nav-link">Others</a>
-                <a href="/featured" data-route="featured" class="mobile-nav-link">Featured</a>
-                <a href="/topics" data-route="topics" class="mobile-nav-link">Topics</a>
-            </nav>
+        <button class="search-close" id="searchClose">
+          <i class="ph-bold ph-x"></i>
+        </button>
+      </div>
+      <div class="search-input-section">
+        <div class="search-input-wrapper">
+          <input type="text" class="search-input" id="searchInput" placeholder="Search articles, topics, or authors...">
+          <div class="search-input-accent"></div>
+          <button class="search-submit" id="searchBtn">
+            <i class="ph-bold ph-arrow-right"></i>
+          </button>
         </div>
-    </div>
-
-    <!-- Post Modal -->
-    <div class="post-modal-overlay" id="postModal">
-        <div class="post-modal-container">
-            <div class="post-modal-header">
-                <div class="post-modal-nav">
-                    <button class="post-modal-nav-btn" id="postModalPrev" disabled>
-                        <i class="ph-bold ph-caret-left"></i>
-                    </button>
-                    <div class="post-modal-title">
-                        <span class="post-modal-category">Loading...</span>
-                        <h2 class="post-modal-title-text">Loading post...</h2>
-                    </div>
-                    <button class="post-modal-nav-btn" id="postModalNext" disabled>
-                        <i class="ph-bold ph-caret-right"></i>
-                    </button>
-                </div>
-                <button class="post-modal-close" id="postModalClose">
-                    <i class="ph-bold ph-x"></i>
-                </button>
-            </div>
-            <div class="post-modal-content" id="postModalContent">
-                <div class="post-modal-loading">
-                    <div class="loading-spinner"></div>
-                    <p>Loading post content...</p>
-                </div>
-            </div>
-            <div class="post-modal-footer">
-                <div class="post-modal-actions">
-                    <button class="post-modal-action-btn" id="postModalLike">
-                        <i class="ph-bold ph-heart"></i>
-                        <span class="action-count">0</span>
-                    </button>
-
-                    <button class="post-modal-action-btn" id="postModalBookmark">
-                        <i class="ph-bold ph-bookmark"></i>
-                        <span>Save</span>
-                    </button>
-                    <button class="post-modal-action-btn" id="postModalShare">
-                        <i class="ph-bold ph-share-network"></i>
-                        <span>Share</span>
-                    </button>
-                </div>
-                <button class="post-modal-read-full" id="postModalReadFull">
-                    <span>Read Full Article</span>
-                    <i class="ph-bold ph-arrow-right"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Share Modal Start -->
-    <div id="share-modal" class="share-modal">
-      <div class="share-modal__overlay"></div>
-      <div class="share-modal__content">
-        <div class="share-modal__header">
-          <h3>Share this article</h3>
-          <button class="share-modal__close" id="share-modal-close">&times;</button>
-        </div>
-        <div class="share-modal__body">
-          <div class="share-links">
-            <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url }}" target="_blank" class="share-link">
-              <i class="ph-bold ph-facebook-logo"></i>
-              <span>Facebook</span>
-            </a>
-            <a href="https://t.me/share/url?url={{ request.url }}&text={{ post_data.title or 'Check out this article' }}" target="_blank" class="share-link">
-              <i class="ph-bold ph-telegram-logo"></i>
-              <span>Telegram</span>
-            </a>
-            <a href="https://www.reddit.com/submit?url={{ request.url }}&title={{ post_data.title or 'Check out this article' }}" target="_blank" class="share-link">
-              <i class="ph-bold ph-reddit-logo"></i>
-              <span>Reddit</span>
-            </a>
-            <a href="https://wa.me/?text={{ post_data.title or 'Check out this article' }}%20{{ request.url }}" target="_blank" class="share-link">
-              <i class="ph-bold ph-whatsapp-logo"></i>
-              <span>WhatsApp</span>
-            </a>
+        <div class="search-suggestions" id="searchSuggestions">
+          <div class="suggestion-item initial" data-type="trending">
+            <i class="ph-bold ph-trend-up"></i>
+            <span>Trending: AI Ethics</span>
           </div>
-          <button id="copy-link-btn" class="btn btn-default btn-fullwidth copy-link-btn">
-            <span class="btn-caption">Copy Link</span>
-            <i class="ph-bold ph-copy"></i>
+          <div class="suggestion-item initial" data-type="recent">
+            <i class="ph-bold ph-clock"></i>
+            <span>Recent: Web Development</span>
+          </div>
+          <div class="suggestion-item initial" data-type="popular">
+            <i class="ph-bold ph-star"></i>
+            <span>Popular: Blockchain Guide</span>
+          </div>
+        </div>
+        <div class="search-typing-state" id="typingState">
+          <div class="typing-message">
+            <i class="ph-bold ph-magnifying-glass"></i>
+            <span>Start typing to search...</span>
+          </div>
+        </div>
+      </div>
+      <div class="search-filters">
+        <div class="filter-group">
+          <label class="filter-label">Sections</label>
+          <div class="filter-buttons">
+            <button class="filter-btn active" data-section="all"><span>All</span></button>
+            <button class="filter-btn" data-section="latest"><i
+                class="ph-bold ph-clock"></i><span>Latest</span></button>
+            <button class="filter-btn" data-section="popular"><i
+                class="ph-bold ph-star"></i><span>Popular</span></button>
+            <button class="filter-btn" data-section="others"><i
+                class="ph-bold ph-grid-four"></i><span>Others</span></button>
+            <button class="filter-btn" data-section="featured"><i
+                class="ph-bold ph-star"></i><span>Featured</span></button>
+          </div>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Topics</label>
+          <div class="tag-filters" id="tagFilters">
+            <span class="tag-chip" data-tag="ai"><span>AI</span><span class="tag-count">24</span></span>
+            <span class="tag-chip" data-tag="startup"><span>Startup</span><span class="tag-count">18</span></span>
+            <span class="tag-chip" data-tag="innovation"><span>Innovation</span><span class="tag-count">15</span></span>
+            <span class="tag-chip" data-tag="opinions"><span>Opinions</span><span class="tag-count">12</span></span>
+            <span class="tag-chip" data-tag="business"><span>Business</span><span class="tag-count">10</span></span>
+          </div>
+        </div>
+      </div>
+      <div class="search-results-section">
+        <div class="results-header">
+          <div class="results-meta">
+            <span class="results-count" id="resultsCount">Start typing to search...</span>
+            <div class="search-stats" id="searchStats"></div>
+          </div>
+          <div class="results-sort" id="resultsSort">
+            <button class="sort-btn active" data-sort="relevance"><i
+                class="ph-bold ph-target"></i><span>Relevance</span></button>
+            <button class="sort-btn" data-sort="recent"><i class="ph-bold ph-clock"></i><span>Recent</span></button>
+            <button class="sort-btn" data-sort="popular"><i class="ph-bold ph-heart"></i><span>Popular</span></button>
+          </div>
+        </div>
+        <div class="search-results" id="searchResults">
+          <div class="no-results">
+            <div class="no-results-icon">
+              <i class="ph-bold ph-magnifying-glass"></i>
+            </div>
+            <h3>Discover Amazing Content</h3>
+            <p>Search through our collection of articles, tutorials, and insights</p>
+          </div>
+        </div>
+        <div class="load-more-container" id="loadMoreContainer" style="display: none;">
+          <button class="load-more-btn" id="loadMoreBtn">
+            <span>Load More Results</span>
+            <i class="ph-bold ph-arrow-down"></i>
           </button>
         </div>
       </div>
     </div>
-    <!-- Share Modal End -->
+  </div>
 
-    <div class="scroll-to-top" id="scrollToTop">
-        <div class="scroll-progress" id="scrollProgress"></div>
-        <i class="ph-bold ph-arrow-up"></i>
+  <div class="modal-overlay" id="menuOverlay">
+    <div class="modal-content menu-modal">
+      <div class="menu-header">
+        <div class="menu-logo">NekwasaR</div>
+        <div class="menu-actions">
+          <button class="modal-close" id="menuClose">
+            <i class="ph-bold ph-x"></i>
+          </button>
+        </div>
+      </div>
+      <nav class="mobile-nav">
+        <a href="https://nekwasar.com" class="mobile-nav-link" target="_blank" rel="noopener">Back to Portfolio</a>
+        <a href="/latest" data-route="latest" class="mobile-nav-link">Latest</a>
+        <a href="/popular" data-route="popular" class="mobile-nav-link">Popular</a>
+        <a href="/others" data-route="others" class="mobile-nav-link">Others</a>
+        <a href="/featured" data-route="featured" class="mobile-nav-link">Featured</a>
+        <a href="/topics" data-route="topics" class="mobile-nav-link">Topics</a>
+      </nav>
     </div>
+  </div>
 
-    <!-- Global Blog Script -->
-    <script src="/blog/js/blog.js" defer></script>
-    <script src="/blog/templates/js/blog-templates.js" defer></script>
-    {% block extra_scripts %}{% endblock %}
+  <!-- Post Modal -->
+  <div class="post-modal-overlay" id="postModal">
+    <div class="post-modal-container">
+      <div class="post-modal-header">
+        <div class="post-modal-nav">
+          <button class="post-modal-nav-btn" id="postModalPrev" disabled>
+            <i class="ph-bold ph-caret-left"></i>
+          </button>
+          <div class="post-modal-title">
+            <span class="post-modal-category">Loading...</span>
+            <h2 class="post-modal-title-text">Loading post...</h2>
+          </div>
+          <button class="post-modal-nav-btn" id="postModalNext" disabled>
+            <i class="ph-bold ph-caret-right"></i>
+          </button>
+        </div>
+        <button class="post-modal-close" id="postModalClose">
+          <i class="ph-bold ph-x"></i>
+        </button>
+      </div>
+      <div class="post-modal-content" id="postModalContent">
+        <div class="post-modal-loading">
+          <div class="loading-spinner"></div>
+          <p>Loading post content...</p>
+        </div>
+      </div>
+      <div class="post-modal-footer">
+        <div class="post-modal-actions">
+          <button class="post-modal-action-btn" id="postModalLike">
+            <i class="ph-bold ph-heart"></i>
+            <span class="action-count">0</span>
+          </button>
+
+          <button class="post-modal-action-btn" id="postModalBookmark">
+            <i class="ph-bold ph-bookmark"></i>
+            <span>Save</span>
+          </button>
+          <button class="post-modal-action-btn" id="postModalShare">
+            <i class="ph-bold ph-share-network"></i>
+            <span>Share</span>
+          </button>
+        </div>
+        <button class="post-modal-read-full" id="postModalReadFull">
+          <span>Read Full Article</span>
+          <i class="ph-bold ph-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Share Modal Start -->
+  <div id="share-modal" class="share-modal">
+    <div class="share-modal__overlay"></div>
+    <div class="share-modal__content">
+      <div class="share-modal__header">
+        <h3>Share this article</h3>
+        <button class="share-modal__close" id="share-modal-close">&times;</button>
+      </div>
+      <div class="share-modal__body">
+        <div class="share-links">
+          <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url }}" target="_blank" class="share-link">
+            <i class="ph-bold ph-facebook-logo"></i>
+            <span>Facebook</span>
+          </a>
+          <a href="https://t.me/share/url?url={{ request.url }}&text={{ (post_data.title if post_data else 'Check out this article') or 'Check out this article' }}"
+            target="_blank" class="share-link">
+            <i class="ph-bold ph-telegram-logo"></i>
+            <span>Telegram</span>
+          </a>
+          <a href="https://www.reddit.com/submit?url={{ request.url }}&title={{ (post_data.title if post_data else 'Check out this article') or 'Check out this article' }}"
+            target="_blank" class="share-link">
+            <i class="ph-bold ph-reddit-logo"></i>
+            <span>Reddit</span>
+          </a>
+          <a href="https://wa.me/?text={{ (post_data.title if post_data else 'Check out this article') or 'Check out this article' }}%20{{ request.url }}"
+            target="_blank" class="share-link">
+            <i class="ph-bold ph-whatsapp-logo"></i>
+            <span>WhatsApp</span>
+          </a>
+        </div>
+        <button id="copy-link-btn" class="btn btn-default btn-fullwidth copy-link-btn">
+          <span class="btn-caption">Copy Link</span>
+          <i class="ph-bold ph-copy"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- Share Modal End -->
+
+  <div class="scroll-to-top" id="scrollToTop">
+    <div class="scroll-progress" id="scrollProgress"></div>
+    <i class="ph-bold ph-arrow-up"></i>
+  </div>
+
+  <!-- Global Blog Script -->
+  <script src="/blog/js/blog.js" defer></script>
+  <script src="/blog/templates/js/blog-templates.js" defer></script>
+  {% block extra_scripts %}{% endblock %}
 </body>
+
 </html>

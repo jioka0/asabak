@@ -450,7 +450,7 @@
                         </div>
                     </div>
                     <div class="sidebar-widget" id="tags">
-                        <h4 class="widget-title">TOP TOPICS</h4>
+                        <h4 class="widget-title">EXPLORE BY TAGS</h4>
                         <div class="tags-grid">
                             <div class="tag-item" data-href="#tag-ai">
                                 <div class="tag-icon"><i class="ph-bold ph-cpu"></i></div>
@@ -640,20 +640,23 @@
         async function initHome() {
             try {
                 // Fetch dynamic data for homepage
-                const [latestRes, popularRes, featuredRes] = await Promise.all([
+                const [latestRes, popularRes, featuredRes, tagsRes] = await Promise.all([
                     fetch('/api/blog/posts/section/latest?limit=3'),
                     fetch('/api/blog/posts/section/popular?limit=6'),
-                    fetch('/api/blog/posts/section/featured?limit=3')
+                    fetch('/api/blog/posts/section/featured?limit=3'),
+                    fetch('/api/blogs/tags')
                 ]);
 
                 const latestData = await latestRes.json();
                 const popularData = await popularRes.json();
                 const featuredData = await featuredRes.json();
+                const tagsData = await tagsRes.json();
 
                 // Update DOM sections
                 updateLatestSection(latestData.posts);
                 updatePopularSection(popularData.posts);
                 updateMagazineSection(featuredData.posts);
+                updateTagsSection(tagsData.tags);
 
                 // Re-initialize blog core features that depend on this content
                 if (window.initBannerSlider) window.initBannerSlider();
@@ -807,6 +810,43 @@
                     if (views) views.textContent = `${post.view_count || 0} views`;
                 }
             });
+        }
+
+        function updateTagsSection(tags) {
+            const tagsGrid = document.querySelector('.tags-grid');
+            if (!tagsGrid || !tags) return;
+
+            const iconMap = {
+                'ai': 'ph-cpu',
+                'tech': 'ph-laptop',
+                'innovation': 'ph-lightbulb',
+                'startup': 'ph-rocket',
+                'business': 'ph-building',
+                'design': 'ph-palette',
+                'software': 'ph-code',
+                'coding': 'ph-code',
+                'web': 'ph-globe',
+                'mobile': 'ph-device-mobile',
+                'cloud': 'ph-cloud',
+                'security': 'ph-shield-check',
+                'marketing': 'ph-megaphone',
+                'data': 'ph-chart-bar'
+            };
+
+            tagsGrid.innerHTML = tags.map(tag => {
+                const icon = iconMap[tag.slug.toLowerCase()] || iconMap[tag.name.toLowerCase()] || 'ph-hash';
+                return `
+                    <div class="tag-item" data-href="/topics?tag=${tag.slug}">
+                        <div class="tag-icon" style="background: ${tag.color}20; color: ${tag.color}">
+                            <i class="ph-bold ${icon}"></i>
+                        </div>
+                        <div class="tag-content">
+                            <span class="tag-name">${tag.name}</span>
+                            <span class="tag-count">${tag.count} ${tag.count === 1 ? 'post' : 'posts'}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
         function updateBannerDots(count) {

@@ -7,6 +7,10 @@ from schemas.blog import (
     SearchAnalyticsCreate, SearchFilters
 )
 import time
+import traceback
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -42,6 +46,8 @@ async def search_posts(
         return results
 
     except Exception as e:
+        logger.error(f"Search failed: {str(e)}")
+        logger.error(traceback.format_exc())
         raise HTTPException(500, f"Search failed: {str(e)}")
 
 @router.get("/suggestions", response_model=SearchSuggestions)

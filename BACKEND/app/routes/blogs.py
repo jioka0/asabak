@@ -25,6 +25,37 @@ async def get_blog_posts(limit: int = 10, db: Session = Depends(get_db)):
     posts = db.query(BlogPostModel).order_by(BlogPostModel.published_at.desc()).limit(limit).all()
     return posts
 
+@router.get("/tags")
+async def get_blog_tags(db: Session = Depends(get_db)):
+    """Get all blog tags with post counts (public API)"""
+    from models.blog import BlogTag
+    from sqlalchemy import func
+    
+    try:
+        # Get all tags
+        tags = db.query(BlogTag).order_by(BlogTag.name.asc()).all()
+        
+        tags_data = []
+        for tag in tags:
+            # Get actual post count for this tag (only published posts)
+            actual_count = db.query(func.count(BlogPostModel.id)).filter(
+                BlogPostModel.published_at.isnot(None),
+                BlogPostModel.tags.like(f'%"{tag.slug}"%')
+            ).scalar() or 0
+            
+            tags_data.append({
+                "id": str(tag.id),
+                "name": tag.name,
+                "slug": tag.slug,
+                "count": actual_count,
+                "color": tag.color or "#6366f1"
+            })
+            
+        return {"tags": tags_data}
+    except Exception as e:
+        logger.error(f"Error fetching tags: {e}")
+        raise HTTPException(500, "Failed to fetch tags")
+
 @router.get("/{post_id}", response_model=BlogPost)
 async def get_blog_post(post_id: int, db: Session = Depends(get_db)):
     """Get single blog post with comments"""

@@ -135,40 +135,40 @@ async def startup_event():
 
     logger.info("✅ Application started successfully!")
 
+# Default post data for SEO and sharing on non-article pages
+DEFAULT_POST_DATA = {
+    'title': 'NekwasaR Blog - Professional Insights & Innovation',
+    'slug': '',
+    'excerpt': 'Explore professional insights, analysis, and storytelling from NekwasaR.',
+    'content': '',
+    'author': 'NekwasaR',
+    'published_at': None,
+    'featured_image': None,
+    'tags': [],
+    'view_count': 0,
+    'like_count': 0,
+    'comment_count': 0
+}
+
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
-    """Render the blog homepage for testing"""
-    # Provide default post_data for homepage sharing
-    default_post_data = {
-        'title': 'NekwasaR Blog - Professional Insights & Innovation',
-        'slug': '',
-        'excerpt': 'Explore professional insights, analysis, and storytelling from NekwasaR.',
-        'content': '',
-        'author': 'NekwasaR',
-        'published_at': None,
-        'featured_image': None,
-        'tags': [],
-        'view_count': 0,
-        'like_count': 0,
-        'comment_count': 0
-    }
-
+    """Render the blog homepage"""
     return blog_templates.TemplateResponse(
         "index.html",
         {
             "request": request,
             "current_year": datetime.utcnow().year,
-            "post_data": default_post_data
+            "post_data": DEFAULT_POST_DATA
         }
     )
 
-# SPA deep-link routes: serve the same index.html for client-side router
+# SPA deep-link routes: serve the dynamic section pages
 @app.get("/latest", response_class=HTMLResponse)
 @app.get("/latest/", response_class=HTMLResponse)
 async def blog_latest(request: Request):
     return blog_templates.TemplateResponse(
         "page_section.html",
-        {"request": request, "section": "latest", "current_year": datetime.utcnow().year}
+        {"request": request, "section": "latest", "current_year": datetime.utcnow().year, "post_data": DEFAULT_POST_DATA}
     )
 
 @app.get("/popular", response_class=HTMLResponse)
@@ -176,7 +176,7 @@ async def blog_latest(request: Request):
 async def blog_popular(request: Request):
     return blog_templates.TemplateResponse(
         "page_section.html",
-        {"request": request, "section": "popular", "current_year": datetime.utcnow().year}
+        {"request": request, "section": "popular", "current_year": datetime.utcnow().year, "post_data": DEFAULT_POST_DATA}
     )
 
 @app.get("/others", response_class=HTMLResponse)
@@ -184,7 +184,7 @@ async def blog_popular(request: Request):
 async def blog_others(request: Request):
     return blog_templates.TemplateResponse(
         "page_section.html",
-        {"request": request, "section": "others", "current_year": datetime.utcnow().year}
+        {"request": request, "section": "others", "current_year": datetime.utcnow().year, "post_data": DEFAULT_POST_DATA}
     )
 
 @app.get("/featured", response_class=HTMLResponse)
@@ -192,7 +192,7 @@ async def blog_others(request: Request):
 async def blog_featured(request: Request):
     return blog_templates.TemplateResponse(
         "page_section.html",
-        {"request": request, "section": "featured", "current_year": datetime.utcnow().year}
+        {"request": request, "section": "featured", "current_year": datetime.utcnow().year, "post_data": DEFAULT_POST_DATA}
     )
 
 @app.get("/topics", response_class=HTMLResponse)
@@ -200,7 +200,7 @@ async def blog_featured(request: Request):
 async def blog_topics(request: Request):
     return blog_templates.TemplateResponse(
         "page_section.html",
-        {"request": request, "section": "topics", "current_year": datetime.utcnow().year}
+        {"request": request, "section": "topics", "current_year": datetime.utcnow().year, "post_data": DEFAULT_POST_DATA}
     )
 
 # Dynamic blog post route
@@ -264,7 +264,7 @@ async def blog_template1(request: Request):
     """Serve template1-banner-image.html"""
     return blog_templates.TemplateResponse(
         "template1-banner-image.html",
-        {"request": request, "current_year": datetime.utcnow().year}
+        {"request": request, "current_year": datetime.utcnow().year, "post_data": DEFAULT_POST_DATA}
     )
 
 @app.get("/template2", response_class=HTMLResponse)
@@ -273,7 +273,7 @@ async def blog_template2(request: Request):
     """Serve template2-banner-video.html"""
     return blog_templates.TemplateResponse(
         "template2-banner-video.html",
-        {"request": request, "current_year": datetime.utcnow().year}
+        {"request": request, "current_year": datetime.utcnow().year, "post_data": DEFAULT_POST_DATA}
     )
 
 @app.get("/template3", response_class=HTMLResponse)
@@ -282,7 +282,7 @@ async def blog_template3(request: Request):
     """Serve template3-listing.html"""
     return blog_templates.TemplateResponse(
         "template3-listing.html",
-        {"request": request, "current_year": datetime.utcnow().year}
+        {"request": request, "current_year": datetime.utcnow().year, "post_data": DEFAULT_POST_DATA}
     )
 
 # Redirect misspelling /populer -> /popular

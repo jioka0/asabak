@@ -3,8 +3,13 @@ from sqlalchemy import func, text, desc, or_, and_
 from typing import List, Dict, Any, Optional, Tuple
 import time
 import re
+import logging
+from datetime import datetime
 from models.blog import BlogPost, SearchAnalytics
 from schemas.blog import SearchRequest, SearchResponse, BlogPostSearchResult, SearchSuggestions
+
+# Initialize logger
+logger = logging.getLogger(__name__)
 
 class SearchService:
     def __init__(self, db: Session):
@@ -18,8 +23,8 @@ class SearchService:
         if search_request.query.strip():
             return self._fts_search(search_request, start_time)
 
-        # Regular search without text query
-        query = self.db.query(BlogPost)
+        # Regular search without text query - only published posts
+        query = self.db.query(BlogPost).filter(BlogPost.published_at.isnot(None))
 
         # Apply section filter
         if search_request.section and search_request.section != "all":
@@ -27,13 +32,13 @@ class SearchService:
 
         # Apply tag filters
         if search_request.tags:
-            tag_filters = []
+            tag_conditions = []
             for tag in search_request.tags:
-                tag_filters.append(
-                    text("JSON_CONTAINS(tags, JSON_QUOTE(:tag))").bindparams(tag=tag)
-                )
-            if tag_filters:
-                query = query.filter(or_(*tag_filters))
+                # SQLite-compatible JSON array search
+                tag_conditions.append(BlogPost.tags.like(f'%"{tag}"%'))
+            
+            if tag_conditions:
+                query = query.filter(or_(*tag_conditions))
 
         # Apply sorting
         if search_request.sort == "recent":
@@ -120,8 +125,11 @@ class SearchService:
             # Convert to BlogPostSearchResult objects
             search_results = []
             for post_data in filtered_results:
-                # Get full post object
-                post = self.db.query(BlogPost).filter(BlogPost.id == post_data['id']).first()
+                # Get full post object (only published)
+                post = self.db.query(BlogPost).filter(
+                    BlogPost.id == post_data['id'],
+                    BlogPost.published_at.isnot(None)
+                ).first()
                 if post:
                     result = BlogPostSearchResult.from_orm(post)
                     result.search_score = round(post_data.get('score', 0), 2)
@@ -148,9 +156,12 @@ class SearchService:
             )
 
         except Exception as e:
-            # Fallback to regular search if FTS fails
-            print(f"FTS search failed: {e}, falling back to regular search")
+            # Fallback to regular search if FTS fails (e.g. table doesn't exist)
+            import traceback
+            logger.warning(f"FTS search failed or table missing: {e}. Falling back to regular search.")
+            logger.debug(traceback.format_exc())
             search_request.sort = "relevance"
+            # Return regular search
             return self.search_posts(search_request)
 
     def _build_fts_query(self, query: str) -> str:
@@ -221,8 +232,8 @@ class SearchService:
 
         # Search in tags (JSON array)
         tag_results = self.db.query(BlogPost.tags).filter(
-            text("JSON_SEARCH(tags, 'one', :query) IS NOT NULL")
-        ).params(query=f"%{query}%").limit(20).all()
+            BlogPost.tags.like(f"%{query}%")
+        ).limit(20).all()
 
         for (tags,) in tag_results:
             if tags:
@@ -290,9 +301,7 @@ class SearchService:
             term_conditions.append(BlogPost.content.ilike(f"%{term}%"))
 
             # Search in tags (JSON)
-            term_conditions.append(
-                text("JSON_SEARCH(tags, 'one', :term) IS NOT NULL").bindparams(term=term)
-            )
+            term_conditions.append(BlogPost.tags.like(f'%"{term}"%'))
 
             search_conditions.append(or_(*term_conditions))
 
@@ -347,9 +356,15 @@ class SearchService:
             score += 2
 
         # Popularity boost (recency and engagement)
-        days_since_publish = (datetime.now() - post.published_at).days
-        recency_boost = max(0, 10 - days_since_publish)  # Newer posts get boost
-        score += recency_boost * 0.5
+        if post.published_at:
+            try:
+                days_since_publish = (datetime.now() - post.published_at).days
+                recency_boost = max(0, 10 - days_since_publish)  # Newer posts get boost
+                score += recency_boost * 0.5
+            except Exception as e:
+                logger.error(f"Error calculating recency boost: {e}")
+        else:
+            score -= 5  # Penalty for missing date
 
         # Engagement boost
         engagement_score = post.view_count * 0.01 + post.like_count * 0.1 + post.comment_count * 0.2
@@ -372,9 +387,15 @@ class SearchService:
         score += post.share_count * 0.3
 
         # Recency boost
-        days_since_publish = (datetime.now() - post.published_at).days
-        recency_boost = max(0, 30 - days_since_publish)  # 30-day recency window
-        score += recency_boost
+        if post.published_at:
+            try:
+                days_since_publish = (datetime.now() - post.published_at).days
+                recency_boost = max(0, 30 - days_since_publish)  # 30-day recency window
+                score += recency_boost
+            except Exception as e:
+                logger.error(f"Error calculating popularity recency: {e}")
+        else:
+            score -= 10
 
         # Featured boost
         if post.is_featured:
@@ -418,7 +439,7 @@ class SearchService:
         return self.db.query(BlogPost).filter(BlogPost.section == section).count()
 
     def _count_posts_by_tag(self, tag: str) -> int:
-        """Count posts with a specific tag"""
+        """Count posts with a specific tag (SQLite compatible)"""
         return self.db.query(BlogPost).filter(
-            text("JSON_CONTAINS(tags, JSON_QUOTE(:tag))").bindparams(tag=tag)
+            BlogPost.tags.like(f'%"{tag}"%')
         ).count()

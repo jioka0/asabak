@@ -906,11 +906,12 @@
             if (!path) return 'home';
             return this.routes.includes(path) ? path : this.fallback;
         },
-        navigate(route) {
+        navigate(route, query = '') {
             if (!this.routes.includes(route)) {
                 route = this.fallback;
             }
-            const url = this.routeToPath(route);
+            const path = this.routeToPath(route);
+            const url = query ? `${path}${query}` : path;
             history.pushState({}, '', url);
             this.renderRoute(route, true);
         },
