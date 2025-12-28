@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +11,8 @@
             box-sizing: border-box;
         }
 
-        html, body {
+        html,
+        body {
             margin: 0;
             padding: 0;
             height: 100%;
@@ -223,8 +225,15 @@
         }
 
         @keyframes borderGlow {
-            0% { opacity: 0.3; filter: blur(8px) hue-rotate(0deg); }
-            100% { opacity: 0.6; filter: blur(12px) hue-rotate(60deg); }
+            0% {
+                opacity: 0.3;
+                filter: blur(8px) hue-rotate(0deg);
+            }
+
+            100% {
+                opacity: 0.6;
+                filter: blur(12px) hue-rotate(60deg);
+            }
         }
 
         .modal-overlay.show .futuristic-modal {
@@ -265,18 +274,23 @@
         }
 
         @keyframes float {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translateY(0px) translateX(0px) scale(1);
                 opacity: 0.3;
             }
+
             25% {
                 transform: translateY(-20px) translateX(10px) scale(1.2);
                 opacity: 0.8;
             }
+
             50% {
                 transform: translateY(-10px) translateX(-10px) scale(0.8);
                 opacity: 0.6;
             }
+
             75% {
                 transform: translateY(-30px) translateX(5px) scale(1.1);
                 opacity: 0.4;
@@ -321,8 +335,17 @@
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(1.1); }
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.7;
+                transform: scale(1.1);
+            }
         }
 
         .modal-close {
@@ -531,18 +554,24 @@
         }
 
         /* Special cursor for editable post items */
-        .related-post-item, .trending-post-item, a[href*="/blog/"] {
+        .related-post-item,
+        .trending-post-item,
+        a[href*="/blog/"] {
             cursor: pointer !important;
             position: relative;
             pointer-events: auto !important;
             z-index: 10;
         }
 
-        .related-post-item:hover, .trending-post-item:hover, a[href*="/blog/"]:hover {
+        .related-post-item:hover,
+        .trending-post-item:hover,
+        a[href*="/blog/"]:hover {
             background: rgba(0, 123, 255, 0.05) !important;
         }
 
-        .related-post-item::after, .trending-post-item::after, a[href*="/blog/"]::after {
+        .related-post-item::after,
+        .trending-post-item::after,
+        a[href*="/blog/"]::after {
             content: "✏️";
             position: absolute;
             top: 5px;
@@ -553,7 +582,9 @@
             z-index: 20;
         }
 
-        .related-post-item:hover::after, .trending-post-item:hover::after, a[href*="/blog/"]:hover::after {
+        .related-post-item:hover::after,
+        .trending-post-item:hover::after,
+        a[href*="/blog/"]:hover::after {
             opacity: 0.7;
         }
 
@@ -565,16 +596,19 @@
         }
 
         /* Dynamic content styling - not editable */
-        .views-count, .dynamic-content {
+        .views-count,
+        .dynamic-content {
             cursor: default !important;
             pointer-events: none !important;
         }
 
-        .views-count:hover, .dynamic-content:hover {
+        .views-count:hover,
+        .dynamic-content:hover {
             background: transparent !important;
         }
 
-        .views-count::after, .dynamic-content::after {
+        .views-count::after,
+        .dynamic-content::after {
             display: none !important;
         }
 
@@ -584,7 +618,7 @@
             background: var(--base);
             border: 1px solid var(--stroke-elements);
             border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
             z-index: 10000;
             padding: 12px;
             min-width: 180px;
@@ -706,6 +740,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Editor Controls Overlay -->
     <div class="editor-controls">
@@ -759,11 +794,13 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Display Title (optional - leave empty to use post title):</label>
-                    <input type="text" class="futuristic-input" id="displayTitle" placeholder="Custom title for this section">
+                    <input type="text" class="futuristic-input" id="displayTitle"
+                        placeholder="Custom title for this section">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Display Image URL (optional - leave empty to use post image):</label>
-                    <input type="url" class="futuristic-input" id="displayImage" placeholder="https://example.com/image.jpg">
+                    <input type="url" class="futuristic-input" id="displayImage"
+                        placeholder="https://example.com/image.jpg">
                 </div>
             </div>
             <div class="modal-actions">
@@ -774,13 +811,53 @@
     </div>
 
     <script>
-        // Get template parameter from URL
+        // Get template and post parameters from URL
         const urlParams = new URLSearchParams(window.location.search);
         const templateParam = urlParams.get('template') || 'template1';
+        // FIXED: Support both 'edit' and 'post_id' parameters (blog posts page uses 'edit')
+        const postIdParam = urlParams.get('edit') || urlParams.get('post_id');
+        const isEditMode = !!postIdParam; // Flag for edit mode
 
         // Get the template container element
         const templateContainer = document.getElementById('templateContainer');
         const loadingIndicator = document.getElementById('loadingIndicator');
+
+        // Store post data for editing
+        let editingPostData = null;
+
+        // Function to load post data when editing
+        async function loadPostData(postId) {
+            try {
+                console.log('[EDIT MODE] Loading post data for ID:', postId);
+
+                const response = await fetch(`/admin/api/blog/posts/${postId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to load post: ${response.status}`);
+                }
+
+                const postData = await response.json();
+                console.log('[EDIT MODE] Post data loaded:', {
+                    id: postData.id,
+                    title: postData.title,
+                    template_type: postData.template_type,
+                    hasContent: !!postData.content,
+                    contentLength: postData.content ? postData.content.length : 0
+                });
+
+                editingPostData = postData;
+                return postData;
+            } catch (error) {
+                console.error('[EDIT MODE] Error loading post data:', error);
+                alert('Failed to load post for editing: ' + error.message);
+                throw error;
+            }
+        }
 
         // Function to load template content
         async function loadTemplate(templateName) {
@@ -812,8 +889,20 @@
                     globalStylesLength: data.globalStyles ? data.globalStyles.length : 0
                 });
 
+                // Inject post content if in edit mode
+                let finalHtml = data.html;
+
+                if (isEditMode && editingPostData && editingPostData.content) {
+                    console.log('[EDIT MODE] Injecting post content into template');
+
+                    // Use the saved post content directly - it already has the template structure
+                    finalHtml = editingPostData.content;
+                } else if (isEditMode) {
+                    console.warn('[EDIT MODE] Edit mode detected but no content to inject');
+                }
+
                 // Set the template content directly in the container
-                templateContainer.innerHTML = data.html;
+                templateContainer.innerHTML = finalHtml;
                 console.log('Template HTML applied to container');
 
                 // Apply styles if available
@@ -948,7 +1037,7 @@
 
             // Make all text elements editable without any visual changes
             const textElements = templateContainer.querySelectorAll('p, h1, h2, h3, h4, h5, h6, span, div:not(.image-edit-overlay):not(.related-post-item):not(.trending-post-item):not(.views-count):not(.dynamic-content), a:not([href*="/blog/"]), li');
-            
+
             let editableCount = 0;
             textElements.forEach((el, index) => {
                 if (el.textContent && el.textContent.trim() &&
@@ -970,7 +1059,7 @@
 
             // Explicitly disable contenteditable on post selection items and dynamic content
             const postItems = document.querySelectorAll('.related-post-item, .trending-post-item, a[href*="/blog/"], .views-count, .dynamic-content');
-            
+
             postItems.forEach((item, index) => {
                 item.contentEditable = 'false';
                 item.style.pointerEvents = 'auto';
@@ -1011,7 +1100,7 @@
 
             // Update comment counts dynamically
             updateCommentCounts();
-            
+
             // Load dynamic content (views, likes, etc.)
             loadDynamicContent();
         }
@@ -1022,7 +1111,7 @@
             templateContainer.removeEventListener('click', handlePostClick);
             templateContainer.removeEventListener('dblclick', handlePostDblClick);
             templateContainer.removeEventListener('contextmenu', handlePostContextMenu);
-            
+
             // Use event delegation to handle clicks on post items
             templateContainer.addEventListener('click', handlePostClick);
             templateContainer.addEventListener('dblclick', handlePostDblClick);
@@ -1030,7 +1119,7 @@
 
             // Also add direct handlers as fallback
             const postItems = document.querySelectorAll('.related-post-item, .trending-post-item, a[href*="/blog/"]');
-            
+
             postItems.forEach((item, index) => {
                 item.removeEventListener('click', handleDirectPostClick);
                 item.removeEventListener('dblclick', handleDirectPostDblClick);
@@ -1046,20 +1135,20 @@
             try {
                 // Get all view count elements
                 const viewElements = document.querySelectorAll('.views-count, [class*="view"], [class*="views"]');
-                
+
                 viewElements.forEach(async (element) => {
                     // Extract post ID or slug from the element or its parent
                     const postSlug = element.dataset.postSlug ||
-                                   element.closest('[data-post-id]')?.dataset.postId ||
-                                   element.closest('a')?.href?.split('/').pop();
-                    
+                        element.closest('[data-post-id]')?.dataset.postId ||
+                        element.closest('a')?.href?.split('/').pop();
+
                     if (postSlug) {
                         try {
                             const response = await fetch(`/api/blogs/slug/${postSlug}/stats`);
                             if (response.ok) {
                                 const data = await response.json();
                                 const viewCount = data.view_count || 0;
-                                
+
                                 // Format the view count (e.g., 1.2k, 12k, 1.5m)
                                 const formattedViews = formatViewCount(viewCount);
                                 element.textContent = `${formattedViews} Views`;
@@ -1091,7 +1180,7 @@
             templateContainer.removeEventListener('click', handlePostClick);
             templateContainer.removeEventListener('dblclick', handlePostDblClick);
             templateContainer.removeEventListener('contextmenu', handlePostContextMenu);
-            
+
             // Use event delegation to handle clicks on post items
             templateContainer.addEventListener('click', handlePostClick);
             templateContainer.addEventListener('dblclick', handlePostDblClick);
@@ -1099,7 +1188,7 @@
 
             // Also add direct handlers as fallback
             const postItems = document.querySelectorAll('.related-post-item, .trending-post-item, a[href*="/blog/"]');
-            
+
             postItems.forEach((item, index) => {
                 item.removeEventListener('click', handleDirectPostClick);
                 item.removeEventListener('dblclick', handleDirectPostDblClick);
@@ -1113,11 +1202,11 @@
         // Event handler for single click - edit text
         function handlePostClick(e) {
             const target = e.target.closest('.related-post-item, .trending-post-item, a[href*="/blog/"]');
-            
+
             if (target) {
                 e.preventDefault();
                 e.stopPropagation();
-                
+
                 // Edit the text content
                 editPostText(target);
             }
@@ -1126,11 +1215,11 @@
         // Event handler for double click - edit link
         function handlePostDblClick(e) {
             const target = e.target.closest('.related-post-item, .trending-post-item, a[href*="/blog/"]');
-            
+
             if (target) {
                 e.preventDefault();
                 e.stopPropagation();
-                
+
                 // Edit the link
                 editPostLink(target);
             }
@@ -1139,11 +1228,11 @@
         // Event handler for right click - show context menu
         function handlePostContextMenu(e) {
             const target = e.target.closest('.related-post-item, .trending-post-item, a[href*="/blog/"]');
-            
+
             if (target) {
                 e.preventDefault();
                 e.stopPropagation();
-                
+
                 // Show context menu
                 showPostContextMenu(e, target);
             }
@@ -1153,7 +1242,7 @@
         function handleDirectPostClick(e) {
             e.preventDefault();
             e.stopPropagation();
-            
+
             // Edit the text content
             editPostText(this);
         }
@@ -1162,7 +1251,7 @@
         function handleDirectPostDblClick(e) {
             e.preventDefault();
             e.stopPropagation();
-            
+
             // Edit the link
             editPostLink(this);
         }
@@ -1171,7 +1260,7 @@
         function handleDirectPostContextMenu(e) {
             e.preventDefault();
             e.stopPropagation();
-            
+
             // Show context menu
             showPostContextMenu(e, this);
         }
@@ -1209,7 +1298,7 @@
             editImageItem.style.color = 'var(--t-medium)';
             editImageItem.style.transition = 'all 0.2s ease';
             editImageItem.style.fontWeight = '500';
-            
+
             editImageItem.addEventListener('mouseenter', () => {
                 editImageItem.style.background = 'var(--base-tint)';
                 editImageItem.style.color = 'var(--t-bright)';
@@ -1233,7 +1322,7 @@
             editTitleItem.style.color = 'var(--t-medium)';
             editTitleItem.style.transition = 'all 0.2s ease';
             editTitleItem.style.fontWeight = '500';
-            
+
             editTitleItem.addEventListener('mouseenter', () => {
                 editTitleItem.style.background = 'var(--base-tint)';
                 editTitleItem.style.color = 'var(--t-bright)';
@@ -1257,7 +1346,7 @@
             editUrlItem.style.color = 'var(--t-medium)';
             editUrlItem.style.transition = 'all 0.2s ease';
             editUrlItem.style.fontWeight = '500';
-            
+
             editUrlItem.addEventListener('mouseenter', () => {
                 editUrlItem.style.background = 'var(--base-tint)';
                 editUrlItem.style.color = 'var(--t-bright)';
@@ -1290,14 +1379,14 @@
         function editPostText(postElement) {
             // Find the text element to edit (h4, h3, h2, h1, span, div)
             const textElement = postElement.querySelector('h4') || postElement.querySelector('h3') || postElement.querySelector('h2') || postElement.querySelector('h1') || postElement.querySelector('span') || postElement.querySelector('div');
-            
+
             if (!textElement) {
                 return;
             }
-            
+
             // Get current text
             const currentText = textElement.textContent.trim();
-            
+
             // Create input field for editing
             const input = document.createElement('input');
             input.type = 'text';
@@ -1313,28 +1402,28 @@
             input.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
             input.style.transition = 'all 0.2s ease';
             input.style.fontFamily = 'inherit';
-            
+
             // Focus and select all text
             input.addEventListener('focus', () => {
                 input.style.borderColor = 'var(--accent)';
                 input.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)';
             });
-            
+
             input.addEventListener('blur', () => {
                 input.style.borderColor = 'var(--stroke-elements)';
                 input.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
             });
-            
+
             // Replace text element with input
             const textParent = textElement.parentNode;
             textParent.replaceChild(input, textElement);
-            
+
             // Focus and select all text
             input.focus();
             input.select();
-            
+
             // Handle input events
-            input.addEventListener('keydown', function(e) {
+            input.addEventListener('keydown', function (e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     saveTextEdit(input, textParent, textElement);
@@ -1343,9 +1432,9 @@
                     cancelTextEdit(input, textParent, textElement);
                 }
             });
-            
+
             // Handle blur (click outside)
-            input.addEventListener('blur', function() {
+            input.addEventListener('blur', function () {
                 saveTextEdit(input, textParent, textElement);
             });
         }
@@ -1353,10 +1442,10 @@
         // Save text edit
         function saveTextEdit(input, parent, originalElement) {
             const newText = input.value.trim();
-            
+
             // Update the original element
             originalElement.textContent = newText;
-            
+
             // Replace input with original element
             parent.replaceChild(originalElement, input);
         }
@@ -1371,14 +1460,14 @@
         function editPostImage(postElement) {
             // Find the image element
             const imgElement = postElement.querySelector('img');
-            
+
             if (!imgElement) {
                 return;
             }
-            
+
             // Get current image src
             const currentSrc = imgElement.src;
-            
+
             // Create input field for editing
             const input = document.createElement('input');
             input.type = 'text';
@@ -1394,28 +1483,28 @@
             input.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
             input.style.transition = 'all 0.2s ease';
             input.style.fontFamily = 'inherit';
-            
+
             // Focus and select all text
             input.addEventListener('focus', () => {
                 input.style.borderColor = 'var(--accent)';
                 input.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)';
             });
-            
+
             input.addEventListener('blur', () => {
                 input.style.borderColor = 'var(--stroke-elements)';
                 input.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
             });
-            
+
             // Replace image with input
             const imgParent = imgElement.parentNode;
             imgParent.replaceChild(input, imgElement);
-            
+
             // Focus and select all text
             input.focus();
             input.select();
-            
+
             // Handle input events
-            input.addEventListener('keydown', function(e) {
+            input.addEventListener('keydown', function (e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     saveImageEdit(input, imgParent, imgElement);
@@ -1424,9 +1513,9 @@
                     cancelImageEdit(input, imgParent, imgElement);
                 }
             });
-            
+
             // Handle blur (click outside)
-            input.addEventListener('blur', function() {
+            input.addEventListener('blur', function () {
                 saveImageEdit(input, imgParent, imgElement);
             });
         }
@@ -1434,10 +1523,10 @@
         // Save image edit
         function saveImageEdit(input, parent, originalImage) {
             const newSrc = input.value.trim();
-            
+
             // Update the original image
             originalImage.src = newSrc;
-            
+
             // Replace input with original image
             parent.replaceChild(originalImage, input);
         }
@@ -1452,7 +1541,7 @@
         function editPostLink(linkElement) {
             // Get current href
             const currentHref = linkElement.getAttribute('href') || '';
-            
+
             // Create input field for editing
             const input = document.createElement('input');
             input.type = 'text';
@@ -1468,28 +1557,28 @@
             input.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
             input.style.transition = 'all 0.2s ease';
             input.style.fontFamily = 'inherit';
-            
+
             // Focus and select all text
             input.addEventListener('focus', () => {
                 input.style.borderColor = 'var(--accent)';
                 input.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)';
             });
-            
+
             input.addEventListener('blur', () => {
                 input.style.borderColor = 'var(--stroke-elements)';
                 input.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
             });
-            
+
             // Replace link with input
             const linkParent = linkElement.parentNode;
             linkParent.replaceChild(input, linkElement);
-            
+
             // Focus and select all text
             input.focus();
             input.select();
-            
+
             // Handle input events
-            input.addEventListener('keydown', function(e) {
+            input.addEventListener('keydown', function (e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     saveLinkEdit(input, linkParent, linkElement);
@@ -1498,9 +1587,9 @@
                     cancelLinkEdit(input, linkParent, linkElement);
                 }
             });
-            
+
             // Handle blur (click outside)
-            input.addEventListener('blur', function() {
+            input.addEventListener('blur', function () {
                 saveLinkEdit(input, linkParent, linkElement);
             });
         }
@@ -1508,10 +1597,10 @@
         // Save link edit
         function saveLinkEdit(input, parent, originalLink) {
             const newHref = input.value.trim();
-            
+
             // Update the original link
             originalLink.setAttribute('href', newHref);
-            
+
             // Replace input with original link
             parent.replaceChild(originalLink, input);
         }
@@ -1615,6 +1704,12 @@
                 author: 'NekwasaR'
             };
 
+            // NEW: If editing, include the post ID
+            if (isEditMode && editingPostData) {
+                draftData.id = editingPostData.id;
+                console.log('[EDIT MODE] Updating existing post:', editingPostData.id);
+            }
+
             // Get the save draft button element
             const saveDraftBtn = document.getElementById('saveDraftBtn');
 
@@ -1624,9 +1719,17 @@
                 saveDraftBtn.textContent = '💾 Saving...';
                 saveDraftBtn.disabled = true;
 
+                // NEW: Use PUT for updates, POST for new drafts
+                const method = (isEditMode && editingPostData) ? 'PUT' : 'POST';
+                const url = (isEditMode && editingPostData)
+                    ? `/admin/api/blog/posts/${editingPostData.id}`
+                    : '/admin/api/blog/drafts';
+
+                console.log(`[SAVE] ${method} ${url}`);
+
                 // Send draft data to the backend
-                const response = await fetch('/admin/api/blog/drafts', {
-                    method: 'POST',
+                const response = await fetch(url, {
+                    method: method,
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
@@ -1642,7 +1745,10 @@
                 console.log('Draft saved successfully:', result);
 
                 // Show success message
-                alert('Draft saved successfully! Post ID: ' + result.post_id);
+                const message = isEditMode
+                    ? 'Post updated successfully!'
+                    : 'Draft saved successfully! Post ID: ' + result.post_id;
+                alert(message);
 
             } catch (error) {
                 console.error('Error saving draft:', error);
@@ -1666,8 +1772,37 @@
         });
 
         // Load the template when the page loads
-        window.addEventListener('DOMContentLoaded', () => {
-            loadTemplate(templateParam);
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // NEW: If in edit mode, load post data first
+                if (isEditMode && postIdParam) {
+                    console.log('[EDIT MODE] Detected - loading post ID:', postIdParam);
+
+                    // Load the post data
+                    const postData = await loadPostData(postIdParam);
+
+                    // Use the post's template type, or fall back to URL parameter
+                    const templateToLoad = postData.template_type || templateParam;
+                    console.log('[EDIT MODE] Loading template:', templateToLoad);
+
+                    // Load the template (which will now inject the post content)
+                    await loadTemplate(templateToLoad);
+                } else {
+                    console.log('[CREATE MODE] Loading template:', templateParam);
+                    // Normal mode: just load the template
+                    await loadTemplate(templateParam);
+                }
+            } catch (error) {
+                console.error('[INITIALIZATION] Error:', error);
+                // Show error to user
+                loadingIndicator.innerHTML = `
+                    <div class="loading-content">
+                        <div class="loading-emoji">❌</div>
+                        <div class="loading-text">Failed to initialize editor</div>
+                        <button onclick="window.location.reload()" style="margin-top: 16px; padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Retry</button>
+                    </div>
+                `;
+            }
         });
     </script>
 
@@ -1693,16 +1828,19 @@
                     <div class="wizard-form">
                         <div class="publish-field">
                             <label for="publishTitle">Title *</label>
-                            <input type="text" id="publishTitle" class="publish-input" placeholder="Enter post title" required>
+                            <input type="text" id="publishTitle" class="publish-input" placeholder="Enter post title"
+                                required>
                         </div>
                         <div class="publish-field">
                             <label for="publishSlug">URL Slug *</label>
-                            <input type="text" id="publishSlug" class="publish-input" placeholder="top-10-best-footballers" required>
+                            <input type="text" id="publishSlug" class="publish-input"
+                                placeholder="top-10-best-footballers" required>
                             <small class="wizard-hint">This will be the URL: /your-slug-here</small>
                         </div>
                         <div class="publish-field">
                             <label for="publishExcerpt">Excerpt</label>
-                            <textarea id="publishExcerpt" class="publish-textarea" rows="3" placeholder="Brief description (optional)"></textarea>
+                            <textarea id="publishExcerpt" class="publish-textarea" rows="3"
+                                placeholder="Brief description (optional)"></textarea>
                         </div>
                         <div class="publish-field">
                             <label for="publishTags">Tags</label>
@@ -1712,7 +1850,8 @@
                         </div>
                         <div class="publish-field">
                             <label for="publishAuthor">Author</label>
-                            <input type="text" id="publishAuthor" class="publish-input" placeholder="NekwasaR" value="NekwasaR">
+                            <input type="text" id="publishAuthor" class="publish-input" placeholder="NekwasaR"
+                                value="NekwasaR">
                         </div>
                         <div class="publish-field">
                             <label for="publishDate">Publish Date</label>
@@ -1720,9 +1859,11 @@
                         </div>
                         <div class="publish-field">
                             <label for="publishImage">Featured Image URL</label>
-                            <input type="url" id="publishImage" class="publish-input" placeholder="https://example.com/image.jpg">
+                            <input type="url" id="publishImage" class="publish-input"
+                                placeholder="https://example.com/image.jpg">
                             <div id="imagePreview" class="image-preview hidden">
-                                <img id="previewImg" src="" alt="Image preview" style="max-width: 200px; max-height: 150px; border: 1px solid #333; margin-top: 8px;">
+                                <img id="previewImg" src="" alt="Image preview"
+                                    style="max-width: 200px; max-height: 150px; border: 1px solid #333; margin-top: 8px;">
                             </div>
                         </div>
                         <div class="publish-field hidden" id="publishSectionField">
@@ -1764,7 +1905,8 @@
                 </div>
                 <div class="wizard-footer-right">
                     <button class="wizard-btn ghost" id="publishCancelBtn">Cancel</button>
-                    <button class="wizard-btn success" id="publishConfirmBtn" title="Confirm and Publish">Confirm & Publish</button>
+                    <button class="wizard-btn success" id="publishConfirmBtn" title="Confirm and Publish">Confirm &
+                        Publish</button>
                 </div>
             </div>
         </div>
@@ -1799,7 +1941,7 @@
             background: #0a0a0a;
             border: 2px solid #00ff00;
             border-radius: 8px;
-            box-shadow: 0 0 24px rgba(0,255,0,0.25);
+            box-shadow: 0 0 24px rgba(0, 255, 0, 0.25);
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -1819,27 +1961,49 @@
             gap: 8px;
             align-items: center;
         }
-        .wizard-icon { font-size: 16px; }
+
+        .wizard-icon {
+            font-size: 16px;
+        }
+
         .wizard-title h2 {
             margin: 0;
             font-size: 16px;
             font-weight: bold;
             text-shadow: 0 0 8px #00ff00;
         }
-        .wizard-step-indicator { font-size: 12px; color: #88ff88; }
-        .wizard-close-btn {
-            width: 28px; height: 28px; border: 1px solid #333; background: #0a0a0a; color: #00ff00;
-            cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;
+
+        .wizard-step-indicator {
+            font-size: 12px;
+            color: #88ff88;
         }
-        .wizard-close-btn:hover { background: #ff0000; color: #fff; }
+
+        .wizard-close-btn {
+            width: 28px;
+            height: 28px;
+            border: 1px solid #333;
+            background: #0a0a0a;
+            color: #00ff00;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .wizard-close-btn:hover {
+            background: #ff0000;
+            color: #fff;
+        }
 
         .wizard-content {
             flex: 1;
             padding: 16px;
             overflow: auto;
             background:
-                linear-gradient(transparent 50%, rgba(0,255,0,0.03) 50%);
-            background-size: 100% 4px; /* CRT scanlines */
+                linear-gradient(transparent 50%, rgba(0, 255, 0, 0.03) 50%);
+            background-size: 100% 4px;
+            /* CRT scanlines */
         }
 
         .wizard-section-title {
@@ -1849,7 +2013,9 @@
             text-transform: uppercase;
         }
 
-        .wizard-hint, .wizard-note, .wizard-subtitle {
+        .wizard-hint,
+        .wizard-note,
+        .wizard-subtitle {
             color: #88ff88;
             font-size: 12px;
             margin-top: 10px;
@@ -1891,8 +2057,8 @@
         .publish-textarea:focus {
             outline: none;
             border-color: #00ff00;
-            box-shadow: 0 0 8px rgba(0,255,0,0.3);
-            background: rgba(0,255,0,0.05);
+            box-shadow: 0 0 8px rgba(0, 255, 0, 0.3);
+            background: rgba(0, 255, 0, 0.05);
         }
 
         .publish-input::placeholder,
@@ -2018,19 +2184,45 @@
         }
 
         .wizard-footer {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 10px 12px; border-top: 1px solid #00ff00; background: #111;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            border-top: 1px solid #00ff00;
+            background: #111;
         }
+
         .wizard-btn {
-            border: 1px solid #333; background: #0a0a0a; color: #00ff00; cursor: pointer; padding: 8px 14px;
+            border: 1px solid #333;
+            background: #0a0a0a;
+            color: #00ff00;
+            cursor: pointer;
+            padding: 8px 14px;
         }
-        .wizard-btn:hover { border-color: #00ff00; background: rgba(0,255,0,0.08); }
-        .wizard-btn.primary { font-weight: 700; }
-        .wizard-btn.success { border-color: #00ff00; background: rgba(0,255,0,0.15); }
-        .wizard-btn.ghost { color: #88ff88; }
+
+        .wizard-btn:hover {
+            border-color: #00ff00;
+            background: rgba(0, 255, 0, 0.08);
+        }
+
+        .wizard-btn.primary {
+            font-weight: 700;
+        }
+
+        .wizard-btn.success {
+            border-color: #00ff00;
+            background: rgba(0, 255, 0, 0.15);
+        }
+
+        .wizard-btn.ghost {
+            color: #88ff88;
+        }
 
         @media (max-width: 768px) {
-            .wizard-shell { height: 96vh; width: 98vw; }
+            .wizard-shell {
+                height: 96vh;
+                width: 98vw;
+            }
         }
 
         .hidden {
@@ -2055,12 +2247,12 @@
 
         .choice-btn:hover {
             border-color: #00ff00;
-            background: rgba(0,255,0,0.08);
+            background: rgba(0, 255, 0, 0.08);
         }
 
         .choice-btn.active {
             border-color: #00ff00;
-            background: rgba(0,255,0,0.12);
+            background: rgba(0, 255, 0, 0.12);
         }
 
         .routes-selector {
@@ -2095,7 +2287,7 @@
 
         .route-pill:hover {
             border-color: #00ff00;
-            background: rgba(0,255,0,0.08);
+            background: rgba(0, 255, 0, 0.08);
         }
 
         .wizard-subtitle {
@@ -2442,9 +2634,17 @@
 
                 console.log('[Publish] Publishing post:', postData);
 
+                // NEW: Use PUT for updates, POST for new posts
+                const method = (isEditMode && editingPostData) ? 'PUT' : 'POST';
+                const url = (isEditMode && editingPostData)
+                    ? `/admin/api/blog/posts/${editingPostData.id}`
+                    : '/admin/api/blog/posts';
+
+                console.log(`[PUBLISH] ${method} ${url}`);
+
                 // Send to API
-                const response = await fetch('/admin/api/blog/posts', {
-                    method: 'POST',
+                const response = await fetch(url, {
+                    method: method,
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
@@ -2460,7 +2660,10 @@
                 console.log('[Publish] Post published successfully:', result);
 
                 // Success - navigate to the post's slug URL
-                alert('Post published successfully!');
+                const message = isEditMode
+                    ? 'Post updated and published successfully!'
+                    : 'Post published successfully!';
+                alert(message);
                 closePublishWizard();
                 if (result.slug) {
                     window.location.href = `/${result.slug}`;
@@ -2587,4 +2790,5 @@
         });
     </script>
 </body>
+
 </html>
