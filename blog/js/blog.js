@@ -1202,7 +1202,7 @@
   // Newsletter Form Functionality
   function initNewsletterForm() {
     const form = document.getElementById('newsletterForm');
-    if (!form) return;
+    if (!form || form.__newsletterInited) return;
 
     const message = document.getElementById('newsletterMessage');
     const submitBtn = document.getElementById('subscribeBtn');
@@ -1211,10 +1211,10 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const nameEl = document.getElementById('subscriberName') || { value: (document.getElementById('newsletterEmail')?.value || '').split('@')[0] };
-      const emailEl = document.getElementById('subscriberEmail') || document.getElementById('newsletterEmail');
+      const nameEl = document.getElementById('subscriberName');
+      const emailEl = document.getElementById('subscriberEmail');
 
-      const name = nameEl?.value || '';
+      const name = nameEl?.value || (emailEl?.value || '').split('@')[0];
       const email = emailEl?.value || '';
 
       // Basic validation
@@ -1230,30 +1230,71 @@
 
       // Show loading state
       submitBtn.disabled = true;
+      const originalText = btnText ? btnText.textContent : 'Subscribe';
       if (btnText) btnText.textContent = 'Subscribing...';
+      if (message) message.classList.add('hidden');
+
+      const startTime = Date.now();
 
       try {
-        // Mock API call - replace with real endpoint
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('email', email);
 
-        // Success
-        showMessage('Thank you for subscribing! Check your email for confirmation.', 'success');
-        form.reset();
+        const response = await fetch('/api/newsletter/subscribe', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        // Ensure "Subscribing..." shows for at least 1.5s
+        const elapsed = Date.now() - startTime;
+        const remaining = Math.max(0, 1500 - elapsed);
+
+        setTimeout(() => {
+          if (data.success || response.ok || (data.message && data.message.toLowerCase().includes('already'))) {
+            message.innerHTML = `
+              <div style="text-align: center; padding: 2rem; background: var(--base); border: 1px solid var(--stroke-elements); border-radius: var(--_radius-xl); margin-top: 2rem;">
+                  <i class="ph-bold ph-check-circle" style="color: #22c55e; font-size: 4rem; margin-bottom: 1rem;"></i>
+                  <h3 style="color: var(--t-bright); margin-bottom: 1rem; font-size: 2.2rem; font-weight: 700;">Successfully Subscribed!</h3>
+                  <p style="color: var(--t-medium); font-size: 1.6rem;">Thank you for subscribing! We'll send the latest insights to ${email}.</p>
+              </div>
+            `;
+            message.className = 'newsletter-message success-detailed';
+            message.classList.remove('hidden');
+            message.style.display = 'block';
+            form.reset();
+          } else {
+            showMessage(data.message || 'Subscription failed. Please try again.', 'error');
+          }
+
+          submitBtn.disabled = false;
+          if (btnText) btnText.textContent = originalText;
+        }, remaining);
 
       } catch (error) {
-        showMessage('Something went wrong. Please try again.', 'error');
-      } finally {
-        submitBtn.disabled = false;
-        if (btnText) btnText.textContent = 'Subscribe';
+        console.error('Newsletter Error:', error);
+        const elapsed = Date.now() - startTime;
+        const remaining = Math.max(0, 1500 - elapsed);
+
+        setTimeout(() => {
+          showMessage('Something went wrong. Please try again.', 'error');
+          submitBtn.disabled = false;
+          if (btnText) btnText.textContent = originalText;
+        }, remaining);
       }
     });
 
     function showMessage(text, type) {
+      if (!message) return;
       message.textContent = text;
       message.className = `newsletter-message ${type}`;
+      message.classList.remove('hidden');
       message.style.display = 'block';
 
       setTimeout(() => {
+        message.classList.add('hidden');
         message.style.display = 'none';
       }, 5000);
     }
@@ -1262,7 +1303,10 @@
       const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       return regex.test(email);
     }
+
+    form.__newsletterInited = true;
   }
+  window.initNewsletterForm = initNewsletterForm;
 
   // Smooth Scrolling
   function initSmoothScrolling() {

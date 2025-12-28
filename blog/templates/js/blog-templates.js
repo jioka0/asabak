@@ -738,9 +738,9 @@
                     Animations.init();
                 }
 
-                if (document.getElementById('newsletterForm')) {
-                    Newsletter.init();
-                }
+                // if (document.getElementById('newsletterForm')) {
+                //     Newsletter.init();
+                // }
 
                 if (document.getElementById('heroVideo')) {
                     VideoControls.init();
