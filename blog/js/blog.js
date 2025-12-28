@@ -1284,35 +1284,46 @@
     });
   }
 
-  // Card Link Click Handler
+  // Card Link Click Handler - Now using Global Event Delegation for 100% reliability
   function initCardLinks() {
-    document.querySelectorAll('.card-link, .post-link, .slide-link, .banner-link, .tag-item, .trending-link').forEach(card => {
-      card.onclick = function (e) {
-        const href = this.getAttribute('data-href') || this.getAttribute('href');
-        if (href) {
-          e.preventDefault();
+    // We use delegation on the document level to ensure all existing and future elements work
+    // This is especially important for SPA navigation and dynamic content loading
+    if (window.__globalClickDelegationActive) return;
 
-          // If it's a blog post (direct slug or /blog/ prefix), try to open in modal
-          const isBlogPost = href.startsWith('/blog/') || (!href.includes('?') && !['latest', 'popular', 'featured', 'others', 'topics', 'home'].some(r => href.includes(`/${r}`)));
+    document.addEventListener('click', function (e) {
+      // Find the closest clickable element (handling nested icons/text)
+      const target = e.target.closest('.card-link, .post-link, .slide-link, .banner-link, .tag-item, .trending-link, .tag-pill, .nav-link[data-route]');
 
-          if (isBlogPost) {
-            const slug = href.replace('/blog/', '').replace('/', '');
-            if (window.openPostModal && typeof window.openPostModal === 'function') {
-              window.openPostModal(slug);
-            } else {
-              window.location.href = href;
-            }
-          } else if (window.RouteManager && typeof window.RouteManager.navigate === 'function') {
-            // Handle regular SPA routes with query parameters support
-            let fullPath = href.startsWith('/') ? href.substring(1) : href;
-            let [route, query] = fullPath.split('?');
-            window.RouteManager.navigate(route || 'home', query ? `?${query}` : '');
+      if (!target) return;
+
+      const href = target.getAttribute('data-href') || target.getAttribute('href');
+      if (href) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        // If it's a blog post (direct slug or /blog/ prefix), try to open in modal
+        const isBlogPost = href.startsWith('/blog/') || (!href.includes('?') && !['latest', 'popular', 'featured', 'others', 'topics', 'home'].some(r => href.includes(`/${r}`)));
+
+        if (isBlogPost) {
+          const slug = href.replace('/blog/', '').replace('/', '');
+          if (window.openPostModal && typeof window.openPostModal === 'function') {
+            window.openPostModal(slug);
           } else {
             window.location.href = href;
           }
+        } else if (window.RouteManager && typeof window.RouteManager.navigate === 'function') {
+          // Extract route and query
+          let fullPath = href.startsWith('/') ? href.substring(1) : href;
+          let [route, query] = fullPath.split('?');
+          window.RouteManager.navigate(route || 'home', query ? `?${query}` : '');
+        } else {
+          window.location.href = href;
         }
-      };
-    });
+      }
+    }, true); // Use capture phase to catch events before they are blocked
+
+    window.__globalClickDelegationActive = true;
+    console.log("⚡ Global Click Delegation Active: All elements are now bulletproof.");
   }
   window.initCardLinks = initCardLinks;
 

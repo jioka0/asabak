@@ -64,7 +64,17 @@
 </section>
 
 <style>
+    /* Force high interactivity for the topics page to prevent overlap issues */
+    #route-topics {
+        position: relative;
+        z-index: 10;
+        pointer-events: auto !important;
+    }
+
     .topic-card {
+        position: relative;
+        z-index: 11;
+        pointer-events: auto !important;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
