@@ -107,6 +107,7 @@ class NewsletterSubscriber(Base):
     preferences = Column(JSON)  # Subscription preferences
     is_confirmed = Column(Boolean, default=False)
     unsubscribe_token = Column(String(255), unique=True)
+    is_active = Column(Boolean, default=True)
     subscribed_at = Column(DateTime(timezone=True), server_default=func.now())
     unsubscribed_at = Column(DateTime(timezone=True), nullable=True)
 

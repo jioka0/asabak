@@ -7,7 +7,7 @@
  * Provides smooth interactions, social sharing, video controls, and more
  */
 
-(function() {
+(function () {
     'use strict';
 
     // Configuration
@@ -28,7 +28,7 @@
         /**
          * Debounce function to limit function calls
          */
-        debounce: function(func, wait, immediate) {
+        debounce: function (func, wait, immediate) {
             let timeout;
             return function executedFunction(...args) {
                 const later = () => {
@@ -45,7 +45,7 @@
         /**
          * Check if element is in viewport
          */
-        isInViewport: function(element) {
+        isInViewport: function (element) {
             const rect = element.getBoundingClientRect();
             return (
                 rect.top >= 0 &&
@@ -58,21 +58,21 @@
         /**
          * Get current page URL
          */
-        getCurrentURL: function() {
+        getCurrentURL: function () {
             return window.location.href;
         },
 
         /**
          * Get page title
          */
-        getPageTitle: function() {
+        getPageTitle: function () {
             return document.title;
         },
 
         /**
          * Log debug messages
          */
-        debug: function(message, data) {
+        debug: function (message, data) {
             if (CONFIG.debug) {
                 console.log('[Blog Templates]', message, data || '');
             }
@@ -81,23 +81,23 @@
 
     // Social Share Module
     const SocialShare = {
-        init: function() {
+        init: function () {
             this.bindEvents();
             Utils.debug('Social Share initialized');
         },
 
-        bindEvents: function() {
+        bindEvents: function () {
             // Share button clicks
             document.addEventListener('click', (e) => {
                 const target = e.target.closest('.social-share-btn, [data-share]');
                 if (target) {
                     e.preventDefault();
                     const platform = target.dataset.share || target.title.toLowerCase().includes('twitter') ? 'twitter' :
-                                   target.title.toLowerCase().includes('linkedin') ? 'linkedin' :
-                                   target.title.toLowerCase().includes('facebook') ? 'facebook' :
-                                   target.title.toLowerCase().includes('reddit') ? 'reddit' :
-                                   target.title.toLowerCase().includes('copy') ? 'copy' : null;
-                    
+                        target.title.toLowerCase().includes('linkedin') ? 'linkedin' :
+                            target.title.toLowerCase().includes('facebook') ? 'facebook' :
+                                target.title.toLowerCase().includes('reddit') ? 'reddit' :
+                                    target.title.toLowerCase().includes('copy') ? 'copy' : null;
+
                     if (platform) {
                         this.share(platform);
                     }
@@ -105,13 +105,13 @@
             });
         },
 
-        share: function(platform) {
+        share: function (platform) {
             const url = encodeURIComponent(Utils.getCurrentURL());
             const title = encodeURIComponent(Utils.getPageTitle());
             const text = encodeURIComponent(document.querySelector('meta[name="description"]')?.content || title);
 
             let shareUrl = '';
-            
+
             switch (platform) {
                 case 'twitter':
                     shareUrl = `${CONFIG.socialShare.twitter}${text}&url=${url}`;
@@ -135,11 +135,11 @@
 
             // Open share window
             window.open(shareUrl, '_blank', 'width=600,height=400,scrollbars=yes,resizable=yes');
-            
+
             Utils.debug('Shared to:', platform);
         },
 
-        copyToClipboard: function() {
+        copyToClipboard: function () {
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(Utils.getCurrentURL()).then(() => {
                     this.showCopyFeedback();
@@ -156,7 +156,7 @@
             }
         },
 
-        showCopyFeedback: function() {
+        showCopyFeedback: function () {
             const feedback = document.createElement('div');
             feedback.textContent = 'Link copied to clipboard!';
             feedback.style.cssText = `
@@ -174,14 +174,14 @@
                 transform: translateX(100%);
                 transition: transform 0.3s var(--_animbezier);
             `;
-            
+
             document.body.appendChild(feedback);
-            
+
             // Animate in
             setTimeout(() => {
                 feedback.style.transform = 'translateX(0)';
             }, 10);
-            
+
             // Animate out and remove
             setTimeout(() => {
                 feedback.style.transform = 'translateX(100%)';
@@ -194,12 +194,12 @@
 
     // Smooth Scrolling Module
     const SmoothScroll = {
-        init: function() {
+        init: function () {
             this.bindEvents();
             Utils.debug('Smooth Scroll initialized');
         },
 
-        bindEvents: function() {
+        bindEvents: function () {
             document.addEventListener('click', (e) => {
                 const target = e.target.closest('a[href^="#"]');
                 if (target && target.getAttribute('href') !== '#') {
@@ -209,21 +209,21 @@
             });
         },
 
-        scrollToTarget: function(targetId) {
+        scrollToTarget: function (targetId) {
             const target = document.querySelector(targetId);
             if (target) {
                 const offsetTop = target.offsetTop - 80; // Account for fixed headers
-                
+
                 window.scrollTo({
                     top: offsetTop,
                     behavior: 'smooth'
                 });
-                
+
                 // Update URL without jumping
                 if (history.pushState) {
                     history.pushState(null, null, targetId);
                 }
-                
+
                 Utils.debug('Scrolled to:', targetId);
             }
         }
@@ -233,13 +233,13 @@
     const ReadingProgress = {
         progressBar: null,
 
-        init: function() {
+        init: function () {
             this.createProgressBar();
             this.bindEvents();
             Utils.debug('Reading Progress initialized');
         },
 
-        createProgressBar: function() {
+        createProgressBar: function () {
             this.progressBar = document.createElement('div');
             this.progressBar.id = 'reading-progress';
             this.progressBar.style.cssText = `
@@ -255,18 +255,18 @@
             document.body.appendChild(this.progressBar);
         },
 
-        bindEvents: function() {
+        bindEvents: function () {
             window.addEventListener('scroll', Utils.debounce(() => {
                 this.updateProgress();
             }, 100));
         },
 
-        updateProgress: function() {
+        updateProgress: function () {
             const windowHeight = window.innerHeight;
             const documentHeight = document.documentElement.scrollHeight - windowHeight;
             const scrolled = window.scrollY;
             const progress = (scrolled / documentHeight) * 100;
-            
+
             this.progressBar.style.width = Math.min(progress, 100) + '%';
         }
     };
@@ -276,20 +276,20 @@
         tocLinks: [],
         sections: [],
 
-        init: function() {
+        init: function () {
             this.setupToc();
             this.bindEvents();
             Utils.debug('Table of Contents initialized');
         },
 
-        setupToc: function() {
+        setupToc: function () {
             this.tocLinks = Array.from(document.querySelectorAll('.toc-link'));
             this.sections = this.tocLinks.map(link => {
                 return document.querySelector(link.getAttribute('href'));
             }).filter(section => section !== null);
         },
 
-        bindEvents: function() {
+        bindEvents: function () {
             window.addEventListener('scroll', Utils.debounce(() => {
                 this.highlightActiveSection();
             }, 100));
@@ -298,9 +298,9 @@
             this.highlightActiveSection();
         },
 
-        highlightActiveSection: function() {
+        highlightActiveSection: function () {
             const scrollPos = window.scrollY + 100; // Offset for better UX
-            
+
             let activeIndex = -1;
             for (let i = this.sections.length - 1; i >= 0; i--) {
                 if (this.sections[i].offsetTop <= scrollPos) {
@@ -326,13 +326,13 @@
     const Animations = {
         observer: null,
 
-        init: function() {
+        init: function () {
             this.setupIntersectionObserver();
             this.observeElements();
             Utils.debug('Animations initialized');
         },
 
-        setupIntersectionObserver: function() {
+        setupIntersectionObserver: function () {
             this.observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
@@ -345,11 +345,11 @@
             });
         },
 
-        observeElements: function() {
+        observeElements: function () {
             const elementsToAnimate = document.querySelectorAll(
                 '.blog-card, .listing-item, .content-section, blockquote'
             );
-            
+
             elementsToAnimate.forEach(element => {
                 this.observer.observe(element);
             });
@@ -358,12 +358,12 @@
 
     // Newsletter Module
     const Newsletter = {
-        init: function() {
+        init: function () {
             this.bindEvents();
             Utils.debug('Newsletter initialized');
         },
 
-        bindEvents: function() {
+        bindEvents: function () {
             const form = document.getElementById('newsletterForm');
             if (form) {
                 form.addEventListener('submit', (e) => {
@@ -373,15 +373,17 @@
             }
         },
 
-        handleSubmission: function(form) {
+        handleSubmission: function (form) {
             const formData = new FormData(form);
             const data = {
-                name: formData.get('name') || document.getElementById('subscriberName')?.value,
+                name: formData.get('name') || document.getElementById('subscriberName')?.value || formData.get('email')?.split('@')[0],
                 email: formData.get('email') || document.getElementById('subscriberEmail')?.value
             };
 
             // Show loading state
-            const submitBtn = form.querySelector('.subscribe-btn');
+            const submitBtn = form.querySelector('.subscribe-btn') || form.querySelector('button[type="submit"]');
+            if (!submitBtn) return;
+
             const originalText = submitBtn.textContent;
             submitBtn.innerHTML = '<i class="ph-bold ph-circle-notch" style="animation: spin 1s linear infinite;"></i> Subscribing...';
             submitBtn.disabled = true;
@@ -396,9 +398,9 @@
             }, 2000);
         },
 
-        showSuccessMessage: function(email) {
-            const message = document.getElementById('newsletterMessage') || 
-                          document.createElement('div');
+        showSuccessMessage: function (email) {
+            const message = document.getElementById('newsletterMessage') ||
+                document.createElement('div');
             message.id = 'newsletterMessage';
             message.innerHTML = `
                 <div style="text-align: center; padding: 2rem;">
@@ -416,17 +418,17 @@
                 transform: translateY(20px);
                 transition: all 0.3s var(--_animbezier);
             `;
-            
+
             if (!message.parentNode) {
                 document.getElementById('newsletterForm')?.parentNode.appendChild(message);
             }
-            
+
             // Animate in
             setTimeout(() => {
                 message.style.opacity = '1';
                 message.style.transform = 'translateY(0)';
             }, 10);
-            
+
             // Remove after delay
             setTimeout(() => {
                 message.style.opacity = '0';
@@ -442,12 +444,12 @@
 
     // Dark/Light Theme Toggle
     const ThemeToggle = {
-        init: function() {
+        init: function () {
             this.bindEvents();
             Utils.debug('Theme Toggle initialized');
         },
 
-        bindEvents: function() {
+        bindEvents: function () {
             // Bind to existing theme buttons in header
             const themeButtons = document.querySelectorAll('[onclick*="toggleTheme"]');
             themeButtons.forEach(button => {
@@ -458,7 +460,7 @@
             });
         },
 
-        toggleTheme: function() {
+        toggleTheme: function () {
             const html = document.documentElement;
             const currentScheme = html.getAttribute('color-scheme') || 'light';
             const newScheme = currentScheme === 'light' ? 'dark' : 'light';
@@ -482,12 +484,12 @@
 
     // Search Modal Module
     const SearchModal = {
-        init: function() {
+        init: function () {
             this.bindEvents();
             Utils.debug('Search Modal initialized');
         },
 
-        bindEvents: function() {
+        bindEvents: function () {
             // Bind to existing search buttons in header
             const searchButtons = document.querySelectorAll('[onclick*="openSearchModal"]');
             searchButtons.forEach(button => {
@@ -514,7 +516,7 @@
             });
         },
 
-        openModal: function() {
+        openModal: function () {
             const modal = document.getElementById('search-modal');
             if (modal) {
                 modal.classList.add('active');
@@ -525,7 +527,7 @@
             }
         },
 
-        closeModal: function() {
+        closeModal: function () {
             const modal = document.getElementById('search-modal');
             if (modal) {
                 modal.classList.remove('active');
@@ -535,20 +537,20 @@
 
     // Video Controls Module
     const VideoControls = {
-        init: function() {
+        init: function () {
             this.bindEvents();
             Utils.debug('Video Controls initialized');
         },
 
-        bindEvents: function() {
+        bindEvents: function () {
             document.addEventListener('click', (e) => {
                 const playPauseBtn = e.target.closest('#playPauseBtn');
                 const muteBtn = e.target.closest('#muteBtn');
                 const fullscreenBtn = e.target.closest('#fullscreenBtn');
-                
+
                 const video = document.getElementById('heroVideo');
                 if (!video) return;
-                
+
                 if (playPauseBtn) {
                     this.togglePlayPause(video, playPauseBtn);
                 } else if (muteBtn) {
@@ -559,7 +561,7 @@
             });
         },
 
-        togglePlayPause: function(video, button) {
+        togglePlayPause: function (video, button) {
             if (video.paused) {
                 video.play();
                 button.innerHTML = '<i class="ph-bold ph-pause"></i>';
@@ -569,7 +571,7 @@
             }
         },
 
-        toggleMute: function(video, button) {
+        toggleMute: function (video, button) {
             if (video.muted) {
                 video.muted = false;
                 button.innerHTML = '<i class="ph-bold ph-speaker-simple-high"></i>';
@@ -579,7 +581,7 @@
             }
         },
 
-        toggleFullscreen: function(video, button) {
+        toggleFullscreen: function (video, button) {
             if (document.fullscreenElement) {
                 document.exitFullscreen();
             } else {
@@ -592,12 +594,12 @@
 
     // Print Module
     const Print = {
-        init: function() {
+        init: function () {
             this.bindEvents();
             Utils.debug('Print functionality initialized');
         },
 
-        bindEvents: function() {
+        bindEvents: function () {
             document.addEventListener('keydown', (e) => {
                 if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
                     this.prepareForPrint();
@@ -605,7 +607,7 @@
             });
         },
 
-        prepareForPrint: function() {
+        prepareForPrint: function () {
             // Add print-specific styles
             const printStyles = document.createElement('style');
             printStyles.id = 'print-styles';
@@ -653,9 +655,9 @@
                     }
                 }
             `;
-            
+
             document.head.appendChild(printStyles);
-            
+
             // Remove after print
             setTimeout(() => {
                 const styles = document.getElementById('print-styles');
@@ -668,13 +670,13 @@
 
     // Mobile Menu Module
     const MobileMenu = {
-        init: function() {
+        init: function () {
             this.createMobileMenu();
             this.bindEvents();
             Utils.debug('Mobile Menu initialized');
         },
 
-        createMobileMenu: function() {
+        createMobileMenu: function () {
             const menuToggle = document.createElement('button');
             menuToggle.id = 'mobile-menu-toggle';
             menuToggle.innerHTML = '<i class="ph-bold ph-list"></i>';
@@ -696,23 +698,23 @@
                 justify-content: center;
                 font-size: 1.8rem;
             `;
-            
+
             // Show on mobile
             if (window.innerWidth <= 768) {
                 menuToggle.style.display = 'flex';
             }
-            
+
             document.body.appendChild(menuToggle);
         },
 
-        bindEvents: function() {
+        bindEvents: function () {
             const menuToggle = document.getElementById('mobile-menu-toggle');
             if (menuToggle) {
                 menuToggle.addEventListener('click', () => {
                     this.toggleMenu();
                 });
             }
-            
+
             // Handle window resize
             window.addEventListener('resize', Utils.debounce(() => {
                 const menuToggle = document.getElementById('mobile-menu-toggle');
@@ -722,7 +724,7 @@
             }, 250));
         },
 
-        toggleMenu: function() {
+        toggleMenu: function () {
             // Create simple mobile menu
             const menu = document.createElement('div');
             menu.id = 'mobile-menu';
@@ -738,7 +740,7 @@
                 transition: left 0.3s var(--_animbezier);
                 box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
             `;
-            
+
             menu.innerHTML = `
                 <nav style="display: flex; flex-direction: column; gap: 2rem;">
                     <a href="#content" style="color: var(--t-bright); text-decoration: none; font-size: 1.6rem; padding: 1rem 0; border-bottom: 1px solid var(--stroke-elements);">Content</a>
@@ -746,14 +748,14 @@
                     <a href="#conclusion" style="color: var(--t-bright); text-decoration: none; font-size: 1.6rem; padding: 1rem 0;">Conclusion</a>
                 </nav>
             `;
-            
+
             document.body.appendChild(menu);
-            
+
             // Animate in
             setTimeout(() => {
                 menu.style.left = '0';
             }, 10);
-            
+
             // Close on outside click
             const closeMenu = (e) => {
                 if (!menu.contains(e.target) && e.target !== menuToggle) {
@@ -761,21 +763,21 @@
                     document.removeEventListener('click', closeMenu);
                 }
             };
-            
+
             setTimeout(() => {
                 document.addEventListener('click', closeMenu);
             }, 100);
-            
+
             // Update toggle icon
             menuToggle.innerHTML = '<i class="ph-bold ph-x"></i>';
             menuToggle.onclick = () => this.closeMenu(menu, menuToggle);
         },
 
-        closeMenu: function(menu, toggle) {
+        closeMenu: function (menu, toggle) {
             menu.style.left = '-100%';
             toggle.innerHTML = '<i class="ph-bold ph-list"></i>';
             toggle.onclick = () => this.toggleMenu();
-            
+
             setTimeout(() => {
                 if (menu.parentNode) {
                     menu.parentNode.removeChild(menu);
@@ -786,7 +788,7 @@
 
     // Main initialization
     const BlogTemplates = {
-        init: function() {
+        init: function () {
             // Wait for DOM to be ready
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', () => this.initializeModules());
@@ -795,7 +797,7 @@
             }
         },
 
-        initializeModules: function() {
+        initializeModules: function () {
             // Load saved theme preference (unified with blog.js + early bootstrap in base)
             const savedBlogTheme = localStorage.getItem('blog.theme');
             const savedTheme = savedBlogTheme || localStorage.getItem('color-scheme');
@@ -806,13 +808,13 @@
                 root.setAttribute('color-scheme', savedTheme);
                 root.setAttribute('data-theme', savedTheme);
                 root.classList.toggle('dark', !isLight);
-                try { root.style.colorScheme = isLight ? 'light' : 'dark'; } catch (e) {}
+                try { root.style.colorScheme = isLight ? 'light' : 'dark'; } catch (e) { }
                 // If early bootstrap API is present, normalize through it
                 try {
                     if (typeof window.__applyTheme === 'function') {
                         window.__applyTheme(savedTheme);
                     }
-                } catch (e) {}
+                } catch (e) { }
             }
 
             // Keep theme fully in sync if other contexts update it
@@ -829,33 +831,33 @@
                             root.setAttribute('color-scheme', t);
                             root.setAttribute('data-theme', t);
                             root.classList.toggle('dark', !isLight);
-                            try { root.style.colorScheme = isLight ? 'light' : 'dark'; } catch (err) {}
+                            try { root.style.colorScheme = isLight ? 'light' : 'dark'; } catch (err) { }
                         }
                     } catch (err) {
                         // no-op
                     }
                 }
             });
-            
+
             // Initialize all modules
             try {
                 SmoothScroll.init();
                 SocialShare.init();
                 ReadingProgress.init();
-                
+
                 // Only initialize if elements exist
                 if (document.querySelector('.toc')) {
                     TableOfContents.init();
                 }
-                
+
                 if (document.querySelector('.blog-card, .listing-item, blockquote')) {
                     Animations.init();
                 }
-                
+
                 if (document.getElementById('newsletterForm')) {
                     Newsletter.init();
                 }
-                
+
                 if (document.getElementById('heroVideo')) {
                     VideoControls.init();
                 }
@@ -864,7 +866,7 @@
                 SearchModal.init();
                 Print.init();
                 MobileMenu.init();
-                
+
                 Utils.debug('All modules initialized successfully');
             } catch (error) {
                 console.error('Error initializing modules:', error);
@@ -873,9 +875,9 @@
     };
 
     const RouteManager = {
-        routes: ['home','latest','popular','others','featured','topics'],
+        routes: ['home', 'latest', 'popular', 'others', 'featured', 'topics'],
         fallback: 'home',
-        init: function() {
+        init: function () {
             this.container = document.getElementById('route-container');
             this.bindNavLinks();
             window.addEventListener('popstate', () => {
@@ -939,6 +941,13 @@
                     try { window.BlogPageInit(); } catch (e) { console.error('BlogPageInit failed:', e); }
                 }
 
+                // Call page-specific initialization (e.g., initHome, initLatest)
+                const pageInitFunction = `init${route.charAt(0).toUpperCase() + route.slice(1)}`;
+                if (typeof window[pageInitFunction] === 'function') {
+                    console.log(`🚀 Executing page-specific init: ${pageInitFunction}`);
+                    try { window[pageInitFunction](); } catch (e) { console.error(`${pageInitFunction} failed:`, e); }
+                }
+
                 // Update title and meta description
                 const newTitle = doc.querySelector('title')?.textContent?.trim();
                 if (newTitle) document.title = newTitle;
@@ -964,7 +973,7 @@
 
     // Start the application
     BlogTemplates.init();
-    
+
     // Initialize SPA router if enabled via body[data-use-routing="true"]
     try {
         const body = document.body;
@@ -975,7 +984,7 @@
     } catch (e) {
         console.error('RouteManager init error:', e);
     }
-    
+
     // Export for global access if needed
     window.BlogTemplates = BlogTemplates;
     window.BlogTemplatesUtils = Utils;

@@ -1,278 +1,147 @@
-<!-- Tailwind Configuration Script -->
-<script>
-tailwind.config = {
-  darkMode: 'class',
-  theme: {
-    extend: {
-      fontFamily: {
-        'syne': ['Syne', 'sans-serif'],
-      },
-      colors: {
-        'base': 'var(--base)',
-        'base-tint': 'var(--base-tint)',
-        'base-shade': 'var(--base-shade)',
-        'accent': 'var(--accent)',
-        'secondary': 'var(--secondary)',
-        'secondary-rgba': 'var(--secondary-rgba)',
-        'stroke-controls': 'var(--stroke-controls)',
-        'stroke-elements': 'var(--stroke-elements)',
-        't-bright': 'var(--t-bright)',
-        't-medium': 'var(--t-medium)',
-        't-muted': 'var(--t-muted)',
-        't-accent': 'var(--t-accent)',
-        't-secondary': 'var(--t-secondary)',
-        't-disabled': 'var(--t-disabled)',
-        't-placeholder': 'var(--t-placeholder)',
-        'base-opp': 'var(--base-opp)',
-        't-opp-bright': 'var(--t-opp-bright)',
-        't-opp-medium': 'var(--t-opp-medium)',
-        't-opp-muted': 'var(--t-opp-muted)',
-        'gradient-one': 'var(--gradient-one)',
-        'gradient-two': 'var(--gradient-two)',
-        'gradient-three': 'var(--gradient-three)',
-      },
-      borderRadius: {
-        's': 'var(--_radius-s)',
-        'm': 'var(--_radius-m)',
-        'l': 'var(--_radius-l)',
-        'xl': 'var(--_radius-xl)',
-      },
-      animation: {
-        'fade-in': 'fadeIn 0.6s ease-out forwards',
-        'slide-up': 'slideUp 0.6s ease-out forwards',
-        'scale-in': 'scaleIn 0.4s ease-out forwards',
-      },
-      transitionTimingFunction: {
-        'bezier': 'var(--_animbezier)',
-      },
-      transitionDuration: {
-        'fast': 'var(--_animspeed-fast)',
-        'medium': 'var(--_animspeed-medium)',
-        'slow': 'var(--_animspeed-slow)',
-      },
-    },
-  },
-}
-</script>
+<!DOCTYPE html>
+<html lang="en">
 
-<div class="min-h-screen bg-gradient-to-br from-gradient-one via-base to-gradient-two dark:from-base dark:via-base-tint dark:to-base-shade transition-all duration-medium overflow-x-hidden">
-    <div class="p-4 md:p-6 lg:p-8 max-w-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newsletter Subscribers - Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+
+<body class="bg-gray-50 dark:bg-gray-900">
+    <div id="newsletterSubscribersPage" class="min-h-screen p-6">
         <!-- Page Header -->
-        <div class="text-center mb-12 p-12 bg-gradient-to-r from-accent via-secondary to-t-accent rounded-xl text-t-opp-bright shadow-2xl hover:shadow-3xl transform hover:scale-[1.01] transition-all duration-medium relative overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-r from-accent/20 via-transparent to-secondary/20 animate-pulse"></div>
-            <div class="relative z-10">
-                <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 tracking-tight font-syne bg-gradient-to-r from-t-opp-bright via-white to-t-opp-medium bg-clip-text text-transparent">Newsletter Subscribers</h1>
-                <p class="text-xl md:text-2xl opacity-90 font-syne font-light">Manage your subscriber base with advanced segmentation and analytics</p>
-                <div class="mt-8 flex justify-center">
-                    <div class="w-24 h-1 bg-gradient-to-r from-transparent via-t-opp-bright to-transparent rounded-full"></div>
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Newsletter Subscribers</h1>
+            <p class="text-gray-600 dark:text-gray-400">Manage your newsletter subscriber base</p>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Total Subscribers -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                        <i class="ph-bold ph-users text-2xl text-blue-600 dark:text-blue-400"></i>
+                    </div>
                 </div>
+                <div class="text-2xl font-bold text-gray-900 dark:text-white" id="totalSubscribers">0</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">Total Subscribers</div>
+            </div>
+
+            <!-- Active Subscribers -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="p-3 bg-green-100 dark:bg-green-900 rounded-lg">
+                        <i class="ph-bold ph-user-check text-2xl text-green-600 dark:text-green-400"></i>
+                    </div>
+                </div>
+                <div class="text-2xl font-bold text-gray-900 dark:text-white" id="activeSubscribers">0</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">Active</div>
+            </div>
+
+            <!-- Unsubscribed -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="p-3 bg-red-100 dark:bg-red-900 rounded-lg">
+                        <i class="ph-bold ph-user-minus text-2xl text-red-600 dark:text-red-400"></i>
+                    </div>
+                </div>
+                <div class="text-2xl font-bold text-gray-900 dark:text-white" id="unsubscribedCount">0</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">Unsubscribed</div>
+            </div>
+
+            <!-- This Month -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="p-3 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                        <i class="ph-bold ph-chart-line text-2xl text-purple-600 dark:text-purple-400"></i>
+                    </div>
+                </div>
+                <div class="text-2xl font-bold text-gray-900 dark:text-white" id="thisMonthCount">0</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">This Month</div>
             </div>
         </div>
 
-        <!-- Subscriber Statistics Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 mb-12">
-            <!-- Total Subscribers Card -->
-            <div class="group relative bg-base/90 dark:bg-base-tint/90 backdrop-blur-xl border border-stroke-elements rounded-xl p-8 hover:scale-105 hover:-translate-y-2 transition-all duration-medium shadow-xl hover:shadow-2xl hover:shadow-accent/20 cursor-pointer overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-medium"></div>
-                <div class="relative z-10 flex items-center space-x-6">
-                    <div class="w-16 h-16 bg-gradient-to-br from-accent via-secondary to-t-accent rounded-xl flex items-center justify-center text-t-opp-bright text-2xl shadow-lg group-hover:shadow-xl transition-all duration-medium">
-                        <i class="ph-bold ph-users"></i>
-                    </div>
-                    <div class="flex-1">
-                        <div class="text-3xl font-bold text-t-bright font-syne mb-1" id="totalSubscribers">0</div>
-                        <div class="text-base text-t-medium font-syne mb-3">Total Subscribers</div>
-                        <div class="flex items-center space-x-2 text-sm font-semibold text-green-500 dark:text-green-400">
-                            <i class="ph-bold ph-trend-up text-base"></i>
-                            <span>+12.5%</span>
-                            <span class="text-t-muted font-syne">this month</span>
+        <!-- Main Content -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+            <!-- Toolbar -->
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div class="flex-1 max-w-md">
+                        <div class="relative">
+                            <input type="text" id="searchInput" placeholder="Search by name or email..."
+                                class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                            <i
+                                class="ph-bold ph-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                         </div>
                     </div>
-                </div>
-                <div class="absolute -bottom-2 -right-2 w-20 h-20 bg-gradient-to-br from-accent/10 to-secondary/10 rounded-full blur-xl group-hover:blur-2xl transition-all duration-medium"></div>
-            </div>
-
-            <!-- Active Subscribers Card -->
-            <div class="group relative bg-base/90 dark:bg-base-tint/90 backdrop-blur-xl border border-stroke-elements rounded-xl p-8 hover:scale-105 hover:-translate-y-2 transition-all duration-medium shadow-xl hover:shadow-2xl hover:shadow-emerald-500/20 cursor-pointer overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-teal-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-medium"></div>
-                <div class="relative z-10 flex items-center space-x-6">
-                    <div class="w-16 h-16 bg-gradient-to-br from-emerald-500 via-teal-500 to-green-500 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg group-hover:shadow-xl transition-all duration-medium">
-                        <i class="ph-bold ph-user-check"></i>
-                    </div>
-                    <div class="flex-1">
-                        <div class="text-3xl font-bold text-t-bright font-syne mb-1" id="activeSubscribers">0</div>
-                        <div class="text-base text-t-medium font-syne mb-3">Active Subscribers</div>
-                        <div class="flex items-center space-x-2 text-sm font-semibold text-green-500 dark:text-green-400">
-                            <i class="ph-bold ph-trend-up text-base"></i>
-                            <span>+8.2%</span>
-                            <span class="text-t-muted font-syne">this month</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="absolute -bottom-2 -right-2 w-20 h-20 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 rounded-full blur-xl group-hover:blur-2xl transition-all duration-medium"></div>
-            </div>
-
-            <!-- Unsubscribed Card -->
-            <div class="group relative bg-base/90 dark:bg-base-tint/90 backdrop-blur-xl border border-stroke-elements rounded-xl p-8 hover:scale-105 hover:-translate-y-2 transition-all duration-medium shadow-xl hover:shadow-2xl hover:shadow-red-500/20 cursor-pointer overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-br from-red-500/5 via-transparent to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-medium"></div>
-                <div class="relative z-10 flex items-center space-x-6">
-                    <div class="w-16 h-16 bg-gradient-to-br from-red-500 via-pink-500 to-orange-500 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg group-hover:shadow-xl transition-all duration-medium">
-                        <i class="ph-bold ph-user-minus"></i>
-                    </div>
-                    <div class="flex-1">
-                        <div class="text-3xl font-bold text-t-bright font-syne mb-1" id="unsubscribedCount">0</div>
-                        <div class="text-base text-t-medium font-syne mb-3">Unsubscribed</div>
-                        <div class="flex items-center space-x-2 text-sm font-semibold text-red-500 dark:text-red-400">
-                            <i class="ph-bold ph-trend-down text-base"></i>
-                            <span>-2.1%</span>
-                            <span class="text-t-muted font-syne">this month</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="absolute -bottom-2 -right-2 w-20 h-20 bg-gradient-to-br from-red-500/10 to-pink-500/10 rounded-full blur-xl group-hover:blur-2xl transition-all duration-medium"></div>
-            </div>
-
-            <!-- Growth Rate Card -->
-            <div class="group relative bg-base/90 dark:bg-base-tint/90 backdrop-blur-xl border border-stroke-elements rounded-xl p-8 hover:scale-105 hover:-translate-y-2 transition-all duration-medium shadow-xl hover:shadow-2xl hover:shadow-blue-500/20 cursor-pointer overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-medium"></div>
-                <div class="relative z-10 flex items-center space-x-6">
-                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg group-hover:shadow-xl transition-all duration-medium">
-                        <i class="ph-bold ph-chart-line"></i>
-                    </div>
-                    <div class="flex-1">
-                        <div class="text-3xl font-bold text-t-bright font-syne mb-1" id="growthRate">0%</div>
-                        <div class="text-base text-t-medium font-syne mb-3">Growth Rate</div>
-                        <div class="flex items-center space-x-2 text-sm font-semibold text-green-500 dark:text-green-400">
-                            <i class="ph-bold ph-trend-up text-base"></i>
-                            <span>+5.7%</span>
-                            <span class="text-t-muted font-syne">vs last month</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="absolute -bottom-2 -right-2 w-20 h-20 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-full blur-xl group-hover:blur-2xl transition-all duration-medium"></div>
-            </div>
-        </div>
-
-        <!-- Subscriber Management -->
-        <div class="bg-base/90 dark:bg-base-tint/90 backdrop-blur-xl border border-stroke-elements rounded-xl shadow-2xl mb-12 overflow-hidden hover:shadow-3xl transition-all duration-medium">
-            <div class="bg-gradient-to-r from-base-tint to-base-shade dark:from-base-shade dark:to-base p-8 border-b border-stroke-elements">
-                <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between space-y-6 xl:space-y-0">
-                    <div class="flex items-center space-x-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-accent to-secondary rounded-xl flex items-center justify-center text-t-opp-bright shadow-lg">
-                            <i class="ph-bold ph-users-three text-xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-bold text-t-bright font-syne">Subscriber Management</h3>
-                            <p class="text-t-medium font-syne text-sm">Advanced subscriber list with segmentation and filtering capabilities</p>
-                        </div>
-                    </div>
-                    <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
-                        <button class="inline-flex items-center justify-center space-x-3 px-8 py-4 bg-gradient-to-r from-accent via-secondary to-t-accent hover:from-accent/90 hover:via-secondary/90 hover:to-t-accent/90 text-t-opp-bright font-semibold rounded-xl shadow-xl hover:shadow-2xl transform hover:-translate-y-1 hover:scale-105 transition-all duration-medium font-syne" id="addSubscriberBtn">
-                            <i class="ph-bold ph-plus text-lg"></i>
-                            <span>Add Subscriber</span>
-                        </button>
-                        <button class="inline-flex items-center justify-center space-x-3 px-8 py-4 bg-base-tint dark:bg-base-shade hover:bg-base-shade dark:hover:bg-base border border-stroke-elements text-t-bright font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 transition-all duration-medium font-syne" id="importSubscribersBtn">
-                            <i class="ph-bold ph-upload text-lg"></i>
-                            <span>Import</span>
-                        </button>
-                        <button class="inline-flex items-center justify-center space-x-3 px-8 py-4 bg-base-tint dark:bg-base-shade hover:bg-base-shade dark:hover:bg-base border border-stroke-elements text-t-bright font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 transition-all duration-medium font-syne" id="exportSubscribersBtn">
-                            <i class="ph-bold ph-download text-lg"></i>
-                            <span>Export</span>
+                    <div class="flex gap-2">
+                        <select id="statusFilter"
+                            class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="unsubscribed">Unsubscribed</option>
+                        </select>
+                        <button onclick="exportSubscribers()"
+                            class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center gap-2">
+                            <i class="ph-bold ph-download"></i>
+                            Export
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Filters and Search -->
-            <div class="p-4 md:p-6 lg:p-8 border-b border-stroke-elements">
-                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
-                    <div class="space-y-2">
-                        <label class="block text-sm font-medium text-t-bright font-syne">Search Subscribers</label>
-                        <div class="relative">
-                            <input type="text" class="w-full pl-10 pr-4 py-3 bg-base dark:bg-base-tint border border-stroke-elements rounded-xl focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-medium text-t-bright placeholder-t-muted" id="searchSubscribers" placeholder="Search by name, email...">
-                            <i class="ph-bold ph-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-t-muted"></i>
-                        </div>
-                    </div>
-                    <div class="space-y-2">
-                        <label class="block text-sm font-medium text-t-bright font-syne">Status</label>
-                        <div class="relative">
-                            <select class="w-full pl-10 pr-10 py-3 bg-base dark:bg-base-tint border border-stroke-elements rounded-xl focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-medium text-t-bright appearance-none cursor-pointer" id="statusFilter">
-                                <option value="">All Statuses</option>
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
-                                <option value="unsubscribed">Unsubscribed</option>
-                                <option value="bounced">Bounced</option>
-                            </select>
-                            <i class="ph-bold ph-check-circle absolute left-3 top-1/2 transform -translate-y-1/2 text-t-muted"></i>
-                            <i class="ph-bold ph-caret-down absolute right-3 top-1/2 transform -translate-y-1/2 text-t-muted pointer-events-none"></i>
-                        </div>
-                    </div>
-                    <div class="space-y-2">
-                        <label class="block text-sm font-medium text-t-bright font-syne">Subscription Date</label>
-                        <div class="relative">
-                            <select class="w-full pl-10 pr-10 py-3 bg-base dark:bg-base-tint border border-stroke-elements rounded-xl focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-medium text-t-bright appearance-none cursor-pointer" id="dateFilter">
-                                <option value="">All Dates</option>
-                                <option value="today">Today</option>
-                                <option value="week">This Week</option>
-                                <option value="month">This Month</option>
-                                <option value="quarter">This Quarter</option>
-                                <option value="year">This Year</option>
-                            </select>
-                            <i class="ph-bold ph-calendar absolute left-3 top-1/2 transform -translate-y-1/2 text-t-muted"></i>
-                            <i class="ph-bold ph-caret-down absolute right-3 top-1/2 transform -translate-y-1/2 text-t-muted pointer-events-none"></i>
-                        </div>
-                    </div>
-                    <div class="space-y-2">
-                        <label class="block text-sm font-medium text-t-bright font-syne">Segments</label>
-                        <div class="relative">
-                            <select class="w-full pl-10 pr-10 py-3 bg-base dark:bg-base-tint border border-stroke-elements rounded-xl focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-medium text-t-bright appearance-none cursor-pointer" id="segmentFilter">
-                                <option value="">All Segments</option>
-                                <option value="vip">VIP Customers</option>
-                                <option value="new">New Subscribers</option>
-                                <option value="engaged">Highly Engaged</option>
-                                <option value="inactive">Inactive</option>
-                            </select>
-                            <i class="ph-bold ph-tag absolute left-3 top-1/2 transform -translate-y-1/2 text-t-muted"></i>
-                            <i class="ph-bold ph-caret-down absolute right-3 top-1/2 transform -translate-y-1/2 text-t-muted pointer-events-none"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Subscribers Table -->
-            <div class="overflow-x-auto w-full">
-                <table class="w-full table-fixed min-w-[600px]" id="subscribersTable">
-                    <thead class="bg-base-tint/50 dark:bg-base-shade/50">
-                        <tr class="border-b border-stroke-elements">
-                            <th class="w-12 px-2 md:px-4 py-3 md:py-4 text-left">
-                                <input type="checkbox" id="selectAllSubscribers" class="w-4 h-4 text-accent bg-base dark:bg-base-tint border-2 border-stroke-elements rounded focus:ring-2 focus:ring-accent focus:ring-offset-0 cursor-pointer">
+            <!-- Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 dark:bg-gray-700">
+                        <tr>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                <input type="checkbox" id="selectAll" class="rounded">
                             </th>
-                            <th class="w-32 md:w-40 px-2 md:px-4 py-3 md:py-4 text-left text-xs font-bold text-t-bright uppercase tracking-wider font-syne">Subscriber</th>
-                            <th class="w-40 md:w-48 px-2 md:px-4 py-3 md:py-4 text-left text-xs font-bold text-t-bright uppercase tracking-wider font-syne">Email</th>
-                            <th class="w-20 md:w-24 px-2 md:px-4 py-3 md:py-4 text-left text-xs font-bold text-t-bright uppercase tracking-wider font-syne">Status</th>
-                            <th class="w-24 md:w-32 px-2 md:px-4 py-3 md:py-4 text-left text-xs font-bold text-t-bright uppercase tracking-wider font-syne">Segments</th>
-                            <th class="w-20 md:w-24 px-2 md:px-4 py-3 md:py-4 text-left text-xs font-bold text-t-bright uppercase tracking-wider font-syne">Subscribed</th>
-                            <th class="w-20 md:w-24 px-2 md:px-4 py-3 md:py-4 text-left text-xs font-bold text-t-bright uppercase tracking-wider font-syne">Activity</th>
-                            <th class="w-20 md:w-24 px-2 md:px-4 py-3 md:py-4 text-left text-xs font-bold text-t-bright uppercase tracking-wider font-syne">Actions</th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                Name</th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                Email</th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                Status</th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                Subscribed</th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="subscribersTableBody" class="divide-y divide-stroke-elements">
-                        <!-- Subscriber data will be populated here -->
+                    <tbody id="subscribersTableBody"
+                        class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        <!-- Data will be loaded here -->
                     </tbody>
                 </table>
             </div>
 
             <!-- Pagination -->
-            <div class="px-4 md:px-6 lg:px-8 py-4 md:py-6 bg-base-tint/30 dark:bg-base-shade/30 border-t border-stroke-elements">
-                <div class="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
-                    <div class="text-xs md:text-sm text-t-medium font-syne">
-                        Showing <span id="showingStart">1</span> to <span id="showingEnd">10</span> of <span id="totalRecords">0</span> subscribers
+            <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div class="text-sm text-gray-700 dark:text-gray-300">
+                        Showing <span id="showingStart">0</span> to <span id="showingEnd">0</span> of <span
+                            id="totalRecords">0</span> subscribers
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <button class="px-3 md:px-4 py-2 bg-base-tint dark:bg-base-shade border border-stroke-elements rounded-lg text-t-bright hover:bg-base-shade dark:hover:bg-base transition-all duration-medium disabled:opacity-50 disabled:cursor-not-allowed text-sm" id="prevPage" disabled>
+                    <div class="flex gap-2">
+                        <button id="prevPage" onclick="changePage(-1)"
+                            class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled>
                             <i class="ph-bold ph-caret-left"></i>
                         </button>
-                        <span class="px-3 md:px-4 py-2 text-t-bright font-syne text-sm" id="currentPage">1</span>
-                        <button class="px-3 md:px-4 py-2 bg-base-tint dark:bg-base-shade border border-stroke-elements rounded-lg text-t-bright hover:bg-base-shade dark:hover:bg-base transition-all duration-medium disabled:opacity-50 disabled:cursor-not-allowed text-sm" id="nextPage">
+                        <span class="px-3 py-1 text-gray-700 dark:text-gray-300" id="currentPage">1</span>
+                        <button id="nextPage" onclick="changePage(1)"
+                            class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
                             <i class="ph-bold ph-caret-right"></i>
                         </button>
                     </div>
@@ -281,495 +150,406 @@ tailwind.config = {
         </div>
 
         <!-- Bulk Actions Panel (Hidden by default) -->
-        <div class="bg-accent/10 border border-accent/20 rounded-xl p-6 mb-8 hidden" id="bulkActionsPanel">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                    <i class="ph-bold ph-stack text-accent text-xl"></i>
-                    <span class="text-t-bright font-syne font-semibold" id="selectedCount">0 subscribers selected</span>
-                </div>
-                <div class="flex items-center space-x-3">
-                    <button class="inline-flex items-center justify-center space-x-2 px-4 py-2 bg-accent/20 hover:bg-accent/30 text-accent font-semibold rounded-lg transition-all duration-medium font-syne text-sm" id="bulkSegmentBtn">
-                        <i class="ph-bold ph-tag text-sm"></i>
-                        <span>Add to Segment</span>
-                    </button>
-                    <button class="inline-flex items-center justify-center space-x-2 px-4 py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-500 font-semibold rounded-lg transition-all duration-medium font-syne text-sm" id="bulkExportBtn">
-                        <i class="ph-bold ph-download text-sm"></i>
-                        <span>Export</span>
-                    </button>
-                    <button class="inline-flex items-center justify-center space-x-2 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-500 font-semibold rounded-lg transition-all duration-medium font-syne text-sm" id="bulkUnsubscribeBtn">
-                        <i class="ph-bold ph-user-minus text-sm"></i>
-                        <span>Unsubscribe</span>
-                    </button>
-                    <button class="inline-flex items-center justify-center space-x-2 px-4 py-2 bg-base-tint dark:bg-base-shade border border-stroke-elements text-t-bright font-semibold rounded-lg transition-all duration-medium font-syne text-sm" id="clearSelectionBtn">
-                        <i class="ph-bold ph-x text-sm"></i>
-                        <span>Clear</span>
-                    </button>
-                </div>
+        <div id="bulkActionsPanel"
+            class="hidden fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4">
+            <div class="flex items-center gap-4">
+                <span class="text-gray-700 dark:text-gray-300" id="selectedCount">0 selected</span>
+                <button onclick="bulkUnsubscribe()"
+                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center gap-2">
+                    <i class="ph-bold ph-user-minus"></i>
+                    Unsubscribe
+                </button>
+                <button onclick="bulkExport()"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2">
+                    <i class="ph-bold ph-download"></i>
+                    Export
+                </button>
+                <button onclick="clearSelection()"
+                    class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600">
+                    Clear
+                </button>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Custom CSS for enhanced animations and effects -->
-<style>
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+    <script>
+        // State
+        let allSubscribers = [];
+        let filteredSubscribers = [];
+        let currentPage = 1;
+        const pageSize = 25;
+        let selectedSubscribers = new Set();
 
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
+        // Initialize
+        async function initNewsletterSubscribers() {
+            // Protective check: only initialize if our container exists
+            if (!document.getElementById('newsletterSubscribersPage')) {
+                return;
+            }
+            console.log('📬 Initializing Newsletter Subscribers page...');
+            await loadSubscribers();
+            setupEventListeners();
+        }
 
-@keyframes glow {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(var(--accent), 0.3);
-  }
-  50% {
-    box-shadow: 0 0 30px rgba(var(--accent), 0.6);
-  }
-}
+        // Expose to window for the admin navigation system
+        window.initNewsletterSubscribers = initNewsletterSubscribers;
 
-.animate-fade-in-up {
-  animation: fadeInUp 0.6s ease-out forwards;
-}
+        // Load subscribers from API
+        async function loadSubscribers() {
+            try {
+                const response = await fetch('/api/newsletter/admin/subscribers', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+                    }
+                });
 
-.animate-scale-in {
-  animation: scaleIn 0.4s ease-out forwards;
-}
+                if (!response.ok) {
+                    throw new Error('Failed to load subscribers');
+                }
 
-.animate-glow {
-  animation: glow 2s ease-in-out infinite;
-}
+                const data = await response.json();
+                allSubscribers = data.subscribers || [];
+                filteredSubscribers = [...allSubscribers];
 
-/* Enhanced scrollbar */
-.overflow-x-auto::-webkit-scrollbar,
-.overflow-y-auto::-webkit-scrollbar {
-  width: 8px;
-}
+                updateStats();
+                renderTable();
+            } catch (error) {
+                console.error('Error loading subscribers:', error);
+                showError('Failed to load subscribers');
+            }
+        }
 
-.overflow-x-auto::-webkit-scrollbar-track,
-.overflow-y-auto::-webkit-scrollbar-track {
-  background: var(--base-tint);
-  border-radius: 4px;
-}
+        // Update statistics
+        function updateStats() {
+            const active = allSubscribers.filter(s => s.is_active && !s.unsubscribed_at).length;
+            const unsubscribed = allSubscribers.filter(s => s.unsubscribed_at).length;
 
-.overflow-x-auto::-webkit-scrollbar-thumb,
-.overflow-y-auto::-webkit-scrollbar-thumb {
-  background: var(--accent);
-  border-radius: 4px;
-}
+            // Calculate this month
+            const now = new Date();
+            const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            const thisMonth = allSubscribers.filter(s => {
+                const subDate = new Date(s.subscribed_at);
+                return subDate >= firstDayOfMonth;
+            }).length;
 
-.overflow-x-auto::-webkit-scrollbar-thumb:hover,
-.overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background: var(--secondary);
-}
+            document.getElementById('totalSubscribers').textContent = allSubscribers.length;
+            document.getElementById('activeSubscribers').textContent = active;
+            document.getElementById('unsubscribedCount').textContent = unsubscribed;
+            document.getElementById('thisMonthCount').textContent = thisMonth;
+        }
 
-/* Enhanced focus states */
-.focus\:ring-accent:focus {
-  --tw-ring-color: var(--accent);
-}
+        // Render table
+        function renderTable() {
+            const tbody = document.getElementById('subscribersTableBody');
+            const start = (currentPage - 1) * pageSize;
+            const end = start + pageSize;
+            const pageData = filteredSubscribers.slice(start, end);
 
-/* Smooth transitions for all interactive elements */
-button, input, select, .cursor-pointer {
-  transition: all var(--_animspeed-medium) var(--_animbezier);
-}
+            if (pageData.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                            <i class="ph-bold ph-users text-4xl mb-2 block"></i>
+                            <p>No subscribers found</p>
+                        </td>
+                    </tr>
+                `;
+                updatePagination();
+                return;
+            }
 
-/* Enhanced hover effects */
-.hover\:glow:hover {
-  animation: glow 0.6s ease-out;
-}
+            tbody.innerHTML = pageData.map(sub => `
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <td class="px-6 py-4">
+                        <input type="checkbox" class="subscriber-checkbox rounded" value="${sub.id}" ${selectedSubscribers.has(sub.id) ? 'checked' : ''}>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400 font-semibold">
+                                ${getInitials(sub.name)}
+                            </div>
+                            <div class="text-sm font-medium text-gray-900 dark:text-white">${escapeHtml(sub.name)}</div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">${escapeHtml(sub.email)}</td>
+                    <td class="px-6 py-4">
+                        ${getStatusBadge(sub)}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">${formatDate(sub.subscribed_at)}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex gap-2">
+                            ${!sub.unsubscribed_at ? `
+                                <button onclick="unsubscribeOne(${sub.id})" class="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900 rounded" title="Unsubscribe">
+                                    <i class="ph-bold ph-user-minus"></i>
+                                </button>
+                            ` : ''}
+                            <button onclick="deleteSubscriber(${sub.id})" class="p-2 text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded" title="Delete">
+                                <i class="ph-bold ph-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
 
-/* Subscriber status badges */
-.status-active {
-  @apply bg-green-500/10 text-green-500 border-green-500/20;
-}
+            updatePagination();
+            attachCheckboxListeners();
+        }
 
-.status-inactive {
-  @apply bg-yellow-500/10 text-yellow-500 border-yellow-500/20;
-}
+        // Helper functions
+        function getInitials(name) {
+            return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        }
 
-.status-unsubscribed {
-  @apply bg-red-500/10 text-red-500 border-red-500/20;
-}
+        function getStatusBadge(sub) {
+            if (sub.unsubscribed_at) {
+                return '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">Unsubscribed</span>';
+            }
+            if (sub.is_active) {
+                return '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Active</span>';
+            }
+            return '<span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">Inactive</span>';
+        }
 
-.status-bounced {
-  @apply bg-gray-500/10 text-gray-500 border-gray-500/20;
-}
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
 
-/* Segment tags */
-.segment-tag {
-  @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-accent/10 text-accent border border-accent/20 mr-1 mb-1;
-}
-</style>
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
 
-<script>
-// Newsletter Subscribers Page
-let allSubscribers = [];
-let currentPage = 1;
-let pageSize = 25;
-let selectedSubscribers = new Set();
+        // Pagination
+        function updatePagination() {
+            const total = filteredSubscribers.length;
+            const totalPages = Math.ceil(total / pageSize);
+            const start = (currentPage - 1) * pageSize + 1;
+            const end = Math.min(currentPage * pageSize, total);
 
-function initNewsletterSubscribers() {
-    loadSubscriberData();
-    setupEventListeners();
-    setupBulkActions();
-}
+            document.getElementById('showingStart').textContent = total > 0 ? start : 0;
+            document.getElementById('showingEnd').textContent = end;
+            document.getElementById('totalRecords').textContent = total;
+            document.getElementById('currentPage').textContent = currentPage;
 
-async function loadSubscriberData() {
-    try {
-        const response = await fetch('/api/admin/newsletter/subscribers');
-        if (response.ok) {
-            const data = await response.json();
-            allSubscribers = data.subscribers || [];
-            updateSubscriberStats(data.stats);
-            renderSubscribers();
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = currentPage === totalPages || totalPages === 0;
+        }
+
+        function changePage(delta) {
+            const totalPages = Math.ceil(filteredSubscribers.length / pageSize);
+            const newPage = currentPage + delta;
+
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage;
+                renderTable();
+            }
+        }
+
+        // Filters
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            filteredSubscribers = allSubscribers.filter(sub => {
+                const matchesSearch = sub.name.toLowerCase().includes(searchTerm) ||
+                    sub.email.toLowerCase().includes(searchTerm);
+
+                let matchesStatus = true;
+                if (statusFilter === 'active') {
+                    matchesStatus = sub.is_active && !sub.unsubscribed_at;
+                } else if (statusFilter === 'unsubscribed') {
+                    matchesStatus = !!sub.unsubscribed_at;
+                }
+
+                return matchesSearch && matchesStatus;
+            });
+
+            currentPage = 1;
+            renderTable();
+        }
+
+        // Selection
+        function attachCheckboxListeners() {
+            document.querySelectorAll('.subscriber-checkbox').forEach(cb => {
+                cb.addEventListener('change', updateSelection);
+            });
+        }
+
+        function updateSelection() {
+            selectedSubscribers.clear();
+            document.querySelectorAll('.subscriber-checkbox:checked').forEach(cb => {
+                selectedSubscribers.add(parseInt(cb.value));
+            });
+
+            const panel = document.getElementById('bulkActionsPanel');
+            const count = document.getElementById('selectedCount');
+
+            if (selectedSubscribers.size > 0) {
+                panel.classList.remove('hidden');
+                count.textContent = `${selectedSubscribers.size} selected`;
+            } else {
+                panel.classList.add('hidden');
+            }
+
+            document.getElementById('selectAll').checked =
+                document.querySelectorAll('.subscriber-checkbox').length > 0 &&
+                document.querySelectorAll('.subscriber-checkbox:checked').length ===
+                document.querySelectorAll('.subscriber-checkbox').length;
+        }
+
+        function clearSelection() {
+            selectedSubscribers.clear();
+            document.querySelectorAll('.subscriber-checkbox').forEach(cb => cb.checked = false);
+            document.getElementById('selectAll').checked = false;
+            updateSelection();
+        }
+
+        // Actions
+        async function unsubscribeOne(id) {
+            if (!confirm('Unsubscribe this subscriber?')) return;
+
+            try {
+                const subscriber = allSubscribers.find(s => s.id === id);
+                const response = await fetch('/api/newsletter/unsubscribe', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `email=${encodeURIComponent(subscriber.email)}`
+                });
+
+                if (response.ok) {
+                    showSuccess('Subscriber unsubscribed');
+                    await loadSubscribers();
+                } else {
+                    showError('Failed to unsubscribe');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Failed to unsubscribe');
+            }
+        }
+
+        async function deleteSubscriber(id) {
+            if (!confirm('Permanently delete this subscriber?')) return;
+
+            try {
+                const response = await fetch(`/api/newsletter/admin/subscribers/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+                    }
+                });
+
+                if (response.ok) {
+                    showSuccess('Subscriber deleted');
+                    await loadSubscribers();
+                } else {
+                    showError('Failed to delete subscriber');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Failed to delete subscriber');
+            }
+        }
+
+        async function bulkUnsubscribe() {
+            if (!confirm(`Unsubscribe ${selectedSubscribers.size} subscribers?`)) return;
+
+            const emails = allSubscribers
+                .filter(s => selectedSubscribers.has(s.id))
+                .map(s => s.email);
+
+            for (const email of emails) {
+                try {
+                    await fetch('/api/newsletter/unsubscribe', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `email=${encodeURIComponent(email)}`
+                    });
+                } catch (error) {
+                    console.error('Error unsubscribing:', email, error);
+                }
+            }
+
+            showSuccess(`Unsubscribed ${emails.length} subscribers`);
+            clearSelection();
+            await loadSubscribers();
+        }
+
+        function bulkExport() {
+            const data = allSubscribers.filter(s => selectedSubscribers.has(s.id));
+            exportToCSV(data);
+        }
+
+        function exportSubscribers() {
+            exportToCSV(filteredSubscribers);
+        }
+
+        function exportToCSV(data) {
+            const csv = [
+                ['Name', 'Email', 'Status', 'Subscribed Date'],
+                ...data.map(s => [
+                    s.name,
+                    s.email,
+                    s.unsubscribed_at ? 'Unsubscribed' : (s.is_active ? 'Active' : 'Inactive'),
+                    formatDate(s.subscribed_at)
+                ])
+            ].map(row => row.join(',')).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `subscribers_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Event listeners
+        function setupEventListeners() {
+            document.getElementById('searchInput').addEventListener('input', debounce(applyFilters, 300));
+            document.getElementById('statusFilter').addEventListener('change', applyFilters);
+            document.getElementById('selectAll').addEventListener('change', function () {
+                const checked = this.checked;
+                document.querySelectorAll('.subscriber-checkbox').forEach(cb => {
+                    cb.checked = checked;
+                });
+                updateSelection();
+            });
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function (...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        // Notifications
+        function showSuccess(message) {
+            alert(message); // TODO: Replace with better notification system
+        }
+
+        function showError(message) {
+            alert('Error: ' + message); // TODO: Replace with better notification system
+        }
+
+        // Initialize on load (fallback)
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initNewsletterSubscribers);
         } else {
-            showFallbackSubscriberData();
+            // Check if we're in the admin app or standalone
+            if (!window.adminApp) {
+                initNewsletterSubscribers();
+            }
         }
-    } catch (error) {
-        console.error('Error loading subscriber data:', error);
-        showFallbackSubscriberData();
-    }
-}
+    </script>
+</body>
 
-function updateSubscriberStats(stats) {
-    document.getElementById('totalSubscribers').textContent = stats.totalSubscribers || 0;
-    document.getElementById('activeSubscribers').textContent = stats.activeSubscribers || 0;
-    document.getElementById('unsubscribedCount').textContent = stats.unsubscribedCount || 0;
-    document.getElementById('growthRate').textContent = stats.growthRate || '0%';
-}
-
-function renderSubscribers() {
-    const tbody = document.getElementById('subscribersTableBody');
-    const startIndex = (currentPage - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    const subscribersToShow = allSubscribers.slice(startIndex, endIndex);
-
-    if (subscribersToShow.length === 0) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="8" class="px-4 md:px-8 py-8 md:py-16 text-center">
-                    <div class="flex flex-col items-center space-y-4 md:space-y-6">
-                        <div class="w-16 h-16 md:w-20 md:h-20 bg-base-tint dark:bg-base-shade rounded-2xl flex items-center justify-center shadow-xl mx-auto">
-                            <i class="ph-bold ph-users text-3xl md:text-5xl text-t-muted opacity-60"></i>
-                        </div>
-                        <div class="text-center space-y-2">
-                            <h3 class="text-lg md:text-2xl font-bold text-t-bright font-syne">No subscribers found</h3>
-                            <p class="text-sm md:text-base text-t-medium font-syne max-w-md">No subscribers match your current filters. Try adjusting your search criteria.</p>
-                        </div>
-                    </div>
-                </td>
-            </tr>
-        `;
-        return;
-    }
-
-    tbody.innerHTML = subscribersToShow.map(subscriber => `
-        <tr class="hover:bg-base-tint/30 dark:hover:bg-base-shade/30 transition-all duration-medium group">
-            <td class="w-12 px-2 md:px-4 py-3 md:py-4">
-                <input type="checkbox" class="subscriber-checkbox w-4 h-4 text-accent bg-base dark:bg-base-tint border-2 border-stroke-elements rounded focus:ring-2 focus:ring-accent focus:ring-offset-0 cursor-pointer" value="${subscriber.id}" ${selectedSubscribers.has(subscriber.id) ? 'checked' : ''}>
-            </td>
-            <td class="w-32 md:w-40 px-2 md:px-4 py-3 md:py-4">
-                <div class="flex items-center space-x-2">
-                    <div class="w-6 h-6 md:w-8 md:h-8 bg-gradient-to-br from-accent to-secondary rounded-full flex items-center justify-center text-t-opp-bright font-semibold text-xs shadow-lg flex-shrink-0">
-                        ${getSubscriberInitials(subscriber.name)}
-                    </div>
-                    <div class="min-w-0 flex-1">
-                        <div class="text-xs font-semibold text-t-bright group-hover:text-accent transition-colors font-syne truncate">
-                            ${subscriber.name}
-                        </div>
-                        <div class="text-xs text-t-muted font-syne truncate">${subscriber.source || 'Website'}</div>
-                    </div>
-                </div>
-            </td>
-            <td class="w-40 md:w-48 px-2 md:px-4 py-3 md:py-4 text-xs text-t-medium font-syne group-hover:text-t-bright transition-colors truncate">${subscriber.email}</td>
-            <td class="w-20 md:w-24 px-2 md:px-4 py-3 md:py-4">
-                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold uppercase tracking-wide font-syne ${getStatusClass(subscriber.status)} border">
-                    ${formatStatus(subscriber.status)}
-                </span>
-            </td>
-            <td class="w-24 md:w-32 px-2 md:px-4 py-3 md:py-4">
-                <div class="flex flex-wrap gap-1">
-                    ${subscriber.segments ? subscriber.segments.slice(0, 2).map(segment => `<span class="segment-tag text-xs">${segment}</span>`).join('') : '<span class="text-t-muted text-xs">None</span>'}
-                    ${subscriber.segments && subscriber.segments.length > 2 ? `<span class="text-t-muted text-xs">+${subscriber.segments.length - 2}</span>` : ''}
-                </div>
-            </td>
-            <td class="w-20 md:w-24 px-2 md:px-4 py-3 md:py-4 text-xs text-t-medium font-medium font-syne whitespace-nowrap">${formatDate(subscriber.subscribedAt)}</td>
-            <td class="w-20 md:w-24 px-2 md:px-4 py-3 md:py-4 text-xs text-t-medium font-medium font-syne whitespace-nowrap">${subscriber.lastActivity ? formatDate(subscriber.lastActivity) : '<span class="text-t-muted">Never</span>'}</td>
-            <td class="w-20 md:w-24 px-2 md:px-4 py-3 md:py-4">
-                <div class="flex items-center space-x-1">
-                    <button class="w-6 h-6 bg-accent/10 hover:bg-accent/20 text-accent rounded flex items-center justify-center transition-all duration-medium hover:scale-110 hover:shadow-lg" title="Edit Subscriber" onclick="editSubscriber('${subscriber.id}')">
-                        <i class="ph-bold ph-pencil text-xs"></i>
-                    </button>
-                    <button class="w-6 h-6 bg-blue-500/10 hover:bg-blue-500/20 text-blue-500 rounded flex items-center justify-center transition-all duration-medium hover:scale-110 hover:shadow-lg" title="View Profile" onclick="viewSubscriberProfile('${subscriber.id}')">
-                        <i class="ph-bold ph-eye text-xs"></i>
-                    </button>
-                    <button class="w-6 h-6 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded flex items-center justify-center transition-all duration-medium hover:scale-110 hover:shadow-lg" title="Unsubscribe" onclick="unsubscribeSubscriber('${subscriber.id}')">
-                        <i class="ph-bold ph-user-minus text-xs"></i>
-                    </button>
-                </div>
-            </td>
-        </tr>
-    `).join('');
-
-    updatePagination();
-}
-
-function getSubscriberInitials(name) {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-}
-
-function getStatusClass(status) {
-    switch (status) {
-        case 'active': return 'status-active';
-        case 'inactive': return 'status-inactive';
-        case 'unsubscribed': return 'status-unsubscribed';
-        case 'bounced': return 'status-bounced';
-        default: return 'status-inactive';
-    }
-}
-
-function formatStatus(status) {
-    return status.charAt(0).toUpperCase() + status.slice(1);
-}
-
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    });
-}
-
-function updatePagination() {
-    const totalRecords = allSubscribers.length;
-    const totalPages = Math.ceil(totalRecords / pageSize);
-    const startRecord = (currentPage - 1) * pageSize + 1;
-    const endRecord = Math.min(currentPage * pageSize, totalRecords);
-
-    document.getElementById('showingStart').textContent = startRecord;
-    document.getElementById('showingEnd').textContent = endRecord;
-    document.getElementById('totalRecords').textContent = totalRecords;
-    document.getElementById('currentPage').textContent = currentPage;
-
-    const prevBtn = document.getElementById('prevPage');
-    const nextBtn = document.getElementById('nextPage');
-
-    prevBtn.disabled = currentPage === 1;
-    nextBtn.disabled = currentPage === totalPages;
-}
-
-function setupEventListeners() {
-    // Search and filters
-    document.getElementById('searchSubscribers').oninput = debounce(filterSubscribers, 300);
-    document.getElementById('statusFilter').onchange = filterSubscribers;
-    document.getElementById('dateFilter').onchange = filterSubscribers;
-    document.getElementById('segmentFilter').onchange = filterSubscribers;
-
-    // Pagination
-    document.getElementById('prevPage').onclick = () => {
-        if (currentPage > 1) {
-            currentPage--;
-            renderSubscribers();
-        }
-    };
-
-    document.getElementById('nextPage').onclick = () => {
-        const totalPages = Math.ceil(allSubscribers.length / pageSize);
-        if (currentPage < totalPages) {
-            currentPage++;
-            renderSubscribers();
-        }
-    };
-
-    // Action buttons
-    document.getElementById('addSubscriberBtn').onclick = () => addSubscriber();
-    document.getElementById('importSubscribersBtn').onclick = () => importSubscribers();
-    document.getElementById('exportSubscribersBtn').onclick = () => exportSubscribers();
-
-    // Select all checkbox
-    document.getElementById('selectAllSubscribers').onchange = toggleSelectAll;
-}
-
-function setupBulkActions() {
-    document.addEventListener('change', (e) => {
-        if (e.target.classList.contains('subscriber-checkbox')) {
-            updateBulkActionsState();
-        }
-    });
-
-    // Bulk action buttons
-    document.getElementById('bulkSegmentBtn').onclick = () => bulkAddToSegment();
-    document.getElementById('bulkExportBtn').onclick = () => bulkExport();
-    document.getElementById('bulkUnsubscribeBtn').onclick = () => bulkUnsubscribe();
-    document.getElementById('clearSelectionBtn').onclick = () => clearSelection();
-}
-
-function toggleSelectAll() {
-    const selectAll = document.getElementById('selectAllSubscribers');
-    const checkboxes = document.querySelectorAll('.subscriber-checkbox');
-
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = selectAll.checked;
-        if (selectAll.checked) {
-            selectedSubscribers.add(checkbox.value);
-        } else {
-            selectedSubscribers.delete(checkbox.value);
-        }
-    });
-
-    updateBulkActionsState();
-}
-
-function updateBulkActionsState() {
-    const checkboxes = document.querySelectorAll('.subscriber-checkbox:checked');
-    selectedSubscribers.clear();
-
-    checkboxes.forEach(checkbox => {
-        selectedSubscribers.add(checkbox.value);
-    });
-
-    const bulkPanel = document.getElementById('bulkActionsPanel');
-    const selectedCount = document.getElementById('selectedCount');
-
-    if (selectedSubscribers.size > 0) {
-        bulkPanel.classList.remove('hidden');
-        selectedCount.textContent = `${selectedSubscribers.size} subscriber${selectedSubscribers.size > 1 ? 's' : ''} selected`;
-    } else {
-        bulkPanel.classList.add('hidden');
-    }
-}
-
-function filterSubscribers() {
-    const searchTerm = document.getElementById('searchSubscribers').value.toLowerCase();
-    const statusFilter = document.getElementById('statusFilter').value;
-    const dateFilter = document.getElementById('dateFilter').value;
-    const segmentFilter = document.getElementById('segmentFilter').value;
-
-    // Apply filters (simplified implementation)
-    currentPage = 1;
-    renderSubscribers();
-}
-
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
-
-function showFallbackSubscriberData() {
-    // Show sample data when API is not available
-    updateSubscriberStats({
-        totalSubscribers: 12543,
-        activeSubscribers: 11289,
-        unsubscribedCount: 1245,
-        growthRate: '12.5%'
-    });
-
-    // Sample subscribers
-    allSubscribers = [
-        {
-            id: '1',
-            name: 'John Doe',
-            email: 'john@example.com',
-            status: 'active',
-            segments: ['VIP', 'Tech Enthusiasts'],
-            subscribedAt: '2024-01-15T10:30:00Z',
-            lastActivity: '2024-01-20T14:22:00Z',
-            source: 'Website'
-        },
-        {
-            id: '2',
-            name: 'Jane Smith',
-            email: 'jane@example.com',
-            status: 'active',
-            segments: ['Newsletter'],
-            subscribedAt: '2024-01-10T09:15:00Z',
-            lastActivity: '2024-01-18T16:45:00Z',
-            source: 'Blog'
-        }
-    ];
-
-    renderSubscribers();
-}
-
-function addSubscriber() {
-    showNotification('Add subscriber modal would open here', 'info');
-}
-
-function importSubscribers() {
-    showNotification('Import subscribers modal would open here', 'info');
-}
-
-function exportSubscribers() {
-    showNotification('Exporting subscribers...', 'info');
-}
-
-function editSubscriber(subscriberId) {
-    showNotification(`Editing subscriber ${subscriberId}`, 'info');
-}
-
-function viewSubscriberProfile(subscriberId) {
-    showNotification(`Viewing profile for subscriber ${subscriberId}`, 'info');
-}
-
-function unsubscribeSubscriber(subscriberId) {
-    if (confirm('Are you sure you want to unsubscribe this subscriber?')) {
-        showNotification(`Unsubscribing subscriber ${subscriberId}`, 'info');
-    }
-}
-
-function bulkAddToSegment() {
-    showNotification(`Adding ${selectedSubscribers.size} subscribers to segment`, 'info');
-}
-
-function bulkExport() {
-    showNotification(`Exporting ${selectedSubscribers.size} subscribers`, 'info');
-}
-
-function bulkUnsubscribe() {
-    if (confirm(`Are you sure you want to unsubscribe ${selectedSubscribers.size} subscribers?`)) {
-        showNotification(`Unsubscribing ${selectedSubscribers.size} subscribers`, 'info');
-    }
-}
-
-function clearSelection() {
-    selectedSubscribers.clear();
-    document.querySelectorAll('.subscriber-checkbox').forEach(cb => cb.checked = false);
-    document.getElementById('selectAllSubscribers').checked = false;
-    updateBulkActionsState();
-}
-
-function showNotification(message, type = 'info') {
-    // TODO: Implement notification system
-    console.log(`${type.toUpperCase()}: ${message}`);
-}
-
-// Initialize when page loads
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initNewsletterSubscribers);
-} else {
-    initNewsletterSubscribers();
-}
-</script>
+</html>

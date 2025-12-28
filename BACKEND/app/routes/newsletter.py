@@ -7,6 +7,56 @@ from typing import Optional
 
 router = APIRouter()
 
+# Admin endpoints
+@router.get("/admin/subscribers")
+async def get_all_subscribers(db: Session = Depends(get_db)):
+    """Get all newsletter subscribers (admin only)"""
+    try:
+        from models.blog import NewsletterSubscriber
+        
+        subscribers = db.query(NewsletterSubscriber).order_by(NewsletterSubscriber.subscribed_at.desc()).all()
+        
+        return {
+            "success": True,
+            "subscribers": [
+                {
+                    "id": sub.id,
+                    "name": sub.name,
+                    "email": sub.email,
+                    "is_active": sub.is_active,
+                    "subscribed_at": sub.subscribed_at.isoformat() if sub.subscribed_at else None,
+                    "unsubscribed_at": sub.unsubscribed_at.isoformat() if sub.unsubscribed_at else None,
+                }
+                for sub in subscribers
+            ]
+        }
+    except Exception as e:
+        raise HTTPException(500, f"Failed to get subscribers: {str(e)}")
+
+@router.delete("/admin/subscribers/{subscriber_id}")
+async def delete_subscriber(subscriber_id: int, db: Session = Depends(get_db)):
+    """Delete a subscriber (admin only)"""
+    try:
+        from models.blog import NewsletterSubscriber
+        
+        subscriber = db.query(NewsletterSubscriber).filter(NewsletterSubscriber.id == subscriber_id).first()
+        if not subscriber:
+            raise HTTPException(404, "Subscriber not found")
+        
+        db.delete(subscriber)
+        db.commit()
+        
+        return {
+            "success": True,
+            "message": "Subscriber deleted successfully"
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(500, f"Failed to delete subscriber: {str(e)}")
+
+
 @router.post("/subscribe")
 async def subscribe_newsletter(
     request: Request,

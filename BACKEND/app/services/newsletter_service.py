@@ -11,18 +11,30 @@ from schemas.blog import NewsletterSubscriberCreate, NewsletterCampaignCreate
 class NewsletterService:
     def __init__(self, db: Session):
         self.db = db
-        # Email configuration
-        self.mail_config = ConnectionConfig(
-            MAIL_USERNAME=os.getenv("SMTP_USERNAME"),
-            MAIL_PASSWORD=os.getenv("SMTP_PASSWORD"),
-            MAIL_FROM=os.getenv("FROM_EMAIL"),
-            MAIL_PORT=int(os.getenv("SMTP_PORT", 465)),
-            MAIL_SERVER=os.getenv("SMTP_SERVER"),
-            MAIL_SSL=True,  # Using SSL for port 465
-            MAIL_TLS=False,
-            USE_CREDENTIALS=True
-        )
-        self.fm = FastMail(self.mail_config)
+        # Email configuration - only initialize if credentials are available
+        self.fm = None
+        # try:
+        #     smtp_username = os.getenv("SMTP_USERNAME")
+        #     smtp_password = os.getenv("SMTP_PASSWORD")
+        #     
+        #     if smtp_username and smtp_password:
+        #         self.mail_config = ConnectionConfig(
+        #             MAIL_USERNAME=smtp_username,
+        #             MAIL_PASSWORD=smtp_password,
+        #             MAIL_FROM=os.getenv("FROM_EMAIL", smtp_username),
+        #             MAIL_PORT=int(os.getenv("SMTP_PORT", 465)),
+        #             MAIL_SERVER=os.getenv("SMTP_SERVER", "smtp.gmail.com"),
+        #             MAIL_SSL=True,  # Using SSL for port 465
+        #             MAIL_TLS=False,
+        #             USE_CREDENTIALS=True
+        #         )
+        #         self.fm = FastMail(self.mail_config)
+        #         print("[Newsletter] Email service initialized successfully")
+        #     else:
+        #         print("[Newsletter] SMTP credentials not configured - email sending disabled")
+        # except Exception as e:
+        #     print(f"[Newsletter] Failed to initialize email service: {e}")
+        #     self.fm = None
 
     async def subscribe_user(self, subscriber_data: NewsletterSubscriberCreate) -> Dict[str, Any]:
         """Subscribe a user and send welcome email immediately"""
@@ -52,8 +64,15 @@ class NewsletterService:
             self.db.commit()
             self.db.refresh(subscriber)
 
-            # Send welcome email immediately
-            await self._send_welcome_email(subscriber)
+            # Send welcome email immediately (skip if email not configured)
+            # try:
+            #     if os.getenv("SMTP_USERNAME") and os.getenv("SMTP_PASSWORD"):
+            #         await self._send_welcome_email(subscriber)
+            #     else:
+            #         print(f"[Newsletter] Email not configured - skipping welcome email for {subscriber.email}")
+            # except Exception as email_error:
+            #     print(f"[Newsletter] Failed to send welcome email: {email_error}")
+            #     # Don't fail the subscription if email fails
 
             return {
                 "success": True,

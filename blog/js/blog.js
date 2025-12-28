@@ -1,22 +1,22 @@
 // Blog JavaScript - Modern, Interactive, and Feature-Rich
 
-(function() {
+(function () {
   "use strict";
 
-    // Robust bootstrap: run once regardless of readyState timing
-    (function bootstrap() {
-      function start() {
-        if (window.__blogInited) return;
-        window.__blogInited = true;
-        initBlog();
-      }
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', start, { once: true });
-      } else {
-        start();
-      }
-    })();
-  
+  // Robust bootstrap: run once regardless of readyState timing
+  (function bootstrap() {
+    function start() {
+      if (window.__blogInited) return;
+      window.__blogInited = true;
+      initBlog();
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', start, { once: true });
+    } else {
+      start();
+    }
+  })();
+
   function initBlog() {
     // Initialize all blog features (resilient to isolated failures)
     const safe = (fn, name) => {
@@ -319,7 +319,7 @@
 
     // Observe attribute changes (if any other script flips theme, keep icons in sync)
     const mo = new MutationObserver(() => setIcons(getCurrentTheme()));
-    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['color-scheme','class','data-theme'] });
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['color-scheme', 'class', 'data-theme'] });
 
     // Load initial theme
     loadTheme(getCurrentTheme());
@@ -348,9 +348,14 @@
 
     if (!slider || !prevBtn || !nextBtn) return;
 
+    // Clean up existing state if re-initializing
+    if (slider.autoSlideInterval) clearInterval(slider.autoSlideInterval);
+    if (dotsContainer) dotsContainer.innerHTML = '';
+
     const slides = slider.querySelectorAll('.banner-slide');
+    if (slides.length === 0) return;
+
     let currentSlide = 0;
-    let autoSlideInterval;
 
     // Create dots
     for (let i = 0; i < slides.length; i++) {
@@ -392,22 +397,26 @@
       goToSlide(currentSlide);
     }
 
-    // Event listeners
-    nextBtn.addEventListener('click', nextSlide);
-    prevBtn.addEventListener('click', prevSlide);
+    // Event listeners - use onclick to prevent duplicates on re-init
+    nextBtn.onclick = nextSlide;
+    prevBtn.onclick = prevSlide;
 
     // Auto slide every 4 seconds
     function startAutoSlide() {
-      autoSlideInterval = setInterval(nextSlide, 4000);
+      stopAutoSlide(); // Ensure we don't have multiple
+      slider.autoSlideInterval = setInterval(nextSlide, 4000);
     }
 
     function stopAutoSlide() {
-      clearInterval(autoSlideInterval);
+      if (slider.autoSlideInterval) {
+        clearInterval(slider.autoSlideInterval);
+        slider.autoSlideInterval = null;
+      }
     }
 
     // Pause on hover
-    slider.parentElement.addEventListener('mouseenter', stopAutoSlide);
-    slider.parentElement.addEventListener('mouseleave', startAutoSlide);
+    slider.parentElement.onmouseenter = stopAutoSlide;
+    slider.parentElement.onmouseleave = startAutoSlide;
 
     // Initialize first slide
     updateSlides();
@@ -415,6 +424,7 @@
     // Start auto slide
     startAutoSlide();
   }
+  window.initBannerSlider = initBannerSlider;
 
   // Trending Slider Functionality
   function initTrendingSlider() {
@@ -425,9 +435,14 @@
 
     if (!slider || !prevBtn || !nextBtn) return;
 
+    // Clean up
+    if (slider.autoSlideInterval) clearInterval(slider.autoSlideInterval);
+    if (dotsContainer) dotsContainer.innerHTML = '';
+
     const slides = slider.querySelectorAll('.slide');
+    if (slides.length === 0) return;
+
     let currentSlide = 0;
-    let autoSlideInterval;
 
     // Create dots
     for (let i = 0; i < slides.length; i++) {
@@ -474,31 +489,39 @@
 
     // Make slides clickable
     slides.forEach((slide, index) => {
-      slide.addEventListener('click', () => {
+      slide.onclick = () => {
         const href = slide.getAttribute('data-href');
         if (href) {
-          window.location.href = href;
+          if (window.RouteManager && typeof window.RouteManager.navigate === 'function') {
+            window.RouteManager.navigate(href.replace('/blog/', ''));
+          } else {
+            window.location.href = href;
+          }
         }
-      });
+      };
       slide.style.cursor = 'pointer';
     });
 
     // Event listeners
-    nextBtn.addEventListener('click', nextSlide);
-    prevBtn.addEventListener('click', prevSlide);
+    nextBtn.onclick = nextSlide;
+    prevBtn.onclick = prevSlide;
 
     // Auto slide
     function startAutoSlide() {
-      autoSlideInterval = setInterval(nextSlide, 4000);
+      stopAutoSlide();
+      slider.autoSlideInterval = setInterval(nextSlide, 4000);
     }
 
     function stopAutoSlide() {
-      clearInterval(autoSlideInterval);
+      if (slider.autoSlideInterval) {
+        clearInterval(slider.autoSlideInterval);
+        slider.autoSlideInterval = null;
+      }
     }
 
     // Pause on hover
-    slider.parentElement.addEventListener('mouseenter', stopAutoSlide);
-    slider.parentElement.addEventListener('mouseleave', startAutoSlide);
+    slider.parentElement.onmouseenter = stopAutoSlide;
+    slider.parentElement.onmouseleave = startAutoSlide;
 
     // Initialize first slide
     updateSlides();
@@ -506,6 +529,7 @@
     // Start auto slide
     startAutoSlide();
   }
+  window.initTrendingSlider = initTrendingSlider;
 
   // Articles Slider Functionality
   function initArticlesSlider() {
@@ -515,11 +539,16 @@
 
     if (!track || !prevBtn || !nextBtn) return;
 
+    // Clean up
+    if (track.autoSlideInterval) clearInterval(track.autoSlideInterval);
+
     const cards = Array.from(track.children);
+    if (cards.length === 0) return;
+
     let currentIndex = 0;
     const cardWidth = 340; // 320px card + 20px gap
     const visibleCards = 3;
-    const totalCards = 6; // Fixed to 6 cards as requested
+    const totalCards = 6; // Fixed as requested
 
     // Ensure we have exactly 6 cards
     while (cards.length < totalCards) {
@@ -541,7 +570,6 @@
 
     function nextSlide() {
       if (currentIndex >= totalCards - visibleCards) {
-        // At the end, jump back to start seamlessly
         track.style.transition = 'none';
         currentIndex = 0;
         updateSlider();
@@ -558,7 +586,6 @@
 
     function prevSlide() {
       if (currentIndex <= 0) {
-        // At the beginning, jump to end seamlessly
         track.style.transition = 'none';
         currentIndex = totalCards - visibleCards;
         updateSlider();
@@ -573,12 +600,13 @@
       }
     }
 
-    nextBtn.addEventListener('click', nextSlide);
-    prevBtn.addEventListener('click', prevSlide);
+    nextBtn.onclick = nextSlide;
+    prevBtn.onclick = prevSlide;
 
     // Auto slide every 4 seconds
-    setInterval(nextSlide, 4000);
+    track.autoSlideInterval = setInterval(nextSlide, 4000);
   }
+  window.initArticlesSlider = initArticlesSlider;
 
   // Advanced Search Modal Functionality
   function initSearchModal() {
@@ -696,9 +724,9 @@
       currentResults = [];
       resultsOffset = 0;
       searchState = 'idle';
-      
+
       if (searchInput) searchInput.value = '';
-      
+
       // Reset UI to idle state
       setState('idle');
       updateUI();
@@ -709,7 +737,7 @@
       resultsCount.textContent = 'Start typing to search...';
       searchStats.innerHTML = '';
       loadMoreContainer.style.display = 'none';
-      
+
       if (searchResults) {
         searchResults.innerHTML = `
           <div class="no-results">
@@ -881,7 +909,7 @@
 
     function updateUI() {
       const totalResults = currentResults.length;
-      
+
       if (resultsCount) {
         if (totalResults === 0) {
           resultsCount.textContent = '0 results found';
@@ -925,7 +953,7 @@
       const resultsHTML = currentResults.map((result, index) =>
         createResultCard(result, append ? index + (resultsOffset - resultsPerPage) : index)
       ).join('');
-      
+
       if (append) {
         searchResults.insertAdjacentHTML('beforeend', resultsHTML);
       } else {
@@ -939,7 +967,7 @@
         <div class="result-card" style="animation-delay: ${delay}s">
           <div class="result-media">
             ${result.image ? `<img src="${result.image}" alt="${result.title}" class="result-image">` :
-              `<div class="result-icon"><i class="ph-bold ${result.icon || 'ph-article'}"></i></div>`}
+          `<div class="result-icon"><i class="ph-bold ${result.icon || 'ph-article'}"></i></div>`}
           </div>
           <div class="result-content">
             <div class="result-category">${result.section || result.category}</div>
@@ -1171,24 +1199,27 @@
     scrollBtn.addEventListener('click', scrollToTop);
   }
 
-    // Newsletter Form Functionality
-    function initNewsletterForm() {
-      const form = document.getElementById('newsletterForm');
-      if (!form) return;
-  
-      const message = document.getElementById('newsletterMessage');
-      const submitBtn = document.getElementById('subscribeBtn');
-      const btnText = submitBtn ? submitBtn.querySelector('.btn-text') : null;
+  // Newsletter Form Functionality
+  function initNewsletterForm() {
+    const form = document.getElementById('newsletterForm');
+    if (!form) return;
+
+    const message = document.getElementById('newsletterMessage');
+    const submitBtn = document.getElementById('subscribeBtn');
+    const btnText = submitBtn ? submitBtn.querySelector('.btn-text') : null;
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const name = document.getElementById('subscriberName').value;
-      const email = document.getElementById('subscriberEmail').value;
+      const nameEl = document.getElementById('subscriberName') || { value: (document.getElementById('newsletterEmail')?.value || '').split('@')[0] };
+      const emailEl = document.getElementById('subscriberEmail') || document.getElementById('newsletterEmail');
+
+      const name = nameEl?.value || '';
+      const email = emailEl?.value || '';
 
       // Basic validation
-      if (!name.trim() || !email.trim()) {
-        showMessage('Please fill in all fields.', 'error');
+      if (!email.trim()) {
+        showMessage('Please enter an email address.', 'error');
         return;
       }
 
@@ -1197,9 +1228,9 @@
         return;
       }
 
-            // Show loading state
-            submitBtn.disabled = true;
-            if (btnText) btnText.textContent = 'Subscribing...';
+      // Show loading state
+      submitBtn.disabled = true;
+      if (btnText) btnText.textContent = 'Subscribing...';
 
       try {
         // Mock API call - replace with real endpoint
@@ -1255,16 +1286,32 @@
 
   // Card Link Click Handler
   function initCardLinks() {
-    document.querySelectorAll('.card-link, .post-link, .slide-link, .banner-link, .tag-item').forEach(card => {
-      card.addEventListener('click', function(e) {
+    document.querySelectorAll('.card-link, .post-link, .slide-link, .banner-link, .tag-item, .trending-link').forEach(card => {
+      card.onclick = function (e) {
         const href = this.getAttribute('data-href') || this.getAttribute('href');
         if (href) {
           e.preventDefault();
-          openPostModal(href);
+
+          // If it's a blog post, try to open in modal or navigate via SPA
+          if (href.startsWith('/blog/')) {
+            const slug = href.replace('/blog/', '');
+            if (window.openPostModal && typeof window.openPostModal === 'function') {
+              window.openPostModal(slug);
+            } else {
+              window.location.href = href;
+            }
+          } else if (window.RouteManager && typeof window.RouteManager.navigate === 'function') {
+            // Handle regular SPA routes
+            const route = href.startsWith('/') ? href.substring(1) : href;
+            window.RouteManager.navigate(route || 'home');
+          } else {
+            window.location.href = href;
+          }
         }
-      });
+      };
     });
   }
+  window.initCardLinks = initCardLinks;
 
   // Post Modal Functionality
   function initPostModal() {
@@ -1345,7 +1392,7 @@
     let currentPostId = null;
 
     // Function to reset like state for new post
-    window.resetPostLike = function(postId, likeCount = 0) {
+    window.resetPostLike = function (postId, likeCount = 0) {
       currentPostId = postId;
       currentLikes = likeCount;
       isLiked = false; // Reset to not liked for new post
@@ -1592,7 +1639,7 @@
 
   function throttle(func, limit) {
     let inThrottle;
-    return function() {
+    return function () {
       const args = arguments;
       const context = this;
       if (!inThrottle) {
@@ -1629,25 +1676,25 @@
   window.BlogPageInit = initBlog;
 
   // Share functions for inline social buttons
-  window.shareOnFacebook = function() {
+  window.shareOnFacebook = function () {
     const url = encodeURIComponent(window.location.href);
     const title = encodeURIComponent(document.title);
     window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&title=${title}`, '_blank', 'width=600,height=400');
   };
 
-  window.shareOnTelegram = function() {
+  window.shareOnTelegram = function () {
     const url = encodeURIComponent(window.location.href);
     const text = encodeURIComponent(document.title);
     window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank');
   };
 
-  window.shareOnReddit = function() {
+  window.shareOnReddit = function () {
     const url = encodeURIComponent(window.location.href);
     const title = encodeURIComponent(document.title);
     window.open(`https://www.reddit.com/submit?url=${url}&title=${title}`, '_blank');
   };
 
-  window.shareOnWhatsApp = function() {
+  window.shareOnWhatsApp = function () {
     const url = encodeURIComponent(window.location.href);
     const text = encodeURIComponent(document.title);
     window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
