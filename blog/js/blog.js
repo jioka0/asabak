@@ -1292,35 +1292,59 @@
 
     document.addEventListener('click', function (e) {
       // Find the closest clickable element (handling nested icons/text)
-      const target = e.target.closest('.card-link, .post-link, .slide-link, .banner-link, .tag-item, .trending-link, .tag-pill, .nav-link[data-route]');
+      // Priority: find the closest element that actually has a target URL
+      const target = e.target.closest('[data-href], a[href], .nav-link[data-route]');
 
       if (!target) return;
+
+      // EXCLUSION: If the user explicitly clicked an engagement area (like/comment/share), DON'T open the post modal
+      // This prevents the universal container-click from overriding specific interactions
+      if (e.target.closest('.engagement-metric, .post-modal-actions, .social-links, .share-links, .post-modal-action-btn')) {
+        return;
+      }
 
       const href = target.getAttribute('data-href') || target.getAttribute('href');
       if (href) {
         e.preventDefault();
         e.stopPropagation();
 
-        // If it's a blog post (direct slug or /blog/ prefix), try to open in modal
-        const isBlogPost = href.startsWith('/blog/') || (!href.includes('?') && !['latest', 'popular', 'featured', 'others', 'topics', 'home'].some(r => href.includes(`/${r}`)));
+        // Determine if it's a blog post or an SPA route
+        const isInternal = href.startsWith('/') || href.startsWith(window.location.origin);
+
+        // If it's an external link (like Portfolio), let the browser handle it
+        if (!isInternal) return;
+
+        // Standardize the path
+        const path = href.replace(window.location.origin, '').split('?')[0];
+        const segments = path.split('/').filter(Boolean);
+        const systemRoutes = ['latest', 'popular', 'featured', 'others', 'topics', 'home', 'search', 'admin', 'api', 'back'];
+
+        const isHome = path === '/' || path === '';
+        const isSystem = segments.length > 0 && systemRoutes.includes(segments[0]);
+        const isBlogPost = segments.length > 0 && !isSystem;
 
         if (isBlogPost) {
-          const slug = href.replace('/blog/', '').replace('/', '');
-          if (window.openPostModal && typeof window.openPostModal === 'function') {
-            window.openPostModal(slug);
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('📖 Recognized as Blog Post. Navigating directly to:', href);
+          window.location.href = href;
+        } else if (target.hasAttribute('data-route') || isSystem) {
+          e.preventDefault();
+          e.stopPropagation();
+
+          const cleanPath = path.replace(/^\//, '');
+          const [route, query] = cleanPath.split('?');
+          const finalRoute = route || 'home';
+
+          console.log('🚀 Recognized as System Route. SPA Navigating to:', finalRoute);
+          if (window.RouteManager && typeof window.RouteManager.navigate === 'function') {
+            window.RouteManager.navigate(finalRoute, href.includes('?') ? '?' + href.split('?')[1] : '');
           } else {
             window.location.href = href;
           }
-        } else if (window.RouteManager && typeof window.RouteManager.navigate === 'function') {
-          // Extract route and query
-          let fullPath = href.startsWith('/') ? href.substring(1) : href;
-          let [route, query] = fullPath.split('?');
-          window.RouteManager.navigate(route || 'home', query ? `?${query}` : '');
-        } else {
-          window.location.href = href;
         }
       }
-    }, true); // Use capture phase to catch events before they are blocked
+    }, true);
 
     window.__globalClickDelegationActive = true;
     console.log("⚡ Global Click Delegation Active: All elements are now bulletproof.");
@@ -1387,6 +1411,7 @@
     // Fetch post content (mock for now - replace with real API call)
     loadPostContent(postUrl);
   }
+  window.openPostModal = openPostModal;
 
   function closePostModal() {
     const modal = document.getElementById('postModal');
@@ -1395,6 +1420,7 @@
       document.body.style.overflow = '';
     }
   }
+  window.closePostModal = closePostModal;
 
   // Like functionality for post modal
   function initPostLike() {
@@ -1763,8 +1789,8 @@
     emptyState?.classList.add('hidden');
 
     container.innerHTML = posts.map(post => `
-      <article class="article-card rounded-[1.5rem] border border-stroke-elements bg-white overflow-hidden flex flex-col shadow-sm hover:shadow-xl transition-all h-full">
-        <div class="card-link cursor-pointer h-full flex flex-col" data-href="/${post.slug}">
+    <article class="article-card rounded-[1.5rem] border border-stroke-elements bg-white overflow-hidden flex flex-col shadow-sm hover:shadow-xl transition-all h-full cursor-pointer" data-href="/${post.slug}">
+      <div class="card-link h-full flex flex-col">
           <div class="relative aspect-video overflow-hidden">
             <img src="${post.featured_image || 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&h=400&fit=crop'}" 
                  class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" 
