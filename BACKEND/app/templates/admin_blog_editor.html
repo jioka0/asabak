@@ -95,6 +95,15 @@
             background: rgba(220, 53, 69, 0.9);
         }
 
+        .editor-btn.success {
+            background: rgba(40, 167, 69, 0.8);
+            border-color: rgba(40, 167, 69, 0.5);
+        }
+
+        .editor-btn.success:hover {
+            background: rgba(40, 167, 69, 0.9);
+        }
+
         /* Loading overlay */
         .loading-overlay {
             position: fixed;
@@ -746,6 +755,10 @@
     <div class="editor-controls">
         <button class="editor-btn" id="saveDraftBtn">
             💾 Save Draft
+        </button>
+        <!-- NEW: Save & Preview button - only visible in edit mode -->
+        <button class="editor-btn success" id="savePreviewBtn" style="display: none;">
+            👁️ Save & Preview
         </button>
         <button class="editor-btn primary" id="publishBtn">
             🚀 Publish
@@ -1765,6 +1778,94 @@
             saveDraft();
         });
 
+        // NEW: Save & Preview button handler
+        document.getElementById('savePreviewBtn').addEventListener('click', async () => {
+            if (!isEditMode || !editingPostData) {
+                alert('Save & Preview is only available when editing existing posts');
+                return;
+            }
+
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('You need to be logged in to save posts.');
+                return;
+            }
+
+            try {
+                // Get the current content
+                const content = templateContainer.innerHTML;
+                if (!content || content.trim() === '') {
+                    alert('Cannot save empty content.');
+                    return;
+                }
+
+                // Extract title and excerpt
+                let title = 'Untitled Post';
+                const titleElement = templateContainer.querySelector('h1, h2, h3');
+                if (titleElement && titleElement.textContent && titleElement.textContent.trim()) {
+                    title = titleElement.textContent.trim();
+                }
+
+                let excerpt = '';
+                const firstParagraph = templateContainer.querySelector('p');
+                if (firstParagraph && firstParagraph.textContent && firstParagraph.textContent.trim()) {
+                    excerpt = firstParagraph.textContent.trim().substring(0, 200);
+                }
+
+                // Prepare update data
+                const updateData = {
+                    id: editingPostData.id,
+                    title: title,
+                    content: content,
+                    excerpt: excerpt,
+                    template_type: editingPostData.template_type || templateParam || 'template1',
+                    author: editingPostData.author || 'NekwasaR'
+                };
+
+                // Show loading state
+                const savePreviewBtn = document.getElementById('savePreviewBtn');
+                const originalBtnText = savePreviewBtn.textContent;
+                savePreviewBtn.textContent = '💾 Saving...';
+                savePreviewBtn.disabled = true;
+
+                console.log('[SAVE & PREVIEW] Updating post:', updateData.id);
+
+                // Update the post
+                const response = await fetch(`/admin/api/blog/posts/${editingPostData.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(updateData)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to save post: ${response.status}`);
+                }
+
+                const result = await response.json();
+                console.log('[SAVE & PREVIEW] Post saved successfully:', result);
+
+                // Redirect to the post's URL for preview
+                const postSlug = result.slug || editingPostData.slug;
+                if (postSlug) {
+                    window.location.href = `/${postSlug}`;
+                } else {
+                    alert('Post saved successfully!');
+                    savePreviewBtn.textContent = originalBtnText;
+                    savePreviewBtn.disabled = false;
+                }
+
+            } catch (error) {
+                console.error('[SAVE & PREVIEW] Error:', error);
+                alert('Failed to save post: ' + error.message);
+                const savePreviewBtn = document.getElementById('savePreviewBtn');
+                savePreviewBtn.textContent = '👁️ Save & Preview';
+                savePreviewBtn.disabled = false;
+            }
+        });
+
         document.getElementById('closeBtn').addEventListener('click', () => {
             if (confirm('Are you sure you want to close the editor? Any unsaved changes will be lost.')) {
                 window.location.href = '/admin/blog/posts';
@@ -1787,6 +1888,13 @@
 
                     // Load the template (which will now inject the post content)
                     await loadTemplate(templateToLoad);
+
+                    // NEW: Show Save & Preview button in edit mode
+                    const savePreviewBtn = document.getElementById('savePreviewBtn');
+                    if (savePreviewBtn) {
+                        savePreviewBtn.style.display = 'inline-block';
+                        console.log('[EDIT MODE] Save & Preview button enabled');
+                    }
                 } else {
                     console.log('[CREATE MODE] Loading template:', templateParam);
                     // Normal mode: just load the template
@@ -2542,6 +2650,25 @@
                     .replace(/-+/g, '-') // Replace multiple hyphens with single
                     .trim();
                 document.getElementById('publishSlug').value = slug;
+            }
+
+            // NEW: Auto-populate publish date with current local date/time
+            const publishDateInput = document.getElementById('publishDate');
+            if (publishDateInput && !publishDateInput.value) {
+                // Get current date/time in user's local timezone
+                const now = new Date();
+
+                // Format for datetime-local input: YYYY-MM-DDTHH:MM
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+
+                const localDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+                publishDateInput.value = localDateTime;
+
+                console.log('[PUBLISH] Auto-populated date/time:', localDateTime, 'Timezone:', Intl.DateTimeFormat().resolvedOptions().timeZone);
             }
         }
 
