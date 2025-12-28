@@ -668,123 +668,7 @@
         }
     };
 
-    // Mobile Menu Module
-    const MobileMenu = {
-        init: function () {
-            this.createMobileMenu();
-            this.bindEvents();
-            Utils.debug('Mobile Menu initialized');
-        },
 
-        createMobileMenu: function () {
-            const menuToggle = document.createElement('button');
-            menuToggle.id = 'mobile-menu-toggle';
-            menuToggle.innerHTML = '<i class="ph-bold ph-list"></i>';
-            menuToggle.style.cssText = `
-                position: fixed;
-                top: 20px;
-                left: 20px;
-                width: 50px;
-                height: 50px;
-                border-radius: 50%;
-                background: var(--base);
-                border: 1px solid var(--stroke-elements);
-                color: var(--t-medium);
-                cursor: pointer;
-                z-index: 9999;
-                transition: all 0.3s var(--_animbezier);
-                display: none;
-                align-items: center;
-                justify-content: center;
-                font-size: 1.8rem;
-            `;
-
-            // Show on mobile
-            if (window.innerWidth <= 768) {
-                menuToggle.style.display = 'flex';
-            }
-
-            document.body.appendChild(menuToggle);
-        },
-
-        bindEvents: function () {
-            const menuToggle = document.getElementById('mobile-menu-toggle');
-            if (menuToggle) {
-                menuToggle.addEventListener('click', () => {
-                    this.toggleMenu();
-                });
-            }
-
-            // Handle window resize
-            window.addEventListener('resize', Utils.debounce(() => {
-                const menuToggle = document.getElementById('mobile-menu-toggle');
-                if (menuToggle) {
-                    menuToggle.style.display = window.innerWidth <= 768 ? 'flex' : 'none';
-                }
-            }, 250));
-        },
-
-        toggleMenu: function () {
-            // Create simple mobile menu
-            const menu = document.createElement('div');
-            menu.id = 'mobile-menu';
-            menu.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: -100%;
-                width: 80%;
-                height: 100vh;
-                background: var(--base);
-                z-index: 9998;
-                padding: 6rem 2rem 2rem;
-                transition: left 0.3s var(--_animbezier);
-                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-            `;
-
-            menu.innerHTML = `
-                <nav style="display: flex; flex-direction: column; gap: 2rem;">
-                    <a href="#content" style="color: var(--t-bright); text-decoration: none; font-size: 1.6rem; padding: 1rem 0; border-bottom: 1px solid var(--stroke-elements);">Content</a>
-                    <a href="#introduction" style="color: var(--t-bright); text-decoration: none; font-size: 1.6rem; padding: 1rem 0; border-bottom: 1px solid var(--stroke-elements);">Introduction</a>
-                    <a href="#conclusion" style="color: var(--t-bright); text-decoration: none; font-size: 1.6rem; padding: 1rem 0;">Conclusion</a>
-                </nav>
-            `;
-
-            document.body.appendChild(menu);
-
-            // Animate in
-            setTimeout(() => {
-                menu.style.left = '0';
-            }, 10);
-
-            // Close on outside click
-            const closeMenu = (e) => {
-                if (!menu.contains(e.target) && e.target !== menuToggle) {
-                    this.closeMenu(menu, menuToggle);
-                    document.removeEventListener('click', closeMenu);
-                }
-            };
-
-            setTimeout(() => {
-                document.addEventListener('click', closeMenu);
-            }, 100);
-
-            // Update toggle icon
-            menuToggle.innerHTML = '<i class="ph-bold ph-x"></i>';
-            menuToggle.onclick = () => this.closeMenu(menu, menuToggle);
-        },
-
-        closeMenu: function (menu, toggle) {
-            menu.style.left = '-100%';
-            toggle.innerHTML = '<i class="ph-bold ph-list"></i>';
-            toggle.onclick = () => this.toggleMenu();
-
-            setTimeout(() => {
-                if (menu.parentNode) {
-                    menu.parentNode.removeChild(menu);
-                }
-            }, 300);
-        }
-    };
 
     // Main initialization
     const BlogTemplates = {
@@ -865,7 +749,6 @@
                 ThemeToggle.init();
                 SearchModal.init();
                 Print.init();
-                MobileMenu.init();
 
                 Utils.debug('All modules initialized successfully');
             } catch (error) {
