@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from typing import List, Optional
 from datetime import datetime
 
@@ -156,13 +156,30 @@ class TemporalUser(TemporalUserBase):
         from_attributes = True
 
 class LikeCreate(BaseModel):
-    user_identifier: str
+    fingerprint: Optional[str] = None  # Primary field for device fingerprint
+    user_identifier: Optional[str] = None  # Legacy field for backward compatibility
+    
+    def __init__(self, **data):
+        # If fingerprint is not provided, use user_identifier as fallback
+        if 'fingerprint' not in data or data['fingerprint'] is None:
+            if 'user_identifier' in data and data['user_identifier'] is not None:
+                data['fingerprint'] = data['user_identifier']
+        super().__init__(**data)
+    
+    @validator('fingerprint')
+    def validate_fingerprint(cls, v, values):
+        # Ensure we have either fingerprint or user_identifier
+        if v is None and values.get('user_identifier') is None:
+            raise ValueError('Either fingerprint or user_identifier is required')
+        return v
 
 class Like(BaseModel):
     id: int
     blog_post_id: int
-    user_identifier: str
+    fingerprint: str
+    user_identifier: Optional[str] = None
     created_at: datetime
+    expires_at: datetime
 
     class Config:
         from_attributes = True

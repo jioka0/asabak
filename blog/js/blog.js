@@ -1474,13 +1474,70 @@
     let isLiked = false;
     let currentLikes = 0;
     let currentPostId = null;
+    let currentFingerprint = null;
+
+    // Generate a robust fallback fingerprint
+    function generateFallbackFingerprint() {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      ctx.textBaseline = 'top';
+      ctx.font = '14px Arial';
+      ctx.fillText('fallback fingerprint test', 2, 2);
+      
+      const fingerprint = [
+        navigator.userAgent,
+        navigator.language,
+        screen.width + 'x' + screen.height,
+        new Date().getTimezoneOffset(),
+        canvas.toDataURL()
+      ].join('|');
+      
+      // Simple hash function
+      let hash = 0;
+      for (let i = 0; i < fingerprint.length; i++) {
+        const char = fingerprint.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32bit integer
+      }
+      
+      return 'fallback_' + Math.abs(hash) + '_' + Date.now();
+    }
 
     // Function to reset like state for new post
-    window.resetPostLike = function (postId, likeCount = 0) {
+    window.resetPostLike = async function (postId, likeCount = 0) {
       currentPostId = postId;
       currentLikes = likeCount;
       isLiked = false; // Reset to not liked for new post
 
+      // Get device fingerprint with multiple fallback strategies
+      let fingerprintReady = false;
+      
+      // Strategy 1: Try to use getDeviceFingerprint() if available
+      if (window.getDeviceFingerprint && typeof window.getDeviceFingerprint === 'function') {
+        try {
+          currentFingerprint = window.getDeviceFingerprint();
+          fingerprintReady = !!currentFingerprint;
+        } catch (error) {
+          console.warn('getDeviceFingerprint() failed:', error);
+        }
+      }
+      
+      // Strategy 2: Try async generation if sync failed
+      if (!fingerprintReady && window.generateDeviceFingerprint) {
+        try {
+          currentFingerprint = await window.generateDeviceFingerprint();
+          fingerprintReady = !!currentFingerprint;
+        } catch (error) {
+          console.warn('generateDeviceFingerprint() failed:', error);
+        }
+      }
+      
+      // Strategy 3: Generate a robust fallback fingerprint
+      if (!fingerprintReady) {
+        currentFingerprint = generateFallbackFingerprint();
+      }
+
+      // Update UI
       const countSpan = likeBtn.querySelector('.action-count');
       const icon = likeBtn.querySelector('i');
 
@@ -1490,11 +1547,43 @@
       if (icon) {
         icon.className = 'ph-bold ph-heart';
       }
+
+      // Check like status with backend
+      try {
+        await checkLikeStatus();
+      } catch (error) {
+        console.warn('Failed to check like status:', error);
+      }
     };
+
+    // Check if user has already liked this post
+    async function checkLikeStatus() {
+      if (!currentFingerprint || !currentPostId) return;
+
+      try {
+        const response = await fetch(`/api/blogs/${currentPostId}/likes/status?fingerprint=${encodeURIComponent(currentFingerprint)}`);
+        if (response.ok) {
+          const data = await response.json();
+          isLiked = data.liked;
+          
+          const icon = likeBtn.querySelector('i');
+          if (icon) {
+            icon.className = isLiked ? 'ph-fill ph-heart text-red-500' : 'ph-bold ph-heart';
+          }
+        }
+      } catch (error) {
+        console.warn('Failed to check like status:', error);
+      }
+    }
 
     likeBtn.addEventListener('click', async () => {
       const countSpan = likeBtn.querySelector('.action-count');
       const icon = likeBtn.querySelector('i');
+
+      if (!currentFingerprint) {
+        console.error('No device fingerprint available');
+        return;
+      }
 
       try {
         // Toggle like state
@@ -1513,15 +1602,15 @@
           countSpan.textContent = currentLikes;
         }
 
-        // Send like/unlike request to backend API
-        const userIdentifier = 'user_' + Date.now(); // Simple identifier for demo
-
         if (isLiked) {
           // Like the post
           const response = await fetch(`/api/blogs/${currentPostId}/likes`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user_identifier: userIdentifier })
+            body: JSON.stringify({ 
+              fingerprint: currentFingerprint,
+              user_identifier: currentFingerprint // Legacy field
+            })
           });
 
           if (!response.ok) {
@@ -1529,7 +1618,7 @@
           }
         } else {
           // Unlike the post
-          const response = await fetch(`/api/blogs/${currentPostId}/likes?user_identifier=${userIdentifier}`, {
+          const response = await fetch(`/api/blogs/${currentPostId}/likes?fingerprint=${encodeURIComponent(currentFingerprint)}`, {
             method: 'DELETE'
           });
 

@@ -16,10 +16,32 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
 
+# Import essential models to ensure tables are created
+# This must be after Base is defined to avoid circular imports
+from models.blog import BlogPost, BlogComment, BlogLike, TemporalUser
+
 # Create tables
 def create_tables():
     # Create tables with checkfirst=True to avoid errors if tables already exist
-    Base.metadata.create_all(bind=engine, checkfirst=True)
+    try:
+        print("🚀 Creating database tables...")
+        Base.metadata.create_all(bind=engine, checkfirst=True)
+        print("✅ Database tables created/verified successfully!")
+        
+        # List all tables that should exist
+        from sqlalchemy import inspect
+        inspector = inspect(engine)
+        tables = inspector.get_table_names()
+        print(f"📋 Existing tables: {tables}")
+        
+        if 'blog_likes' in tables:
+            print("✅ blog_likes table exists!")
+        else:
+            print("❌ blog_likes table is missing!")
+            
+    except Exception as e:
+        print(f"❌ Error creating tables: {str(e)}")
+        raise
 
 # Dependency to get database session
 def get_db():

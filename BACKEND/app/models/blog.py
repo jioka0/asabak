@@ -59,8 +59,10 @@ class BlogLike(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     blog_post_id = Column(Integer, ForeignKey("blog_posts.id", ondelete="CASCADE"))
-    user_identifier = Column(String(255))  # IP or session ID
+    fingerprint = Column(String(500), nullable=False, index=True)  # Device fingerprint
+    user_identifier = Column(String(255))  # Legacy field for backward compatibility
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    expires_at = Column(DateTime(timezone=True), nullable=False)  # 3-day expiration
 
 class BlogShare(Base):
     __tablename__ = "blog_shares"

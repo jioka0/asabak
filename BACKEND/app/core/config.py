@@ -3,7 +3,7 @@ from typing import Optional
 
 class Settings(BaseSettings):
     # Database
-    database_url: str = "sqlite:///./nekwasar.db"
+    database_url: str = "sqlite:///./nekwasa.db"
 
     # Security
     secret_key: str = "your-secret-key-change-in-production"

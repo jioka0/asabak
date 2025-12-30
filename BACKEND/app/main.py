@@ -5,13 +5,18 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from pathlib import Path
 import uvicorn
 import hashlib
 from sqlalchemy.orm import Session
 
 from database import create_tables, SessionLocal, get_db
-from routes import contacts, blogs, products, auth, admin, search, newsletter, analytics, content
+from routes import (
+    contacts_router, blogs_router, products_router, auth_router, 
+    admin_router, search_router, newsletter_router, analytics_router, content_router
+)
 from core.config import settings
 from scheduler import init_scheduler, start_scheduler, stop_scheduler
 from models.user import AdminUser
@@ -67,15 +72,15 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(contacts.router, prefix="/api/contacts", tags=["contacts"])
-app.include_router(blogs.router, prefix="/api/blogs", tags=["blogs"])
-app.include_router(products.router, prefix="/api/products", tags=["products"])
-app.include_router(auth.router, prefix="/api/auth", tags=["authentication"])
-app.include_router(search.router, prefix="/api/search", tags=["search"])
-app.include_router(newsletter.router, prefix="/api/newsletter", tags=["newsletter"])
-app.include_router(analytics.router, prefix="/api/analytics", tags=["analytics"])
-app.include_router(content.router, prefix="/api/content", tags=["content"])
-app.include_router(admin.router, tags=["admin"])
+app.include_router(contacts_router, prefix="/api/contacts", tags=["contacts"])
+app.include_router(blogs_router, prefix="/api/blogs", tags=["blogs"])
+app.include_router(products_router, prefix="/api/products", tags=["products"])
+app.include_router(auth_router, prefix="/api/auth", tags=["authentication"])
+app.include_router(search_router, prefix="/api/search", tags=["search"])
+app.include_router(newsletter_router, prefix="/api/newsletter", tags=["newsletter"])
+app.include_router(analytics_router, prefix="/api/analytics", tags=["analytics"])
+app.include_router(content_router, prefix="/api/content", tags=["content"])
+app.include_router(admin_router, tags=["admin"])
 
 # Mount static files for admin interface
 app.mount("/static", StaticFiles(directory=str(PROJECT_ROOT / "portfolio")), name="static")
@@ -96,6 +101,33 @@ async def custom_403_handler(request: Request, exc: HTTPException):
     return await http_exception_handler(request, exc)
 
 app.add_exception_handler(HTTPException, custom_403_handler)
+
+# Global exception handler for validation errors
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """Handle request validation errors and log details"""
+    logger.error(f"❌ VALIDATION ERROR: {exc.errors()}")
+    logger.error(f"❌ VALIDATION ERROR BODY: {exc.body}")
+    return JSONResponse(
+        status_code=422,
+        content={"error": "Validation failed", "details": exc.errors(), "body": exc.body}
+    )
+
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
+
+# Global exception handler for all other errors
+async def general_exception_handler(request: Request, exc: Exception):
+    """Handle all other exceptions and log details"""
+    logger.error(f"❌ GENERAL ERROR: {type(exc).__name__}: {str(exc)}")
+    logger.error(f"❌ ERROR TRACE: {traceback.format_exc()}")
+    return JSONResponse(
+        status_code=500,
+        content={"error": "Internal server error", "type": type(exc).__name__}
+    )
+
+app.add_exception_handler(Exception, general_exception_handler)
+
+# Add traceback import
+import traceback
 
 def create_default_admin_user():
     """Create default admin user if it doesn't exist"""
@@ -128,12 +160,21 @@ def create_default_admin_user():
 @app.on_event("startup")
 async def startup_event():
     """Create database tables and initialize scheduler on startup"""
-    create_tables()
-    create_default_admin_user()
-    init_scheduler()
-    start_scheduler()
-
-    logger.info("✅ Application started successfully!")
+    try:
+        logger.info("🚀 Starting application initialization...")
+        create_tables()
+        logger.info("✅ Database tables created/verified")
+        create_default_admin_user()
+        logger.info("✅ Admin user created/verified")
+        init_scheduler()
+        logger.info("✅ Scheduler initialized")
+        start_scheduler()
+        logger.info("✅ Scheduler started")
+        logger.info("✅ Application started successfully!")
+    except Exception as e:
+        logger.error(f"❌ Startup failed: {str(e)}")
+        logger.error(f"❌ Startup traceback: {traceback.format_exc()}")
+        raise
 
 # Default post data for SEO and sharing on non-article pages
 DEFAULT_POST_DATA = {
