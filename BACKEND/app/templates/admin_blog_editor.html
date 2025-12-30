@@ -2541,23 +2541,34 @@
         }
 
         function selectPublishHomepage(include) {
+            console.log('[DEBUG] selectPublishHomepage called with include:', include);
             publishState.includeOnHomepage = !!include;
             document.getElementById('publishHomepageYes').classList.toggle('active', include === true);
             document.getElementById('publishHomepageNo').classList.toggle('active', include === false);
 
-            const sectionSelector = document.getElementById('publishSectionSelector');
+            const sectionSelector = document.getElementById('publishSectionField');
+            console.log('[DEBUG] sectionSelector element:', sectionSelector);
             const sectionSelect = document.getElementById('publishSection');
+            console.log('[DEBUG] sectionSelect element:', sectionSelect);
 
             if (include) {
-                sectionSelector.classList.remove('hidden');
-                sectionSelector.setAttribute('aria-hidden', 'false');
+                if (sectionSelector) {
+                    sectionSelector.classList.remove('hidden');
+                    sectionSelector.setAttribute('aria-hidden', 'false');
+                } else {
+                    console.error('[DEBUG] sectionSelector is null, cannot show section field');
+                }
                 // Set default section if none selected
                 if (!sectionSelect.value) {
                     sectionSelect.value = 'latest';
                 }
             } else {
-                sectionSelector.classList.add('hidden');
-                sectionSelector.setAttribute('aria-hidden', 'true');
+                if (sectionSelector) {
+                    sectionSelector.classList.add('hidden');
+                    sectionSelector.setAttribute('aria-hidden', 'true');
+                } else {
+                    console.error('[DEBUG] sectionSelector is null, cannot hide section field');
+                }
                 // Clear section selection when homepage is disabled
                 sectionSelect.value = '';
             }
@@ -2757,6 +2768,13 @@
                 const container = document.getElementById('templateContainer');
                 if (container) {
                     postData.content = container.innerHTML;
+                    console.log('[DEBUG] Content from templateContainer:', {
+                        contentLength: postData.content.length,
+                        contentPreview: postData.content.substring(0, 200) + '...',
+                        hasEditedElements: postData.content.includes('contenteditable') || postData.content.includes('data-edited')
+                    });
+                } else {
+                    console.error('[DEBUG] templateContainer not found for content extraction');
                 }
 
                 console.log('[Publish] Publishing post:', postData);
