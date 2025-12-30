@@ -2795,10 +2795,18 @@
                     });
 
                     // 4. PREVENT DUPLICATION: Remove permanent template sections from saved content
-                    const heroSection = cleanContainer.querySelector('#blog-hero-section');
-                    if (heroSection) heroSection.remove();
-                    const engagementBar = cleanContainer.querySelector('#blog-engagement-bar');
-                    if (engagementBar) engagementBar.remove();
+                    const structuralSelectors = [
+                        '#blog-hero-section',
+                        '#blog-engagement-bar',
+                        '#blog-comments-section',
+                        'aside',
+                        '#comments'
+                    ];
+
+                    structuralSelectors.forEach(selector => {
+                        const elements = cleanContainer.querySelectorAll(selector);
+                        elements.forEach(el => el.remove());
+                    });
 
                     postData.content = cleanContainer.innerHTML;
 

@@ -690,15 +690,27 @@ async def render_blog_template(template_name: str, current_user = Depends(get_cu
         # For the editor, we'll use the raw content block and let the frontend handle variable replacement
         # Replace Jinja2 variables with sample data for preview
         rendered_html = template_content_block
+        
+        # Strip structural logic
         rendered_html = rendered_html.replace('{% if post_data and post_data.featured_image %}', '')
+        rendered_html = rendered_html.replace('{% if not (post_data and post_data.content) %}', '')
+        rendered_html = rendered_html.replace('{{ post_data.content | safe }}', '')
         rendered_html = rendered_html.replace('{% else %}', '')
         rendered_html = rendered_html.replace('{% endif %}', '')
+
+        # Replace dynamic variables with samples
         rendered_html = rendered_html.replace('{{ post_data.title }}', 'Sample Post Title')
         rendered_html = rendered_html.replace('{{ post_data.excerpt }}', 'This is a sample excerpt for the blog post.')
         rendered_html = rendered_html.replace('{{ post_data.author }}', 'NekwasaR')
         rendered_html = rendered_html.replace('{{ post_data.featured_image }}', 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1920&h=1080&fit=crop&crop=center')
         rendered_html = rendered_html.replace('{{ post_data.tags[0] }}', 'Technology')
         rendered_html = rendered_html.replace('{{ post_data.published_at | strftime(\'%B %d, %Y\') }}', 'November 6, 2025')
+        
+        # Handle engagement counters (Match the single-line template tags)
+        rendered_html = rendered_html.replace('{{ post_data.comment_count or 0 }}', '0')
+        rendered_html = rendered_html.replace('{{ post_data.view_count or 0 }}', '0')
+        rendered_html = rendered_html.replace('{{ post_data.like_count or 0 }}', '0')
+        rendered_html = rendered_html.replace('{{ post_data.id or 1 }}', '1')
 
         # Add special classes for editor-specific behavior
         # Make comment count dynamic and non-editable, start with 0 comments

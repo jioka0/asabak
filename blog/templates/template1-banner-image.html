@@ -212,11 +212,23 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
     [data-comment-modal] input {
         transition: all 0.2s ease;
     }
+
+    /* Duplication Fix: Hide structural elements that leaked into the content body */
+    #blog-content-render-area #blog-hero-section,
+    #blog-content-render-area #blog-engagement-bar,
+    #blog-content-render-area #blog-comments-section,
+    #blog-content-render-area aside,
+    #blog-content-render-area nav,
+    #blog-content-render-area footer,
+    #blog-content-render-area #comments {
+        display: none !important;
+    }
 </style>
 
 
 <!-- Hero Section -->
-<section id="blog-hero-section" class="relative h-[60vh] sm:h-[70vh] min-h-[400px] sm:min-h-[500px] overflow-hidden">
+<section id="blog-hero-section" data-is-template="true"
+    class="relative h-[60vh] sm:h-[70vh] min-h-[400px] sm:min-h-[500px] overflow-hidden">
     <div class="absolute inset-0">
         <img src="{% if post_data and post_data.featured_image %}{{ post_data.featured_image }}{% else %}https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1920&h=1080&fit=crop&crop=center{% endif %}"
             alt="{% if post_data %}{{ post_data.title }} Banner{% else %}AI and Technology Innovation{% endif %}"
@@ -268,7 +280,8 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
 </section>
 
 <!-- Engagement Header Area -->
-<section id="blog-engagement-bar" class="bg-gray-50 dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800">
+<section id="blog-engagement-bar" data-is-template="true"
+    class="bg-gray-50 dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
             <!-- Engagement Stats -->
@@ -382,13 +395,14 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
         </div>
     </div>
 </section>
+{% endif %}
 
 <!-- Main Content Layout -->
 <section class="py-8 sm:py-12 lg:py-16 bg-gray-50 dark:bg-gray-950">
     <div class="w-full px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
             <!-- Left Sidebar -->
-            <aside class="lg:col-span-2 order-2 lg:order-1">
+            <aside data-is-template="true" class="lg:col-span-2 order-2 lg:order-1">
                 <div class="sticky top-20 sm:top-24 space-y-6">
                     <!-- Related Posts -->
                     <div
@@ -476,6 +490,7 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
 
             <!-- Main Column -->
             <main class="lg:col-span-8 order-1 lg:order-2">
+                {% if not (post_data and post_data.content) %}
                 <article
                     class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
                     <div class="p-6">
@@ -647,9 +662,14 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
                         </div>
                     </div>
                 </article>
+                {% else %}
+                <div id="blog-content-render-area">
+                    {{ post_data.content | safe }}
+                </div>
+                {% endif %}
 
                 <!-- Comments Section -->
-                <section id="comments"
+                <section id="blog-comments-section" data-is-template="true"
                     class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 mt-8 no-edit">
                     <div class="p-8">
                         <!-- Section Header -->
@@ -724,7 +744,7 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
             </main>
 
             <!-- Right Sidebar -->
-            <aside class="lg:col-span-2 order-3 no-edit">
+            <aside data-is-template="true" class="lg:col-span-2 order-3 no-edit">
                 <div class="sticky top-20 space-y-6">
                     <!-- Newsletter Signup -->
                     <div
@@ -789,11 +809,8 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
             </aside>
         </div>
     </div>
+    </div>
 </section>
-{% else %}
-<!-- RENDER SAVED CONTENT DIRECTLY (Matches Editor Exactly) -->
-{{ post_data.content | safe }}
-{% endif %}
 
 {% endblock %}
 
@@ -2603,5 +2620,29 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
             messageDiv.classList.add('text-red-600', 'dark:text-red-400');
         }
     }
+
+    // Nuclear Cleanup: Remove ANY structural section that isn't tagged as part of the primary template
+    (function cleanupDuplicatesNuclear() {
+        const structuralSelectors = [
+            '#blog-hero-section',
+            '#blog-engagement-bar',
+            '#blog-comments-section',
+            'aside',
+            'nav',
+            'footer',
+            '#comments'
+        ];
+
+        structuralSelectors.forEach(selector => {
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(el => {
+                // If it doesn't have our template tag, it's a duplicate from the DB content
+                if (el.getAttribute('data-is-template') !== 'true') {
+                    console.warn('[Nuclear Cleanup] Removing duplicated section:', selector);
+                    el.remove();
+                }
+            });
+        });
+    })();
 </script>
 {% endblock %}
