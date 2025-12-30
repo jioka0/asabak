@@ -2767,11 +2767,39 @@
                 // Get HTML content from template container
                 const container = document.getElementById('templateContainer');
                 if (container) {
-                    postData.content = container.innerHTML;
-                    console.log('[DEBUG] Content from templateContainer:', {
+                    // Create a clean clone to sanitize
+                    const cleanContainer = container.cloneNode(true);
+
+                    // 1. Remove all editor overlays but keep the images they contain
+                    const overlays = cleanContainer.querySelectorAll('.image-edit-overlay');
+                    overlays.forEach(overlay => {
+                        const img = overlay.querySelector('img');
+                        if (img) {
+                            overlay.parentNode.insertBefore(img, overlay);
+                        }
+                        overlay.remove();
+                    });
+
+                    // 2. Remove all editor-specific artifacts
+                    const artifacts = cleanContainer.querySelectorAll('.image-edit-input, .char-counter, .post-context-menu, .editor-controls');
+                    artifacts.forEach(el => el.remove());
+
+                    // 3. Strip all contenteditable and data-edited/data-attached attributes
+                    const allElements = cleanContainer.querySelectorAll('*');
+                    allElements.forEach(el => {
+                        el.removeAttribute('contenteditable');
+                        el.removeAttribute('data-edited');
+                        el.removeAttribute('data-attached');
+                        // Clean up inline styles that might have been added by the editor (like red borders on error)
+                        if (el.style.borderColor === 'red') el.style.borderColor = '';
+                    });
+
+                    postData.content = cleanContainer.innerHTML;
+
+                    console.log('[DEBUG] Sanitized content from templateContainer:', {
                         contentLength: postData.content.length,
-                        contentPreview: postData.content.substring(0, 200) + '...',
-                        hasEditedElements: postData.content.includes('contenteditable') || postData.content.includes('data-edited')
+                        hasOverlays: postData.content.includes('image-edit-overlay'),
+                        hasInputs: postData.content.includes('image-edit-input')
                     });
                 } else {
                     console.error('[DEBUG] templateContainer not found for content extraction');

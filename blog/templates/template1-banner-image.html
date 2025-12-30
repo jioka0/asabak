@@ -214,6 +214,8 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
     }
 </style>
 
+<!-- Page Sections - Only show if content is not already provided (Prevents recursive nesting) -->
+{% if not (post_data and post_data.content) %}
 <!-- Hero Section -->
 <section class="relative h-[60vh] sm:h-[70vh] min-h-[400px] sm:min-h-[500px] overflow-hidden">
     <div class="absolute inset-0">
@@ -786,6 +788,10 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
         </div>
     </div>
 </section>
+{% else %}
+<!-- RENDER SAVED CONTENT DIRECTLY (Matches Editor Exactly) -->
+{{ post_data.content | safe }}
+{% endif %}
 
 {% endblock %}
 
