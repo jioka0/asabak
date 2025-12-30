@@ -2640,17 +2640,17 @@
             const container = document.getElementById('templateContainer');
             if (!container) return;
 
-            // Try to extract title from h1, h2, etc.
-            const titleEl = container.querySelector('h1, h2, h3');
+            // Strict Title Sync: Pull title from the template's main heading (Banner Title)
+            const titleEl = container.querySelector('h1');
             if (titleEl && titleEl.textContent) {
-                document.getElementById('publishTitle').value = titleEl.textContent.trim();
+                const titleInput = document.getElementById('publishTitle');
+                if (titleInput) {
+                    titleInput.value = titleEl.textContent.trim();
+                }
             }
 
-            // Try to extract excerpt from first paragraph
-            const excerptEl = container.querySelector('p');
-            if (excerptEl && excerptEl.textContent) {
-                document.getElementById('publishExcerpt').value = excerptEl.textContent.trim().substring(0, 200);
-            }
+            // Note: Tags, Author, and Date are NOT pulled from the template.
+            // They are managed strictly via the Publish Wizard fields / metadata.
 
             // Generate slug from title
             const title = document.getElementById('publishTitle').value;
@@ -2793,6 +2793,12 @@
                         // Clean up inline styles that might have been added by the editor (like red borders on error)
                         if (el.style.borderColor === 'red') el.style.borderColor = '';
                     });
+
+                    // 4. PREVENT DUPLICATION: Remove permanent template sections from saved content
+                    const heroSection = cleanContainer.querySelector('#blog-hero-section');
+                    if (heroSection) heroSection.remove();
+                    const engagementBar = cleanContainer.querySelector('#blog-engagement-bar');
+                    if (engagementBar) engagementBar.remove();
 
                     postData.content = cleanContainer.innerHTML;
 
