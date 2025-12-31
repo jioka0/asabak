@@ -35,10 +35,16 @@ app = FastAPI(
 # Templates for admin pages
 templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
-# Blog templates & statics
+# Project directories
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 BLOG_DIR = PROJECT_ROOT / "blog"
+PORTFOLIO_DIR = PROJECT_ROOT / "portfolio"
+STORE_DIR = PROJECT_ROOT / "store"
+
+# Template setups
 blog_templates = Jinja2Templates(directory=str(BLOG_DIR / "templates"))
+portfolio_templates = Jinja2Templates(directory=str(PORTFOLIO_DIR))
+store_templates = Jinja2Templates(directory=str(STORE_DIR))
 
 # Add strftime filter to blog templates
 from jinja2 import Environment, PackageLoader, select_autoescape
@@ -62,6 +68,20 @@ def strftime_filter(value, format):
 
 blog_templates.env.filters['strftime'] = strftime_filter
 
+@app.middleware("http")
+async def subdomain_middleware(request: Request, call_next):
+    host = request.headers.get("host", "")
+    # Default to portfolio if no subdomain matches
+    subdomain = None
+    if host:
+        parts = host.split(".")
+        if len(parts) >= 3: # Subdomain exists (e.g., blog.nekwasar.com)
+            subdomain = parts[0].lower()
+    
+    request.state.subdomain = subdomain
+    response = await call_next(request)
+    return response
+
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
@@ -82,11 +102,23 @@ app.include_router(analytics_router, prefix="/api/analytics", tags=["analytics"]
 app.include_router(content_router, prefix="/api/content", tags=["content"])
 app.include_router(admin_router, tags=["admin"])
 
-# Mount static files for admin interface
-app.mount("/static", StaticFiles(directory=str(PROJECT_ROOT / "portfolio")), name="static")
+# Static Assets for Portfolio (Root level)
+if (PORTFOLIO_DIR / "css").exists():
+    app.mount("/css", StaticFiles(directory=str(PORTFOLIO_DIR / "css")), name="portfolio-css")
+if (PORTFOLIO_DIR / "js").exists():
+    app.mount("/js", StaticFiles(directory=str(PORTFOLIO_DIR / "js")), name="portfolio-js")
+if (PORTFOLIO_DIR / "img").exists():
+    app.mount("/img", StaticFiles(directory=str(PORTFOLIO_DIR / "img")), name="portfolio-img")
+if (PORTFOLIO_DIR / "fonts").exists():
+    app.mount("/fonts", StaticFiles(directory=str(PORTFOLIO_DIR / "fonts")), name="portfolio-fonts")
 
-# Mount blog assets (css, js, img)
+# Mount blog assets (nested under /blog)
 app.mount("/blog", StaticFiles(directory=str(BLOG_DIR)), name="blog-static")
+
+# Mount upload directory for media
+UPLOAD_DIR = PROJECT_ROOT / "BACKEND" / "uploads"
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 
 # Add custom exception handler for 401/403 errors to show custom 403 page
 from fastapi.responses import HTMLResponse
@@ -113,6 +145,17 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
 
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
+
+# AI System Placeholder (to be expanded based on your specific AI logic)
+@app.get("/api/ai/status")
+async def ai_status():
+    """Health check for the AI system used by all subdomains"""
+    return {
+        "status": "online",
+        "system": "NekwasaR AI Core",
+        "version": "1.0.0",
+        "timestamp": datetime.utcnow()
+    }
 
 # Global exception handler for all other errors
 async def general_exception_handler(request: Request, exc: Exception):
@@ -193,15 +236,41 @@ DEFAULT_POST_DATA = {
 
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
-    """Render the blog homepage"""
-    return blog_templates.TemplateResponse(
-        "index.html",
-        {
-            "request": request,
-            "current_year": datetime.utcnow().year,
-            "post_data": DEFAULT_POST_DATA
-        }
-    )
+    """Router for subdomains at the root path"""
+    subdomain = getattr(request.state, "subdomain", None)
+    
+    # BLOG Subdomain
+    if subdomain == "blog":
+        return blog_templates.TemplateResponse(
+            "index.html",
+            {
+                "request": request,
+                "current_year": datetime.utcnow().year,
+                "post_data": DEFAULT_POST_DATA
+            }
+        )
+    
+    # STORE Subdomain
+    if subdomain == "store":
+        return store_templates.TemplateResponse(
+            "index.html",
+            {"request": request, "current_year": datetime.utcnow().year}
+        )
+    
+    # API/ADMIN Subdomain
+    if subdomain == "api":
+        # Redirect to admin dashboard or show API info
+        return RedirectResponse(url="/admin")
+
+    # DEFAULT: PORTFOLIO (nekwasar.com)
+    # Check if index.html exists in portfolio
+    portfolio_index = PORTFOLIO_DIR / "index.html"
+    if portfolio_index.exists():
+        with open(portfolio_index, 'r', encoding='utf-8') as f:
+            content = f.read()
+        return HTMLResponse(content=content)
+    
+    return HTMLResponse(content="<h1>NekwasaR Portfolio</h1><p>Portfolio content coming soon.</p>")
 
 # SPA deep-link routes: serve the dynamic section pages
 @app.get("/latest", response_class=HTMLResponse)

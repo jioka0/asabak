@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  server:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./BACKEND/app/nekwasa.db:/app/BACKEND/app/nekwasa.db
+      - ./BACKEND/uploads:/app/BACKEND/uploads
+    environment:
+      - DATABASE_URL=sqlite:///./nekwasa.db
+      - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
+    restart: always
+
+  # Optional: Nginx for handling subdomains locally or in a VPS
+  # nginx:
+  #   image: nginx:latest
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf
+  #     - /etc/letsencrypt:/etc/letsencrypt
+  #   depends_on:
+  #     - server

@@ -16,11 +16,12 @@ class Settings(BaseSettings):
 
     # CORS
     allowed_origins: list = [
-        "http://localhost:3000",
-        "http://localhost:8000",
         "https://nekwasar.com",
         "https://blog.nekwasar.com",
-        "https://store.nekwasar.com"
+        "https://store.nekwasar.com",
+        "https://api.nekwasar.com",
+        "http://localhost:3000",
+        "http://localhost:8000"
     ]
 
     # File Upload
