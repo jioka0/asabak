@@ -273,9 +273,10 @@ async def get_blog_posts(current_user = Depends(get_current_active_user), db: Se
         # Calculate actual tag counts from posts
         tags = []
         for tag in tags_db:
-            # Count posts that have this tag
+            # Count posts that have this tag using JSON containment
+            # Use JSONB casting for proper PostgreSQL JSON array containment
             tag_count = db.query(func.count(BlogPost.id)).filter(
-                BlogPost.tags.contains([tag.slug])
+                BlogPost.tags.cast(JSONB).contains([tag.slug])
             ).scalar() or 0
             
             tags.append({
@@ -600,9 +601,10 @@ async def get_blog_tags(current_user = Depends(get_current_active_user), db: Ses
         # Format tags for frontend
         tags_data = []
         for tag in tags:
-            # Get actual post count for this tag
+            # Get actual post count for this tag using JSON containment
+            # Use JSONB casting for proper PostgreSQL JSON array containment
             actual_count = db.query(func.count(BlogPost.id)).filter(
-                BlogPost.tags.contains([tag.slug])  # Check if tag is in the JSON array
+                BlogPost.tags.cast(JSONB).contains([tag.slug])  # Check if tag is in the JSON array
             ).scalar() or 0
 
             # Update post_count if it's outdated
