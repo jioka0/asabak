@@ -399,25 +399,26 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
 
 <!-- Main Content Layout -->
 <section class="py-8 sm:py-12 lg:py-16 bg-gray-50 dark:bg-gray-950">
-    <div class="w-full px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-            <!-- Left Sidebar -->
-            <aside data-is-template="true" class="lg:col-span-2 order-2 lg:order-1">
-                <div class="sticky top-20 sm:top-24 space-y-6">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Content wrapper with sidebars stacked vertically -->
+        <div class="space-y-8">
+            <!-- Left Sidebar - Stacked above main content -->
+            <aside data-is-template="true" class="order-2 lg:order-1">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Related Posts -->
                     <div
-                        class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 shadow-lg">
-                        <h3 class="text-sm font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-3">
-                            <i class="ph-bold ph-link text-2xl"></i>
+                        class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-lg">
+                        <h3 class="text-sm font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-3">
+                            <i class="ph-bold ph-link text-xl"></i>
                             Related Posts
                         </h3>
-                        <div class="space-y-6">
-                            <a href="/blog/ai-revolutionizing-healthcare" class="flex gap-4 group">
+                        <div class="space-y-4">
+                            <a href="/blog/ai-revolutionizing-healthcare" class="flex gap-3 group">
                                 <img src="https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=80&h=60&fit=crop"
-                                    class="w-20 h-16 rounded-lg object-cover flex-shrink-0 shadow-md" alt="">
+                                    class="w-16 h-12 rounded-lg object-cover flex-shrink-0 shadow-md" alt="">
                                 <div class="flex-1">
                                     <h4
-                                        class="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors leading-tight">
+                                        class="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-1 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors leading-tight">
                                         How AI is Revolutionizing Healthcare</h4>
                                     <span class="text-xs text-gray-600 dark:text-gray-400">12.5k views</span>
                                 </div>
@@ -447,18 +448,18 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
 
                     <!-- Trending Now -->
                     <div
-                        class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 shadow-lg">
-                        <h3 class="text-sm font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-3">
-                            <i class="ph-bold ph-trend-up text-2xl"></i>
+                        class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-lg">
+                        <h3 class="text-sm font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-3">
+                            <i class="ph-bold ph-trend-up text-xl"></i>
                             Trending Now
                         </h3>
-                        <div class="space-y-6">
-                            <a href="/blog/ai-changing-finance" class="flex gap-4 group">
+                        <div class="space-y-4">
+                            <a href="/blog/ai-changing-finance" class="flex gap-3 group">
                                 <img src="https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=80&h=60&fit=crop"
-                                    class="w-20 h-16 rounded-lg object-cover flex-shrink-0 shadow-md" alt="">
+                                    class="w-16 h-12 rounded-lg object-cover flex-shrink-0 shadow-md" alt="">
                                 <div class="flex-1">
                                     <h4
-                                        class="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors leading-tight">
+                                        class="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-1 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors leading-tight">
                                         How AI is Changing Finance</h4>
                                     <span class="text-xs text-gray-600 dark:text-gray-400">2.1k views</span>
                                 </div>
@@ -489,7 +490,7 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
             </aside>
 
             <!-- Main Column -->
-            <main class="lg:col-span-8 order-1 lg:order-2">
+            <main class="order-1 lg:order-2 w-full">
                 {% if not (post_data and post_data.content) %}
                 <article
                     class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden w-full">
@@ -743,14 +744,14 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
                 </section>
             </main>
 
-            <!-- Right Sidebar -->
-            <aside data-is-template="true" class="lg:col-span-2 order-3 no-edit">
-                <div class="sticky top-20 space-y-6">
+            <!-- Right Sidebar - Stacked below main content -->
+            <aside data-is-template="true" class="order-3 no-edit">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <!-- Newsletter Signup -->
                     <div
-                        class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 shadow-lg">
-                        <h4 class="text-sm font-bold text-gray-900 dark:text-gray-100 mb-4">Stay Updated</h4>
-                        <p class="text-xs text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">Get the latest insights
+                        class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-lg">
+                        <h4 class="text-sm font-bold text-gray-900 dark:text-gray-100 mb-3">Stay Updated</h4>
+                        <p class="text-xs text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">Get the latest insights
                             on technology and wealth building.</p>
                         <form id="sidebarNewsletterForm" onsubmit="subscribeNewsletter(event)">
                             <input type="email" id="newsletterEmail" name="email" placeholder="Your email address"
@@ -766,9 +767,9 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
 
                     <!-- Follow Button -->
                     <div
-                        class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 shadow-lg">
-                        <h4 class="text-sm font-bold text-gray-900 dark:text-gray-100 mb-4">Follow NekwasaR</h4>
-                        <p class="text-xs text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">Join our community and
+                        class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-lg">
+                        <h4 class="text-sm font-bold text-gray-900 dark:text-gray-100 mb-3">Follow NekwasaR</h4>
+                        <p class="text-xs text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">Join our community and
                             stay connected with the latest updates.</p>
                         <a href="https://www.instagram.com/nekwasar" target="_blank" rel="noopener noreferrer"
                             class="w-full flex items-center justify-center gap-4 px-8 py-4 bg-gradient-to-r from-pink-500 via-purple-500 to-pink-500 text-white text-xl font-semibold rounded-xl hover:from-pink-600 hover:via-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl">
@@ -779,10 +780,10 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
 
                     <!-- Ad Widget -->
                     <div
-                        class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-8 text-center shadow-lg">
+                        class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 text-center shadow-lg">
                         <span
-                            class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-4 block">Sponsored</span>
-                        <p class="text-sm text-gray-700 dark:text-gray-300 mb-8 font-medium">Premium Sidebar
+                            class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-3 block">Sponsored</span>
+                        <p class="text-sm text-gray-700 dark:text-gray-300 mb-6 font-medium">Premium Sidebar
                             Advertisement</p>
                         <div
                             class="mt-6 h-48 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 rounded-xl flex items-center justify-center text-lg text-gray-500 dark:text-gray-400 font-semibold shadow-inner">
@@ -808,7 +809,6 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
                 </div>
             </aside>
         </div>
-    </div>
     </div>
 </section>
 
