@@ -8,8 +8,7 @@ from auth import get_current_user, get_current_active_user
 from fastapi.exception_handlers import http_exception_handler
 from database import SessionLocal
 
-# Get database session
-db = SessionLocal()
+# Removed global db session for better request-scoped handling
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')

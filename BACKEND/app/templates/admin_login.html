@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,19 +15,23 @@
             border: 1px solid var(--stroke-elements);
             border-radius: var(--_radius-xl);
         }
+
         .login-form {
             display: flex;
             flex-direction: column;
             gap: 1rem;
         }
+
         .form-group {
             display: flex;
             flex-direction: column;
         }
+
         .form-group label {
             margin-bottom: 0.5rem;
             font-weight: 700;
         }
+
         .form-group input {
             padding: 0.75rem;
             border: 1px solid var(--stroke-elements);
@@ -34,6 +39,7 @@
             background: var(--base-tint);
             color: var(--t-bright);
         }
+
         .login-btn {
             padding: 0.75rem;
             background: linear-gradient(135deg, var(--accent), var(--secondary));
@@ -44,6 +50,7 @@
             font-weight: 700;
             margin-top: 1rem;
         }
+
         .error-message {
             color: #ff6b6b;
             background: rgba(255, 107, 107, 0.1);
@@ -54,6 +61,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="login-container">
         <h2 style="text-align: center; margin-bottom: 2rem;">Admin Login</h2>
@@ -102,25 +110,27 @@
                 if (response.ok) {
                     const data = await response.json();
                     console.log('✅ LOGIN SUCCESS - Token received');
-                    console.log('🔐 TOKEN PREVIEW:', data.access_token.substring(0, 20) + '...');
-                    console.log('🔐 TOKEN LENGTH:', data.access_token.length);
-                    console.log('🔐 TOKEN TYPE:', data.token_type);
-                    
                     localStorage.setItem('token', data.access_token);
-                    console.log('💾 TOKEN STORED - Loading dashboard with JavaScript');
-                    
-                    // Load dashboard content with JavaScript instead of page redirect
                     loadDashboardWithToken(data.access_token);
                 } else {
-                    const error = await response.json();
+                    const text = await response.text();
                     console.log('❌ LOGIN FAILED - Status:', response.status);
-                    console.log('❌ LOGIN ERROR DETAIL:', error.detail);
-                    showError(error.detail || 'Login failed');
+                    console.log('❌ RESPONSE BODY:', text);
+                    try {
+                        const error = JSON.parse(text);
+                        showError(error.detail || 'Login failed');
+                    } catch (e) {
+                        showError('Server returned an unexpected response. Check console.');
+                    }
                 }
             } catch (error) {
                 console.error('💥 LOGIN EXCEPTION:', error);
-                console.error('💥 ERROR TYPE:', error.constructor.name);
-                console.error('💥 ERROR MESSAGE:', error.message);
+
+                // If it's a syntax error, try to get the response text
+                if (error instanceof SyntaxError) {
+                    console.warn('⚠️ THE SERVER RETURNED HTML INSTEAD OF JSON. This usually means a redirect or Nginx error.');
+                }
+
                 showError('Network error. Please try again.');
             }
         });
@@ -154,4 +164,5 @@
         }
     </script>
 </body>
+
 </html>

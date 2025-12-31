@@ -80,6 +80,7 @@ async def subdomain_middleware(request: Request, call_next):
             subdomain = parts[0].lower()
     
     request.state.subdomain = subdomain
+    logger.info(f"🌐 Request: {request.method} {request.url.path} (Subdomain: {subdomain})")
     response = await call_next(request)
     return response
 
