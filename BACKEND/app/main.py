@@ -146,16 +146,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 
-# AI System Placeholder (to be expanded based on your specific AI logic)
-@app.get("/api/ai/status")
-async def ai_status():
-    """Health check for the AI system used by all subdomains"""
-    return {
-        "status": "online",
-        "system": "NekwasaR AI Core",
-        "version": "1.0.0",
-        "timestamp": datetime.utcnow()
-    }
+# Admin access handled via /admin routes
 
 # Global exception handler for all other errors
 async def general_exception_handler(request: Request, exc: Exception):
@@ -176,17 +167,21 @@ def create_default_admin_user():
     """Create default admin user if it doesn't exist"""
     db = SessionLocal()
     try:
+        admin_username = os.getenv("ADMIN_USERNAME", "gojominitia")
+        admin_email = os.getenv("ADMIN_EMAIL", "gojominitia@nekwasar.com")
+        admin_password = os.getenv("ADMIN_PASSWORD", "gojominitiA@")
+
         # Check if admin user already exists
-        admin_user = db.query(AdminUser).filter(AdminUser.username == "gojominitia").first()
+        admin_user = db.query(AdminUser).filter(AdminUser.username == admin_username).first()
         
         if admin_user:
             return
 
         # Create default admin user
-        hashed_password = hashlib.sha256("gojominitiA@".encode()).hexdigest()
+        hashed_password = hashlib.sha256(admin_password.encode()).hexdigest()
         default_admin = AdminUser(
-            username="gojominitia",
-            email="gojominitia@nekwasar.com",
+            username=admin_username,
+            email=admin_email,
             hashed_password=hashed_password,
             is_active=True,
             is_superuser=True
