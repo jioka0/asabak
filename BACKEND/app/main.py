@@ -111,8 +111,8 @@ if (PORTFOLIO_DIR / "js").exists():
     app.mount("/js", StaticFiles(directory=str(PORTFOLIO_DIR / "js")), name="portfolio-js")
 if (PORTFOLIO_DIR / "img").exists():
     app.mount("/img", StaticFiles(directory=str(PORTFOLIO_DIR / "img")), name="portfolio-img")
-if (PORTFOLIO_DIR / "fonts").exists():
-    app.mount("/fonts", StaticFiles(directory=str(PORTFOLIO_DIR / "fonts")), name="portfolio-fonts")
+# Restore /static mount for admin templates
+app.mount("/static", StaticFiles(directory=str(PORTFOLIO_DIR)), name="static")
 
 # Mount blog assets (nested under /blog)
 app.mount("/blog", StaticFiles(directory=str(BLOG_DIR)), name="blog-static")

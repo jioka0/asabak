@@ -108,10 +108,17 @@
                 console.log('📡 LOGIN RESPONSE - Headers:', [...response.headers.entries()]);
 
                 if (response.ok) {
-                    const data = await response.json();
-                    console.log('✅ LOGIN SUCCESS - Token received');
-                    localStorage.setItem('token', data.access_token);
-                    loadDashboardWithToken(data.access_token);
+                    const text = await response.text();
+                    try {
+                        const data = JSON.parse(text);
+                        console.log('✅ LOGIN SUCCESS - Token received');
+                        localStorage.setItem('token', data.access_token);
+                        loadDashboardWithToken(data.access_token);
+                    } catch (e) {
+                        console.error('💥 PARSE ERROR ON 200 OK');
+                        console.error('📋 RESPONSE WAS:', text);
+                        showError('Server returned HTML instead of data. Check console.');
+                    }
                 } else {
                     const text = await response.text();
                     console.log('❌ LOGIN FAILED - Status:', response.status);
