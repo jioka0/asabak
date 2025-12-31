@@ -6,7 +6,8 @@ import logging
 import os
 from auth import get_current_user, get_current_active_user
 from fastapi.exception_handlers import http_exception_handler
-from database import SessionLocal
+from database import SessionLocal, get_db
+from sqlalchemy.orm import Session
 
 # Removed global db session for better request-scoped handling
 
@@ -115,7 +116,7 @@ async def check_auth(request: Request, current_user = Depends(get_current_active
 # Dashboard API endpoints
 @router.get("/admin/api/dashboard/kpi")
 @router.get("/api/admin/dashboard/kpi")
-async def get_dashboard_kpi(current_user = Depends(get_current_active_user)):
+async def get_dashboard_kpi(current_user = Depends(get_current_active_user), db: Session = Depends(get_db)):
     """Get dashboard KPI data"""
     from sqlalchemy import func
     from models.blog import BlogPost
@@ -158,7 +159,7 @@ async def get_dashboard_kpi(current_user = Depends(get_current_active_user)):
 @router.get("/api/dashboard/popular-content")
 @router.get("/admin/api/dashboard/popular-content")
 @router.get("/api/admin/dashboard/popular-content")
-async def get_popular_content(current_user = Depends(get_current_active_user)):
+async def get_popular_content(current_user = Depends(get_current_active_user), db: Session = Depends(get_db)):
     """Get popular content data"""
     from models.blog import BlogPost
 
@@ -182,7 +183,7 @@ async def get_popular_content(current_user = Depends(get_current_active_user)):
 @router.get("/api/dashboard/recent-activity")
 @router.get("/admin/api/dashboard/recent-activity")
 @router.get("/api/admin/dashboard/recent-activity")
-async def get_recent_activity(current_user = Depends(get_current_active_user)):
+async def get_recent_activity(current_user = Depends(get_current_active_user), db: Session = Depends(get_db)):
     """Get recent activity data"""
     try:
         # Mock recent activity data (implement real activity tracking later)
@@ -217,7 +218,7 @@ async def get_recent_activity(current_user = Depends(get_current_active_user)):
 @router.get("/api/dashboard/quick-stats")
 @router.get("/admin/api/dashboard/quick-stats")
 @router.get("/api/admin/dashboard/quick-stats")
-async def get_quick_stats(current_user = Depends(get_current_active_user)):
+async def get_quick_stats(current_user = Depends(get_current_active_user), db: Session = Depends(get_db)):
     """Get quick stats data"""
     try:
         # Mock quick stats (implement real metrics later)
@@ -234,7 +235,7 @@ async def get_quick_stats(current_user = Depends(get_current_active_user)):
 # Blog management API endpoints
 @router.get("/admin/api/blog/posts")
 @router.get("/api/admin/blog/posts")
-async def get_blog_posts(current_user = Depends(get_current_active_user)):
+async def get_blog_posts(current_user = Depends(get_current_active_user), db: Session = Depends(get_db)):
     """Get blog posts data for admin interface"""
     from models.blog import BlogPost
     from sqlalchemy import func
@@ -346,7 +347,7 @@ async def get_blog_posts(current_user = Depends(get_current_active_user)):
         raise HTTPException(status_code=500, detail="Failed to load blog posts")
 
 @router.post("/admin/api/blog/posts")
-async def create_blog_post(post_data: dict, current_user = Depends(get_current_active_user)):
+async def create_blog_post(post_data: dict, current_user = Depends(get_current_active_user), db: Session = Depends(get_db)):
     """Create a new blog post"""
     from models.blog import BlogPost
     from datetime import datetime
@@ -386,7 +387,7 @@ async def create_blog_post(post_data: dict, current_user = Depends(get_current_a
         raise HTTPException(status_code=500, detail="Failed to create blog post")
 
 @router.post("/admin/api/blog/drafts")
-async def save_blog_draft(draft_data: dict, current_user = Depends(get_current_active_user)):
+async def save_blog_draft(draft_data: dict, current_user = Depends(get_current_active_user), db: Session = Depends(get_db)):
     """Save a blog post as draft"""
     from models.blog import BlogPost
     from datetime import datetime
@@ -450,7 +451,7 @@ async def save_blog_draft(draft_data: dict, current_user = Depends(get_current_a
         raise HTTPException(status_code=500, detail=f"Failed to save draft: {str(e)}")
 
 @router.put("/admin/api/blog/posts/{post_id}")
-async def update_blog_post(post_id: int, post_data: dict, current_user = Depends(get_current_active_user)):
+async def update_blog_post(post_id: int, post_data: dict, current_user = Depends(get_current_active_user), db: Session = Depends(get_db)):
     """Update a blog post"""
     from models.blog import BlogPost
 
@@ -473,7 +474,7 @@ async def update_blog_post(post_id: int, post_data: dict, current_user = Depends
         raise HTTPException(status_code=500, detail="Failed to update blog post")
 
 @router.get("/admin/api/blog/posts/{post_id}")
-async def get_blog_post(post_id: int, current_user = Depends(get_current_active_user)):
+async def get_blog_post(post_id: int, current_user = Depends(get_current_active_user), db: Session = Depends(get_db)):
     """Get a single blog post for admin interface"""
     from models.blog import BlogPost
 
@@ -506,7 +507,7 @@ async def get_blog_post(post_id: int, current_user = Depends(get_current_active_
         raise HTTPException(status_code=500, detail="Failed to get blog post")
 
 @router.delete("/admin/api/blog/posts/{post_id}")
-async def delete_blog_post(post_id: int, current_user = Depends(get_current_active_user)):
+async def delete_blog_post(post_id: int, current_user = Depends(get_current_active_user), db: Session = Depends(get_db)):
     """Delete a blog post"""
     from models.blog import BlogPost
 
@@ -526,7 +527,7 @@ async def delete_blog_post(post_id: int, current_user = Depends(get_current_acti
 
 # Blog Tags API endpoints
 @router.post("/admin/api/blog/tags")
-async def create_blog_tag(tag_data: dict, current_user = Depends(get_current_active_user)):
+async def create_blog_tag(tag_data: dict, current_user = Depends(get_current_active_user), db: Session = Depends(get_db)):
     """Create a new blog tag"""
     from models.blog import BlogTag
     import re
@@ -585,7 +586,7 @@ async def create_blog_tag(tag_data: dict, current_user = Depends(get_current_act
         raise HTTPException(status_code=500, detail="Failed to create tag")
 
 @router.get("/admin/api/blog/tags")
-async def get_blog_tags(current_user = Depends(get_current_active_user)):
+async def get_blog_tags(current_user = Depends(get_current_active_user), db: Session = Depends(get_db)):
     """Get all blog tags"""
     from models.blog import BlogTag, BlogPost
     from sqlalchemy import func
@@ -626,7 +627,7 @@ async def get_blog_tags(current_user = Depends(get_current_active_user)):
         raise HTTPException(status_code=500, detail="Failed to fetch tags")
 
 @router.delete("/admin/api/blog/tags/{tag_id}")
-async def delete_blog_tag(tag_id: int, current_user = Depends(get_current_active_user)):
+async def delete_blog_tag(tag_id: int, current_user = Depends(get_current_active_user), db: Session = Depends(get_db)):
     """Delete a blog tag"""
     from models.blog import BlogTag
 
@@ -795,7 +796,7 @@ async def render_blog_template(template_name: str, current_user = Depends(get_cu
 
 
 @router.get("/api/blog/posts/section/{section}")
-async def get_posts_by_section(section: str, limit: int = 10):
+async def get_posts_by_section(section: str, limit: int = 10, db: Session = Depends(get_db)):
     """Get published posts for a specific section (public API - no auth required)"""
     from models.blog import BlogPost
 
