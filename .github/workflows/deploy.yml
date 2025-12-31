@@ -26,8 +26,11 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
-            # 3. Rebuild and restart the containers
-            # We use --build to ensure code changes are baked into the new image
+            # 3. Clean Restart to avoid legacy Docker Compose bugs (KeyError: 'ContainerConfig')
+            # First, stop and remove existing containers and orphans
+            docker-compose down --remove-orphans
+
+            # Now, rebuild and restart fresh
             docker-compose up --build -d
 
             # 4. Optional: Clean up old, unused images to save space
