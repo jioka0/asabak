@@ -625,7 +625,10 @@ async def get_blog_tags(current_user = Depends(get_current_active_user), db: Ses
         return {"tags": tags_data}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Failed to fetch tags")
+        auth_logger.error(f"❌ Error getting blog tags: {e}")
+        import traceback
+        auth_logger.error(f"❌ Traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch tags: {str(e)}")
 
 @router.delete("/admin/api/blog/tags/{tag_id}")
 async def delete_blog_tag(tag_id: int, current_user = Depends(get_current_active_user), db: Session = Depends(get_db)):

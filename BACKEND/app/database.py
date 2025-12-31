@@ -18,7 +18,7 @@ Base = declarative_base()
 
 # Import essential models to ensure tables are created
 # This must be after Base is defined to avoid circular imports
-from models.blog import BlogPost, BlogComment, BlogLike, TemporalUser
+from models.blog import BlogPost, BlogComment, BlogLike, TemporalUser, BlogTag
 
 # Create tables
 def create_tables():
@@ -38,6 +38,11 @@ def create_tables():
             print("✅ blog_likes table exists!")
         else:
             print("❌ blog_likes table is missing!")
+            
+        if 'blog_tags' in tables:
+            print("✅ blog_tags table exists!")
+        else:
+            print("❌ blog_tags table is missing!")
             
     except Exception as e:
         print(f"❌ Error creating tables: {str(e)}")
