@@ -310,11 +310,19 @@ async def blog_topics(request: Request):
         {"request": request, "section": "topics", "current_year": datetime.utcnow().year, "post_data": DEFAULT_POST_DATA}
     )
 
-# Dynamic blog post route
+# Dynamic blog post route - ONLY works on blog subdomain or direct access
 @app.get("/{slug}", response_class=HTMLResponse)
 async def blog_post_by_slug(request: Request, slug: str, db: Session = Depends(get_db)):
-    """Serve individual blog posts by slug"""
+    """Serve individual blog posts by slug - only on blog subdomain"""
     from models.blog import BlogPost
+    
+    # Get the subdomain from the request
+    subdomain = getattr(request.state, "subdomain", None)
+    
+    # Only allow blog posts on blog subdomain or when no subdomain (direct access)
+    # This prevents blog posts from appearing on api.nekwasar.com
+    if subdomain and subdomain != "blog":
+        raise HTTPException(status_code=404, detail="Blog posts are only available on the blog subdomain")
 
     # Skip if it's a known static route
     static_routes = ['latest', 'popular', 'featured', 'others', 'topics', 'template1', 'template2', 'template3']
