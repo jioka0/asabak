@@ -8,6 +8,7 @@ from auth import get_current_user, get_current_active_user
 from fastapi.exception_handlers import http_exception_handler
 from database import SessionLocal, get_db
 from sqlalchemy.orm import Session
+from sqlalchemy.dialects.postgresql import JSONB
 
 # Removed global db session for better request-scoped handling
 
