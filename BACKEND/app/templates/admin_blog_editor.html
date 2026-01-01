@@ -908,8 +908,36 @@
                 if (isEditMode && editingPostData && editingPostData.content) {
                     console.log('[EDIT MODE] Injecting post content into template');
 
-                    // Use the saved post content directly - it already has the template structure
-                    finalHtml = editingPostData.content;
+                    // The saved content is the dynamic part of the post.
+                    // We load the fresh template (data.html) and then replace its content area with saved content.
+                    // If the saved content somehow contains the whole template, we'll handle it.
+
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = data.html;
+
+                    // We want to replace the part that corresponds to post_data.content in the template
+                    // In template1-banner-image.html, this is the area after the engagement bar.
+                    // However, it's easier to just use the saved content if it looks complete, 
+                    // or try to find where to inject it.
+
+                    // For now, if the saved content has no hero section but the template does, 
+                    // we'll try to keep the template's hero.
+                    const savedHasHero = editingPostData.content.includes('id="blog-hero-section"');
+                    const templateHasHero = data.html.includes('id="blog-hero-section"');
+
+                    if (!savedHasHero && templateHasHero) {
+                        console.log('[EDIT MODE] Merging saved content into fresh template');
+                        // Find the end of the engagement bar in the template
+                        const engagementBarEnd = data.html.indexOf('</section>', data.html.indexOf('id="blog-engagement-bar"')) + 10;
+                        if (engagementBarEnd > 10) {
+                            const templateHeader = data.html.substring(0, engagementBarEnd);
+                            finalHtml = templateHeader + editingPostData.content;
+                        } else {
+                            finalHtml = editingPostData.content;
+                        }
+                    } else {
+                        finalHtml = editingPostData.content;
+                    }
                 } else if (isEditMode) {
                     console.warn('[EDIT MODE] Edit mode detected but no content to inject');
                 }
@@ -1679,6 +1707,51 @@
             }
         }
 
+        /**
+         * Sanitizes the content of a container for saving/publishing.
+         * Removes editor artifacts, contenteditable attributes, and template sections.
+         */
+        function sanitizeContent(container) {
+            if (!container) return '';
+
+            // Create a clean clone to sanitize
+            const cleanContainer = container.cloneNode(true);
+
+            // 1. Remove all editor overlays but keep the images/videos/iframes they contain
+            const overlays = cleanContainer.querySelectorAll('.image-edit-overlay, .video-edit-overlay');
+            overlays.forEach(overlay => {
+                const media = overlay.querySelector('img, video, iframe');
+                if (media) {
+                    overlay.parentNode.insertBefore(media, overlay);
+                }
+                overlay.remove();
+            });
+
+            // 2. Remove all editor-specific artifacts
+            const artifacts = cleanContainer.querySelectorAll('.image-edit-input, .char-counter, .post-context-menu, .editor-controls, .context-menu, .video-edit-input');
+            artifacts.forEach(el => el.remove());
+
+            // 3. Strip all contenteditable and data-edited/data-attached attributes
+            const allElements = cleanContainer.querySelectorAll('*');
+            allElements.forEach(el => {
+                el.removeAttribute('contenteditable');
+                el.removeAttribute('data-edited');
+                el.removeAttribute('data-attached');
+                // Clean up inline styles that might have been added by the editor (like red borders on error)
+                if (el.style.borderColor === 'red') el.style.borderColor = '';
+            });
+
+            // 4. PREVENT DUPLICATION: Remove permanent template sections from saved content
+            // These are sections that are already in the template file (template1-banner-image.html)
+            // outside of the dynamic content area.
+            const heroSection = cleanContainer.querySelector('#blog-hero-section');
+            if (heroSection) heroSection.remove();
+            const engagementBar = cleanContainer.querySelector('#blog-engagement-bar');
+            if (engagementBar) engagementBar.remove();
+
+            return cleanContainer.innerHTML;
+        }
+
         // Function to save draft
         async function saveDraft() {
             const token = localStorage.getItem('token');
@@ -1687,8 +1760,8 @@
                 return;
             }
 
-            // Get the current content from the template container
-            const content = templateContainer.innerHTML;
+            // Get the current content from the template container and sanitize it
+            const content = sanitizeContent(templateContainer);
             if (!content || content.trim() === '') {
                 alert('Cannot save empty draft.');
                 return;
@@ -1792,8 +1865,8 @@
             }
 
             try {
-                // Get the current content
-                const content = templateContainer.innerHTML;
+                // Get the current content and sanitize it
+                const content = sanitizeContent(templateContainer);
                 if (!content || content.trim() === '') {
                     alert('Cannot save empty content.');
                     return;
@@ -2764,43 +2837,10 @@
                     postData.section = document.getElementById('publishSection').value;
                 }
 
-                // Get HTML content from template container
-                const container = document.getElementById('templateContainer');
+                // Get HTML content from template container and sanitize it using the shared function
+                const container = document.getElementById('templateContainer') || templateContainer;
                 if (container) {
-                    // Create a clean clone to sanitize
-                    const cleanContainer = container.cloneNode(true);
-
-                    // 1. Remove all editor overlays but keep the images they contain
-                    const overlays = cleanContainer.querySelectorAll('.image-edit-overlay');
-                    overlays.forEach(overlay => {
-                        const img = overlay.querySelector('img');
-                        if (img) {
-                            overlay.parentNode.insertBefore(img, overlay);
-                        }
-                        overlay.remove();
-                    });
-
-                    // 2. Remove all editor-specific artifacts
-                    const artifacts = cleanContainer.querySelectorAll('.image-edit-input, .char-counter, .post-context-menu, .editor-controls');
-                    artifacts.forEach(el => el.remove());
-
-                    // 3. Strip all contenteditable and data-edited/data-attached attributes
-                    const allElements = cleanContainer.querySelectorAll('*');
-                    allElements.forEach(el => {
-                        el.removeAttribute('contenteditable');
-                        el.removeAttribute('data-edited');
-                        el.removeAttribute('data-attached');
-                        // Clean up inline styles that might have been added by the editor (like red borders on error)
-                        if (el.style.borderColor === 'red') el.style.borderColor = '';
-                    });
-
-                    // 4. PREVENT DUPLICATION: Remove permanent template sections from saved content
-                    const heroSection = cleanContainer.querySelector('#blog-hero-section');
-                    if (heroSection) heroSection.remove();
-                    const engagementBar = cleanContainer.querySelector('#blog-engagement-bar');
-                    if (engagementBar) engagementBar.remove();
-
-                    postData.content = cleanContainer.innerHTML;
+                    postData.content = sanitizeContent(container);
 
                     console.log('[DEBUG] Sanitized content from templateContainer:', {
                         contentLength: postData.content.length,
