@@ -2050,8 +2050,8 @@
 
       const post = await response.json();
 
-      // Open post in new tab
-      const postUrl = `/${post.slug}`;
+      // Open post in new tab on the blog subdomain
+      const postUrl = `https://blog.nekwasar.com/${post.slug}`;
       window.open(postUrl, '_blank');
       showNotification(`Opened post: ${post.title}`, 'success');
     } catch (error) {
@@ -4622,7 +4622,7 @@
         : (typeof publishState.includeOnRoutePages === 'boolean' ? 'No' : '-');
 
       document.getElementById('summaryTitle').textContent = title || '-';
-      document.getElementById('summarySlug').textContent = slug ? `/blog/${slug}` : '/blog/-';
+      document.getElementById('summarySlug').textContent = slug ? `blog.nekwasar.com/${slug}` : 'blog.nekwasar.com/-';
       document.getElementById('summaryHomepage').textContent = homepage;
       document.getElementById('summaryRoutes').textContent = routes;
     }
@@ -4637,7 +4637,7 @@
         : (typeof publishState.includeOnRoutePages === 'boolean' ? 'No' : '-');
 
       document.getElementById('confirmTitle').textContent = title || '-';
-      document.getElementById('confirmSlug').textContent = slug ? `/blog/${slug}` : '/blog/-';
+      document.getElementById('confirmSlug').textContent = slug ? `blog.nekwasar.com/${slug}` : 'blog.nekwasar.com/-';
       document.getElementById('confirmHomepage').textContent = homepage;
       document.getElementById('confirmRoutes').textContent = routes;
     }

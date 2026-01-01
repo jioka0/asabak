@@ -193,7 +193,12 @@ DEFAULT_POST_DATA = {
 
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
-    """Render the blog homepage"""
+    """Render the blog homepage with domain enforcement"""
+    host = request.headers.get("host", "")
+    # If accessed through main domain or store, redirect to blog subdomain
+    if host in ["nekwasar.com", "store.nekwasar.com", "api.nekwasar.com"]:
+        return RedirectResponse(url=f"https://blog.nekwasar.com{request.url.path}")
+        
     return blog_templates.TemplateResponse(
         "index.html",
         {
@@ -207,6 +212,9 @@ async def root(request: Request):
 @app.get("/latest", response_class=HTMLResponse)
 @app.get("/latest/", response_class=HTMLResponse)
 async def blog_latest(request: Request):
+    host = request.headers.get("host", "")
+    if host in ["nekwasar.com", "store.nekwasar.com", "api.nekwasar.com"]:
+        return RedirectResponse(url=f"https://blog.nekwasar.com/latest")
     return blog_templates.TemplateResponse(
         "page_section.html",
         {"request": request, "section": "latest", "current_year": datetime.utcnow().year, "post_data": DEFAULT_POST_DATA}
@@ -215,6 +223,9 @@ async def blog_latest(request: Request):
 @app.get("/popular", response_class=HTMLResponse)
 @app.get("/popular/", response_class=HTMLResponse)
 async def blog_popular(request: Request):
+    host = request.headers.get("host", "")
+    if host in ["nekwasar.com", "store.nekwasar.com", "api.nekwasar.com"]:
+        return RedirectResponse(url=f"https://blog.nekwasar.com/popular")
     return blog_templates.TemplateResponse(
         "page_section.html",
         {"request": request, "section": "popular", "current_year": datetime.utcnow().year, "post_data": DEFAULT_POST_DATA}
@@ -223,6 +234,9 @@ async def blog_popular(request: Request):
 @app.get("/others", response_class=HTMLResponse)
 @app.get("/others/", response_class=HTMLResponse)
 async def blog_others(request: Request):
+    host = request.headers.get("host", "")
+    if host in ["nekwasar.com", "store.nekwasar.com", "api.nekwasar.com"]:
+        return RedirectResponse(url=f"https://blog.nekwasar.com/others")
     return blog_templates.TemplateResponse(
         "page_section.html",
         {"request": request, "section": "others", "current_year": datetime.utcnow().year, "post_data": DEFAULT_POST_DATA}
@@ -231,6 +245,9 @@ async def blog_others(request: Request):
 @app.get("/featured", response_class=HTMLResponse)
 @app.get("/featured/", response_class=HTMLResponse)
 async def blog_featured(request: Request):
+    host = request.headers.get("host", "")
+    if host in ["nekwasar.com", "store.nekwasar.com", "api.nekwasar.com"]:
+        return RedirectResponse(url=f"https://blog.nekwasar.com/featured")
     return blog_templates.TemplateResponse(
         "page_section.html",
         {"request": request, "section": "featured", "current_year": datetime.utcnow().year, "post_data": DEFAULT_POST_DATA}
@@ -239,6 +256,9 @@ async def blog_featured(request: Request):
 @app.get("/topics", response_class=HTMLResponse)
 @app.get("/topics/", response_class=HTMLResponse)
 async def blog_topics(request: Request):
+    host = request.headers.get("host", "")
+    if host in ["nekwasar.com", "store.nekwasar.com", "api.nekwasar.com"]:
+        return RedirectResponse(url=f"https://blog.nekwasar.com/topics")
     return blog_templates.TemplateResponse(
         "page_section.html",
         {"request": request, "section": "topics", "current_year": datetime.utcnow().year, "post_data": DEFAULT_POST_DATA}
@@ -247,7 +267,13 @@ async def blog_topics(request: Request):
 # Dynamic blog post route
 @app.get("/{slug}", response_class=HTMLResponse)
 async def blog_post_by_slug(request: Request, slug: str, db: Session = Depends(get_db)):
-    """Serve individual blog posts by slug"""
+    """Serve individual blog posts by slug with domain enforcement"""
+    host = request.headers.get("host", "")
+    # Redirect to blog subdomain if accessed from elsewhere
+    if host in ["nekwasar.com", "store.nekwasar.com", "api.nekwasar.com"]:
+        return RedirectResponse(url=f"https://blog.nekwasar.com/{slug}")
+        
+    # Serve individual blog posts by slug
     from models.blog import BlogPost
 
     # Skip if it's a known static route

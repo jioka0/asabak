@@ -2878,14 +2878,16 @@
                 const result = await response.json();
                 console.log('[Publish] Post published successfully:', result);
 
-                // Success - navigate to the post's slug URL
+                // Success - navigate to the post's slug URL on the blog subdomain
                 const message = isEditMode
                     ? 'Post updated and published successfully!'
                     : 'Post published successfully!';
                 alert(message);
                 closePublishWizard();
+
                 if (result.slug) {
-                    window.location.href = `/${result.slug}`;
+                    // Redirect to the actual blog subdomain instead of the current domain (which is likely api.nekwasar.com)
+                    window.location.href = `https://blog.nekwasar.com/${result.slug}`;
                 } else {
                     window.location.href = '/admin/blog/posts';
                 }
