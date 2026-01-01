@@ -45,6 +45,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = False
+        extra = "ignore"  # Allow extra environment variables without crashing
 
 # Global settings instance
 settings = Settings()

@@ -3,7 +3,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, cast, String
 from database import get_db
 from models.blog import BlogPost as BlogPostModel, BlogComment, BlogLike, TemporalUser as TemporalUserModel, BlogView
 from schemas import BlogPost, BlogPostCreate, Comment, CommentCreate, Like, LikeCreate, TemporalUser, TemporalUserCreate, ViewCreate
@@ -40,7 +40,7 @@ async def get_blog_tags(db: Session = Depends(get_db)):
             # Get actual post count for this tag (only published posts)
             actual_count = db.query(func.count(BlogPostModel.id)).filter(
                 BlogPostModel.published_at.isnot(None),
-                BlogPostModel.tags.like(f'%"{tag.slug}"%')
+                cast(BlogPostModel.tags, String).like(f'%"{tag.slug}"%')
             ).scalar() or 0
             
             tags_data.append({
