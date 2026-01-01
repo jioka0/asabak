@@ -277,26 +277,25 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
                 <span class="flex items-center gap-3 sm:gap-4">
                     <i class="ph-bold ph-chat-circle text-lg sm:text-xl lg:text-2xl"></i>
                     <span id="comment-count-large"
-                        class="hidden sm:inline text-base sm:text-lg lg:text-xl text-black dark:text-white">{{
-                        post_data.comment_count or 0 }} Comments</span>
-                    <span id="comment-count-small" class="sm:hidden text-base text-black dark:text-white">{{
-                        post_data.comment_count or 0 }}</span>
+                        class="hidden sm:inline text-base sm:text-lg lg:text-xl text-black dark:text-white">0
+                        Comments</span>
+                    <span id="comment-count-small" class="sm:hidden text-base text-black dark:text-white">0</span>
                 </span>
                 <span class="flex items-center gap-3 sm:gap-4">
                     <i class="ph-bold ph-eye text-lg sm:text-xl lg:text-2xl"></i>
-                    <span class="hidden sm:inline text-base sm:text-lg lg:text-xl text-black dark:text-white">{{
-                        post_data.view_count or 0 }} Views</span>
-                    <span class="sm:hidden text-base text-black dark:text-white">{{ post_data.view_count or 0 }}</span>
+                    <span id="view-count-large"
+                        class="hidden sm:inline text-base sm:text-lg lg:text-xl text-black dark:text-white">0
+                        Views</span>
+                    <span id="view-count-small" class="sm:hidden text-base text-black dark:text-white">0</span>
                 </span>
-                <span class="flex items-center gap-3 sm:gap-4 like-section" data-post-id="{{ post_data.id or 1 }}">
+                <span class="flex items-center gap-3 sm:gap-4 like-section"
+                    data-post-id="{{ post_data.id if post_data else 1 }}">
                     <button onclick="toggleLike()"
                         class="flex items-center gap-3 sm:gap-4 hover:text-red-500 dark:hover:text-red-400 transition-colors">
                         <i class="ph-bold ph-heart text-lg sm:text-xl lg:text-2xl like-icon"></i>
                         <span
-                            class="like-count hidden sm:inline text-base sm:text-lg lg:text-xl text-black dark:text-white">{{
-                            post_data.like_count or 0 }}</span>
-                        <span class="like-count sm:hidden text-base text-black dark:text-white">{{ post_data.like_count
-                            or 0 }}</span>
+                            class="like-count hidden sm:inline text-base sm:text-lg lg:text-xl text-black dark:text-white">0</span>
+                        <span class="like-count sm:hidden text-base text-black dark:text-white">0</span>
                         <span
                             class="hidden sm:inline text-base sm:text-lg lg:text-xl text-black dark:text-white">Likes</span>
                     </button>
@@ -666,8 +665,8 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
                                 </div>
                             </div>
                             <span id="comment-count-badge"
-                                class="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-500 dark:to-purple-600 text-white text-base font-semibold rounded-full shadow-lg">{{
-                                post_data.comment_count or 0 }} Comments</span>
+                                class="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-500 dark:to-purple-600 text-white text-base font-semibold rounded-full shadow-lg">0
+                                Comments</span>
                         </div>
 
                         <!-- Collapsed Comment Box (Initial State) -->
@@ -965,6 +964,12 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
                 window.commentSystemState.postId = currentPostId;
 
                 if (currentPostId) {
+                    // Sync initial stats from window.postData if available
+                    syncStats();
+
+                    // Handle view count and sync latest stats
+                    handleVisit(currentPostId);
+
                     loadComments(currentPostId);
                     setupCommentForm();
                     checkLikeStatus(currentPostId);
@@ -1026,6 +1031,67 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
                 attributes: true,
                 attributeFilter: ['class']
             });
+        }
+
+        // Sync stats from window.postData to DOM
+        function syncStats() {
+            const data = window.postData;
+            if (!data) return;
+
+            console.log('📊 Syncing stats:', data);
+
+            // Update comments
+            const countLarge = document.getElementById('comment-count-large');
+            const countSmall = document.getElementById('comment-count-small');
+            const countBadge = document.getElementById('comment-count-badge');
+
+            if (countLarge) countLarge.textContent = (data.comment_count || 0) + ' Comments';
+            if (countSmall) countSmall.textContent = data.comment_count || 0;
+            if (countBadge) countBadge.textContent = (data.comment_count || 0) + ' Comments';
+
+            // Update views
+            const viewLarge = document.getElementById('view-count-large');
+            const viewSmall = document.getElementById('view-count-small');
+
+            if (viewLarge) viewLarge.textContent = (data.view_count || 0) + ' Views';
+            if (viewSmall) viewSmall.textContent = data.view_count || 0;
+
+            // Update likes
+            const likeCounts = document.querySelectorAll('.like-count');
+            likeCounts.forEach(el => {
+                el.textContent = data.like_count || 0;
+            });
+        }
+
+        // Unique View Tracking & Stat Sync
+        async function handleVisit(postId) {
+            try {
+                const fingerprint = await getFingerprint();
+                const sessionKey = `viewed_${postId}`;
+
+                // Only increment if not already counted in this browser session
+                if (!sessionStorage.getItem(sessionKey)) {
+                    const response = await fetch(`/api/blogs/${postId}/view`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ fingerprint: fingerprint })
+                    });
+
+                    if (response.ok) {
+                        sessionStorage.setItem(sessionKey, 'true');
+                    }
+                }
+
+                // Pull latest stats to ensure UI is fresh
+                const statsResponse = await fetch(`/api/blogs/${postId}`);
+                if (statsResponse.ok) {
+                    const latestData = await statsResponse.json();
+                    window.postData = latestData;
+                    syncStats();
+                }
+            } catch (error) {
+                console.error('Error handling visit stats:', error);
+            }
         }
 
         // Attach events to a specific element and its children

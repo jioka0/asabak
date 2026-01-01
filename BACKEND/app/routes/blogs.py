@@ -5,8 +5,8 @@ from pathlib import Path
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from database import get_db
-from models.blog import BlogPost as BlogPostModel, BlogComment, BlogLike, TemporalUser as TemporalUserModel
-from schemas import BlogPost, BlogPostCreate, Comment, CommentCreate, Like, LikeCreate, TemporalUser, TemporalUserCreate
+from models.blog import BlogPost as BlogPostModel, BlogComment, BlogLike, TemporalUser as TemporalUserModel, BlogView
+from schemas import BlogPost, BlogPostCreate, Comment, CommentCreate, Like, LikeCreate, TemporalUser, TemporalUserCreate, ViewCreate
 import logging
 
 # Set up logging
@@ -63,11 +63,40 @@ async def get_blog_post(post_id: int, db: Session = Depends(get_db)):
     if not post:
         raise HTTPException(404, "Blog post not found")
 
-    # Increment view count
-    post.view_count += 1
-    db.commit()
-
     return post
+
+@router.post("/{post_id}/view")
+async def register_view(post_id: int, view: ViewCreate, db: Session = Depends(get_db)):
+    """Increment view count uniquely using device fingerprint (24h cooldown)"""
+    from datetime import datetime, timedelta
+    
+    # Check if post exists
+    post = db.query(BlogPostModel).filter(BlogPostModel.id == post_id).first()
+    if not post:
+        raise HTTPException(404, "Blog post not found")
+    
+    # Check for existing view within 24h
+    existing = db.query(BlogView).filter(
+        BlogView.blog_post_id == post_id,
+        BlogView.fingerprint == view.fingerprint,
+        BlogView.expires_at > func.now()
+    ).first()
+    
+    if not existing:
+        # Register new unique view
+        expires_at = datetime.utcnow() + timedelta(days=1)
+        new_view = BlogView(
+            blog_post_id=post_id,
+            fingerprint=view.fingerprint,
+            expires_at=expires_at
+        )
+        db.add(new_view)
+        
+        # Increment total views
+        post.view_count += 1
+        db.commit()
+    
+    return {"view_count": post.view_count}
 
 @router.post("/", response_model=BlogPost)
 async def create_blog_post(post: BlogPostCreate, db: Session = Depends(get_db)):

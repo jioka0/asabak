@@ -64,6 +64,15 @@ class BlogLike(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     expires_at = Column(DateTime(timezone=True), nullable=False)  # 3-day expiration
 
+class BlogView(Base):
+    __tablename__ = "blog_views"
+
+    id = Column(Integer, primary_key=True, index=True)
+    blog_post_id = Column(Integer, ForeignKey("blog_posts.id", ondelete="CASCADE"))
+    fingerprint = Column(String(500), nullable=False, index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    expires_at = Column(DateTime(timezone=True), nullable=False)  # Cooldown period (e.g., 24h)
+
 class BlogShare(Base):
     __tablename__ = "blog_shares"
 

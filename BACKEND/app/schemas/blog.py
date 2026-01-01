@@ -138,7 +138,7 @@ class TemporalUserBase(BaseModel):
     fingerprint: str
     name: str
     email: Optional[str] = None
-    device_info: dict
+    device_info: Optional[dict] = None
     ip_address: Optional[str] = None
     user_agent: Optional[str] = None
 
@@ -183,6 +183,9 @@ class Like(BaseModel):
 
     class Config:
         from_attributes = True
+
+class ViewCreate(BaseModel):
+    fingerprint: str
 
 # Analytics Schemas
 class PageViewAnalyticsBase(BaseModel):

@@ -285,10 +285,6 @@ async def blog_post_by_slug(request: Request, slug: str, db: Session = Depends(g
         'comment_count': post.comment_count
     }
 
-    # Increment view count
-    post.view_count += 1
-    db.commit()
-
     return blog_templates.TemplateResponse(
         template_name,
         {
