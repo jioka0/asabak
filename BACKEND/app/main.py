@@ -3,7 +3,7 @@ from datetime import datetime
 from fastapi import FastAPI, Request, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -193,27 +193,50 @@ DEFAULT_POST_DATA = {
 
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
-    """Render the blog homepage with domain enforcement"""
-    host = request.headers.get("host", "")
-    # If accessed through main domain or store, redirect to blog subdomain
-    if host in ["nekwasar.com", "store.nekwasar.com", "api.nekwasar.com"]:
-        return RedirectResponse(url=f"https://blog.nekwasar.com{request.url.path}")
+    """Domain-aware root route serving Portfolio, Blog, or Store based on Host header"""
+    host = request.headers.get("host", "").lower()
+    
+    # 1. Portfolio Domain
+    if host == "nekwasar.com":
+        portfolio_path = PROJECT_ROOT / "portfolio" / "index.html"
+        if portfolio_path.exists():
+            return FileResponse(str(portfolio_path))
         
-    return blog_templates.TemplateResponse(
-        "index.html",
-        {
-            "request": request,
-            "current_year": datetime.utcnow().year,
-            "post_data": DEFAULT_POST_DATA
-        }
-    )
+    # 2. Blog Domain
+    if host == "blog.nekwasar.com":
+        return blog_templates.TemplateResponse(
+            "index.html",
+            {
+                "request": request,
+                "current_year": datetime.utcnow().year,
+                "post_data": DEFAULT_POST_DATA
+            }
+        )
+        
+    # 3. Store Domain
+    if host == "store.nekwasar.com":
+        store_path = PROJECT_ROOT / "store" / "index.html"
+        if store_path.exists():
+            return FileResponse(str(store_path))
+            
+    # 4. Admin/API Domain
+    if host == "api.nekwasar.com":
+        return RedirectResponse(url="/admin/login")
+        
+    # Fallback/Default: Portfolio
+    portfolio_path = PROJECT_ROOT / "portfolio" / "index.html"
+    if portfolio_path.exists():
+        return FileResponse(str(portfolio_path))
+    
+    # Ultimate fallback if portfolio file is missing
+    return HTMLResponse("Welcome to NekwasaR")
 
 # SPA deep-link routes: serve the dynamic section pages
 @app.get("/latest", response_class=HTMLResponse)
 @app.get("/latest/", response_class=HTMLResponse)
 async def blog_latest(request: Request):
-    host = request.headers.get("host", "")
-    if host in ["nekwasar.com", "store.nekwasar.com", "api.nekwasar.com"]:
+    host = request.headers.get("host", "").lower()
+    if host != "blog.nekwasar.com":
         return RedirectResponse(url=f"https://blog.nekwasar.com/latest")
     return blog_templates.TemplateResponse(
         "page_section.html",
@@ -223,8 +246,8 @@ async def blog_latest(request: Request):
 @app.get("/popular", response_class=HTMLResponse)
 @app.get("/popular/", response_class=HTMLResponse)
 async def blog_popular(request: Request):
-    host = request.headers.get("host", "")
-    if host in ["nekwasar.com", "store.nekwasar.com", "api.nekwasar.com"]:
+    host = request.headers.get("host", "").lower()
+    if host != "blog.nekwasar.com":
         return RedirectResponse(url=f"https://blog.nekwasar.com/popular")
     return blog_templates.TemplateResponse(
         "page_section.html",
@@ -234,8 +257,8 @@ async def blog_popular(request: Request):
 @app.get("/others", response_class=HTMLResponse)
 @app.get("/others/", response_class=HTMLResponse)
 async def blog_others(request: Request):
-    host = request.headers.get("host", "")
-    if host in ["nekwasar.com", "store.nekwasar.com", "api.nekwasar.com"]:
+    host = request.headers.get("host", "").lower()
+    if host != "blog.nekwasar.com":
         return RedirectResponse(url=f"https://blog.nekwasar.com/others")
     return blog_templates.TemplateResponse(
         "page_section.html",
@@ -245,8 +268,8 @@ async def blog_others(request: Request):
 @app.get("/featured", response_class=HTMLResponse)
 @app.get("/featured/", response_class=HTMLResponse)
 async def blog_featured(request: Request):
-    host = request.headers.get("host", "")
-    if host in ["nekwasar.com", "store.nekwasar.com", "api.nekwasar.com"]:
+    host = request.headers.get("host", "").lower()
+    if host != "blog.nekwasar.com":
         return RedirectResponse(url=f"https://blog.nekwasar.com/featured")
     return blog_templates.TemplateResponse(
         "page_section.html",
@@ -256,8 +279,8 @@ async def blog_featured(request: Request):
 @app.get("/topics", response_class=HTMLResponse)
 @app.get("/topics/", response_class=HTMLResponse)
 async def blog_topics(request: Request):
-    host = request.headers.get("host", "")
-    if host in ["nekwasar.com", "store.nekwasar.com", "api.nekwasar.com"]:
+    host = request.headers.get("host", "").lower()
+    if host != "blog.nekwasar.com":
         return RedirectResponse(url=f"https://blog.nekwasar.com/topics")
     return blog_templates.TemplateResponse(
         "page_section.html",
@@ -267,10 +290,11 @@ async def blog_topics(request: Request):
 # Dynamic blog post route
 @app.get("/{slug}", response_class=HTMLResponse)
 async def blog_post_by_slug(request: Request, slug: str, db: Session = Depends(get_db)):
-    """Serve individual blog posts by slug with domain enforcement"""
-    host = request.headers.get("host", "")
-    # Redirect to blog subdomain if accessed from elsewhere
-    if host in ["nekwasar.com", "store.nekwasar.com", "api.nekwasar.com"]:
+    """Serve individual blog posts by slug with anti-leakage domain enforcement"""
+    host = request.headers.get("host", "").lower()
+    
+    # Anti-Leakage: Redirect to blog subdomain if NOT accessed through it
+    if host != "blog.nekwasar.com" and host != "localhost:8000":
         return RedirectResponse(url=f"https://blog.nekwasar.com/{slug}")
         
     # Serve individual blog posts by slug
