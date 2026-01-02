@@ -5,10 +5,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}NekwasaR Blog{% endblock %}</title>
-  <meta name="description" content="Professional insights, analysis, and storytelling from NekwasaR.">
-  <meta name="author" content="NekwasaR">
+  <meta name="description"
+    content="{% block description %}{% if post_data %}{{ post_data.excerpt|truncate(160) }}{% else %}Professional insights, analysis, and storytelling from NekwasaR.{% endif %}{% endblock %}">
+  <meta name="author"
+    content="{% block author %}{% if post_data %}{{ post_data.author }}{% else %}NekwasaR{% endif %}{% endblock %}">
 
   {% block head_extra %}{% endblock %}
+
+  <meta property="og:site_name" content="NekwasaR Blog">
+  <meta property="og:locale" content="en_US">
 
   <!-- Early theme bootstrap: apply saved theme ASAP and provide global fallbacks -->
   <script>

@@ -5,12 +5,7 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
 {% block fluid_layout %}true{% endblock %}
 
 {% block head_extra %}
-<!-- SEO Meta Tags -->
-<meta name="description"
-    content="{% if post_data %}{{ post_data.excerpt|truncate(160) }}{% else %}Explore how AI is reshaping industries, empowering innovation, and creating unprecedented opportunities for growth and discovery in our rapidly evolving digital landscape.{% endif %}">
-<meta name="author" content="{% if post_data %}{{ post_data.author }}{% else %}NekwasaR{% endif %}">
-<meta name="keywords"
-    content="{% if post_data %}{{ post_data.tags|join(', ') }}{% else %}artificial intelligence, AI, technology, innovation, future, machine learning{% endif %}">
+<!-- SEO Meta Tags included from base -->
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="article">
@@ -19,9 +14,8 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
 <meta property="og:description"
     content="{% if post_data %}{{ post_data.excerpt|truncate(160) }}{% else %}Explore how AI is reshaping industries, empowering innovation, and creating unprecedented opportunities for growth and discovery.{% endif %}">
 <meta property="og:image"
-    content="{% if post_data and post_data.featured_image %}{{ post_data.featured_image }}{% else %}https://nekwasar.com/icon{% endif %}">
-<meta property="og:url"
-    content="https://nekwasar.com/{% if post_data %}{{ post_data.slug }}{% else %}blog/ai-future-transforming-world{% endif %}">
+    content="{% if post_data and post_data.featured_image %}{% if post_data.featured_image.startswith('http') %}{{ post_data.featured_image }}{% else %}https://blog.nekwasar.com{{ post_data.featured_image }}{% endif %}{% else %}https://nekwasar.com/icon{% endif %}">
+<meta property="og:url" content="https://blog.nekwasar.com/{% if post_data %}{{ post_data.slug }}{% endif %}">
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
@@ -30,7 +24,7 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
 <meta name="twitter:description"
     content="{% if post_data %}{{ post_data.excerpt|truncate(160) }}{% else %}Explore how AI is reshaping industries, empowering innovation, and creating unprecedented opportunities for growth and discovery.{% endif %}">
 <meta name="twitter:image"
-    content="{% if post_data and post_data.featured_image %}{{ post_data.featured_image }}{% else %}https://nekwasar.com/icon{% endif %}">
+    content="{% if post_data and post_data.featured_image %}{% if post_data.featured_image.startswith('http') %}{{ post_data.featured_image }}{% else %}https://blog.nekwasar.com{{ post_data.featured_image }}{% endif %}{% else %}https://nekwasar.com/icon{% endif %}">
 
 <!-- Google Fonts - Anton -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
