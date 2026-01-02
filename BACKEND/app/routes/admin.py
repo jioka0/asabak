@@ -226,6 +226,7 @@ async def get_recent_activity(current_user = Depends(get_current_active_user), d
 
 @router.get("/api/dashboard/chart-data")
 @router.get("/admin/api/dashboard/chart-data")
+@router.get("/api/admin/dashboard/chart-data")
 async def get_dashboard_chart_data(period: str = "7d", current_user = Depends(get_current_active_user), db: Session = Depends(get_db)):
     """Get chart data for dashboard"""
     from models.blog import BlogPost, BlogComment
