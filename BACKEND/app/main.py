@@ -3,7 +3,7 @@ from datetime import datetime
 from fastapi import FastAPI, Request, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse, Response
 from fastapi.templating import Jinja2Templates
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -269,23 +269,61 @@ async def serve_fonts(request: Request, rest: str):
         if path.is_file(): return FileResponse(str(path))
     raise HTTPException(status_code=404)
 
+@app.get("/icon")
 @app.get("/favicon.png")
 @app.get("/favicon.ico")
-async def serve_favicon(request: Request):
-    host = request.headers.get("host", "").lower()
-    folder = "portfolio" if host == "nekwasar.com" or host == "localhost:8000" else "store" if host == "store.nekwasar.com" else "portfolio"
-    path = PROJECT_ROOT / folder / "favicon.png"
-    if not path.is_file():
-        path = PROJECT_ROOT / "portfolio" / "favicon.png"
-    if path.is_file(): return FileResponse(str(path))
+async def serve_universal_favicon(request: Request):
+    """Serve the central portfolio favicon as the one source of truth for all domains"""
+    path = PROJECT_ROOT / "portfolio" / "favicon.png"
+    if path.is_file(): 
+        return FileResponse(str(path))
     raise HTTPException(status_code=404)
 
-@app.get("/sitemap.xml")
-async def serve_sitemap(request: Request):
+@app.get("/robots.txt")
+async def serve_robots(request: Request):
     host = request.headers.get("host", "").lower()
+    
+    # Define robots content based on domain
+    if host == "blog.nekwasar.com":
+        content = "User-agent: *\nAllow: /\nSitemap: https://blog.nekwasar.com/sitemap.xml"
+    elif host == "store.nekwasar.com":
+        content = "User-agent: *\nAllow: /\nSitemap: https://store.nekwasar.com/sitemap.xml"
+    else:
+        content = "User-agent: *\nAllow: /\nSitemap: https://nekwasar.com/sitemap.xml"
+        
+    return Response(content=content, media_type="text/plain")
+
+@app.get("/sitemap.xml")
+async def serve_sitemap(request: Request, db: Session = Depends(get_db)):
+    host = request.headers.get("host", "").lower()
+    
+    # 1. Handle Dynamic Blog Sitemap
+    if host == "blog.nekwasar.com":
+        from models.blog import BlogPost
+        posts = db.query(BlogPost).filter(BlogPost.published_at.isnot(None)).all()
+        
+        xml_content = '<?xml version="1.0" encoding="UTF-8"?>\n'
+        xml_content += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        
+        # Static Blog Pages
+        for route in ['', 'latest', 'popular', 'featured', 'others', 'topics']:
+            url = f"https://blog.nekwasar.com/{route}" if route else "https://blog.nekwasar.com/"
+            xml_content += f'  <url>\n    <loc>{url}</loc>\n    <changefreq>daily</changefreq>\n    <priority>0.8</priority>\n  </url>\n'
+            
+        # Dynamic Posts
+        for post in posts:
+            lastmod = post.updated_at.strftime('%Y-%m-%d') if post.updated_at else datetime.utcnow().strftime('%Y-%m-%d')
+            xml_content += f'  <url>\n    <loc>https://blog.nekwasar.com/{post.slug}</loc>\n    <lastmod>{lastmod}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.6</priority>\n  </url>\n'
+            
+        xml_content += '</urlset>'
+        return Response(content=xml_content, media_type="application/xml")
+
+    # 2. Handle Portfolio & Store Static Sitemaps
     folder = "portfolio" if host == "nekwasar.com" or host == "localhost:8000" else "store" if host == "store.nekwasar.com" else "portfolio"
     path = PROJECT_ROOT / folder / "sitemap.xml"
-    if path.is_file(): return FileResponse(str(path))
+    if path.is_file(): 
+        return FileResponse(str(path))
+    
     raise HTTPException(status_code=404)
 
 # SPA deep-link routes: serve the dynamic section pages
