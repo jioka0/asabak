@@ -1160,8 +1160,34 @@
           <i class="ph-bold ${suggestion.icon}"></i>
           <span>${suggestion.text}</span>
         `;
+        
+        // Add click event listener immediately
+        element.addEventListener('click', () => {
+          console.log('Suggestion clicked:', suggestion.type);
+          const searchText = element.querySelector('span')?.textContent || '';
+          
+          // Extract the search term from the suggestion text (remove the prefix)
+          let searchTerm = '';
+          if (searchText.includes(': ')) {
+            searchTerm = searchText.split(': ')[1];
+          }
+
+          if (searchInput) {
+            searchInput.value = searchTerm;
+            currentQuery = searchTerm;
+            
+            // Automatically perform the search
+            if (searchState === 'idle') {
+              setState('active');
+            }
+            performSearch();
+          }
+        });
+        
         suggestionsContainer.appendChild(element);
       });
+      
+      console.log('Created suggestion elements with click handlers');
     }
 
     function updateSuggestion(type, postData) {
@@ -1192,6 +1218,11 @@
             if (searchInput) {
               searchInput.value = searchTerm;
               currentQuery = searchTerm;
+              
+              // Automatically perform the search
+              if (searchState === 'idle') {
+                setState('active');
+              }
               performSearch();
             }
           });
