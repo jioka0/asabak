@@ -231,6 +231,63 @@ async def root(request: Request):
     # Ultimate fallback if portfolio file is missing
     return HTMLResponse("Welcome to NekwasaR")
 
+# --- PORTFOLIO & STORE ASSET ROUTES (CSS, JS, IMG, FONTS) ---
+# These routes serve static assets for the portfolio and store domains when they ask for relative paths (e.g. /css/main.css)
+@app.get("/css/{rest:path}")
+async def serve_css(request: Request, rest: str):
+    host = request.headers.get("host", "").lower()
+    folder = "portfolio" if host == "nekwasar.com" or host == "localhost:8000" else "store" if host == "store.nekwasar.com" else None
+    if folder:
+        path = PROJECT_ROOT / folder / "css" / rest
+        if path.is_file(): return FileResponse(str(path))
+    raise HTTPException(status_code=404)
+
+@app.get("/js/{rest:path}")
+async def serve_js(request: Request, rest: str):
+    host = request.headers.get("host", "").lower()
+    folder = "portfolio" if host == "nekwasar.com" or host == "localhost:8000" else "store" if host == "store.nekwasar.com" else None
+    if folder:
+        path = PROJECT_ROOT / folder / "js" / rest
+        if path.is_file(): return FileResponse(str(path))
+    raise HTTPException(status_code=404)
+
+@app.get("/img/{rest:path}")
+async def serve_img(request: Request, rest: str):
+    host = request.headers.get("host", "").lower()
+    folder = "portfolio" if host == "nekwasar.com" or host == "localhost:8000" else "store" if host == "store.nekwasar.com" else None
+    if folder:
+        path = PROJECT_ROOT / folder / "img" / rest
+        if path.is_file(): return FileResponse(str(path))
+    raise HTTPException(status_code=404)
+
+@app.get("/fonts/{rest:path}")
+async def serve_fonts(request: Request, rest: str):
+    host = request.headers.get("host", "").lower()
+    folder = "portfolio" if host == "nekwasar.com" or host == "localhost:8000" else "store" if host == "store.nekwasar.com" else None
+    if folder:
+        path = PROJECT_ROOT / folder / "fonts" / rest
+        if path.is_file(): return FileResponse(str(path))
+    raise HTTPException(status_code=404)
+
+@app.get("/favicon.png")
+@app.get("/favicon.ico")
+async def serve_favicon(request: Request):
+    host = request.headers.get("host", "").lower()
+    folder = "portfolio" if host == "nekwasar.com" or host == "localhost:8000" else "store" if host == "store.nekwasar.com" else "portfolio"
+    path = PROJECT_ROOT / folder / "favicon.png"
+    if not path.is_file():
+        path = PROJECT_ROOT / "portfolio" / "favicon.png"
+    if path.is_file(): return FileResponse(str(path))
+    raise HTTPException(status_code=404)
+
+@app.get("/sitemap.xml")
+async def serve_sitemap(request: Request):
+    host = request.headers.get("host", "").lower()
+    folder = "portfolio" if host == "nekwasar.com" or host == "localhost:8000" else "store" if host == "store.nekwasar.com" else "portfolio"
+    path = PROJECT_ROOT / folder / "sitemap.xml"
+    if path.is_file(): return FileResponse(str(path))
+    raise HTTPException(status_code=404)
+
 # SPA deep-link routes: serve the dynamic section pages
 @app.get("/latest", response_class=HTMLResponse)
 @app.get("/latest/", response_class=HTMLResponse)
@@ -293,11 +350,17 @@ async def blog_post_by_slug(request: Request, slug: str, db: Session = Depends(g
     """Serve individual blog posts by slug with anti-leakage domain enforcement"""
     host = request.headers.get("host", "").lower()
     
-    # Anti-Leakage: Redirect to blog subdomain if NOT accessed through it
+    # 1. Assets Check: If on portfolio domain, check if it's a root-level file (like favicon.png)
+    if host == "nekwasar.com" or host == "localhost:8000":
+        portfolio_file = PROJECT_ROOT / "portfolio" / slug
+        if portfolio_file.is_file():
+            return FileResponse(str(portfolio_file))
+            
+    # 2. Anti-Leakage: Redirect to blog subdomain if NOT accessed through it
     if host != "blog.nekwasar.com" and host != "localhost:8000":
         return RedirectResponse(url=f"https://blog.nekwasar.com/{slug}")
         
-    # Serve individual blog posts by slug
+    # 3. Serve individual blog posts by slug
     from models.blog import BlogPost
 
     # Skip if it's a known static route
