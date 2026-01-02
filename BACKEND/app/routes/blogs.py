@@ -323,12 +323,57 @@ async def delete_blog_post(post_id: int, db: Session = Depends(get_db)):
 # Section-based endpoints for homepage
 @router.get("/posts/section/{section}", response_model=list[BlogPost])
 async def get_posts_by_section(section: str, limit: int = 10, db: Session = Depends(get_db)):
-    """Get blog posts by section (latest, popular, featured, others)"""
+    """Get blog posts by section (latest, popular, trending, others)"""
     if section == "latest":
+        # Recent: Show the newest posts
         posts = db.query(BlogPostModel).order_by(BlogPostModel.published_at.desc()).limit(limit).all()
     elif section == "popular":
+        # Popular: Show posts with overall highest views
         posts = db.query(BlogPostModel).order_by(BlogPostModel.view_count.desc()).limit(limit).all()
+    elif section == "trending":
+        # Trending: Show posts with highest views in the last 7 days
+        from datetime import datetime, timedelta
+        seven_days_ago = datetime.utcnow() - timedelta(days=7)
+        
+        try:
+            # Check if BlogView table exists by trying to query it
+            # If it fails, fall back to most viewed posts
+            view_counts_query = db.query(
+                BlogView.blog_post_id,
+                func.count(BlogView.id).label('recent_views')
+            ).filter(
+                BlogView.created_at >= seven_days_ago
+            ).group_by(BlogView.blog_post_id)
+            
+            view_counts = view_counts_query.all()
+            
+            # Create a dictionary of post_id -> recent_views
+            post_view_counts = {vc.blog_post_id: vc.recent_views for vc in view_counts}
+            
+            # Get all posts and sort by recent views (only posts with views in last 7 days)
+            posts_with_recent_views = [
+                post for post in db.query(BlogPostModel).all() 
+                if post.id in post_view_counts
+            ]
+            
+            # Sort by recent views count, then by published_at as tiebreaker
+            posts_with_recent_views.sort(
+                key=lambda p: (post_view_counts.get(p.id, 0), p.published_at or datetime.min), 
+                reverse=True
+            )
+            
+            posts = posts_with_recent_views[:limit]
+            
+            # If no posts with recent views, fall back to most viewed
+            if not posts:
+                posts = db.query(BlogPostModel).order_by(BlogPostModel.view_count.desc()).limit(limit).all()
+                
+        except Exception as e:
+            logger.warning(f"Trending calculation failed, using fallback: {e}")
+            # Fallback to most viewed posts if trending calculation fails
+            posts = db.query(BlogPostModel).order_by(BlogPostModel.view_count.desc()).limit(limit).all()
     elif section == "featured":
+        # Featured: Show posts by priority (legacy endpoint)
         posts = db.query(BlogPostModel).filter(BlogPostModel.priority > 0).order_by(BlogPostModel.priority.desc(), BlogPostModel.published_at.desc()).limit(limit).all()
     elif section == "others":
         posts = db.query(BlogPostModel).order_by(BlogPostModel.published_at.desc()).limit(limit).all()

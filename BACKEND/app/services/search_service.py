@@ -252,19 +252,27 @@ class SearchService:
         # Get active sections
         sections = ['latest', 'popular', 'others', 'featured']  # Static for now
 
-        # Get popular tags (top 10 by usage)
-        # For PostgreSQL/SQLite compatible tag fetching
-        tag_counts = self.db.query(BlogPost.tags).all()
+        # Get popular tags from actual database content
+        tag_usage = {}
+        all_posts = self.db.query(BlogPost.tags).filter(BlogPost.published_at.isnot(None)).all()
 
-        # For now, return static major tags
-        tags = ['ai', 'startup', 'innovation', 'opinions', 'business', 'software']
+        for (tags,) in all_posts:
+            if tags and isinstance(tags, list):
+                for tag in tags:
+                    tag_lower = tag.lower().strip()
+                    if tag_lower:
+                        tag_usage[tag_lower] = tag_usage.get(tag_lower, 0) + 1
+
+        # Sort tags by usage and take top 10
+        sorted_tags = sorted(tag_usage.items(), key=lambda x: x[1], reverse=True)[:10]
+        tags = [tag for tag, count in sorted_tags]
 
         return {
             "sections": sections,
             "tags": tags,
             "counts": {
                 "sections": {section: self._count_posts_by_section(section) for section in sections},
-                "tags": {tag: self._count_posts_by_tag(tag) for tag in tags}
+                "tags": tag_usage  # Return actual counts for all tags
             }
         }
 

@@ -1104,34 +1104,99 @@
     }
 
     // Initialize suggestions
+    loadDynamicSuggestions();
     initSuggestions();
 
-    function initSuggestions() {
-      const suggestions = document.querySelectorAll('.suggestion-item');
+    async function loadDynamicSuggestions() {
+      try {
+        // Fetch trending, recent, and popular posts
+        const [trendingRes, recentRes, popularRes] = await Promise.all([
+          fetch('/api/blogs/posts/section/trending?limit=1'),
+          fetch('/api/blogs/posts/section/latest?limit=1'),
+          fetch('/api/blogs/posts/section/popular?limit=1')
+        ]);
+
+        const trendingData = await trendingRes.json();
+        const recentData = await recentRes.json();
+        const popularData = await popularRes.json();
+
+        // Handle different response formats (APIs return arrays directly)
+        const trendingPosts = Array.isArray(trendingData) ? trendingData : [];
+        const recentPosts = Array.isArray(recentData) ? recentData : [];
+        const popularPosts = Array.isArray(popularData) ? popularData : [];
+
+        // Create suggestion elements if they don't exist
+        createSuggestionElements();
+
+        // Update suggestions with dynamic data
+        updateSuggestion('trending', trendingPosts[0]);
+        updateSuggestion('recent', recentPosts[0]);
+        updateSuggestion('popular', popularPosts[0]);
+      } catch (error) {
+        console.error('Error loading dynamic suggestions:', error);
+        // Fallback to default suggestions if API fails
+        createSuggestionElements();
+        updateSuggestion('trending', { title: 'AI Ethics' });
+        updateSuggestion('recent', { title: 'Web Development' });
+        updateSuggestion('popular', { title: 'Blockchain Guide' });
+      }
+    }
+
+    function createSuggestionElements() {
+      const suggestionsContainer = document.getElementById('searchSuggestions');
+      if (!suggestionsContainer || suggestionsContainer.children.length > 0) return;
+
+      const suggestions = [
+        { type: 'trending', icon: 'ph-trend-up', text: 'Loading...' },
+        { type: 'recent', icon: 'ph-clock', text: 'Loading...' },
+        { type: 'popular', icon: 'ph-star', text: 'Loading...' }
+      ];
+
       suggestions.forEach(suggestion => {
-        suggestion.addEventListener('click', () => {
-          const type = suggestion.dataset.type;
-          let searchTerm = '';
-
-          switch (type) {
-            case 'trending':
-              searchTerm = 'AI ethics';
-              break;
-            case 'recent':
-              searchTerm = 'web development';
-              break;
-            case 'popular':
-              searchTerm = 'blockchain guide';
-              break;
-          }
-
-          if (searchInput) {
-            searchInput.value = searchTerm;
-            currentQuery = searchTerm;
-            performSearch();
-          }
-        });
+        const element = document.createElement('div');
+        element.className = 'suggestion-item initial';
+        element.setAttribute('data-type', suggestion.type);
+        element.innerHTML = `
+          <i class="ph-bold ${suggestion.icon}"></i>
+          <span>${suggestion.text}</span>
+        `;
+        suggestionsContainer.appendChild(element);
       });
+    }
+
+    function updateSuggestion(type, postData) {
+      const suggestion = document.querySelector(`[data-type="${type}"]`);
+      if (!suggestion || !postData) return;
+      
+      const span = suggestion.querySelector('span');
+      if (span) {
+        span.textContent = `${type.charAt(0).toUpperCase() + type.slice(1)}: ${postData.title || 'No posts found'}`;
+      }
+    }
+
+    function initSuggestions() {
+      // Use a timeout to ensure DOM elements are created first
+      setTimeout(() => {
+        const suggestions = document.querySelectorAll('.suggestion-item');
+        suggestions.forEach(suggestion => {
+          suggestion.addEventListener('click', () => {
+            const type = suggestion.dataset.type;
+            const searchText = suggestion.querySelector('span')?.textContent || '';
+            
+            // Extract the search term from the suggestion text (remove the prefix)
+            let searchTerm = '';
+            if (searchText.includes(': ')) {
+              searchTerm = searchText.split(': ')[1];
+            }
+
+            if (searchInput) {
+              searchInput.value = searchTerm;
+              currentQuery = searchTerm;
+              performSearch();
+            }
+          });
+        });
+      }, 100); // Small delay to ensure elements are created
     }
   }
 

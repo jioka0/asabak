@@ -484,8 +484,19 @@
 
     // Search Modal Module
     const SearchModal = {
+        // State management
+        searchState: 'idle',
+        currentQuery: '',
+        currentFilters: {
+            section: 'all',
+            tags: [],
+            sort: 'relevance'
+        },
+
         init: function () {
             this.bindEvents();
+            // Load tags immediately on initialization
+            this.loadTags();
             Utils.debug('Search Modal initialized');
         },
 
@@ -501,8 +512,8 @@
 
             // Close modal when clicking outside or on close button
             document.addEventListener('click', (e) => {
-                const modal = document.getElementById('search-modal');
-                const closeBtn = e.target.closest('.search-modal-close');
+                const modal = document.getElementById('searchOverlay') || document.getElementById('search-modal');
+                const closeBtn = e.target.closest('.search-close') || e.target.closest('.search-modal-close');
                 if (modal && (e.target === modal || closeBtn)) {
                     this.closeModal();
                 }
@@ -517,10 +528,10 @@
         },
 
         openModal: function () {
-            const modal = document.getElementById('search-modal');
+            const modal = document.getElementById('searchOverlay') || document.getElementById('search-modal');
             if (modal) {
                 modal.classList.add('active');
-                const input = modal.querySelector('.search-modal-input');
+                const input = modal.querySelector('.search-input') || modal.querySelector('.search-modal-input');
                 if (input) {
                     setTimeout(() => input.focus(), 100);
                 }
@@ -528,10 +539,313 @@
         },
 
         closeModal: function () {
-            const modal = document.getElementById('search-modal');
+            const modal = document.getElementById('searchOverlay') || document.getElementById('search-modal');
             if (modal) {
                 modal.classList.remove('active');
             }
+        },
+
+        setState(newState) {
+            if (this.searchState === newState) return; // No change needed
+            this.searchState = newState;
+
+            const modal = document.getElementById('searchOverlay') || document.getElementById('search-modal');
+            if (!modal) return;
+
+            const searchResultsSection = modal.querySelector('.search-results-section');
+            const searchSuggestions = modal.querySelector('.search-suggestions');
+            const typingState = modal.querySelector('.search-typing-state');
+            const initialFilters = modal.querySelector('.search-filters');
+
+            if (newState === 'idle') {
+                // Fade out active state components
+                if (searchResultsSection) {
+                    searchResultsSection.classList.remove('visible');
+                    setTimeout(() => {
+                        if (searchResultsSection) searchResultsSection.style.display = 'none';
+                    }, 300);
+                }
+
+                // Wait for fade out animation, then show idle state
+                setTimeout(() => {
+                    if (searchSuggestions) {
+                        searchSuggestions.style.display = 'flex';
+                        searchSuggestions.classList.remove('hidden');
+                    }
+                    if (typingState) {
+                        typingState.style.display = 'block';
+                        typingState.classList.remove('hidden');
+                    }
+                    if (initialFilters) {
+                        initialFilters.style.display = 'block';
+                        initialFilters.classList.remove('hidden');
+                    }
+                }, 350);
+            } else if (newState === 'active') {
+                // Fade out idle state components
+                if (searchSuggestions) {
+                    searchSuggestions.classList.add('hidden');
+                    setTimeout(() => {
+                        if (searchSuggestions) searchSuggestions.style.display = 'none';
+                    }, 300);
+                }
+                if (typingState) {
+                    typingState.classList.add('hidden');
+                    setTimeout(() => {
+                        if (typingState) typingState.style.display = 'none';
+                    }, 300);
+                }
+                if (initialFilters) {
+                    initialFilters.classList.add('hidden');
+                    setTimeout(() => {
+                        if (initialFilters) initialFilters.style.display = 'none';
+                    }, 300);
+                }
+
+                // Wait for fade out animation, then show active state
+                setTimeout(() => {
+                    if (searchResultsSection) {
+                        searchResultsSection.style.display = 'flex';
+                        searchResultsSection.classList.add('visible');
+                    }
+                }, 350);
+            }
+        },
+
+        async loadTags() {
+            try {
+                const response = await fetch('/api/search/filters');
+                if (!response.ok) throw new Error('Failed to load filters');
+
+                const filters = await response.json();
+                this.updateTags(filters);
+            } catch (error) {
+                Utils.debug('Error loading tags:', error);
+                this.showTagsError();
+            }
+        },
+
+        showTagsError() {
+            const modal = document.getElementById('searchOverlay') || document.getElementById('search-modal');
+            if (!modal) return;
+
+            const tagContainer = modal.querySelector('#tagFilters') || modal.querySelector('.tag-filters');
+            if (tagContainer) {
+                tagContainer.innerHTML = `
+                    <div class="tag-error">
+                        <span>An error occurred, can't load tags filter</span>
+                    </div>
+                `;
+            }
+        },
+
+        updateTags(filters) {
+            const modal = document.getElementById('searchOverlay') || document.getElementById('search-modal');
+            if (!modal) return;
+
+            const tagContainer = modal.querySelector('#tagFilters') || modal.querySelector('.tag-filters');
+            if (tagContainer && filters.tags) {
+                tagContainer.innerHTML = '';
+
+                // Sort tags by post count (descending) and take top 8
+                const sortedTags = Object.entries(filters.counts?.tags || {})
+                    .sort(([,a], [,b]) => b - a)
+                    .slice(0, 8);
+
+                sortedTags.forEach(([tag, count]) => {
+                    const tagChip = document.createElement('span');
+                    tagChip.className = 'tag-chip';
+                    tagChip.setAttribute('data-tag', tag);
+                    tagChip.innerHTML = `
+                        <span>${tag}</span>
+                        <span class="tag-count">${count}</span>
+                    `;
+                    
+                    // Add click handler for tag filtering (just like in topics page)
+                    tagChip.addEventListener('click', () => {
+                        this.handleTagClick(tag);
+                    });
+                    
+                    tagContainer.appendChild(tagChip);
+                });
+
+                Utils.debug('Updated tags with real data:', sortedTags.length, 'tags');
+            }
+        },
+
+        handleTagClick(tag) {
+            const modal = document.getElementById('searchOverlay') || document.getElementById('search-modal');
+            if (!modal) return;
+
+            // Update tag chip active states
+            const tagChips = modal.querySelectorAll('.tag-chip');
+            tagChips.forEach(chip => {
+                chip.classList.toggle('active', chip.dataset.tag === tag);
+            });
+
+            // Set the search input to the tag name and trigger search
+            const searchInput = modal.querySelector('.search-input') || modal.querySelector('.search-modal-input');
+            if (searchInput) {
+                searchInput.value = tag;
+                this.searchByTag(tag);
+            }
+        },
+
+        async searchByTag(tag) {
+            const modal = document.getElementById('searchOverlay') || document.getElementById('search-modal');
+            if (!modal) return;
+
+            // Show active state if not already active
+            if (this.searchState !== 'active') {
+                this.setState('active');
+            }
+
+            // Update current query and filters
+            this.currentQuery = tag;
+            this.currentFilters = {
+                ...this.currentFilters,
+                tags: [tag]
+            };
+
+            // Show loading state
+            const resultsCount = modal.querySelector('#resultsCount');
+            const searchResults = modal.querySelector('#searchResults');
+            
+            if (resultsCount) {
+                resultsCount.textContent = `Searching #${tag} posts...`;
+            }
+            
+            if (searchResults) {
+                searchResults.innerHTML = `
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        <p>Finding #${tag} posts...</p>
+                    </div>
+                `;
+            }
+
+            try {
+                // Make API call to search posts by tag
+                const response = await fetch('/api/search/posts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        query: '', // Empty query for tag-only search
+                        tags: [tag],
+                        section: 'all',
+                        sort: 'recent',
+                        limit: 20,
+                        offset: 0
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Search failed: ${response.status}`);
+                }
+
+                const searchData = await response.json();
+                this.renderTagResults(searchData.results, tag);
+
+            } catch (error) {
+                console.error('Tag search error:', error);
+                
+                if (searchResults) {
+                    searchResults.innerHTML = `
+                        <div class="no-results">
+                            <div class="no-results-icon">
+                                <i class="ph-bold ph-warning-circle"></i>
+                            </div>
+                            <h3>Search Error</h3>
+                            <p>Unable to load posts for #${tag}. Please try again.</p>
+                        </div>
+                    `;
+                }
+                
+                if (resultsCount) {
+                    resultsCount.textContent = 'Search failed';
+                }
+            }
+        },
+
+        renderTagResults(results, tag) {
+            const modal = document.getElementById('searchOverlay') || document.getElementById('search-modal');
+            if (!modal) return;
+
+            const resultsCount = modal.querySelector('#resultsCount');
+            const searchResults = modal.querySelector('#searchResults');
+            const searchStats = modal.querySelector('#searchStats');
+            const loadMoreContainer = modal.querySelector('#loadMoreContainer');
+
+            // Update results count
+            if (resultsCount) {
+                const count = results.length;
+                resultsCount.textContent = count === 1 
+                    ? `1 post found for #${tag}` 
+                    : `${count} posts found for #${tag}`;
+            }
+
+            // Update search stats
+            if (searchStats) {
+                searchStats.innerHTML = `<i class="ph-bold ph-hash"></i> Tag: #${tag}`;
+            }
+
+            // Show/hide load more button
+            if (loadMoreContainer) {
+                loadMoreContainer.style.display = results.length >= 20 ? 'block' : 'none';
+            }
+
+            // Render results
+            if (searchResults) {
+                if (results.length === 0) {
+                    searchResults.innerHTML = `
+                        <div class="no-results">
+                            <div class="no-results-icon">
+                                <i class="ph-bold ph-hash"></i>
+                            </div>
+                            <h3>No posts found</h3>
+                            <p>No posts found with the #${tag} tag. Try exploring other topics.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const resultsHTML = results.map(result => this.createResultCard(result, tag)).join('');
+                searchResults.innerHTML = resultsHTML;
+            }
+        },
+
+        createResultCard(result, tag) {
+            return `
+                <div class="result-card">
+                    <div class="result-media">
+                        ${result.featured_image ? 
+                            `<img src="${result.featured_image}" alt="${result.title}" class="result-image">` :
+                            `<div class="result-icon"><i class="ph-bold ph-article"></i></div>`
+                        }
+                    </div>
+                    <div class="result-content">
+                        <div class="result-category">${result.section || 'Article'}</div>
+                        <h3 class="result-title">${this.highlightText(result.title, tag)}</h3>
+                        <p class="result-excerpt">${this.highlightText(result.excerpt || 'No excerpt available', tag)}</p>
+                        <div class="result-meta">
+                            <span class="result-author">${result.author || 'NekwasaR'}</span>
+                            <span class="result-date">${result.published_at ? new Date(result.published_at).toLocaleDateString() : 'Recent'}</span>
+                            <span class="result-stats">
+                                <i class="ph-bold ph-eye"></i> ${result.view_count || 0}
+                            </span>
+                            ${result.tags ? `<div class="result-tags">${result.tags.slice(0, 3).map(t => `<span class="result-tag">#${t}</span>`).join('')}</div>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        },
+
+        highlightText(text, query) {
+            if (!query) return text;
+            const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+            return text.replace(regex, '<span class="highlight">$1</span>');
         }
     };
 
@@ -667,8 +981,6 @@
             }, 1000);
         }
     };
-
-
 
     // Main initialization
     const BlogTemplates = {
