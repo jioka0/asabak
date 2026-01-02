@@ -1077,7 +1077,7 @@
             loadPublishedPosts();
 
             // Make all text elements editable without any visual changes
-            const textElements = templateContainer.querySelectorAll('p, h1, h2, h3, h4, h5, h6, span, div:not(.image-edit-overlay):not(.related-post-item):not(.trending-post-item):not(.views-count):not(.dynamic-content), a:not([href*="/blog/"]), li');
+            const textElements = templateContainer.querySelectorAll('p, h1, h2, h3, h4, h5, h6, blockquote, span, div:not(.image-edit-overlay):not(.related-post-item):not(.trending-post-item):not(.views-count):not(.dynamic-content), a:not([href*="/blog/"]), li');
 
             let editableCount = 0;
             textElements.forEach((el, index) => {
@@ -1097,6 +1097,9 @@
                     editableCount++;
                 }
             });
+
+            // Initialize the block context menu for advanced editing
+            setupBlockContextMenu();
 
             // Explicitly disable contenteditable on post selection items and dynamic content
             const postItems = document.querySelectorAll('.related-post-item, .trending-post-item, a[href*="/blog/"], .views-count, .dynamic-content');
@@ -1985,6 +1988,106 @@
                 `;
             }
         });
+
+        // ---------------------------------------------------------
+        // BLOCK EDITING LOGIC (Context Menu & Insertion)
+        // ---------------------------------------------------------
+
+        let currentContextBlock = null;
+
+        function setupBlockContextMenu() {
+            // Remove existing if any
+            const existing = document.getElementById('blockContextMenu');
+            if (existing) existing.remove();
+
+            const menu = document.createElement('div');
+            menu.id = 'blockContextMenu';
+            menu.className = 'post-context-menu';
+            menu.style.display = 'none';
+            // Styling is handled by .post-context-menu CSS class already defined
+            menu.innerHTML = `
+                <div class="context-menu-item" onclick="handleBlockAction('add_header_above')">⬆️ Add Header Above</div>
+                <div class="context-menu-item" onclick="handleBlockAction('add_text_above')">⬆️ Add Text Above</div>
+                <hr style="border: 0; border-top: 1px solid #333; margin: 4px 0;">
+                <div class="context-menu-item" onclick="handleBlockAction('add_header_below')">⬇️ Add Header Below</div>
+                <div class="context-menu-item" onclick="handleBlockAction('add_text_below')">⬇️ Add Text Below</div>
+                <hr style="border: 0; border-top: 1px solid #333; margin: 4px 0;">
+                <div class="context-menu-item" style="color: #ef4444;" onclick="handleBlockAction('delete')">🗑️ Delete Block</div>
+            `;
+            document.body.appendChild(menu);
+
+            // Hide menu on click elsewhere
+            document.addEventListener('click', () => {
+                menu.style.display = 'none';
+            });
+
+            // Attach contextmenu to the main container
+            const container = document.getElementById('templateContainer');
+            if (container) {
+                container.addEventListener('contextmenu', (e) => {
+                    // We want to target "Blocks" - typically direct children of the content wrapper
+                    // But since we don't strictly know the wrapper structure, we look for key structural tags
+                    const target = e.target;
+                    const block = target.closest('p, h1, h2, h3, h4, h5, h6, blockquote, ul, ol');
+
+                    if (block && container.contains(block)) {
+                        // Check if it's strictly editable (don't allow deleting non-editable interface elements)
+                        if (block.getAttribute('contenteditable') === 'true' || block.isContentEditable) {
+                            e.preventDefault();
+                            currentContextBlock = block;
+
+                            // Position menu
+                            menu.style.display = 'block';
+                            menu.style.left = `${e.pageX}px`;
+                            menu.style.top = `${e.pageY}px`;
+                        }
+                    }
+                });
+            }
+        }
+
+        function handleBlockAction(action) {
+            if (!currentContextBlock) return;
+
+            // Define standard classes matches what is seen in template1
+            const HEADER_CLASS = "text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-4";
+            const TEXT_CLASS = "text-lg text-gray-700 dark:text-gray-200 leading-relaxed mb-6";
+
+            if (action === 'delete') {
+                if (confirm('Delete this block?')) {
+                    currentContextBlock.remove();
+                }
+            } else {
+                let newBlock;
+                if (action.includes('header')) {
+                    newBlock = document.createElement('h3');
+                    newBlock.className = HEADER_CLASS;
+                    newBlock.textContent = "New Header Section"; // Placeholder
+                } else {
+                    newBlock = document.createElement('p');
+                    newBlock.className = TEXT_CLASS;
+                    newBlock.textContent = "Start writing your new paragraph here..."; // Placeholder
+                }
+
+                // Make it editable
+                newBlock.contentEditable = "true";
+
+                // Insertion logic
+                if (action.includes('above')) {
+                    currentContextBlock.parentNode.insertBefore(newBlock, currentContextBlock);
+                } else {
+                    // Insert below
+                    if (currentContextBlock.nextSibling) {
+                        currentContextBlock.parentNode.insertBefore(newBlock, currentContextBlock.nextSibling);
+                    } else {
+                        currentContextBlock.parentNode.appendChild(newBlock);
+                    }
+                }
+
+                // Focus the new block
+                setTimeout(() => newBlock.focus(), 50);
+            }
+        }
     </script>
 
     <!-- Publish Wizard Modal -->
