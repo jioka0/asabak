@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import func, text, desc, or_, and_
+from sqlalchemy import func, text, desc, or_, and_, cast, String
 from typing import List, Dict, Any, Optional, Tuple
 import time
 import re
@@ -34,8 +34,8 @@ class SearchService:
         if search_request.tags:
             tag_conditions = []
             for tag in search_request.tags:
-                # SQLite-compatible JSON array search
-                tag_conditions.append(BlogPost.tags.like(f'%"{tag}"%'))
+                # Cross-database compatible JSON array search (works for SQLite and PostgreSQL)
+                tag_conditions.append(cast(BlogPost.tags, String).like(f'%"{tag}"%'))
             
             if tag_conditions:
                 query = query.filter(or_(*tag_conditions))
@@ -232,7 +232,7 @@ class SearchService:
 
         # Search in tags (JSON array)
         tag_results = self.db.query(BlogPost.tags).filter(
-            BlogPost.tags.like(f"%{query}%")
+            cast(BlogPost.tags, String).like(f"%{query}%")
         ).limit(20).all()
 
         for (tags,) in tag_results:
@@ -253,9 +253,8 @@ class SearchService:
         sections = ['latest', 'popular', 'others', 'featured']  # Static for now
 
         # Get popular tags (top 10 by usage)
-        tag_counts = self.db.query(
-            func.json_extract(BlogPost.tags, '$[*]')  # This is simplified
-        ).all()
+        # For PostgreSQL/SQLite compatible tag fetching
+        tag_counts = self.db.query(BlogPost.tags).all()
 
         # For now, return static major tags
         tags = ['ai', 'startup', 'innovation', 'opinions', 'business', 'software']
@@ -301,7 +300,7 @@ class SearchService:
             term_conditions.append(BlogPost.content.ilike(f"%{term}%"))
 
             # Search in tags (JSON)
-            term_conditions.append(BlogPost.tags.like(f'%"{term}"%'))
+            term_conditions.append(cast(BlogPost.tags, String).like(f'%"{term}"%'))
 
             search_conditions.append(or_(*term_conditions))
 
@@ -441,5 +440,5 @@ class SearchService:
     def _count_posts_by_tag(self, tag: str) -> int:
         """Count posts with a specific tag (SQLite compatible)"""
         return self.db.query(BlogPost).filter(
-            BlogPost.tags.like(f'%"{tag}"%')
+            cast(BlogPost.tags, String).like(f'%"{tag}"%')
         ).count()
