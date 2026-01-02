@@ -1342,8 +1342,12 @@
       if (!target) return;
 
       // EXCLUSION: If the user explicitly clicked an engagement area (like/comment/share), DON'T open the post modal
-      // This prevents the universal container-click from overriding specific interactions
       if (e.target.closest('.engagement-metric, .post-modal-actions, .social-links, .share-links, .post-modal-action-btn')) {
+        return;
+      }
+
+      // EXCLUSION: Respect target="_blank" attribute
+      if (target.getAttribute('target') === '_blank') {
         return;
       }
 
@@ -1483,7 +1487,7 @@
       ctx.textBaseline = 'top';
       ctx.font = '14px Arial';
       ctx.fillText('fallback fingerprint test', 2, 2);
-      
+
       const fingerprint = [
         navigator.userAgent,
         navigator.language,
@@ -1491,7 +1495,7 @@
         new Date().getTimezoneOffset(),
         canvas.toDataURL()
       ].join('|');
-      
+
       // Simple hash function
       let hash = 0;
       for (let i = 0; i < fingerprint.length; i++) {
@@ -1499,7 +1503,7 @@
         hash = ((hash << 5) - hash) + char;
         hash = hash & hash; // Convert to 32bit integer
       }
-      
+
       return 'fallback_' + Math.abs(hash) + '_' + Date.now();
     }
 
@@ -1511,7 +1515,7 @@
 
       // Get device fingerprint with multiple fallback strategies
       let fingerprintReady = false;
-      
+
       // Strategy 1: Try to use getDeviceFingerprint() if available
       if (window.getDeviceFingerprint && typeof window.getDeviceFingerprint === 'function') {
         try {
@@ -1521,7 +1525,7 @@
           console.warn('getDeviceFingerprint() failed:', error);
         }
       }
-      
+
       // Strategy 2: Try async generation if sync failed
       if (!fingerprintReady && window.generateDeviceFingerprint) {
         try {
@@ -1531,7 +1535,7 @@
           console.warn('generateDeviceFingerprint() failed:', error);
         }
       }
-      
+
       // Strategy 3: Generate a robust fallback fingerprint
       if (!fingerprintReady) {
         currentFingerprint = generateFallbackFingerprint();
@@ -1565,7 +1569,7 @@
         if (response.ok) {
           const data = await response.json();
           isLiked = data.liked;
-          
+
           const icon = likeBtn.querySelector('i');
           if (icon) {
             icon.className = isLiked ? 'ph-fill ph-heart text-red-500' : 'ph-bold ph-heart';
@@ -1607,7 +1611,7 @@
           const response = await fetch(`/api/blogs/${currentPostId}/likes`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
+            body: JSON.stringify({
               fingerprint: currentFingerprint,
               user_identifier: currentFingerprint // Legacy field
             })
