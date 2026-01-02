@@ -538,36 +538,53 @@
         try {
             console.log('📊 Loading Dashboard Data...');
 
+            const token = localStorage.getItem('token');
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            };
+
+            // Helper for authenticated fetch
+            const authFetch = async (url) => {
+                const res = await fetch(url, { headers });
+                if (res.status === 401) {
+                    console.warn(`Unauthorized access to ${url}`);
+                    // Optional: handle logout if needed, strictly speaking admin_base handles page-level auth
+                    return null;
+                }
+                return res;
+            };
+
             // Load KPI data
-            const kpiResponse = await fetch('/api/admin/dashboard/kpi');
-            if (kpiResponse.ok) {
+            const kpiResponse = await authFetch('/api/admin/dashboard/kpi');
+            if (kpiResponse && kpiResponse.ok) {
                 const kpiData = await kpiResponse.json();
                 updateKPIs(kpiData);
             }
 
             // Load popular content
-            const contentResponse = await fetch('/api/admin/dashboard/popular-content');
-            if (contentResponse.ok) {
+            const contentResponse = await authFetch('/api/admin/dashboard/popular-content');
+            if (contentResponse && contentResponse.ok) {
                 const contentData = await contentResponse.json();
                 updatePopularContent(contentData);
             }
 
             // Load recent activity
-            const activityResponse = await fetch('/api/admin/dashboard/recent-activity');
-            if (activityResponse.ok) {
+            const activityResponse = await authFetch('/api/admin/dashboard/recent-activity');
+            if (activityResponse && activityResponse.ok) {
                 const activityData = await activityResponse.json();
                 updateRecentActivity(activityData);
             }
 
             // Load quick stats
-            const statsResponse = await fetch('/api/admin/dashboard/quick-stats');
-            if (statsResponse.ok) {
+            const statsResponse = await authFetch('/api/admin/dashboard/quick-stats');
+            if (statsResponse && statsResponse.ok) {
                 const statsData = await statsResponse.json();
                 updateQuickStats(statsData);
             }
 
             // Load Chart Data
-            loadChartData('7d');
+            loadChartData('7d'); // Helper function will need update too
 
         } catch (error) {
             console.error('❌ Error loading dashboard data:', error);
@@ -577,12 +594,20 @@
     async function loadChartData(period) {
         try {
             console.log(`📈 Loading Chart Data for period: ${period}`);
-            const chartResponse = await fetch(`/api/admin/dashboard/chart-data?period=${period}`);
-            if (chartResponse.ok) {
-                const chartData = await chartResponse.json();
+
+            const token = localStorage.getItem('token');
+            const response = await fetch(`/api/admin/dashboard/chart-data?period=${period}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const chartData = await response.json();
                 renderChart(chartData);
             } else {
-                console.warn('⚠️ Chart data response not OK');
+                console.warn('⚠️ Chart data response not OK', response.status);
             }
         } catch (error) {
             console.error("❌ Error loading chart data", error);
@@ -590,10 +615,23 @@
     }
 
     function updateKPIs(data) {
-        if (!data) return;
+        console.log('🔢 Updating KPIs with:', data);
+        if (!data) {
+            console.warn('⚠️ No KPI data received');
+            return;
+        }
+
         const setVal = (id, val) => {
             const el = document.getElementById(id);
-            if (el) el.textContent = formatNumber(val || 0);
+            if (el) {
+                // Ensure we don't display 'undefined' or null
+                const safeVal = (val === undefined || val === null) ? 0 : val;
+                el.textContent = formatNumber(safeVal);
+                // Remove placeholder class if we had one
+                el.classList.remove('animate-pulse');
+            } else {
+                console.error(`❌ KPI Element #${id} not found in DOM`);
+            }
         };
 
         setVal('totalPosts', data.totalPosts);
