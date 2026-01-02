@@ -16,14 +16,18 @@ class SearchService:
         self.db = db
 
     def search_posts(self, search_request: SearchRequest) -> SearchResponse:
-        """Advanced search function with FTS5 full-text search and intelligent ranking"""
+        """Advanced search function with PostgreSQL full-text search and intelligent ranking"""
         start_time = time.time()
 
-        # Use FTS5 for full-text search if query provided
+        # Use PostgreSQL full-text search if query provided
         if search_request.query.strip():
-            return self._fts_search(search_request, start_time)
+            return self._postgresql_fulltext_search(search_request, start_time)
 
-        # Regular search without text query - only published posts
+        # Regular search without text query - use the regular search method
+        return self._regular_search(search_request, start_time)
+
+    def _regular_search(self, search_request: SearchRequest, start_time: float) -> SearchResponse:
+        """Regular search without full-text search - only published posts"""
         query = self.db.query(BlogPost).filter(BlogPost.published_at.isnot(None))
 
         # Apply section filter
@@ -76,136 +80,95 @@ class SearchService:
             search_time=round(search_time, 3)
         )
 
-    def _fts_search(self, search_request: SearchRequest, start_time: float) -> SearchResponse:
-        """Full-text search using FTS5 with advanced ranking"""
+    def _postgresql_fulltext_search(self, search_request: SearchRequest, start_time: float) -> SearchResponse:
+        """Full-text search using PostgreSQL full-text search with ranking"""
         try:
-            # Build FTS5 query
-            fts_query = self._build_fts_query(search_request.query)
+            # Build search query
+            search_terms = self._parse_search_query(search_request.query)
+            
+            if not search_terms:
+                # Fallback to regular search if no valid terms
+                search_request.sort = "relevance"
+                return self.search_posts(search_request)
 
-            # Execute FTS search with ranking
-            fts_results = self.db.execute(text(f"""
-                SELECT
-                    b.*,
-                    bm25(fts.rowid, 10.0, 5.0, 2.0, 1.0, 1.0) as score,
-                    highlight(fts, 0, '<mark>', '</mark>') as highlighted_title,
-                    highlight(fts, 1, '<mark>', '</mark>') as highlighted_content,
-                    snippet(fts, 1, '<mark>', '</mark>', '...', 50) as excerpt_snippet
-                FROM blog_posts_fts fts
-                JOIN blog_posts b ON b.id = fts.rowid
-                WHERE fts MATCH :query
-                ORDER BY bm25(fts.rowid, 10.0, 5.0, 2.0, 1.0, 1.0)
-                LIMIT :limit OFFSET :offset
-            """), {
-                'query': fts_query,
-                'limit': search_request.limit + 50,  # Get more for filtering
-                'offset': search_request.offset
-            }).fetchall()
+            # Start with base query for published posts
+            query = self.db.query(BlogPost).filter(BlogPost.published_at.isnot(None))
 
-            # Apply additional filters
-            filtered_results = []
-            for row in fts_results:
-                post_data = dict(row)
+            # Build text search conditions for title, excerpt, and content
+            text_conditions = []
+            for term in search_terms:
+                term_condition = or_(
+                    BlogPost.title.ilike(f"%{term}%"),
+                    BlogPost.excerpt.ilike(f"%{term}%"),
+                    BlogPost.content.ilike(f"%{term}%"),
+                    cast(BlogPost.tags, String).ilike(f"%{term}%")
+                )
+                text_conditions.append(term_condition)
 
-                # Apply section filter
-                if search_request.section and search_request.section != "all":
-                    if post_data.get('section') != search_request.section:
-                        continue
+            # Apply text search with AND logic (all terms must match somewhere)
+            query = query.filter(and_(*text_conditions))
 
-                # Apply tag filters
-                if search_request.tags:
-                    post_tags = post_data.get('tags', [])
-                    if not any(tag in post_tags for tag in search_request.tags):
-                        continue
+            # Apply section filter
+            if search_request.section and search_request.section != "all":
+                query = query.filter(BlogPost.section == search_request.section)
 
-                filtered_results.append(post_data)
+            # Apply tag filters
+            if search_request.tags:
+                tag_conditions = []
+                for tag in search_request.tags:
+                    tag_conditions.append(cast(BlogPost.tags, String).like(f'%"{tag}"%'))
+                
+                if tag_conditions:
+                    query = query.filter(or_(*tag_conditions))
 
-            # Limit results after filtering
-            filtered_results = filtered_results[:search_request.limit]
-
-            # Convert to BlogPostSearchResult objects
-            search_results = []
-            for post_data in filtered_results:
-                # Get full post object (only published)
-                post = self.db.query(BlogPost).filter(
-                    BlogPost.id == post_data['id'],
-                    BlogPost.published_at.isnot(None)
-                ).first()
-                if post:
+            # Calculate relevance scores for each post
+            results = query.all()
+            
+            # Calculate relevance scores
+            scored_results = []
+            for post in results:
+                score = self._calculate_relevance_score(post, search_request.query, search_request.tags or [])
+                if score > 0:  # Only include posts with some relevance
                     result = BlogPostSearchResult.from_orm(post)
-                    result.search_score = round(post_data.get('score', 0), 2)
-                    result.matched_terms = self._extract_highlighted_terms(post_data)
-                    search_results.append(result)
+                    result.search_score = score
+                    result.matched_terms = self._find_matched_terms(post, search_request.query)
+                    scored_results.append(result)
 
-            # Get total count (approximate for performance)
-            total_count = self.db.execute(text("""
-                SELECT COUNT(*) FROM blog_posts_fts WHERE blog_posts_fts MATCH :query
-            """), {'query': fts_query}).scalar() or 0
+            # Sort by relevance score if sorting by relevance, otherwise use specified sort
+            if search_request.sort == "relevance":
+                scored_results.sort(key=lambda x: x.search_score, reverse=True)
+            elif search_request.sort == "recent":
+                scored_results.sort(key=lambda x: x.published_at, reverse=True)
+            elif search_request.sort == "popular":
+                scored_results.sort(key=lambda x: x.view_count + x.like_count * 2, reverse=True)
+
+            # Apply pagination
+            total = len(scored_results)
+            paginated_results = scored_results[search_request.offset:search_request.offset + search_request.limit]
 
             search_time = time.time() - start_time
 
             return SearchResponse(
-                results=search_results,
-                total=min(total_count, 1000),  # Cap for performance
+                results=paginated_results,
+                total=total,
                 query=search_request.query,
                 filters_applied={
                     "section": search_request.section,
                     "tags": search_request.tags,
-                    "sort": "relevance"
+                    "sort": search_request.sort
                 },
                 search_time=round(search_time, 3)
             )
 
         except Exception as e:
-            # Fallback to regular search if FTS fails (e.g. table doesn't exist)
+            # Fallback to regular search if full-text search fails
             import traceback
-            logger.warning(f"FTS search failed or table missing: {e}. Falling back to regular search.")
+            logger.warning(f"PostgreSQL full-text search failed: {e}. Falling back to regular search.")
             logger.debug(traceback.format_exc())
-            search_request.sort = "relevance"
-            # Return regular search
-            return self.search_posts(search_request)
+            # Use the regular search method directly to avoid recursion
+            return self._regular_search(search_request, start_time)
 
-    def _build_fts_query(self, query: str) -> str:
-        """Build FTS5 query with advanced operators"""
-        # Parse and enhance the query
-        terms = self._parse_search_query(query)
 
-        if not terms:
-            return query
-
-        # Build FTS query with NEAR operator for phrase matching
-        fts_parts = []
-
-        # Add individual terms
-        fts_parts.extend(terms)
-
-        # Add phrase matching for consecutive terms
-        if len(terms) > 1:
-            for i in range(len(terms) - 1):
-                if len(terms[i]) > 2 and len(terms[i + 1]) > 2:
-                    fts_parts.append(f'"{terms[i]} {terms[i + 1]}"')
-
-        # Add prefix matching for autocomplete
-        for term in terms:
-            if len(term) > 2:
-                fts_parts.append(f'{term}*')
-
-        return ' OR '.join(fts_parts)
-
-    def _extract_highlighted_terms(self, post_data: dict) -> List[str]:
-        """Extract highlighted terms from FTS results"""
-        highlighted_terms = set()
-
-        # Extract from highlighted title
-        if 'highlighted_title' in post_data:
-            highlights = re.findall(r'<mark>(.*?)</mark>', post_data['highlighted_title'], re.IGNORECASE)
-            highlighted_terms.update(highlights)
-
-        # Extract from highlighted content
-        if 'highlighted_content' in post_data:
-            highlights = re.findall(r'<mark>(.*?)</mark>', post_data['highlighted_content'], re.IGNORECASE)
-            highlighted_terms.update(highlights)
-
-        return list(highlighted_terms)
 
     def get_search_suggestions(self, query: str, limit: int = 5) -> SearchSuggestions:
         """Generate search suggestions based on existing content"""

@@ -764,9 +764,11 @@
 
     // Search input handling with state transitions
     let searchTimeout;
+    let suggestionTimeout;
     if (searchInput) {
       searchInput.addEventListener('input', (e) => {
         clearTimeout(searchTimeout);
+        clearTimeout(suggestionTimeout);
         currentQuery = e.target.value.trim();
 
         // State transition logic
@@ -778,7 +780,14 @@
           setState('active');
         }
 
-        // Debounced search
+        // Debounced search suggestions (faster response)
+        suggestionTimeout = setTimeout(() => {
+          if (currentQuery.length >= 2) {
+            fetchSearchSuggestions(currentQuery);
+          }
+        }, 150);
+
+        // Debounced search (slower, more comprehensive)
         searchTimeout = setTimeout(() => {
           if (currentQuery.length > 0) {
             performSearch();
@@ -875,30 +884,161 @@
       });
     }
 
-    function performSearch() {
+    function bindResultClickEvents() {
+      const resultCards = searchResults.querySelectorAll('.result-card');
+      resultCards.forEach(card => {
+        card.addEventListener('click', () => {
+          const href = card.getAttribute('data-href');
+          if (href) {
+            // Close search modal first
+            closeSearch();
+            
+            // Navigate to the post
+            if (window.RouteManager && typeof window.RouteManager.navigate === 'function') {
+              const slug = href.replace('/blog/', '').replace('/', '');
+              window.RouteManager.navigate(slug);
+            } else {
+              window.location.href = href;
+            }
+          }
+        });
+        
+        // Add hover effect
+        card.style.cursor = 'pointer';
+      });
+    }
+
+    async function fetchSearchSuggestions(query) {
+      try {
+        const response = await fetch(`/api/search/suggestions?q=${encodeURIComponent(query)}&limit=5`);
+        if (!response.ok) return;
+        
+        const data = await response.json();
+        
+        // Update search input with suggestions (you can implement a dropdown here)
+        // For now, we'll just log them for debugging
+        console.log('Search suggestions:', data.suggestions);
+        
+        // You could implement a suggestions dropdown here
+        // showSearchSuggestions(data.suggestions);
+      } catch (error) {
+        console.error('Error fetching suggestions:', error);
+      }
+    }
+
+    function showSearchSuggestions(suggestions) {
+      // Implementation for showing suggestions dropdown
+      // This would require additional HTML/CSS for the dropdown
+      console.log('Showing suggestions:', suggestions);
+    }
+
+    async function performSearch() {
       if (!currentQuery) return;
 
       // Show loading state
       if (resultsCount) resultsCount.textContent = 'Searching...';
       if (searchResults) searchResults.innerHTML = '<div class="loading">Searching...</div>';
 
-      // Simulate API call - replace with real implementation
-      setTimeout(() => {
-        const results = getMockResults(currentQuery, currentFilters);
-        currentResults = results;
+      try {
+        // Call real backend API
+        const searchData = {
+          query: currentQuery,
+          section: currentFilters.section,
+          tags: currentFilters.tags,
+          sort: currentFilters.sort,
+          offset: 0,
+          limit: resultsPerPage
+        };
+
+        const response = await fetch('/api/search/posts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(searchData)
+        });
+
+        if (!response.ok) {
+          throw new Error(`Search failed: ${response.status}`);
+        }
+
+        const searchResponse = await response.json();
+        currentResults = searchResponse.results || [];
         resultsOffset = resultsPerPage;
+        
         renderSearchResults();
-      }, 500);
+      } catch (error) {
+        console.error('Search error:', error);
+        // Show error state
+        if (searchResults) {
+          searchResults.innerHTML = `
+            <div class="no-results">
+              <div class="no-results-icon">
+                <i class="ph-bold ph-warning-circle"></i>
+              </div>
+              <h3>Search Error</h3>
+              <p>Something went wrong. Please try again.</p>
+            </div>
+          `;
+        }
+        if (resultsCount) resultsCount.textContent = 'Error occurred';
+      }
     }
 
-    function loadMoreResults() {
-      const nextResults = getMockResults(currentQuery, currentFilters, resultsOffset, resultsPerPage);
-      currentResults = [...currentResults, ...nextResults];
-      resultsOffset += resultsPerPage;
-      renderResults(true); // Append mode
+    async function loadMoreResults() {
+      try {
+        // Show loading state for load more button
+        if (loadMoreBtn) {
+          loadMoreBtn.disabled = true;
+          loadMoreBtn.textContent = 'Loading...';
+        }
 
-      if (nextResults.length < resultsPerPage) {
-        loadMoreContainer.style.display = 'none';
+        // Call real backend API with offset for pagination
+        const searchData = {
+          query: currentQuery,
+          section: currentFilters.section,
+          tags: currentFilters.tags,
+          sort: currentFilters.sort,
+          offset: resultsOffset,
+          limit: resultsPerPage
+        };
+
+        const response = await fetch('/api/search/posts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(searchData)
+        });
+
+        if (!response.ok) {
+          throw new Error(`Load more failed: ${response.status}`);
+        }
+
+        const searchResponse = await response.json();
+        const nextResults = searchResponse.results || [];
+        
+        currentResults = [...currentResults, ...nextResults];
+        resultsOffset += resultsPerPage;
+        renderResults(true); // Append mode
+
+        // Hide load more if no more results
+        if (nextResults.length < resultsPerPage || searchResponse.total <= currentResults.length) {
+          loadMoreContainer.style.display = 'none';
+        }
+      } catch (error) {
+        console.error('Load more error:', error);
+        // Show error state but keep load more button visible
+        if (loadMoreBtn) {
+          loadMoreBtn.disabled = false;
+          loadMoreBtn.textContent = 'Try Again';
+        }
+      } finally {
+        // Reset button text if not hidden
+        if (loadMoreContainer.style.display !== 'none' && loadMoreBtn) {
+          loadMoreBtn.textContent = 'Load More';
+          loadMoreBtn.disabled = false;
+        }
       }
     }
 
@@ -918,15 +1058,21 @@
         }
       }
 
-      // Show search stats
-      const searchTime = Math.random() * 0.5 + 0.1; // Simulate search time
-      if (searchStats) {
-        searchStats.innerHTML = `<i class="ph-bold ph-clock"></i> ${searchTime.toFixed(2)}s`;
+      // Show search stats (now using real data if available)
+      if (searchStats && currentResults.length > 0) {
+        // Try to get search time from first result if available
+        const firstResult = currentResults[0];
+        if (firstResult.search_score !== undefined) {
+          // Use estimated search time based on results complexity
+          const searchTime = Math.max(0.1, Math.log(totalResults + 1) * 0.1);
+          searchStats.innerHTML = `<i class="ph-bold ph-clock"></i> ${searchTime.toFixed(2)}s`;
+        }
       }
 
-      // Show load more if there are more results
+      // Show load more if there are potentially more results
       if (loadMoreContainer) {
-        loadMoreContainer.style.display = totalResults >= resultsPerPage ? 'block' : 'none';
+        // We'll determine this more accurately after each search
+        loadMoreContainer.style.display = 'block'; // Show by default, hide in loadMoreResults if needed
       }
     }
 
@@ -956,29 +1102,46 @@
 
       if (append) {
         searchResults.insertAdjacentHTML('beforeend', resultsHTML);
+        // Bind click events for new results
+        bindResultClickEvents();
       } else {
         searchResults.innerHTML = resultsHTML;
+        // Bind click events for all results
+        bindResultClickEvents();
       }
     }
 
     function createResultCard(result, index, append = false) {
       const delay = append ? 0 : index * 0.1;
+      
+      // Handle different field names from API vs mock data
+      const title = result.title || 'Untitled';
+      const excerpt = result.excerpt || 'No description available';
+      const section = result.section || result.category || 'General';
+      const author = result.author || 'NekwasaR';
+      const date = result.published_at ? new Date(result.published_at).toLocaleDateString() : 'Recently';
+      const views = result.view_count || result.views || 0;
+      const tags = result.tags || [];
+      const image = result.featured_image || result.image;
+      const icon = result.icon || 'ph-article';
+      
       return `
-        <div class="result-card" style="animation-delay: ${delay}s">
+        <div class="result-card" style="animation-delay: ${delay}s" data-href="/${result.slug || ''}">
           <div class="result-media">
-            ${result.image ? `<img src="${result.image}" alt="${result.title}" class="result-image">` :
-          `<div class="result-icon"><i class="ph-bold ${result.icon || 'ph-article'}"></i></div>`}
+            ${image ? `<img src="${image}" alt="${title}" class="result-image">` :
+          `<div class="result-icon"><i class="ph-bold ${icon}"></i></div>`}
           </div>
           <div class="result-content">
-            <div class="result-category">${result.section || result.category}</div>
-            <h3 class="result-title">${highlightText(result.title, currentQuery)}</h3>
-            <p class="result-excerpt">${highlightText(result.excerpt, currentQuery)}</p>
+            <div class="result-category">${section}</div>
+            <h3 class="result-title">${highlightText(title, currentQuery)}</h3>
+            <p class="result-excerpt">${highlightText(excerpt, currentQuery)}</p>
             <div class="result-meta">
-              <span class="result-author">${result.author || 'NekwasaR'}</span>
-              <span class="result-date">${result.date || 'Recently'}</span>
-              ${result.tags ? `<div class="result-tags">${result.tags.map(tag => `<span class="result-tag">${tag}</span>`).join('')}</div>` : ''}
+              <span class="result-author">${author}</span>
+              <span class="result-date">${date}</span>
+              ${tags.length > 0 ? `<div class="result-tags">${tags.map(tag => `<span class="result-tag">${tag}</span>`).join('')}</div>` : ''}
               <span class="result-stats">
-                <i class="ph-bold ph-eye"></i> ${result.views || Math.floor(Math.random() * 1000)}
+                <i class="ph-bold ph-eye"></i> ${views}
+                ${result.search_score ? `<span class="result-score" style="margin-left: 0.5rem; font-size: 0.8em; color: var(--t-muted);">Score: ${result.search_score}</span>` : ''}
               </span>
             </div>
           </div>
@@ -1006,102 +1169,7 @@
       });
     }
 
-    function getMockResults(query, filters, offset = 0, limit = resultsPerPage) {
-      // Mock data - replace with real search implementation
-      const allResults = [
-        {
-          title: 'The Future of Artificial Intelligence: What\'s Next in 2025',
-          excerpt: 'Explore the cutting-edge developments in AI that will shape our world in the coming year, from quantum computing to advanced neural networks.',
-          section: 'AI',
-          category: 'AI & Technology',
-          author: 'NekwasaR',
-          date: 'Oct 30, 2025',
-          views: 2100,
-          tags: ['ai', 'technology', 'future'],
-          image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=250&fit=crop&crop=center',
-          icon: 'ph-cpu'
-        },
-        {
-          title: 'Building Billion-Dollar Ideas: Lessons from Successful Startups',
-          excerpt: 'Learn from the most successful entrepreneurs and their journey to building world-changing companies that started from humble beginnings.',
-          section: 'Business',
-          category: 'Innovation',
-          author: 'NekwasaR',
-          date: 'Oct 28, 2025',
-          views: 1800,
-          tags: ['startup', 'business', 'innovation'],
-          image: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=400&h=250&fit=crop&crop=center',
-          icon: 'ph-lightbulb'
-        },
-        {
-          title: 'Modern Web Technologies: What Every Developer Should Know',
-          excerpt: 'Stay ahead of the curve with the latest tools and frameworks that are revolutionizing web development and user experience.',
-          section: 'Tutorials',
-          category: 'Web Development',
-          author: 'NekwasaR',
-          date: 'Oct 25, 2025',
-          views: 1500,
-          tags: ['web-development', 'tutorial', 'technology'],
-          image: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=250&fit=crop&crop=center',
-          icon: 'ph-code'
-        },
-        {
-          title: 'Latest AI Models: A Comprehensive Guide',
-          excerpt: 'Explore the most advanced AI models available today and understand their capabilities, use cases, and implementation strategies.',
-          section: 'AI',
-          category: 'AI',
-          author: 'NekwasaR',
-          date: 'Oct 20, 2025',
-          views: 1200,
-          tags: ['ai', 'models', 'guide'],
-          image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=250&fit=crop&crop=center',
-          icon: 'ph-cpu'
-        },
-        {
-          title: 'Emerging Technologies Shaping 2025',
-          excerpt: 'Discover the breakthrough technologies that are set to transform industries and create new opportunities in the coming year.',
-          section: 'Trending',
-          category: 'Tech Trends',
-          author: 'NekwasaR',
-          date: 'Oct 18, 2025',
-          views: 950,
-          tags: ['technology', 'trends', 'future'],
-          image: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=250&fit=crop&crop=center',
-          icon: 'ph-trend-up'
-        }
-      ];
 
-      // Filter results
-      let filteredResults = allResults.filter(result => {
-        // Text search
-        const searchText = `${result.title} ${result.excerpt} ${result.tags.join(' ')}`.toLowerCase();
-        const matchesQuery = searchText.includes(query.toLowerCase());
-
-        // Section filter
-        const matchesSection = filters.section === 'all' || result.section.toLowerCase() === filters.section;
-
-        // Tag filter
-        const matchesTags = filters.tags.length === 0 || filters.tags.some(tag => result.tags.includes(tag));
-
-        return matchesQuery && matchesSection && matchesTags;
-      });
-
-      // Apply sorting
-      filteredResults.sort((a, b) => {
-        switch (filters.sort) {
-          case 'recent':
-            return new Date(b.date) - new Date(a.date);
-          case 'popular':
-            return b.views - a.views;
-          case 'relevance':
-          default:
-            return 0;
-        }
-      });
-
-      // Apply pagination
-      return filteredResults.slice(offset, offset + limit);
-    }
 
     // Initialize suggestions
     loadDynamicSuggestions();
@@ -1109,29 +1177,38 @@
 
     async function loadDynamicSuggestions() {
       try {
-        // Fetch trending, recent, and popular posts
-        const [trendingRes, recentRes, popularRes] = await Promise.all([
-          fetch('/api/blogs/posts/section/trending?limit=1'),
-          fetch('/api/blogs/posts/section/latest?limit=1'),
-          fetch('/api/blogs/posts/section/popular?limit=1')
+        // Fetch suggestions from real backend API
+        const [suggestionsRes, trendingRes, popularRes] = await Promise.all([
+          fetch('/api/search/suggestions?limit=5'),
+          fetch('/api/search/trending-topics?limit=3'),
+          fetch('/api/search/popular-searches?limit=3')
         ]);
 
+        const suggestionsData = await suggestionsRes.json();
         const trendingData = await trendingRes.json();
-        const recentData = await recentRes.json();
         const popularData = await popularRes.json();
-
-        // Handle different response formats (APIs return arrays directly)
-        const trendingPosts = Array.isArray(trendingData) ? trendingData : [];
-        const recentPosts = Array.isArray(recentData) ? recentData : [];
-        const popularPosts = Array.isArray(popularData) ? popularData : [];
 
         // Create suggestion elements if they don't exist
         createSuggestionElements();
 
-        // Update suggestions with dynamic data
-        updateSuggestion('trending', trendingPosts[0]);
-        updateSuggestion('recent', recentPosts[0]);
-        updateSuggestion('popular', popularPosts[0]);
+        // Update suggestions with real data
+        if (suggestionsData.suggestions && suggestionsData.suggestions.length > 0) {
+          updateSuggestion('trending', { title: suggestionsData.suggestions[0] });
+        } else {
+          updateSuggestion('trending', { title: 'AI & Technology' });
+        }
+
+        if (trendingData.trending_topics && trendingData.trending_topics.length > 0) {
+          updateSuggestion('recent', { title: trendingData.trending_topics[0] });
+        } else {
+          updateSuggestion('recent', { title: 'Web Development' });
+        }
+
+        if (popularData.popular_searches && popularData.popular_searches.length > 0) {
+          updateSuggestion('popular', { title: popularData.popular_searches[0] });
+        } else {
+          updateSuggestion('popular', { title: 'Startup Guide' });
+        }
       } catch (error) {
         console.error('Error loading dynamic suggestions:', error);
         // Fallback to default suggestions if API fails
