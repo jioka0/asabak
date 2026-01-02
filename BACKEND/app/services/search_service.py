@@ -393,16 +393,75 @@ class SearchService:
         return matched
 
     def _get_popular_searches(self, limit: int = 5) -> List[str]:
-        """Get most popular search queries"""
-        # This would be implemented with actual analytics data
-        # For now, return some default popular searches
-        return ["ai", "startup", "innovation", "business", "technology"]
+        """Get most popular search queries based on highest viewed posts of all time"""
+        try:
+            # Get posts with highest view counts of all time
+            popular_posts = self.db.query(BlogPost).filter(
+                BlogPost.published_at.isnot(None)
+            ).order_by(
+                desc(BlogPost.view_count)
+            ).limit(limit).all()
+            
+            # Extract keywords from titles to use as search suggestions
+            suggestions = []
+            for post in popular_posts:
+                # Extract meaningful keywords from title
+                keywords = self._extract_keywords_from_title(post.title)
+                if keywords:
+                    suggestions.extend(keywords[:2])  # Take up to 2 keywords per post
+                
+            # Remove duplicates and return
+            return list(dict.fromkeys(suggestions))[:limit]
+        except Exception as e:
+            logger.error(f"Error getting popular searches: {e}")
+            return ["ai", "startup", "technology", "business", "innovation"]
 
     def _get_trending_topics(self, limit: int = 5) -> List[str]:
-        """Get trending topics based on recent activity"""
-        # This would analyze recent posts and searches
-        # For now, return some trending topics
-        return ["artificial intelligence", "blockchain", "web development", "startup funding", "digital transformation"]
+        """Get trending topics based on posts with highest views in the past 7 days"""
+        try:
+            from datetime import datetime, timedelta
+            
+            # Get date 7 days ago
+            seven_days_ago = datetime.now() - timedelta(days=7)
+            
+            # Get posts from the last 7 days ordered by views
+            trending_posts = self.db.query(BlogPost).filter(
+                BlogPost.published_at >= seven_days_ago,
+                BlogPost.published_at.isnot(None)
+            ).order_by(
+                desc(BlogPost.view_count)
+            ).limit(limit).all()
+            
+            # Extract keywords from titles to use as search suggestions
+            suggestions = []
+            for post in trending_posts:
+                # Extract meaningful keywords from title
+                keywords = self._extract_keywords_from_title(post.title)
+                if keywords:
+                    suggestions.extend(keywords[:2])  # Take up to 2 keywords per post
+                
+            # Remove duplicates and return
+            return list(dict.fromkeys(suggestions))[:limit]
+        except Exception as e:
+            logger.error(f"Error getting trending topics: {e}")
+            return ["artificial intelligence", "blockchain", "web development", "startup funding", "digital transformation"]
+
+    def _extract_keywords_from_title(self, title: str) -> List[str]:
+        """Extract meaningful keywords from a post title"""
+        if not title:
+            return []
+            
+        # Clean and split title
+        import re
+        # Remove special characters and split
+        words = re.findall(r'\b\w{3,}\b', title.lower())
+        
+        # Common stop words to exclude
+        stop_words = {'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'its', 'may', 'new', 'now', 'old', 'see', 'two', 'who', 'boy', 'did', 'man', 'way', 'she', 'use', 'will', 'your'}
+        
+        # Filter out stop words and return meaningful keywords
+        keywords = [word for word in words if word not in stop_words]
+        return keywords[:3]  # Return up to 3 keywords
 
     def _count_posts_by_section(self, section: str) -> int:
         """Count posts in a specific section"""

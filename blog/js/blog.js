@@ -1177,45 +1177,48 @@
 
     async function loadDynamicSuggestions() {
       try {
-        // Fetch suggestions from real backend API
-        const [suggestionsRes, trendingRes, popularRes] = await Promise.all([
-          fetch('/api/search/suggestions?limit=5'),
+        // Fetch dynamic suggestions from real backend API
+        const [trendingRes, recentRes, popularRes] = await Promise.all([
           fetch('/api/search/trending-topics?limit=3'),
+          fetch('/api/search/recent-post'),
           fetch('/api/search/popular-searches?limit=3')
         ]);
 
-        const suggestionsData = await suggestionsRes.json();
         const trendingData = await trendingRes.json();
+        const recentData = await recentRes.json();
         const popularData = await popularRes.json();
 
         // Create suggestion elements if they don't exist
         createSuggestionElements();
 
         // Update suggestions with real data
-        if (suggestionsData.suggestions && suggestionsData.suggestions.length > 0) {
-          updateSuggestion('trending', { title: suggestionsData.suggestions[0] });
-        } else {
-          updateSuggestion('trending', { title: 'AI & Technology' });
-        }
-
+        // Trending: Based on highest views in past 7 days
         if (trendingData.trending_topics && trendingData.trending_topics.length > 0) {
-          updateSuggestion('recent', { title: trendingData.trending_topics[0] });
+          updateSuggestion('trending', { title: trendingData.trending_topics[0] });
         } else {
-          updateSuggestion('recent', { title: 'Web Development' });
+          updateSuggestion('trending', { title: 'Technology Trends' });
         }
 
+        // Recent: Show the newest post title
+        if (recentData.title) {
+          updateSuggestion('recent', { title: recentData.title });
+        } else {
+          updateSuggestion('recent', { title: 'Latest Article' });
+        }
+
+        // Popular: Based on highest views of all time
         if (popularData.popular_searches && popularData.popular_searches.length > 0) {
           updateSuggestion('popular', { title: popularData.popular_searches[0] });
         } else {
-          updateSuggestion('popular', { title: 'Startup Guide' });
+          updateSuggestion('popular', { title: 'Popular Content' });
         }
       } catch (error) {
         console.error('Error loading dynamic suggestions:', error);
         // Fallback to default suggestions if API fails
         createSuggestionElements();
-        updateSuggestion('trending', { title: 'AI Ethics' });
-        updateSuggestion('recent', { title: 'Web Development' });
-        updateSuggestion('popular', { title: 'Blockchain Guide' });
+        updateSuggestion('trending', { title: 'AI & Technology' });
+        updateSuggestion('recent', { title: 'Latest News' });
+        updateSuggestion('popular', { title: 'Top Stories' });
       }
     }
 
@@ -1224,34 +1227,45 @@
       if (!suggestionsContainer || suggestionsContainer.children.length > 0) return;
 
       const suggestions = [
-        { type: 'trending', icon: 'ph-trend-up', text: 'Loading...' },
-        { type: 'recent', icon: 'ph-clock', text: 'Loading...' },
-        { type: 'popular', icon: 'ph-star', text: 'Loading...' }
+        { type: 'trending', icon: 'ph-trend-up', prefix: 'Trending:', text: 'Loading...' },
+        { type: 'recent', icon: 'ph-clock', prefix: 'Recent:', text: 'Loading...' },
+        { type: 'popular', icon: 'ph-star', prefix: 'Popular:', text: 'Loading...' }
       ];
 
       suggestions.forEach(suggestion => {
         const element = document.createElement('div');
         element.className = 'suggestion-item initial';
         element.setAttribute('data-type', suggestion.type);
+        element.setAttribute('data-search-term', ''); // Will be updated when data loads
         element.innerHTML = `
           <i class="ph-bold ${suggestion.icon}"></i>
-          <span>${suggestion.text}</span>
+          <span>${suggestion.prefix} ${suggestion.text}</span>
         `;
         
-        // Add click event listener immediately
+        // Add click event listener
+        // Add hover effects
+        element.style.cursor = 'pointer';
+        element.style.transition = 'all 0.2s ease';
+        element.addEventListener('mouseenter', () => {
+          element.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
+        });
+        element.addEventListener('mouseleave', () => {
+          element.style.backgroundColor = '';
+        });
+        
         element.addEventListener('click', () => {
           console.log('Suggestion clicked:', suggestion.type);
-          const searchText = element.querySelector('span')?.textContent || '';
+          const searchTerm = element.getAttribute('data-search-term') || element.querySelector('span')?.textContent || '';
           
-          // Extract the search term from the suggestion text (remove the prefix)
-          let searchTerm = '';
-          if (searchText.includes(': ')) {
-            searchTerm = searchText.split(': ')[1];
+          // Clean up the search term (remove prefix if present)
+          let cleanSearchTerm = searchTerm;
+          if (searchTerm.includes(': ')) {
+            cleanSearchTerm = searchTerm.split(': ')[1];
           }
 
-          if (searchInput) {
-            searchInput.value = searchTerm;
-            currentQuery = searchTerm;
+          if (searchInput && cleanSearchTerm.trim()) {
+            searchInput.value = cleanSearchTerm.trim();
+            currentQuery = cleanSearchTerm.trim();
             
             // Automatically perform the search
             if (searchState === 'idle') {
@@ -1273,7 +1287,11 @@
       
       const span = suggestion.querySelector('span');
       if (span) {
-        span.textContent = `${type.charAt(0).toUpperCase() + type.slice(1)}: ${postData.title || 'No posts found'}`;
+        const prefix = type.charAt(0).toUpperCase() + type.slice(1) + ':';
+        span.textContent = `${prefix} ${postData.title || 'No posts found'}`;
+        
+        // Store the search term for click handling
+        suggestion.setAttribute('data-search-term', postData.title || '');
       }
     }
 
@@ -1284,17 +1302,18 @@
         suggestions.forEach(suggestion => {
           suggestion.addEventListener('click', () => {
             const type = suggestion.dataset.type;
-            const searchText = suggestion.querySelector('span')?.textContent || '';
+            // Get the search term from the data attribute (more reliable)
+            const searchTerm = suggestion.getAttribute('data-search-term') || suggestion.querySelector('span')?.textContent || '';
             
-            // Extract the search term from the suggestion text (remove the prefix)
-            let searchTerm = '';
-            if (searchText.includes(': ')) {
-              searchTerm = searchText.split(': ')[1];
+            // Clean up the search term (remove prefix if present)
+            let cleanSearchTerm = searchTerm;
+            if (searchTerm.includes(': ')) {
+              cleanSearchTerm = searchTerm.split(': ')[1];
             }
 
-            if (searchInput) {
-              searchInput.value = searchTerm;
-              currentQuery = searchTerm;
+            if (searchInput && cleanSearchTerm.trim()) {
+              searchInput.value = cleanSearchTerm.trim();
+              currentQuery = cleanSearchTerm.trim();
               
               // Automatically perform the search
               if (searchState === 'idle') {

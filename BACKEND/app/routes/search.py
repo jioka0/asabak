@@ -105,6 +105,30 @@ async def get_trending_topics(limit: int = 10, db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(500, f"Failed to get trending topics: {str(e)}")
 
+@router.get("/recent-post")
+async def get_recent_post(db: Session = Depends(get_db)):
+    """Get the most recent published post"""
+    try:
+        from sqlalchemy import desc
+        from models.blog import BlogPost
+        
+        recent_post = db.query(BlogPost).filter(
+            BlogPost.published_at.isnot(None)
+        ).order_by(
+            desc(BlogPost.published_at)
+        ).first()
+        
+        if recent_post:
+            return {
+                "title": recent_post.title,
+                "slug": recent_post.slug,
+                "published_at": recent_post.published_at.isoformat() if recent_post.published_at else None
+            }
+        else:
+            return {"title": "No recent posts found", "slug": None}
+    except Exception as e:
+        raise HTTPException(500, f"Failed to get recent post: {str(e)}")
+
 @router.get("/stats")
 async def get_search_stats(db: Session = Depends(get_db)):
     """Get search statistics and insights"""
