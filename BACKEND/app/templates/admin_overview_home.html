@@ -523,15 +523,21 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     // Dashboard Home Page Initialization
-    let dashboardChart = null;
 
-    function initOverviewHome() {
+    // Explicitly attach to window to ensure visibility to admin_base.html
+    window.initOverviewHome = function () {
+        console.log('🚀 Init Overview Home Triggered');
         loadDashboardData();
         setupEventListeners();
     }
 
+    // Global chart instance
+    let dashboardChart = null;
+
     async function loadDashboardData() {
         try {
+            console.log('📊 Loading Dashboard Data...');
+
             // Load KPI data
             const kpiResponse = await fetch('/api/admin/dashboard/kpi');
             if (kpiResponse.ok) {
@@ -564,28 +570,36 @@
             loadChartData('7d');
 
         } catch (error) {
-            console.error('Error loading dashboard data:', error);
-            // showNotification('Failed to load dashboard data', 'error');
+            console.error('❌ Error loading dashboard data:', error);
         }
     }
 
     async function loadChartData(period) {
         try {
+            console.log(`📈 Loading Chart Data for period: ${period}`);
             const chartResponse = await fetch(`/api/admin/dashboard/chart-data?period=${period}`);
             if (chartResponse.ok) {
                 const chartData = await chartResponse.json();
                 renderChart(chartData);
+            } else {
+                console.warn('⚠️ Chart data response not OK');
             }
         } catch (error) {
-            console.error("Error loading chart data", error);
+            console.error("❌ Error loading chart data", error);
         }
     }
 
     function updateKPIs(data) {
-        document.getElementById('totalPosts').textContent = formatNumber(data.totalPosts || 0);
-        document.getElementById('totalComments').textContent = formatNumber(data.totalComments || 0);
-        document.getElementById('totalSubscribers').textContent = formatNumber(data.totalSubscribers || 0);
-        document.getElementById('totalViews').textContent = formatNumber(data.totalViews || 0);
+        if (!data) return;
+        const setVal = (id, val) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = formatNumber(val || 0);
+        };
+
+        setVal('totalPosts', data.totalPosts);
+        setVal('totalComments', data.totalComments);
+        setVal('totalSubscribers', data.totalSubscribers);
+        setVal('totalViews', data.totalViews);
 
         // Update change indicators
         updateChangeIndicator('postsChange', data.postsChange);
@@ -700,7 +714,15 @@
 
     function renderChart(data) {
         const canvas = document.getElementById('trafficChart');
-        if (!canvas) return;
+        if (!canvas) {
+            console.warn('⚠️ Canvas element #trafficChart not found');
+            return;
+        }
+
+        if (typeof Chart === 'undefined') {
+            console.error('❌ Chart.js library not loaded!');
+            return;
+        }
 
         const ctx = canvas.getContext('2d');
 
@@ -723,115 +745,120 @@
         gradient2.addColorStop(0, 'rgba(16, 185, 129, 0.5)'); // Emerald
         gradient2.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
 
-        dashboardChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: data.labels,
-                datasets: [
-                    {
-                        label: 'Views',
-                        data: data.views,
-                        borderColor: '#6366f1', // Indigo 500
-                        backgroundColor: gradient1,
-                        borderWidth: 3,
-                        pointBackgroundColor: '#ffffff',
-                        pointBorderColor: '#6366f1',
-                        pointBorderWidth: 2,
-                        pointRadius: 4,
-                        pointHoverRadius: 6,
-                        fill: true,
-                        tension: 0.4
-                    },
-                    {
-                        label: 'Comments',
-                        data: data.comments,
-                        borderColor: '#10b981', // Emerald 500
-                        backgroundColor: gradient2,
-                        borderWidth: 3,
-                        pointBackgroundColor: '#ffffff',
-                        pointBorderColor: '#10b981',
-                        pointBorderWidth: 2,
-                        pointRadius: 4,
-                        pointHoverRadius: 6,
-                        fill: true,
-                        tension: 0.4
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        align: 'end',
-                        labels: {
-                            color: textColor,
-                            font: {
-                                family: 'Syne',
-                                size: 12
-                            },
-                            usePointStyle: true,
-                            boxWidth: 8
-                        }
-                    },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false,
-                        backgroundColor: isDark ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.9)',
-                        titleColor: isDark ? '#fff' : '#111',
-                        bodyColor: isDark ? '#ccc' : '#444',
-                        borderColor: gridColor,
-                        borderWidth: 1,
-                        padding: 12,
-                        titleFont: {
-                            family: 'Syne',
-                            size: 14,
-                            weight: 'bold'
+        try {
+            dashboardChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [
+                        {
+                            label: 'Views',
+                            data: data.views,
+                            borderColor: '#6366f1', // Indigo 500
+                            backgroundColor: gradient1,
+                            borderWidth: 3,
+                            pointBackgroundColor: '#ffffff',
+                            pointBorderColor: '#6366f1',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            fill: true,
+                            tension: 0.4
                         },
-                        bodyFont: {
-                            family: 'Syne',
-                            size: 13
+                        {
+                            label: 'Comments',
+                            data: data.comments,
+                            borderColor: '#10b981', // Emerald 500
+                            backgroundColor: gradient2,
+                            borderWidth: 3,
+                            pointBackgroundColor: '#ffffff',
+                            pointBorderColor: '#10b981',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            fill: true,
+                            tension: 0.4
                         }
-                    }
+                    ]
                 },
-                scales: {
-                    x: {
-                        grid: {
-                            display: false,
-                            drawBorder: false
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            align: 'end',
+                            labels: {
+                                color: textColor,
+                                font: {
+                                    family: 'Syne',
+                                    size: 12
+                                },
+                                usePointStyle: true,
+                                boxWidth: 8
+                            }
                         },
-                        ticks: {
-                            color: textColor,
-                            font: {
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: isDark ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.9)',
+                            titleColor: isDark ? '#fff' : '#111',
+                            bodyColor: isDark ? '#ccc' : '#444',
+                            borderColor: gridColor,
+                            borderWidth: 1,
+                            padding: 12,
+                            titleFont: {
                                 family: 'Syne',
-                                size: 11
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                family: 'Syne',
+                                size: 13
                             }
                         }
                     },
-                    y: {
-                        grid: {
-                            color: gridColor,
-                            borderDash: [5, 5],
-                            drawBorder: false
-                        },
-                        ticks: {
-                            color: textColor,
-                            font: {
-                                family: 'Syne',
-                                size: 11
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
                             },
-                            maxTicksLimit: 5
+                            ticks: {
+                                color: textColor,
+                                font: {
+                                    family: 'Syne',
+                                    size: 11
+                                }
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: gridColor,
+                                borderDash: [5, 5],
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: textColor,
+                                font: {
+                                    family: 'Syne',
+                                    size: 11
+                                },
+                                maxTicksLimit: 5
+                            }
                         }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
                     }
-                },
-                interaction: {
-                    mode: 'nearest',
-                    axis: 'x',
-                    intersect: false
                 }
-            }
-        });
+            });
+            console.log('✅ Chart Rendered Successfully');
+        } catch (e) {
+            console.error('❌ Error initializing Chart:', e);
+        }
     }
 
     function setupEventListeners() {
@@ -842,24 +869,12 @@
                 loadChartData(e.target.value);
             });
         }
-
-        // Re-render chart on theme toggle to fix colors
-        const themeToggle = document.getElementById('themeToggle');
-        if (themeToggle) {
-            themeToggle.addEventListener('click', () => {
-                // Wait for theme transition
-                setTimeout(() => {
-                    const period = document.getElementById('trafficPeriod')?.value || '7d';
-                    loadChartData(period);
-                }, 100);
-            });
-        }
     }
 
-    // Initialize when page loads
+    // Initialize if waiting
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initOverviewHome);
-    } else {
-        initOverviewHome();
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.initOverviewHome) window.initOverviewHome();
+        });
     }
 </script>

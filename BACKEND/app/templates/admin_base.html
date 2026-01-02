@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,96 +13,153 @@
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- Admin Styles -->
     <style>
         :root {
-          /* Import site theme variables */
-          --_size: 1.6rem;
-          --_font-default: "Syne", sans-serif;
-          --_font-accent: "Syne", sans-serif;
-          --_radius-s: 1.5rem;
-          --_radius-m: 2.2rem;
-          --_radius-l: 3rem;
-          --_radius-xl: 3.6rem;
-          --_animspeed-fast: 0.1s;
-          --_animspeed-medium: 0.3s;
-          --_animspeed-slow: 0.6s;
-          --_animbezier: cubic-bezier(0.23, 0.65, 0.74, 1.09);
+            /* Import site theme variables */
+            --_size: 1.6rem;
+            --_font-default: "Syne", sans-serif;
+            --_font-accent: "Syne", sans-serif;
+            --_radius-s: 1.5rem;
+            --_radius-m: 2.2rem;
+            --_radius-l: 3rem;
+            --_radius-xl: 3.6rem;
+            --_animspeed-fast: 0.1s;
+            --_animspeed-medium: 0.3s;
+            --_animspeed-slow: 0.6s;
+            --_animbezier: cubic-bezier(0.23, 0.65, 0.74, 1.09);
 
-          /* Light color scheme */
-          --base--light: #e6ebf4;
-          --base-tint--light: #ebf0f7;
-          --base-shade--light: #bdc1c8;
-          --accent--light: #040113;
-          --secondary--light: #070225;
-          --secondary-rgba--light: rgba(7, 0, 17, 0.466);
-          --stroke-controls--light: #0d2455;
-          --stroke-controls-neutral--light: rgba(0,0,0,0.3);
-          --stroke-elements--light: #d1d5e0;
-          --t-bright--light: #22232c;
-          --t-medium--light: #424550;
-          --t-muted--light: #666a79;
-          --t-accent--light: #070225;
-          --t-secondary--light: #040113;
-          --t-disabled--light: #717586;
-          --t-placeholder--light: #0d2455;
-          --base-opp--light: #111111;
-          --t-opp-bright--light: #ebf0f7;
-          --t-opp-medium--light: #C7C6D3;
-          --t-opp-muted--light: #A1A1AF;
-          --gradient-one--light: #CEC4EF;
-          --gradient-two--light: #f5c5cd;
-          --gradient-three--light: rgba(18, 8, 70, 0.466);
+            /* Light color scheme */
+            --base--light: #e6ebf4;
+            --base-tint--light: #ebf0f7;
+            --base-shade--light: #bdc1c8;
+            --accent--light: #040113;
+            --secondary--light: #070225;
+            --secondary-rgba--light: rgba(7, 0, 17, 0.466);
+            --stroke-controls--light: #0d2455;
+            --stroke-controls-neutral--light: rgba(0, 0, 0, 0.3);
+            --stroke-elements--light: #d1d5e0;
+            --t-bright--light: #22232c;
+            --t-medium--light: #424550;
+            --t-muted--light: #666a79;
+            --t-accent--light: #070225;
+            --t-secondary--light: #040113;
+            --t-disabled--light: #717586;
+            --t-placeholder--light: #0d2455;
+            --base-opp--light: #111111;
+            --t-opp-bright--light: #ebf0f7;
+            --t-opp-medium--light: #C7C6D3;
+            --t-opp-muted--light: #A1A1AF;
+            --gradient-one--light: #CEC4EF;
+            --gradient-two--light: #f5c5cd;
+            --gradient-three--light: rgba(18, 8, 70, 0.466);
 
-          /* Dark color scheme */
-          --base--dark: #111111;
-          --base-tint--dark: #161616;
-          --base-shade--dark: #000000;
-          --accent--dark: rgba(104, 103, 105, 0.466);
-          --secondary--dark: rgba(242, 241, 248, 0.466);
-          --secondary-rgba--dark: rgba(206,196,239,0.2);
-          --stroke-controls--dark: #4B4B51;
-          --stroke-controls-neutral--dark: rgba(255,255,255,0.3);
-          --stroke-elements--dark: #303033;
-          --t-bright--dark: #e9e9f1;
-          --t-medium--dark: #C7C6D3;
-          --t-muted--dark: #A1A1AF;
-          --t-accent--dark: #E1BAC5;
-          --t-secondary--dark: rgba(71, 69, 80, 0.466);
-          --t-disabled--dark: #8B8A91;
-          --t-placeholder--dark: #58585E;
-          --base-opp--dark: #fafafa;
-          --t-opp-bright--dark: #121319;
-          --t-opp-medium--dark: #626577;
-          --t-opp-muted--dark: #717586;
-          --gradient-one--dark: #0d2455;
-          --gradient-two--dark: #E4B8BF;
-          --gradient-three--dark: #0b0236;
+            /* Dark color scheme */
+            --base--dark: #111111;
+            --base-tint--dark: #161616;
+            --base-shade--dark: #000000;
+            --accent--dark: rgba(104, 103, 105, 0.466);
+            --secondary--dark: rgba(242, 241, 248, 0.466);
+            --secondary-rgba--dark: rgba(206, 196, 239, 0.2);
+            --stroke-controls--dark: #4B4B51;
+            --stroke-controls-neutral--dark: rgba(255, 255, 255, 0.3);
+            --stroke-elements--dark: #303033;
+            --t-bright--dark: #e9e9f1;
+            --t-medium--dark: #C7C6D3;
+            --t-muted--dark: #A1A1AF;
+            --t-accent--dark: #E1BAC5;
+            --t-secondary--dark: rgba(71, 69, 80, 0.466);
+            --t-disabled--dark: #8B8A91;
+            --t-placeholder--dark: #58585E;
+            --base-opp--dark: #fafafa;
+            --t-opp-bright--dark: #121319;
+            --t-opp-medium--dark: #626577;
+            --t-opp-muted--dark: #717586;
+            --gradient-one--dark: #0d2455;
+            --gradient-two--dark: #E4B8BF;
+            --gradient-three--dark: #0b0236;
 
-          /* Permanent colors */
-          --per-base: #111111;
-          --per-base-tint: #212121;
-          --per-stroke-controls: rgba(255,255,255,0.4);
-          --t-per-bright-light: #ffffff;
-          --t-per-medium-light: #f2f2f2;
-          --t-per-muted-light: #C7C6D3;
-          --t-per-bright-dark: #27293b;
-          --t-per-medium-dark: #626577;
-          --t-per-muted-dark: #717586;
+            /* Permanent colors */
+            --per-base: #111111;
+            --per-base-tint: #212121;
+            --per-stroke-controls: rgba(255, 255, 255, 0.4);
+            --t-per-bright-light: #ffffff;
+            --t-per-medium-light: #f2f2f2;
+            --t-per-muted-light: #C7C6D3;
+            --t-per-bright-dark: #27293b;
+            --t-per-medium-dark: #626577;
+            --t-per-muted-dark: #717586;
 
-          /* Admin-specific variables using site theme */
-          --admin-sidebar-width: 280px;
-          --admin-header-height: 70px;
-          --admin-radius-sm: var(--_radius-s);
-          --admin-radius-md: var(--_radius-m);
-          --admin-radius-lg: var(--_radius-l);
-          --admin-radius-xl: var(--_radius-xl);
+            /* Admin-specific variables using site theme */
+            --admin-sidebar-width: 280px;
+            --admin-header-height: 70px;
+            --admin-radius-sm: var(--_radius-s);
+            --admin-radius-md: var(--_radius-m);
+            --admin-radius-lg: var(--_radius-l);
+            --admin-radius-xl: var(--_radius-xl);
         }
 
         /* Theme application */
         @media (prefers-color-scheme: light) {
-          :root {
+            :root {
+                --base: var(--base--light);
+                --base-tint: var(--base-tint--light);
+                --base-shade: var(--base-shade--light);
+                --accent: var(--accent--light);
+                --secondary: var(--secondary--light);
+                --secondary-rgba: var(--secondary-rgba--light);
+                --stroke-controls: var(--stroke-controls--light);
+                --stroke-controls-neutral: var(--stroke-controls-neutral--light);
+                --stroke-elements: var(--stroke-elements--light);
+                --t-bright: var(--t-bright--light);
+                --t-medium: var(--t-medium--light);
+                --t-muted: var(--t-muted--light);
+                --t-accent: var(--t-accent--light);
+                --t-secondary: var(--t-secondary--light);
+                --t-disabled: var(--t-disabled--light);
+                --t-placeholder: var(--t-placeholder--light);
+                --base-opp: var(--base-opp--light);
+                --t-opp-bright: var(--t-opp-bright--light);
+                --t-opp-medium: var(--t-opp-medium--light);
+                --t-opp-muted: var(--t-opp-muted--light);
+                --gradient-one: var(--gradient-one--light);
+                --gradient-two: var(--gradient-two--light);
+                --gradient-three: var(--gradient-three--light);
+            }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --base: var(--base--dark);
+                --base-tint: var(--base-tint--dark);
+                --base-shade: var(--base-shade--dark);
+                --accent: var(--accent--dark);
+                --secondary: var(--secondary--dark);
+                --secondary-rgba: var(--secondary-rgba--dark);
+                --stroke-controls: var(--stroke-controls--dark);
+                --stroke-controls-neutral: var(--stroke-controls-neutral--dark);
+                --stroke-elements: var(--stroke-elements--dark);
+                --t-bright: var(--t-bright--dark);
+                --t-medium: var(--t-medium--dark);
+                --t-muted: var(--t-muted--dark);
+                --t-accent: var(--t-accent--dark);
+                --t-secondary: var(--t-secondary--dark);
+                --t-disabled: var(--t-disabled--dark);
+                --t-placeholder: var(--t-placeholder--dark);
+                --base-opp: var(--base-opp--dark);
+                --t-opp-bright: var(--t-opp-bright--dark);
+                --t-opp-medium: var(--t-opp-medium--dark);
+                --t-opp-muted: var(--t-opp-muted--dark);
+                --gradient-one: var(--gradient-one--dark);
+                --gradient-two: var(--gradient-two--dark);
+                --gradient-three: var(--gradient-three--dark);
+            }
+        }
+
+        [color-scheme=light] {
             --base: var(--base--light);
             --base-tint: var(--base-tint--light);
             --base-shade: var(--base-shade--light);
@@ -125,11 +183,9 @@
             --gradient-one: var(--gradient-one--light);
             --gradient-two: var(--gradient-two--light);
             --gradient-three: var(--gradient-three--light);
-          }
         }
 
-        @media (prefers-color-scheme: dark) {
-          :root {
+        [color-scheme=dark] {
             --base: var(--base--dark);
             --base-tint: var(--base-tint--dark);
             --base-shade: var(--base-shade--dark);
@@ -153,59 +209,6 @@
             --gradient-one: var(--gradient-one--dark);
             --gradient-two: var(--gradient-two--dark);
             --gradient-three: var(--gradient-three--dark);
-          }
-        }
-
-        [color-scheme=light] {
-          --base: var(--base--light);
-          --base-tint: var(--base-tint--light);
-          --base-shade: var(--base-shade--light);
-          --accent: var(--accent--light);
-          --secondary: var(--secondary--light);
-          --secondary-rgba: var(--secondary-rgba--light);
-          --stroke-controls: var(--stroke-controls--light);
-          --stroke-controls-neutral: var(--stroke-controls-neutral--light);
-          --stroke-elements: var(--stroke-elements--light);
-          --t-bright: var(--t-bright--light);
-          --t-medium: var(--t-medium--light);
-          --t-muted: var(--t-muted--light);
-          --t-accent: var(--t-accent--light);
-          --t-secondary: var(--t-secondary--light);
-          --t-disabled: var(--t-disabled--light);
-          --t-placeholder: var(--t-placeholder--light);
-          --base-opp: var(--base-opp--light);
-          --t-opp-bright: var(--t-opp-bright--light);
-          --t-opp-medium: var(--t-opp-medium--light);
-          --t-opp-muted: var(--t-opp-muted--light);
-          --gradient-one: var(--gradient-one--light);
-          --gradient-two: var(--gradient-two--light);
-          --gradient-three: var(--gradient-three--light);
-        }
-
-        [color-scheme=dark] {
-          --base: var(--base--dark);
-          --base-tint: var(--base-tint--dark);
-          --base-shade: var(--base-shade--dark);
-          --accent: var(--accent--dark);
-          --secondary: var(--secondary--dark);
-          --secondary-rgba: var(--secondary-rgba--dark);
-          --stroke-controls: var(--stroke-controls--dark);
-          --stroke-controls-neutral: var(--stroke-controls-neutral--dark);
-          --stroke-elements: var(--stroke-elements--dark);
-          --t-bright: var(--t-bright--dark);
-          --t-medium: var(--t-medium--dark);
-          --t-muted: var(--t-muted--dark);
-          --t-accent: var(--t-accent--dark);
-          --t-secondary: var(--t-secondary--dark);
-          --t-disabled: var(--t-disabled--dark);
-          --t-placeholder: var(--t-placeholder--dark);
-          --base-opp: var(--base-opp--dark);
-          --t-opp-bright: var(--t-opp-bright--dark);
-          --t-opp-medium: var(--t-opp-medium--dark);
-          --t-opp-muted: var(--t-opp-muted--dark);
-          --gradient-one: var(--gradient-one--dark);
-          --gradient-two: var(--gradient-two--dark);
-          --gradient-three: var(--gradient-three--dark);
         }
 
         * {
@@ -612,8 +615,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .loading-text {
@@ -712,6 +720,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="admin-layout">
         <!-- Hamburger Menu Button (shown when sidebar collapsed) -->
@@ -1016,7 +1025,7 @@
 
             async loadPage(section, page) {
                 const contentContainer = document.getElementById('pageContent');
-                
+
                 console.log(`🗓️ LOADING PAGE - Section: ${section}, Page: ${page}`);
 
                 // Show loading placeholder
@@ -1030,10 +1039,10 @@
                     // Load page template
                     const templateName = `admin_${section}_${page}.html`;
                     const token = localStorage.getItem('token');
-                    
+
                     console.log(`📄 TEMPLATE REQUEST - Template: ${templateName}, Token available: ${!!token}`);
                     console.log(`🔐 TEMPLATE REQUEST - Authorization header: ${token ? 'Bearer ' + token.substring(0, 20) + '...' : 'No token'}`);
-                    
+
                     const response = await fetch(`/templates/${templateName}`, {
                         method: 'GET',
                         headers: {
@@ -1077,12 +1086,12 @@
 
                         // Initialize page-specific functionality
                         this.initPage(section, page);
-                        
+
                         console.log(`🎉 PAGE LOADED SUCCESSFULLY - ${section}/${page}`);
                     } else if (response.status === 401) {
                         console.log(`❌ TEMPLATE REQUEST FAILED - 401 Unauthorized`);
                         console.log(`❌ TOKEN EXPIRED OR INVALID - Clearing token and redirecting to login`);
-                        
+
                         // Token expired or invalid
                         localStorage.removeItem('token');
                         window.location.href = '/admin/login';
@@ -1344,30 +1353,30 @@
             console.log('🎯 INITIALIZING ADMIN APP');
             window.adminApp = new AdminApp();
         });
-        
+
         function redirectToLogin() {
             // Show session expired message
             alert('Session expired. Please login again.');
             window.location.href = '/admin';
         }
-        
+
         function setupSessionTimeout() {
             console.log('⏰ SETTING UP SESSION TIMEOUT - 2 hours');
-            
+
             // Set timeout for 2 hours (7200000 ms)
             const sessionTimeout = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
-            
+
             setTimeout(() => {
                 console.log('⏰ SESSION TIMEOUT REACHED - Clearing session');
                 localStorage.removeItem('token');
                 alert('Your session has expired. Please login again.');
                 redirectToLogin();
             }, sessionTimeout);
-            
+
             // Also check for activity and refresh session if needed
             let lastActivity = Date.now();
             const activityThreshold = 30 * 60 * 1000; // 30 minutes
-            
+
             const checkActivity = () => {
                 const now = Date.now();
                 if (now - lastActivity > activityThreshold) {
@@ -1377,14 +1386,14 @@
                 }
                 setTimeout(checkActivity, 60000); // Check every minute
             };
-            
+
             // Track user activity
             ['click', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
                 document.addEventListener(event, () => {
                     lastActivity = Date.now();
                 }, true);
             });
-            
+
             checkActivity();
         }
 
@@ -1410,4 +1419,5 @@
         }
     </script>
 </body>
+
 </html>
