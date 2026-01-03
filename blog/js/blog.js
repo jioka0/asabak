@@ -917,7 +917,6 @@
         
         // Update search input with suggestions (you can implement a dropdown here)
         // For now, we'll just log them for debugging
-        console.log('Search suggestions:', data.suggestions);
         
         // You could implement a suggestions dropdown here
         // showSearchSuggestions(data.suggestions);
@@ -929,7 +928,6 @@
     function showSearchSuggestions(suggestions) {
       // Implementation for showing suggestions dropdown
       // This would require additional HTML/CSS for the dropdown
-      console.log('Showing suggestions:', suggestions);
     }
 
     async function performSearch() {
@@ -1254,7 +1252,6 @@
         });
         
         element.addEventListener('click', () => {
-          console.log('Suggestion clicked:', suggestion.type);
           const searchTerm = element.getAttribute('data-search-term') || element.querySelector('span')?.textContent || '';
           
           // Clean up the search term (remove prefix if present)
@@ -1278,7 +1275,6 @@
         suggestionsContainer.appendChild(element);
       });
       
-      console.log('Created suggestion elements with click handlers');
     }
 
     function updateSuggestion(type, postData) {
@@ -1566,7 +1562,6 @@
         if (isBlogPost) {
           e.preventDefault();
           e.stopPropagation();
-          console.log('📖 Recognized as Blog Post. Navigating directly to:', href);
           window.location.href = href;
         } else if (target.hasAttribute('data-route') || isSystem) {
           e.preventDefault();
@@ -1576,7 +1571,6 @@
           const [route, query] = cleanPath.split('?');
           const finalRoute = route || 'home';
 
-          console.log('🚀 Recognized as System Route. SPA Navigating to:', finalRoute);
           if (window.RouteManager && typeof window.RouteManager.navigate === 'function') {
             window.RouteManager.navigate(finalRoute, href.includes('?') ? '?' + href.split('?')[1] : '');
           } else {
@@ -1587,7 +1581,6 @@
     }, true);
 
     window.__globalClickDelegationActive = true;
-    console.log("⚡ Global Click Delegation Active: All elements are now bulletproof.");
   }
   window.initCardLinks = initCardLinks;
 

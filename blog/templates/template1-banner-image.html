@@ -1032,7 +1032,6 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
             const data = window.postData;
             if (!data) return;
 
-            console.log('📊 Syncing stats:', data);
 
             // Update comments
             const countLarge = document.getElementById('comment-count-large');
@@ -1373,7 +1372,6 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
         }
 
         function createInlineModal() {
-            console.log('🎪 Creating inline modal with DEBUG features...');
 
             // Create modal with modern structure and proper ARIA attributes
             const modal = document.createElement('div');
@@ -1384,7 +1382,6 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
             modal.setAttribute('aria-labelledby', 'comment-modal-title');
             modal.setAttribute('data-comment-modal', 'true');
 
-            console.log('✅ Modal element created with debug styles');
 
             // Create modal content with semantic HTML - EXTRA LARGE SIZE
             const modalContent = document.createElement('div');
@@ -1477,47 +1474,34 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
 
             // DEBUG: Add comprehensive click logging
             modal.addEventListener('click', (e) => {
-                console.log('🎯 MODAL clicked:', {
-                    target: e.target,
-                    currentTarget: e.currentTarget,
-                    targetClass: e.target.className,
-                    targetTag: e.target.tagName,
-                    path: e.composedPath().slice(0, 5)
-                });
             });
 
             // DEBUG: Direct event listener attachment instead of delegation
-            console.log('🔧 Attaching modal event listeners (DIRECT)...');
 
             // Close button - DIRECT
             const closeBtn = modalContent.querySelector('.modal-close-btn');
             if (closeBtn) {
                 closeBtn.addEventListener('click', (e) => {
-                    console.log('❌ Close button clicked (DIRECT)');
                     e.preventDefault();
                     e.stopPropagation();
                     closeCommentModal();
                 });
-                console.log('✅ Close button listener attached (DIRECT)');
             }
 
             // Cancel button - DIRECT
             const cancelBtn = modalContent.querySelector('.modal-cancel-btn');
             if (cancelBtn) {
                 cancelBtn.addEventListener('click', (e) => {
-                    console.log('🚫 Cancel button clicked (DIRECT)');
                     e.preventDefault();
                     e.stopPropagation();
                     closeCommentModal();
                 });
-                console.log('✅ Cancel button listener attached (DIRECT)');
             }
 
             // Submit button - DIRECT
             const submitBtn = modalContent.querySelector('.modal-submit-btn');
             if (submitBtn) {
                 submitBtn.addEventListener('click', (e) => {
-                    console.log('📤 Submit button clicked (DIRECT)');
                     e.preventDefault();
                     e.stopPropagation();
                     const name = document.getElementById('comment-name-input').value.trim();
@@ -1528,23 +1512,19 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
                         submitComment(name, email, window.pendingComment);
                     });
                 });
-                console.log('✅ Submit button listener attached (DIRECT)');
             }
 
             // Overlay click - DIRECT
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) {
-                    console.log('🌫️ Overlay clicked (DIRECT)');
                     closeCommentModal();
                 }
             });
-            console.log('✅ Overlay click listener attached (DIRECT)');
 
             // Form submission - DIRECT
             const form = modalContent.querySelector('.comment-form');
             if (form) {
                 form.addEventListener('submit', (e) => {
-                    console.log('📝 Form submitted (DIRECT)');
                     e.preventDefault();
                     const name = document.getElementById('comment-name-input').value.trim();
                     const email = document.getElementById('comment-email-input').value.trim();
@@ -1554,18 +1534,14 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
                         submitComment(name, email, window.pendingComment);
                     });
                 });
-                console.log('✅ Form submit listener attached (DIRECT)');
             }
 
             // Keyboard navigation - DIRECT
             modal.addEventListener('keydown', (e) => {
-                console.log('⌨️ Key pressed:', e.key);
                 if (e.key === 'Escape') {
-                    console.log('🎪 Escape pressed');
                     closeCommentModal();
                 }
             });
-            console.log('✅ Keyboard listener attached (DIRECT)');
 
             // Focus management
             setTimeout(() => {
@@ -1577,7 +1553,6 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
                 }
             }, 150);
 
-            console.log('🎪 Modal creation complete with DEBUG features');
 
             return modal;
         }
@@ -1585,11 +1560,8 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
         function closeCommentModal() {
             const modal = document.querySelector('[data-comment-modal]');
             if (modal) {
-                console.log('🔒 Closing modal (DEBUG version)...');
 
                 // DEBUG: Log before closing
-                console.log('Modal element:', modal);
-                console.log('Modal style:', modal.style.cssText);
 
                 // Animate out with smooth transition
                 modal.classList.add('animate-out', 'fade-out', 'duration-300');
@@ -1600,14 +1572,12 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
                 setTimeout(() => {
                     if (modal.parentNode) {
                         modal.parentNode.removeChild(modal);
-                        console.log('✅ Modal completely removed (DEBUG)');
                     }
                 }, 300);
             }
 
             // Clean up pending comment
             delete window.pendingComment;
-            console.log('🧹 Pending comment cleaned up');
         }
 
         // Reply functionality
@@ -1690,7 +1660,6 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
                 countBadge.textContent = newCount + ' Comments';
             }
 
-            console.log('📊 Comment count updated:', newCount);
         }
 
         // Notification system
@@ -2185,66 +2154,29 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
 
         // Share functions with diagnostic logging for article share buttons
         window.shareOnFacebook = function () {
-            console.log('=== ARTICLE FACEBOOK SHARE DIAGNOSTIC ===');
-            console.log('shareOnFacebook called from article share buttons');
 
             // Log scroll position and button context
-            console.log('Scroll position:', {
-                scrollY: window.scrollY,
-                scrollX: window.scrollX,
-                innerHeight: window.innerHeight,
-                innerWidth: window.innerWidth
-            });
 
             // Find and log the specific button that was clicked
             const facebookBtn = document.querySelector('button[onclick="shareOnFacebook()"]');
             if (facebookBtn) {
                 const rect = facebookBtn.getBoundingClientRect();
-                console.log('Facebook button position:', {
-                    boundingRect: rect,
-                    inViewport: rect.top >= 0 && rect.bottom <= window.innerHeight,
-                    computedStyle: {
-                        zIndex: window.getComputedStyle(facebookBtn).zIndex,
-                        pointerEvents: window.getComputedStyle(facebookBtn).pointerEvents,
-                        position: window.getComputedStyle(facebookBtn).position,
-                        display: window.getComputedStyle(facebookBtn).display,
-                        visibility: window.getComputedStyle(facebookBtn).visibility
-                    }
-                });
             }
 
             // Check for overlapping elements at current scroll position
             const elementsAtPoint = document.elementsFromPoint(window.innerWidth / 2, window.innerHeight / 2);
-            console.log('Elements at center of viewport:', elementsAtPoint.map(el => ({
-                tagName: el.tagName,
-                id: el.id,
-                className: el.className,
-                zIndex: window.getComputedStyle(el).zIndex
-            })));
 
             // Check footer and fixed elements
             const footer = document.querySelector('footer');
             if (footer) {
                 const footerRect = footer.getBoundingClientRect();
-                console.log('Footer position:', footerRect);
-                console.log('Footer z-index:', window.getComputedStyle(footer).zIndex);
             }
 
             const fixedElements = document.querySelectorAll('[style*="position: fixed"], [style*="position:fixed"]');
             fixedElements.forEach((el, index) => {
                 const rect = el.getBoundingClientRect();
-                console.log(`Fixed element ${index}:`, {
-                    element: el,
-                    tagName: el.tagName,
-                    id: el.id,
-                    className: el.className,
-                    boundingRect: rect,
-                    zIndex: window.getComputedStyle(el).zIndex,
-                    isVisible: rect.top < window.innerHeight && rect.bottom > 0
-                });
             });
 
-            console.log('=== END FACEBOOK DIAGNOSTIC ===');
 
             // Execute the share
             const url = encodeURIComponent(window.location.href);
@@ -2254,23 +2186,13 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
         };
 
         window.shareOnTelegram = function () {
-            console.log('=== ARTICLE TELEGRAM SHARE DIAGNOSTIC ===');
-            console.log('shareOnTelegram called from article share buttons');
 
-            console.log('Scroll position:', { scrollY: window.scrollY, innerHeight: window.innerHeight });
 
             const telegramBtn = document.querySelector('button[onclick="shareOnTelegram()"]');
             if (telegramBtn) {
                 const rect = telegramBtn.getBoundingClientRect();
-                console.log('Telegram button position:', {
-                    boundingRect: rect,
-                    inViewport: rect.top >= 0 && rect.bottom <= window.innerHeight,
-                    zIndex: window.getComputedStyle(telegramBtn).zIndex,
-                    pointerEvents: window.getComputedStyle(telegramBtn).pointerEvents
-                });
             }
 
-            console.log('=== END TELEGRAM DIAGNOSTIC ===');
 
             const url = encodeURIComponent(window.location.href);
             const text = encodeURIComponent(document.title);
@@ -2279,23 +2201,13 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
         };
 
         window.shareOnReddit = function () {
-            console.log('=== ARTICLE REDDIT SHARE DIAGNOSTIC ===');
-            console.log('shareOnReddit called from article share buttons');
 
-            console.log('Scroll position:', { scrollY: window.scrollY, innerHeight: window.innerHeight });
 
             const redditBtn = document.querySelector('button[onclick="shareOnReddit()"]');
             if (redditBtn) {
                 const rect = redditBtn.getBoundingClientRect();
-                console.log('Reddit button position:', {
-                    boundingRect: rect,
-                    inViewport: rect.top >= 0 && rect.bottom <= window.innerHeight,
-                    zIndex: window.getComputedStyle(redditBtn).zIndex,
-                    pointerEvents: window.getComputedStyle(redditBtn).pointerEvents
-                });
             }
 
-            console.log('=== END REDDIT DIAGNOSTIC ===');
 
             const url = encodeURIComponent(window.location.href);
             const title = encodeURIComponent(document.title);
@@ -2304,23 +2216,13 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
         };
 
         window.shareOnWhatsApp = function () {
-            console.log('=== ARTICLE WHATSAPP SHARE DIAGNOSTIC ===');
-            console.log('shareOnWhatsApp called from article share buttons');
 
-            console.log('Scroll position:', { scrollY: window.scrollY, innerHeight: window.innerHeight });
 
             const whatsappBtn = document.querySelector('button[onclick="shareOnWhatsApp()"]');
             if (whatsappBtn) {
                 const rect = whatsappBtn.getBoundingClientRect();
-                console.log('WhatsApp button position:', {
-                    boundingRect: rect,
-                    inViewport: rect.top >= 0 && rect.bottom <= window.innerHeight,
-                    zIndex: window.getComputedStyle(whatsappBtn).zIndex,
-                    pointerEvents: window.getComputedStyle(whatsappBtn).pointerEvents
-                });
             }
 
-            console.log('=== END WHATSAPP DIAGNOSTIC ===');
 
             const url = encodeURIComponent(window.location.href);
             const text = encodeURIComponent(document.title + ' - ' + window.location.href);
@@ -2517,7 +2419,6 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
 
             if (userInfo) {
                 // User is known, submit immediately without showing modal
-                console.log('Known user detected:', userInfo.name);
                 submitComment(userInfo.name, userInfo.email, commentText);
             } else {
                 // New user, show modal to collect name/email

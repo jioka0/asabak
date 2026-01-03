@@ -74,7 +74,6 @@
          */
         debug: function (message, data) {
             if (CONFIG.debug) {
-                console.log('[Blog Templates]', message, data || '');
             }
         }
     };
@@ -1140,7 +1139,6 @@
                 // Call page-specific initialization (e.g., initHome, initLatest)
                 const pageInitFunction = `init${route.charAt(0).toUpperCase() + route.slice(1)}`;
                 if (typeof window[pageInitFunction] === 'function') {
-                    console.log(`🚀 Executing page-specific init: ${pageInitFunction}`);
                     try { window[pageInitFunction](); } catch (e) { console.error(`${pageInitFunction} failed:`, e); }
                 }
 

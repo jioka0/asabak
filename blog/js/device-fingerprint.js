@@ -317,6 +317,5 @@
   window.getOrCreateTemporalUser = getOrCreateTemporalUser;
   window.getDeviceFingerprint = () => cachedFingerprint; // Sync access to cached fingerprint
 
-  console.log('🔐 Device fingerprinting system initialized');
 
 })();
