@@ -61,6 +61,11 @@ async def admin_section_page(request: Request, section: str, page: str):
     """Serve admin section pages dynamically - Authentication handled by JavaScript"""
     return templates.TemplateResponse("admin_base.html", {"request": request})
 
+@router.get("/admin/newsletter/templates", response_class=HTMLResponse)
+async def admin_newsletter_templates_page(request: Request):
+    """Serve newsletter templates page"""
+    return templates.TemplateResponse("admin_newsletter_templates.html", {"request": request})
+
 # API endpoints for dynamic page loading - PROTECTED
 @router.get("/templates/{template_name}")
 async def get_admin_template(template_name: str, current_user = Depends(get_current_active_user), db: Session = Depends(get_db)):

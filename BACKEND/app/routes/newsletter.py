@@ -207,23 +207,35 @@ async def send_weekly_newsletter(db: Session = Depends(get_db)):
 @router.post("/admin/campaigns")
 async def create_campaign(
     subject: str = Form(...),
-    content: str = Form(...),
+    content: Optional[str] = Form(None),
     template_type: str = Form("custom"),
+    template_id: Optional[int] = Form(None),
     scheduled_at: Optional[str] = Form(None),
     db: Session = Depends(get_db)
 ):
     """Create newsletter campaign (admin only)"""
     try:
         from datetime import datetime
-
+        
+        newsletter_service = NewsletterService(db)
+        
+        # If template_id is provided, try to fetch its content
+        final_content = content
+        if template_id:
+            template = newsletter_service.get_template(template_id)
+            if template:
+                # Use template content if available, and if content wasn't explicitly provided (or is empty)
+                if not final_content:
+                    final_content = template.content_template
+        
         campaign_data = NewsletterCampaignCreate(
             subject=subject,
-            content=content,
+            content=final_content or "", # Ensure we have string
             template_type=template_type,
+            template_id=template_id,
             scheduled_at=datetime.fromisoformat(scheduled_at) if scheduled_at else None
         )
 
-        newsletter_service = NewsletterService(db)
         campaign = await newsletter_service.create_campaign(campaign_data)
 
         return {
