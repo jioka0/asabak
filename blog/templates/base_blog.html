@@ -80,8 +80,37 @@
   <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/bold/style.css">
   <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 
-  <!-- TailwindCSS (Local Production Build) -->
-  <link rel="stylesheet" href="/blog/css/tailwind-output.css">
+  <!-- TailwindCSS (CDN JIT) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            inter: ['Inter', 'sans-serif'],
+            syne: ['Syne', 'sans-serif'],
+          },
+          colors: {
+            base: 'var(--base)',
+            'base-tint': 'var(--base-tint)',
+            't-bright': 'var(--t-bright)',
+            't-medium': 'var(--t-medium)',
+            't-muted': 'var(--t-muted)',
+            accent: 'var(--accent)',
+            secondary: 'var(--secondary)',
+            'stroke-elements': 'var(--stroke-elements)',
+          },
+          borderColor: {
+            DEFAULT: 'var(--stroke-elements)',
+          },
+        },
+      },
+      corePlugins: {
+        preflight: true
+      },
+    };
+  </script>
 
   <!-- Design System -->
   <link rel="stylesheet" href="/blog/templates/css/blog-templates.css">

@@ -76,11 +76,3 @@ id_rsa.pub
 # Secrets
 secrets/
 config/secrets.json
-
-# Tailwind CSS
-tailwindcss
-tailwindcss-linux-x64
-tailwindcss-macos-x64
-tailwindcss-windows-x64.exe
-blog/css/input.css
-!blog/css/tailwind-output.css
