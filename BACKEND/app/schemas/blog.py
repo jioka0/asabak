@@ -102,8 +102,11 @@ class NewsletterCampaign(NewsletterCampaignBase):
 
 class NewsletterTemplateBase(BaseModel):
     name: str
+    description: Optional[str] = None
     subject_template: str
     content_template: str
+    category: Optional[str] = None
+    thumbnail_url: Optional[str] = None
 
 class NewsletterTemplateCreate(NewsletterTemplateBase):
     pass

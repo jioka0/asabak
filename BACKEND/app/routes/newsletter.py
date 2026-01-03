@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Form, Request, Background
 from sqlalchemy.orm import Session
 from database import get_db
 from services.newsletter_service import NewsletterService
-from schemas.blog import NewsletterSubscriberCreate, NewsletterCampaignCreate
+from schemas.blog import NewsletterSubscriberCreate, NewsletterCampaignCreate, NewsletterTemplateCreate
 from typing import Optional
 
 router = APIRouter()
@@ -234,6 +234,127 @@ async def create_campaign(
 
     except Exception as e:
         raise HTTPException(500, f"Campaign creation failed: {str(e)}")
+
+# Template Management Endpoints
+@router.post("/admin/templates")
+async def create_template(
+    template_data: NewsletterTemplateCreate,
+    db: Session = Depends(get_db)
+):
+    """Create a new newsletter template (admin only)"""
+    try:
+        newsletter_service = NewsletterService(db)
+        template = await newsletter_service.create_template(template_data)
+        return {
+            "success": True,
+            "message": "Template created successfully",
+            "template_id": template.id
+        }
+    except Exception as e:
+        raise HTTPException(500, f"Template creation failed: {str(e)}")
+
+@router.get("/admin/templates")
+async def get_templates(
+    category: Optional[str] = None,
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db)
+):
+    """Get all newsletter templates"""
+    try:
+        newsletter_service = NewsletterService(db)
+        templates = newsletter_service.get_templates(skip, limit, category)
+        return {
+            "success": True,
+            "templates": [
+                {
+                    "id": t.id,
+                    "name": t.name,
+                    "category": t.category,
+                    "thumbnail_url": t.thumbnail_url,
+                    "created_at": t.created_at.isoformat() if t.created_at else None
+                }
+                for t in templates
+            ]
+        }
+    except Exception as e:
+        raise HTTPException(500, f"Failed to get templates: {str(e)}")
+
+@router.get("/admin/templates/{template_id}")
+async def get_template(
+    template_id: int,
+    db: Session = Depends(get_db)
+):
+    """Get a specific template"""
+    try:
+        newsletter_service = NewsletterService(db)
+        template = newsletter_service.get_template(template_id)
+        if not template:
+            raise HTTPException(404, "Template not found")
+        
+        return {
+            "success": True,
+            "template": {
+                "id": template.id,
+                "name": template.name,
+                "subject_template": template.subject_template,
+                "content_template": template.content_template,
+                "category": template.category,
+                "thumbnail_url": template.thumbnail_url,
+                "created_at": template.created_at.isoformat() if template.created_at else None
+            }
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(500, f"Failed to get template: {str(e)}")
+
+@router.put("/admin/templates/{template_id}")
+async def update_template(
+    template_id: int,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Update a newsletter template"""
+    try:
+        data = await request.json()
+        newsletter_service = NewsletterService(db)
+        template = await newsletter_service.update_template(template_id, data)
+        
+        if not template:
+            raise HTTPException(404, "Template not found")
+            
+        return {
+            "success": True,
+            "message": "Template updated successfully",
+            "template_id": template.id
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(500, f"Template update failed: {str(e)}")
+
+@router.delete("/admin/templates/{template_id}")
+async def delete_template(
+    template_id: int,
+    db: Session = Depends(get_db)
+):
+    """Delete a newsletter template"""
+    try:
+        newsletter_service = NewsletterService(db)
+        success = await newsletter_service.delete_template(template_id)
+        
+        if not success:
+            raise HTTPException(404, "Template not found")
+            
+        return {
+            "success": True,
+            "message": "Template deleted successfully"
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(500, f"Template deletion failed: {str(e)}")
 
 @router.get("/stats")
 async def get_newsletter_stats(db: Session = Depends(get_db)):

@@ -158,6 +158,7 @@ class NewsletterTemplate(Base):
     name = Column(String(100), nullable=False, unique=True)
     subject_template = Column(String(255), nullable=False)
     content_template = Column(Text, nullable=False)
+    description = Column(Text, nullable=True)
     category = Column(String(50), nullable=True)  # newsletter, promo, welcome, etc.
     thumbnail_url = Column(String(500), nullable=True)
     is_active = Column(Boolean, default=True)

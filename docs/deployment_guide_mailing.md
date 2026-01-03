@@ -98,6 +98,12 @@ python3 verify_mailing_system.py
 ✅ Email successfully sent to hello@nekwasar.com!
 ```
 
+## 8. Template Management
+Use the new admin interface at `/admin/newsletter/templates` to create and manage email templates.
+- **Create**: Add new templates with custom HTML.
+- **Edit**: Modify existing templates.
+- **Placeholders**: Use `{{ content }}` and `{{ unsubscribe_url }}` in your HTML.
+
 ## Troubleshooting
 
 -   **"Database column does not exist"**: Run step 4 (`update_db_schema.py`) again.

@@ -42,6 +42,11 @@ def update_schema():
                  print("   ➕ Adding category to newsletter_templates")
                  connection.execute(text("ALTER TABLE newsletter_templates ADD COLUMN category VARCHAR(50)"))
                  connection.commit()
+            
+            if 'description' not in columns:
+                 print("   ➕ Adding description to newsletter_templates")
+                 connection.execute(text("ALTER TABLE newsletter_templates ADD COLUMN description TEXT"))
+                 connection.commit()
                  
             if 'thumbnail_url' not in columns:
                  print("   ➕ Adding thumbnail_url to newsletter_templates")

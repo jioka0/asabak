@@ -5,8 +5,8 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from fastapi import BackgroundTasks
 
-from models.blog import NewsletterSubscriber, NewsletterCampaign, BlogPost
-from schemas.blog import NewsletterSubscriberCreate, NewsletterCampaignCreate
+from models.blog import NewsletterSubscriber, NewsletterCampaign, BlogPost, NewsletterTemplate
+from schemas.blog import NewsletterSubscriberCreate, NewsletterCampaignCreate, NewsletterTemplateCreate
 from services.email_service import email_service
 
 logger = logging.getLogger(__name__)
@@ -164,6 +164,65 @@ class NewsletterService:
         except Exception as e:
             self.db.rollback()
             raise Exception(f"Campaign creation failed: {str(e)}")
+
+    # Template Management
+    async def create_template(self, template_data: NewsletterTemplateCreate) -> NewsletterTemplate:
+        """Create a new newsletter template"""
+        try:
+            template = NewsletterTemplate(**template_data.dict())
+            self.db.add(template)
+            self.db.commit()
+            self.db.refresh(template)
+            return template
+        except Exception as e:
+            self.db.rollback()
+            raise Exception(f"Template creation failed: {str(e)}")
+
+    def get_templates(self, skip: int = 0, limit: int = 100, category: Optional[str] = None) -> List[NewsletterTemplate]:
+        """Get all newsletter templates"""
+        query = self.db.query(NewsletterTemplate).filter(NewsletterTemplate.is_active == True)
+        if category:
+            query = query.filter(NewsletterTemplate.category == category)
+        return query.order_by(NewsletterTemplate.created_at.desc()).offset(skip).limit(limit).all()
+
+    def get_template(self, template_id: int) -> Optional[NewsletterTemplate]:
+        """Get a specific template by ID"""
+        return self.db.query(NewsletterTemplate).filter(
+            NewsletterTemplate.id == template_id,
+            NewsletterTemplate.is_active == True
+        ).first()
+
+    async def update_template(self, template_id: int, template_data: Dict[str, Any]) -> Optional[NewsletterTemplate]:
+        """Update a newsletter template"""
+        try:
+            template = self.get_template(template_id)
+            if not template:
+                return None
+            
+            for key, value in template_data.items():
+                if hasattr(template, key):
+                    setattr(template, key, value)
+            
+            self.db.commit()
+            self.db.refresh(template)
+            return template
+        except Exception as e:
+            self.db.rollback()
+            raise Exception(f"Template update failed: {str(e)}")
+
+    async def delete_template(self, template_id: int) -> bool:
+        """Soft delete a template"""
+        try:
+            template = self.get_template(template_id)
+            if not template:
+                return False
+            
+            template.is_active = False
+            self.db.commit()
+            return True
+        except Exception as e:
+            self.db.rollback()
+            raise Exception(f"Template deletion failed: {str(e)}")
 
     def get_subscriber_stats(self) -> Dict[str, Any]:
         """Get newsletter subscriber statistics"""
