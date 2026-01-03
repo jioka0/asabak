@@ -56,15 +56,15 @@ async def admin_blog_tags_page(request: Request):
     """Serve blog tags management page - Authentication handled by JavaScript"""
     return templates.TemplateResponse("admin_blog_tags.html", {"request": request})
 
-@router.get("/admin/{section}/{page}", response_class=HTMLResponse)
-async def admin_section_page(request: Request, section: str, page: str):
-    """Serve admin section pages dynamically - Authentication handled by JavaScript"""
-    return templates.TemplateResponse("admin_base.html", {"request": request})
-
 @router.get("/admin/newsletter/templates", response_class=HTMLResponse)
 async def admin_newsletter_templates_page(request: Request):
     """Serve newsletter templates page"""
     return templates.TemplateResponse("admin_newsletter_templates.html", {"request": request})
+
+@router.get("/admin/{section}/{page}", response_class=HTMLResponse)
+async def admin_section_page(request: Request, section: str, page: str):
+    """Serve admin section pages dynamically - Authentication handled by JavaScript"""
+    return templates.TemplateResponse("admin_base.html", {"request": request})
 
 # API endpoints for dynamic page loading - PROTECTED
 @router.get("/templates/{template_name}")
