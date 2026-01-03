@@ -1,21 +1,19 @@
+import logging
 import os
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
-from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
-from jinja2 import Template
+from fastapi import BackgroundTasks
 
 from models.blog import NewsletterSubscriber, NewsletterCampaign, BlogPost
 from schemas.blog import NewsletterSubscriberCreate, NewsletterCampaignCreate
+from services.email_service import email_service
+
+logger = logging.getLogger(__name__)
 
 class NewsletterService:
     def __init__(self, db: Session):
         self.db = db
-        # Email configuration - only initialize if credentials are available
-        self.fm = None
-        # try:
-        #     smtp_username = os.getenv("SMTP_USERNAME")
-        #     smtp_password = os.getenv("SMTP_PASSWORD")
         #     
         #     if smtp_username and smtp_password:
         #         self.mail_config = ConnectionConfig(

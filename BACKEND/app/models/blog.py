@@ -143,6 +143,8 @@ class NewsletterCampaign(Base):
     subject = Column(String(255), nullable=False)
     content = Column(Text, nullable=False)
     template_type = Column(String(50), default="weekly")  # weekly, announcement, etc.
+    template_id = Column(Integer, ForeignKey("newsletter_templates.id"), nullable=True)
+    customized_html = Column(Text, nullable=True)  # The final HTML for this campaign
     status = Column(String(20), default="draft")  # draft, scheduled, sent, failed
     scheduled_at = Column(DateTime(timezone=True), nullable=True)
     sent_at = Column(DateTime(timezone=True), nullable=True)
@@ -156,6 +158,19 @@ class NewsletterTemplate(Base):
     name = Column(String(100), nullable=False, unique=True)
     subject_template = Column(String(255), nullable=False)
     content_template = Column(Text, nullable=False)
+    category = Column(String(50), nullable=True)  # newsletter, promo, welcome, etc.
+    thumbnail_url = Column(String(500), nullable=True)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class NewsletterAutomation(Base):
+    __tablename__ = "newsletter_automations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), nullable=False)
+    trigger_type = Column(String(50), nullable=False)  # welcome, abandoned_cart, etc.
+    template_id = Column(Integer, ForeignKey("newsletter_templates.id"), nullable=True)
+    delay_hours = Column(Integer, default=0)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 

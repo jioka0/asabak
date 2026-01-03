@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Form, Request
+from fastapi import APIRouter, Depends, HTTPException, Form, Request, BackgroundTasks
 from sqlalchemy.orm import Session
 from database import get_db
 from services.newsletter_service import NewsletterService
@@ -60,6 +60,7 @@ async def delete_subscriber(subscriber_id: int, db: Session = Depends(get_db)):
 @router.post("/subscribe")
 async def subscribe_newsletter(
     request: Request,
+    background_tasks: BackgroundTasks,
     name: str = Form(...),
     email: str = Form(...),
     db: Session = Depends(get_db)
@@ -74,7 +75,7 @@ async def subscribe_newsletter(
             preferences={}  # Can be extended later
         )
 
-        result = await newsletter_service.subscribe_user(subscriber_data)
+        result = await newsletter_service.subscribe_user(subscriber_data, background_tasks)
 
         if result["success"]:
             return {

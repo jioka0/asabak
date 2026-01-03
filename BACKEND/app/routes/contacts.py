@@ -1,16 +1,22 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 from database import get_db
 from models.contact import Contact as DBContact
 from schemas import ContactCreate, Contact
 from auth import get_current_active_user
 from models.user import AdminUser
+from services.email_service import email_service
+from core.config import settings
 
 router = APIRouter()
 
 @router.post("/", response_model=Contact)
-async def create_contact(contact: ContactCreate, db: Session = Depends(get_db)):
-    """Create a new contact message"""
+async def create_contact(
+    contact: ContactCreate, 
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db)
+):
+    """Create a new contact message and notify admin"""
     # FIXED: Use database model (DBContact), not API schema (Contact)
     db_contact = DBContact(
         name=contact.name,
@@ -20,6 +26,30 @@ async def create_contact(contact: ContactCreate, db: Session = Depends(get_db)):
     db.add(db_contact)
     db.commit()
     db.refresh(db_contact)
+
+    # Send Notification Email to Admin
+    subject = f"New Contact: {contact.name}"
+    html_content = f"""
+    <h2>New Contact Message</h2>
+    <p><strong>Name:</strong> {contact.name}</p>
+    <p><strong>Email:</strong> {contact.email}</p>
+    <p><strong>Message:</strong></p>
+    <blockquote style="background: #f9f9f9; padding: 10px; border-left: 5px solid #ccc;">
+        {contact.message}
+    </blockquote>
+    """
+    
+    # Send to the configured sender email (admin)
+    if settings.sender_email:
+        await email_service.send_email_background(
+            background_tasks,
+            to_email=settings.sender_email,
+            subject=subject,
+            html_content=html_content,
+            to_name="NekwasaR Admin",
+            reply_to={"email": contact.email, "name": contact.name}
+        )
+
     return db_contact
 
 @router.get("/", response_model=list[Contact])
