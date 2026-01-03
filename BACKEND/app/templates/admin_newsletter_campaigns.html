@@ -212,15 +212,15 @@
                         </button>
                         <button
                             class="inline-flex items-center justify-center space-x-3 px-8 py-4 bg-base-tint dark:bg-base-shade hover:bg-base-shade dark:hover:bg-base border border-stroke-elements text-t-bright font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 transition-all duration-medium font-syne"
-                            id="importCampaignsBtn">
-                            <i class="ph-bold ph-upload text-lg"></i>
-                            <span>Import</span>
+                            id="openSettingsBtn" onclick="openSettings()">
+                            <i class="ph-bold ph-gear text-lg"></i>
+                            <span>Settings</span>
                         </button>
                         <button
                             class="inline-flex items-center justify-center space-x-3 px-8 py-4 bg-base-tint dark:bg-base-shade hover:bg-base-shade dark:hover:bg-base border border-stroke-elements text-t-bright font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 transition-all duration-medium font-syne"
-                            id="exportCampaignsBtn">
-                            <i class="ph-bold ph-download text-lg"></i>
-                            <span>Export</span>
+                            id="openAutomationsBtn" onclick="openAutomations()">
+                            <i class="ph-bold ph-robot text-lg"></i>
+                            <span>Automations</span>
                         </button>
                     </div>
                 </div>
@@ -447,13 +447,13 @@
                         <div class="grid grid-cols-2 gap-6">
                             <div class="space-y-2">
                                 <label class="block text-sm font-medium text-t-bright">Sender Name</label>
-                                <input type="text" value="NekwasaR Team"
+                                <input type="text" id="wizardSenderName"
                                     class="w-full px-4 py-3 rounded-lg bg-base-tint border border-stroke-controls text-t-muted cursor-not-allowed"
                                     disabled>
                             </div>
                             <div class="space-y-2">
                                 <label class="block text-sm font-medium text-t-bright">Sender Email</label>
-                                <input type="text" value="newsletter@nekwasar.com"
+                                <input type="text" id="wizardSenderEmail"
                                     class="w-full px-4 py-3 rounded-lg bg-base-tint border border-stroke-controls text-t-muted cursor-not-allowed"
                                     disabled>
                             </div>
@@ -549,6 +549,80 @@
                 <button onclick="nextStep()" id="nextBtn"
                     class="px-6 py-2 bg-t-bright text-base-opp font-bold rounded-lg hover:bg-t-bright/90">Next
                     Step</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Settings Modal -->
+<div id="settingsModal" class="fixed inset-0 z-50 hidden"
+    style="background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px);">
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+        <div
+            class="bg-base dark:bg-base border border-stroke-elements rounded-xl shadow-2xl w-full max-w-lg theme-card p-6">
+            <h3 class="text-xl font-bold text-t-bright font-syne mb-6">System Settings</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-t-bright mb-1">Default Sender Name</label>
+                    <input type="text" id="settingSenderName"
+                        class="w-full px-4 py-2 rounded-lg bg-base-tint border border-stroke-controls text-t-bright focus:border-accent outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-t-bright mb-1">Default Sender Email</label>
+                    <input type="text" id="settingSenderEmail"
+                        class="w-full px-4 py-2 rounded-lg bg-base-tint border border-stroke-controls text-t-bright focus:border-accent outline-none">
+                </div>
+            </div>
+            <div class="mt-8 flex justify-end space-x-3">
+                <button onclick="document.getElementById('settingsModal').classList.add('hidden')"
+                    class="px-4 py-2 rounded-lg border border-stroke-controls text-t-medium hover:text-t-bright">Cancel</button>
+                <button onclick="saveSettings()"
+                    class="px-4 py-2 rounded-lg bg-accent text-white font-bold hover:bg-accent/90">Save
+                    Settings</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Automations Modal -->
+<div id="automationsModal" class="fixed inset-0 z-50 hidden"
+    style="background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px);">
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+        <div
+            class="bg-base dark:bg-base border border-stroke-elements rounded-xl shadow-2xl w-full max-w-4xl h-[80vh] flex flex-col theme-card">
+            <div class="p-6 border-b border-stroke-elements flex justify-between items-center">
+                <h3 class="text-xl font-bold text-t-bright font-syne">Automations</h3>
+                <button onclick="document.getElementById('automationsModal').classList.add('hidden')"
+                    class="text-t-medium hover:text-t-bright"><i class="ph-bold ph-x text-xl"></i></button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-6">
+                <!-- Create New -->
+                <div class="mb-8 p-6 bg-base-tint/50 rounded-xl border border-stroke-elements">
+                    <h4 class="text-lg font-bold text-t-bright mb-4">Create New Rule</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <input type="text" id="autoName" placeholder="Rule Name (e.g. Welcome Series)"
+                            class="px-4 py-2 rounded-lg bg-base border border-stroke-controls text-t-bright outline-none">
+                        <select id="autoTrigger"
+                            class="px-4 py-2 rounded-lg bg-base border border-stroke-controls text-t-bright outline-none">
+                            <option value="welcome">Trigger: Welcome Email</option>
+                        </select>
+                        <select id="autoTemplate"
+                            class="px-4 py-2 rounded-lg bg-base border border-stroke-controls text-t-bright outline-none">
+                            <option value="">Select Template...</option>
+                        </select>
+                    </div>
+                    <div class="mt-4 flex justify-end">
+                        <button onclick="createAutomation()"
+                            class="px-6 py-2 bg-gradient-to-r from-accent to-secondary text-white font-bold rounded-lg hover:shadow-lg transition-all">+
+                            Create Rule</button>
+                    </div>
+                </div>
+
+                <!-- List -->
+                <h4 class="text-lg font-bold text-t-bright mb-4">Active Rules</h4>
+                <div id="automationsList" class="space-y-4">
+                    <!-- Injected via JS -->
+                </div>
             </div>
         </div>
     </div>
@@ -717,9 +791,22 @@
     }
 
     // --- Wizard Navigation ---
-    function openWizard() {
+    async function openWizard() {
         document.getElementById('campaignWizardModal').classList.remove('hidden');
         resetWizard();
+
+        // Load Settings to autofill
+        try {
+            const res = await fetch('/api/newsletter/admin/settings', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+            const data = await res.json();
+            if (data.success && data.settings) {
+                document.getElementById('wizardSenderName').value = data.settings.sender_name || 'NekwasaR Team';
+                document.getElementById('wizardSenderEmail').value = data.settings.sender_email || 'newsletter@nekwasar.com';
+            }
+        } catch (e) {
+            console.log('Failed to load settings');
+        }
+
         loadTemplatesForWizard();
     }
 
@@ -1110,7 +1197,7 @@
         };
 
         // Action buttons
-        // Note: createCampaign is handled by the global override for the wizard
+        document.getElementById('createCampaignBtn').onclick = openWizard;
         document.getElementById('importCampaignsBtn').onclick = () => importCampaigns();
         document.getElementById('exportCampaignsBtn').onclick = () => exportCampaigns();
 
@@ -1234,6 +1321,140 @@
         checkboxes.forEach(cb => cb.checked = false);
         document.getElementById('selectAllCampaigns').checked = false;
         updateBulkActionsState();
+    }
+
+    // --- Settings & Automation Logic ---
+
+    async function openSettings() {
+        const modal = document.getElementById('settingsModal');
+        try {
+            const res = await fetch('/api/newsletter/admin/settings', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+            const data = await res.json();
+            if (data.success && data.settings) {
+                document.getElementById('settingSenderName').value = data.settings.sender_name || '';
+                document.getElementById('settingSenderEmail').value = data.settings.sender_email || '';
+            }
+            modal.classList.remove('hidden');
+        } catch (e) {
+            alert('Failed to load settings: ' + e);
+        }
+    }
+
+    async function saveSettings() {
+        const name = document.getElementById('settingSenderName').value;
+        const email = document.getElementById('settingSenderEmail').value;
+        try {
+            const res = await fetch('/api/newsletter/admin/settings', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ sender_name: name, sender_email: email })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Settings saved successfully');
+                document.getElementById('settingsModal').classList.add('hidden');
+            }
+        } catch (e) {
+            alert('Failed to save settings');
+        }
+    }
+
+    async function openAutomations() {
+        const modal = document.getElementById('automationsModal');
+
+        // Load templates for dropdown
+        try {
+            // Note: Reuse existing fetch logic or call endpoint
+            const tRes = await fetch('/api/newsletter/admin/templates', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+            const tData = await tRes.json();
+            if (tData.success) {
+                const select = document.getElementById('autoTemplate');
+                select.innerHTML = '<option value="">Select Template...</option>';
+                tData.templates.forEach(t => {
+                    select.innerHTML += `<option value="${t.id}">${t.name}</option>`;
+                });
+            }
+        } catch (e) { console.error(e); }
+
+        await loadAutomationsList();
+        modal.classList.remove('hidden');
+    }
+
+    async function loadAutomationsList() {
+        try {
+            const res = await fetch('/api/newsletter/admin/automations', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+            const data = await res.json();
+            const container = document.getElementById('automationsList');
+            container.innerHTML = '';
+
+            if (data.success && data.automations.length > 0) {
+                data.automations.forEach(auto => {
+                    container.innerHTML += `
+                    <div class="p-4 bg-base-tint border border-stroke-elements rounded-lg flex justify-between items-center transition-all hover:bg-base-shade/50">
+                        <div>
+                            <div class="font-bold text-t-bright font-syne">${auto.name}</div>
+                            <div class="text-sm text-t-medium"><i class="ph-bold ph-lightning"></i> Trigger: ${auto.trigger_type} • <i class="ph-bold ph-clock"></i> Delay: ${auto.delay_hours}h</div>
+                        </div>
+                        <button onclick="deleteAutomation(${auto.id})" class="p-2 text-red-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors" title="Delete Rule">
+                            <i class="ph-bold ph-trash"></i>
+                        </button>
+                    </div>`;
+                });
+            } else {
+                container.innerHTML = '<div class="text-center text-t-muted py-8 bg-base-tint/30 rounded-lg border border-dashed border-stroke-elements">No active automations found. Create one above!</div>';
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    async function createAutomation() {
+        const name = document.getElementById('autoName').value;
+        const trigger = document.getElementById('autoTrigger').value;
+        const templateId = document.getElementById('autoTemplate').value;
+
+        if (!name || !templateId) {
+            alert('Please fill in all fields');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('trigger_type', trigger);
+        formData.append('template_id', templateId);
+        formData.append('delay_hours', 0);
+
+        try {
+            const res = await fetch('/api/newsletter/admin/automations', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+                body: formData
+            });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('autoName').value = '';
+                await loadAutomationsList();
+                // Optional: Show success toast
+            } else {
+                alert('Failed: ' + data.message);
+            }
+        } catch (e) {
+            alert('Error creating automation');
+        }
+    }
+
+    async function deleteAutomation(id) {
+        if (!confirm('Delete this automation?')) return;
+        try {
+            await fetch(`/api/newsletter/admin/automations/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
+            await loadAutomationsList();
+        } catch (e) { alert('Error deleting'); }
     }
 
     // Initialize

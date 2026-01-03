@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from fastapi import BackgroundTasks
 
-from models.blog import NewsletterSubscriber, NewsletterCampaign, BlogPost, NewsletterTemplate, NewsletterAutomation
+from models.blog import NewsletterSubscriber, NewsletterCampaign, BlogPost, NewsletterTemplate, NewsletterAutomation, SystemSetting
 from schemas.blog import NewsletterSubscriberCreate, NewsletterCampaignCreate, NewsletterTemplateCreate
 from services.email_service import email_service
 
@@ -330,3 +330,115 @@ class NewsletterService:
                 subject=subject,
                 html_content=content
             )
+
+    def _get_weekly_content(self) -> str:
+        """Generate weekly newsletter content from recent posts"""
+        try:
+            # Get recent posts from the last week
+            week_ago = datetime.now() - timedelta(days=7)
+            recent_posts = self.db.query(BlogPost).filter(
+                BlogPost.published_at >= week_ago,
+                BlogPost.is_featured == True
+            ).order_by(BlogPost.published_at.desc()).limit(5).all()
+
+            if not recent_posts:
+                # Fallback to any recent posts
+                recent_posts = self.db.query(BlogPost).filter(
+                    BlogPost.published_at >= week_ago
+                ).order_by(BlogPost.published_at.desc()).limit(5).all()
+
+            # Build newsletter content
+            content_parts = []
+
+            if recent_posts:
+                content_parts.append("<h2>This Week's Highlights</h2>")
+                for post in recent_posts:
+                    content_parts.append(f"<div><h3><a href='https://nekwasar.com/blog/{post.slug}'>{post.title}</a></h3><p>{post.excerpt}</p></div>")
+            else:
+                content_parts.append("""
+                <h2>This Week's Highlights</h2>
+                <p>We're working on some exciting new content! Stay tuned for our next update.</p>
+                """)
+
+            return "\n".join(content_parts)
+
+        except Exception as e:
+            return "<h2>Weekly Update</h2><p>Check our website for updates!</p>"
+
+    # --- Settings Management (Database) ---
+    def get_settings(self) -> Dict[str, Any]:
+        """Get global newsletter settings"""
+        default_settings = {
+            "sender_name": "NekwasaR Team",
+            "sender_email": "newsletter@nekwasar.com"
+        }
+        
+        try:
+            settings_rows = self.db.query(SystemSetting).all()
+            db_settings = {s.key: s.value for s in settings_rows}
+            return {**default_settings, **db_settings}
+        except Exception as e:
+            logger.error(f"Failed to load settings from DB: {e}")
+            return default_settings
+
+    def save_settings(self, settings: Dict[str, Any]) -> bool:
+        """Save global newsletter settings"""
+        try:
+            for key, value in settings.items():
+                setting = self.db.query(SystemSetting).filter(SystemSetting.key == key).first()
+                if setting:
+                    setting.value = str(value)
+                else:
+                    setting = SystemSetting(key=key, value=str(value))
+                    self.db.add(setting)
+            self.db.commit()
+            return True
+        except Exception as e:
+            self.db.rollback()
+            raise Exception(f"Failed to save settings: {str(e)}")
+
+    # --- Automation Management ---
+    async def create_automation(self, name: str, trigger_type: str, template_id: int, delay_hours: int = 0) -> NewsletterAutomation:
+        """Create a new automation rule"""
+        try:
+            # Deactivate existing automations of same type if we want single-active rule per type logic?
+            # For 'welcome', typically only one is active.
+            if trigger_type == 'welcome':
+                existing = self.db.query(NewsletterAutomation).filter(
+                    NewsletterAutomation.trigger_type == 'welcome',
+                    NewsletterAutomation.is_active == True
+                ).all()
+                for e in existing:
+                    e.is_active = False
+            
+            auto = NewsletterAutomation(
+                name=name,
+                trigger_type=trigger_type,
+                template_id=template_id,
+                delay_hours=delay_hours,
+                is_active=True
+            )
+            self.db.add(auto)
+            self.db.commit()
+            self.db.refresh(auto)
+            return auto
+        except Exception as e:
+            self.db.rollback()
+            raise Exception(f"Automation creation failed: {str(e)}")
+
+    def get_automations(self) -> List[NewsletterAutomation]:
+        """Get all active automations"""
+        return self.db.query(NewsletterAutomation).filter(NewsletterAutomation.is_active == True).order_by(NewsletterAutomation.created_at.desc()).all()
+
+    async def delete_automation(self, automation_id: int) -> bool:
+        """Soft delete an automation"""
+        try:
+            auto = self.db.query(NewsletterAutomation).filter(NewsletterAutomation.id == automation_id).first()
+            if auto:
+                auto.is_active = False
+                self.db.commit()
+                return True
+            return False
+        except Exception as e:
+            self.db.rollback()
+            raise Exception(f"Automation deletion failed: {str(e)}")

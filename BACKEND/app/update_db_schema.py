@@ -7,6 +7,8 @@ import sys
 sys.path.append(os.getcwd())
 
 from database import Base, engine
+# Import ALL models so Base.metadata knows about them
+from models.blog import NewsletterCampaign, NewsletterTemplate, SystemSetting
 
 def update_schema():
     print("🔄 Checking database schema...")
@@ -52,6 +54,12 @@ def update_schema():
                  print("   ➕ Adding thumbnail_url to newsletter_templates")
                  connection.execute(text("ALTER TABLE newsletter_templates ADD COLUMN thumbnail_url VARCHAR(500)"))
                  connection.commit()
+
+        # 3. system_settings
+        if inspector.has_table("system_settings"):
+            print("   ✅ system_settings table exists")
+        else:
+            print("   ⚠️ system_settings missing even after create_all?")
 
     print("✅ Database schema updated successfully!")
 

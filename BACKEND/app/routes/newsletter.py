@@ -408,3 +408,72 @@ async def test_email(
 
     except Exception as e:
         raise HTTPException(500, f"Test email failed: {str(e)}")
+
+# System Settings & Automation Endpoints
+@router.get("/admin/settings")
+async def get_settings(db: Session = Depends(get_db)):
+    """Get system settings"""
+    try:
+        service = NewsletterService(db)
+        return {"success": True, "settings": service.get_settings()}
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+@router.post("/admin/settings")
+async def save_settings(request: Request, db: Session = Depends(get_db)):
+    """Save system settings"""
+    try:
+        data = await request.json()
+        service = NewsletterService(db)
+        service.save_settings(data)
+        return {"success": True, "message": "Settings saved"}
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+@router.get("/admin/automations")
+async def get_automations(db: Session = Depends(get_db)):
+    """Get all automations"""
+    try:
+        service = NewsletterService(db)
+        automations = service.get_automations()
+        return {
+            "success": True, 
+            "automations": [
+                {
+                    "id": a.id,
+                    "name": a.name,
+                    "trigger_type": a.trigger_type,
+                    "template_id": a.template_id,
+                    "delay_hours": a.delay_hours,
+                    "is_active": a.is_active
+                } for a in automations
+            ]
+        }
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+@router.post("/admin/automations")
+async def create_automation(
+    name: str = Form(...),
+    trigger_type: str = Form(...),
+    template_id: int = Form(...),
+    delay_hours: int = Form(0),
+    db: Session = Depends(get_db)
+):
+    """Create new automation"""
+    try:
+        service = NewsletterService(db)
+        auto = await service.create_automation(name, trigger_type, template_id, delay_hours)
+        return {"success": True, "message": "Automation created", "automation_id": auto.id}
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+@router.delete("/admin/automations/{auto_id}")
+async def delete_automation(auto_id: int, db: Session = Depends(get_db)):
+    """Delete automation"""
+    try:
+        service = NewsletterService(db)
+        await service.delete_automation(auto_id)
+        return {"success": True, "message": "Automation deleted"}
+    except Exception as e:
+        raise HTTPException(500, str(e))
