@@ -68,13 +68,9 @@ async def admin_section_page(request: Request, section: str, page: str):
 
 # API endpoints for dynamic page loading - PROTECTED
 @router.get("/templates/{template_name}")
-async def get_admin_template(template_name: str, request: Request, current_user = Depends(get_current_active_user), db: Session = Depends(get_db)):
+async def get_admin_template(template_name: str, current_user = Depends(get_current_active_user), db: Session = Depends(get_db)):
     """Serve admin page templates dynamically - REQUIRES AUTHENTICATION"""
     try:
-        # Special case for newsletter templates to ensure they are rendered, not served raw
-        if template_name == "admin_newsletter_templates.html":
-            return templates.TemplateResponse("admin_newsletter_templates.html", {"request": request})
-
         template_path = templates_dir / template_name
 
         if template_path.exists():

@@ -879,7 +879,7 @@
                 children: {
                     subscribers: { label: "Subscribers", icon: "ph-users" },
                     campaigns: { label: "Campaigns", icon: "ph-megaphone" },
-                    templates: { label: "Templates", icon: "ph-palette", type: 'external' },
+                    templates: { label: "Templates", icon: "ph-palette" },
                     automation: { label: "Automation", icon: "ph-robot" },
                     analytics: { label: "Analytics", icon: "ph-chart-bar" },
                     segments: { label: "Segments", icon: "ph-funnel" },
@@ -968,12 +968,7 @@
                     item.className = 'nav-item';
                     item.dataset.section = sectionKey;
                     item.dataset.page = pageKey;
-
-                    if (page.type === 'external') {
-                        item.onclick = () => window.location.href = `/admin/${sectionKey}/${pageKey}`;
-                    } else {
-                        item.onclick = () => this.navigateTo(sectionKey, pageKey);
-                    }
+                    item.onclick = () => this.navigateTo(sectionKey, pageKey);
 
                     item.innerHTML = `
                         <i class="ph-bold ${page.icon} nav-item-icon"></i>

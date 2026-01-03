@@ -1,274 +1,139 @@
-{% extends "admin_base.html" %}
-
-{% block title %}Newsletter Templates - Admin Dashboard{% endblock %}
-
-{% block content %}
-<!-- Tailwind Configuration for this page -->
-<script>
-    tailwind.config = {
-        darkMode: 'class',
-        theme: {
-            extend: {
-                fontFamily: {
-                    'syne': ['Syne', 'sans-serif'],
-                },
-                colors: {
-                    'base': '#0f172a', /* slate-900 */
-                    'base-tint': '#1e293b', /* slate-800 */
-                    'base-shade': '#020617', /* slate-950 */
-                    'accent': '#8b5cf6', /* violet-500 */
-                    'secondary': '#3b82f6', /* blue-500 */
-                    't-bright': '#f8fafc', /* slate-50 */
-                    't-medium': '#cbd5e1', /* slate-300 */
-                    't-muted': '#64748b', /* slate-500 */
-                    't-opp-bright': '#ffffff',
-                },
-                animation: {
-                    'fade-in': 'fadeIn 0.6s ease-out forwards',
-                    'scale-in': 'scaleIn 0.4s ease-out forwards',
-                },
-                transitionDuration: {
-                    'medium': '300ms',
-                },
-            },
-        },
-    }
-</script>
-
-<style>
-    /* Custom Animations */
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @keyframes scaleIn {
-        from {
-            opacity: 0;
-            transform: scale(0.95);
-        }
-
-        to {
-            opacity: 1;
-            transform: scale(1);
-        }
-    }
-
-    .font-syne {
-        font-family: 'Syne', sans-serif;
-    }
-
-    .backdrop-blur-xl {
-        backdrop-filter: blur(24px);
-    }
-
-    /* Scrollbar */
-    ::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    ::-webkit-scrollbar-track {
-        background: #1e293b;
-    }
-
-    ::-webkit-scrollbar-thumb {
-        background: #475569;
-        border-radius: 4px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-        background: #64748b;
-    }
-</style>
-
-<!-- Main Container -->
-<div
-    class="min-h-screen bg-gradient-to-br from-base via-[#1e1b4b] to-base transition-all duration-medium overflow-x-hidden p-6">
-
-    <!-- Header Section -->
-    <div
-        class="mb-10 text-center relative p-10 rounded-2xl overflow-hidden bg-gradient-to-r from-accent/20 via-transparent to-secondary/20 border border-white/5 shadow-2xl animate-fade-in">
-        <h1
-            class="text-5xl md:text-6xl font-bold mb-4 font-syne bg-gradient-to-r from-white via-blue-100 to-purple-200 bg-clip-text text-transparent">
-            Template Library
-        </h1>
-        <p class="text-xl text-t-medium font-light font-syne opacity-80 max-w-2xl mx-auto">
-            Design stunning, responsive email templates for your campaigns.
-        </p>
-
-        <div class="mt-8 flex justify-center gap-4">
-            <button id="createTemplateBtn"
-                class="group relative px-8 py-4 bg-gradient-to-r from-accent to-secondary rounded-xl font-bold text-white shadow-lg hover:shadow-accent/50 transition-all hover:-translate-y-1 hover:scale-105 active:scale-95">
-                <span class="flex items-center gap-2">
-                    <i class="fas fa-plus-circle text-lg"></i>
-                    <span>Create Template</span>
-                </span>
-                <div
-                    class="absolute inset-0 rounded-xl bg-white/20 blur opacity-0 group-hover:opacity-100 transition-opacity">
-                </div>
-            </button>
-            <button id="importTemplateBtn"
-                class="px-8 py-4 bg-base-tint border border-white/10 rounded-xl font-bold text-t-bright hover:bg-white/5 transition-all hover:-translate-y-1">
-                <span class="flex items-center gap-2">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    <span>Import HTML</span>
-                </span>
-            </button>
-        </div>
+<div id="newsletterTemplatesPage" class="min-h-screen p-6">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Newsletter Templates</h1>
+        <p class="text-gray-600 dark:text-gray-400">Manage your email templates</p>
     </div>
 
     <!-- Stats Row -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10 animate-fade-in" style="animation-delay: 100ms;">
-        <!-- Stats cards with dynamic content loaded via JS -->
-        <div
-            class="bg-base-tint/60 backdrop-blur-xl border border-white/10 p-6 rounded-2xl hover:bg-base-tint/80 transition-colors group">
-            <div class="flex justify-between items-start">
-                <div>
-                    <h3 class="text-t-muted text-sm font-bold uppercase tracking-wider mb-1">Total Templates</h3>
-                    <div class="text-3xl font-bold text-t-bright font-syne" id="totalTemplates">...</div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Templates -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                    <i class="ph-bold ph-files text-2xl text-blue-600 dark:text-blue-400"></i>
                 </div>
-                <div class="p-3 bg-accent/20 rounded-lg text-accent group-hover:scale-110 transition-transform"><i
-                        class="fas fa-layer-group"></i></div>
             </div>
+            <div class="text-2xl font-bold text-gray-900 dark:text-white" id="totalTemplates">0</div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">Total Templates</div>
         </div>
-        <div
-            class="bg-base-tint/60 backdrop-blur-xl border border-white/10 p-6 rounded-2xl hover:bg-base-tint/80 transition-colors group">
-            <div class="flex justify-between items-start">
-                <div>
-                    <h3 class="text-t-muted text-sm font-bold uppercase tracking-wider mb-1">Active</h3>
-                    <div class="text-3xl font-bold text-t-bright font-syne" id="activeTemplates">...</div>
-                </div>
-                <div class="p-3 bg-green-500/20 rounded-lg text-green-400 group-hover:scale-110 transition-transform"><i
-                        class="fas fa-check-circle"></i></div>
-            </div>
-        </div>
-        <div
-            class="bg-base-tint/60 backdrop-blur-xl border border-white/10 p-6 rounded-2xl hover:bg-base-tint/80 transition-colors group">
-            <div class="flex justify-between items-start">
-                <div>
-                    <h3 class="text-t-muted text-sm font-bold uppercase tracking-wider mb-1">Custom</h3>
-                    <div class="text-3xl font-bold text-t-bright font-syne" id="customTemplates">...</div>
-                </div>
-                <div class="p-3 bg-secondary/20 rounded-lg text-secondary group-hover:scale-110 transition-transform"><i
-                        class="fas fa-code"></i></div>
-            </div>
-        </div>
-        <div
-            class="bg-base-tint/60 backdrop-blur-xl border border-white/10 p-6 rounded-2xl hover:bg-base-tint/80 transition-colors group">
-            <div class="flex justify-between items-start">
-                <div>
-                    <h3 class="text-t-muted text-sm font-bold uppercase tracking-wider mb-1">System</h3>
-                    <div class="text-3xl font-bold text-t-bright font-syne" id="systemTemplates">...</div>
-                </div>
-                <div class="p-3 bg-orange-500/20 rounded-lg text-orange-400 group-hover:scale-110 transition-transform">
-                    <i class="fas fa-shield-alt"></i>
+
+        <!-- Custom Templates -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                    <i class="ph-bold ph-pencil-simple text-2xl text-purple-600 dark:text-purple-400"></i>
                 </div>
             </div>
+            <div class="text-2xl font-bold text-gray-900 dark:text-white" id="customTemplates">0</div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">Custom Designs</div>
         </div>
     </div>
 
-    <!-- Interface Controls -->
-    <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8 p-4 bg-base-tint/40 backdrop-blur-lg rounded-2xl border border-white/5 animate-fade-in"
-        style="animation-delay: 200ms;">
-        <div class="relative w-full md:w-96">
-            <input type="text" id="templateSearch" placeholder="Search templates..."
-                class="w-full pl-12 pr-4 py-3 bg-base-shade/50 border border-white/10 rounded-xl text-t-bright focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all placeholder-t-muted">
-            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-t-muted"></i>
-        </div>
-
-        <div class="flex gap-3 w-full md:w-auto">
-            <select id="categoryFilter"
-                class="flex-1 md:flex-none px-4 py-3 bg-base-shade/50 border border-white/10 rounded-xl text-t-bright focus:ring-2 focus:ring-accent outline-none">
-                <option value="">All Categories</option>
-                <option value="newsletter">Newsletters</option>
-                <option value="promo">Promotional</option>
-                <option value="welcome">Welcome</option>
-                <option value="transactional">Transactional</option>
-            </select>
-
-            <div class="flex bg-base-shade/50 rounded-xl p-1 border border-white/10">
-                <button id="gridViewBtn" class="p-2.5 rounded-lg bg-accent text-white shadow-md transition-all"><i
-                        class="fas fa-th-large"></i></button>
-                <button id="listViewBtn" class="p-2.5 rounded-lg text-t-muted hover:text-t-bright transition-all"><i
-                        class="fas fa-list"></i></button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Templates Grid -->
-    <div id="templatesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 animate-fade-in"
-        style="animation-delay: 300ms;">
-        <!-- Dynamic Content -->
-    </div>
-
-</div>
-
-<!-- Create/Edit Modal -->
-<div id="templateModal" class="fixed inset-0 z-50 hidden">
-    <!-- Backdrop -->
-    <div class="absolute inset-0 bg-base-shade/90 backdrop-blur-sm" onclick="closeTemplateModal()"></div>
-
-    <!-- Modal Content -->
-    <div class="absolute inset-0 flex items-center justify-center p-4">
-        <div
-            class="w-full max-w-6xl h-[90vh] bg-base-tint border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-scale-in">
-            <!-- Header -->
-            <div class="p-6 border-b border-white/10 flex justify-between items-center bg-base-tint/50">
-                <div>
-                    <h2 class="text-2xl font-bold font-syne text-t-bright" id="modalTitle">Create New Template</h2>
-                    <p class="text-t-muted text-sm">Design your email layout</p>
+    <!-- Main Content -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+        <!-- Toolbar -->
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex-1 max-w-md">
+                    <div class="relative">
+                        <input type="text" id="templateSearch" placeholder="Search templates..."
+                            class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                        <i
+                            class="ph-bold ph-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
                 </div>
-                <div class="flex gap-3">
-                    <button onclick="closeTemplateModal()"
-                        class="px-4 py-2 text-t-muted hover:text-white transition-colors">Cancel</button>
-                    <button onclick="saveTemplate()"
-                        class="px-6 py-2 bg-accent hover:bg-accent/90 text-white rounded-lg font-bold shadow-lg shadow-accent/20 transition-all transform active:scale-95">
-                        <i class="fas fa-save mr-2"></i> Save Changes
+
+                <div class="flex gap-2">
+                    <select id="categoryFilter"
+                        class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                        <option value="">All Categories</option>
+                        <option value="newsletter">Newsletters</option>
+                        <option value="promo">Promotional</option>
+                        <option value="welcome">Welcome</option>
+                        <option value="transactional">Transactional</option>
+                        <option value="imported">Imported</option>
+                    </select>
+
+                    <button id="createTemplateBtn"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2">
+                        <i class="ph-bold ph-plus"></i>
+                        Create
+                    </button>
+                    <button id="importTemplateBtn"
+                        class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center gap-2">
+                        <i class="ph-bold ph-upload"></i>
+                        Import
                     </button>
                 </div>
             </div>
+        </div>
 
-            <!-- Body -->
+        <!-- Grid Content -->
+        <div id="templatesGrid" class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Templates Loaded Here -->
+        </div>
+    </div>
+</div>
+
+<!-- Create/Edit Modal -->
+<div id="templateModal" class="fixed inset-0 z-50 hidden" style="background-color: rgba(0,0,0,0.5);">
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+        <div
+            class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden">
+            <!-- Modal Header -->
+            <div
+                class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-900">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white" id="modalTitle">Create Template</h3>
+                <div class="flex gap-3">
+                    <button onclick="closeTemplateModal()"
+                        class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Cancel</button>
+                    <button onclick="saveTemplate()"
+                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">Save
+                        Template</button>
+                </div>
+            </div>
+
+            <!-- Modal Body -->
             <div class="flex-1 flex overflow-hidden">
-                <!-- Sidebar Form -->
-                <div class="w-80 bg-base-shade/30 border-r border-white/10 p-6 overflow-y-auto space-y-6">
-                    <div>
-                        <label
-                            class="block text-xs font-bold text-t-muted uppercase tracking-wider mb-2">Details</label>
-                        <input type="text" id="tplName" placeholder="Template Name"
-                            class="w-full px-3 py-2 bg-base-shade border border-white/10 rounded-lg text-t-bright focus:border-accent outline-none mb-3">
-                        <select id="tplCategory"
-                            class="w-full px-3 py-2 bg-base-shade border border-white/10 rounded-lg text-t-bright focus:border-accent outline-none">
-                            <option value="newsletter">Newsletter</option>
-                            <option value="promo">Promotional</option>
-                            <option value="welcome">Welcome</option>
-                            <option value="transactional">Transactional</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label
-                            class="block text-xs font-bold text-t-muted uppercase tracking-wider mb-2">Description</label>
-                        <textarea id="tplDesc" rows="3"
-                            class="w-full px-3 py-2 bg-base-shade border border-white/10 rounded-lg text-t-bright focus:border-accent outline-none text-sm leading-relaxed"></textarea>
+                <!-- Sidebar -->
+                <div
+                    class="w-80 border-r border-gray-200 dark:border-gray-700 p-6 overflow-y-auto bg-gray-50 dark:bg-gray-900">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
+                            <input type="text" id="tplName"
+                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
+                            <select id="tplCategory"
+                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500">
+                                <option value="newsletter">Newsletter</option>
+                                <option value="promo">Promotional</option>
+                                <option value="welcome">Welcome</option>
+                                <option value="transactional">Transactional</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+                            <textarea id="tplDesc" rows="3"
+                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Editor Area -->
-                <div class="flex-1 bg-[#1e1e1e] flex flex-col">
-                    <div class="bg-base-shade p-2 text-xs text-t-muted flex justify-between border-b border-white/5">
-                        <span>HTML Source</span>
-                        <span>Use {{ content }} for dynamic body</span>
+                <!-- Editor -->
+                <div class="flex-1 flex flex-col bg-gray-900">
+                    <div
+                        class="bg-gray-800 px-4 py-2 text-xs text-gray-400 border-b border-gray-700 flex justify-between">
+                        <span>HTML Source Code</span>
+                        <span>Use {{ content }} for dynamic body injection</span>
                     </div>
                     <textarea id="tplContent"
-                        class="flex-1 w-full h-full bg-transparent text-gray-300 font-mono text-sm p-4 outline-none resize-none"
+                        class="flex-1 w-full h-full bg-gray-900 text-gray-300 font-mono text-sm p-4 outline-none resize-none focus:ring-0 border-0"
                         spellcheck="false"></textarea>
                 </div>
             </div>
@@ -283,162 +148,107 @@
     let currentSearch = '';
     let isEditingId = null;
 
-    // Initialization
-    document.addEventListener('DOMContentLoaded', () => {
-        loadTemplates();
-        setupEventListeners();
-    });
+    // Initialize function exposed to window for SPA loader
+    function initNewsletterTemplates() {
+        if (!document.getElementById('newsletterTemplatesPage')) return;
+        console.log('📬 Initializing Newsletter Templates page...');
+        loadTemplates(); // Only load when page is actually present
+        setupTemplateEventListeners();
+    }
+    window.initNewsletterTemplates = initNewsletterTemplates;
 
-    function setupEventListeners() {
-        document.getElementById('createTemplateBtn').addEventListener('click', () => openModal());
+    // --- Core Logic ---
 
-        // Import Logic
+    function setupTemplateEventListeners() {
+        // Create Button
+        const createBtn = document.getElementById('createTemplateBtn');
+        if (createBtn) createBtn.addEventListener('click', () => openModal());
+
+        // Import Button
         const importBtn = document.getElementById('importTemplateBtn');
-        const fileInput = document.createElement('input');
-        fileInput.type = 'file';
-        fileInput.accept = '.html,.htm';
-        fileInput.style.display = 'none';
-        document.body.appendChild(fileInput);
+        if (importBtn) {
+            // Hidden file input
+            let fileInput = document.getElementById('hiddenImportInput');
+            if (!fileInput) {
+                fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.id = 'hiddenImportInput';
+                fileInput.accept = '.html,.htm';
+                fileInput.style.display = 'none';
+                document.body.appendChild(fileInput);
 
-        importBtn.addEventListener('click', () => {
-            fileInput.click();
+                fileInput.addEventListener('change', handleFileImport);
+            }
+            importBtn.addEventListener('click', () => fileInput.click());
+        }
+
+        // Filters
+        document.getElementById('templateSearch').addEventListener('input', (e) => {
+            currentSearch = e.target.value.toLowerCase();
+            renderTemplatesGrid();
         });
 
-        fileInput.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
+        document.getElementById('categoryFilter').addEventListener('change', (e) => {
+            currentFilter = e.target.value;
+            renderTemplatesGrid();
+        });
+    }
 
-            try {
-                const text = await file.text();
-                // Basic cleanup of filename for template name
-                const name = file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
+    async function handleFileImport(e) {
+        const file = e.target.files[0];
+        if (!file) return;
 
-                // Show uploading state
-                const originalText = importBtn.innerHTML;
-                importBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Importing...';
+        try {
+            const text = await file.text();
+            const name = file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
 
-                const payload = {
+            // Auto-create via API
+            const res = await fetch('/api/newsletter/admin/templates', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` },
+                body: JSON.stringify({
                     name: name,
                     category: 'imported',
                     description: `Imported from ${file.name}`,
                     content_template: text,
                     subject_template: 'Imported Template'
-                };
-
-                const res = await fetch('/api/newsletter/admin/templates', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await res.json();
-
-                importBtn.innerHTML = originalText;
-
-                if (data.success) {
-                    alert('Template imported successfully!');
-                    loadTemplates();
-                } else {
-                    throw new Error(data.message);
-                }
-            } catch (err) {
-                console.error(err);
-                alert(`Import failed: ${err.message}`);
-                importBtn.innerHTML = '<span class="flex items-center gap-2"><i class="fas fa-cloud-upload-alt"></i><span>Import HTML</span></span>';
-            }
-
-            fileInput.value = '';
-        });
-
-        document.getElementById('gridViewBtn').addEventListener('click', () => setView('grid'));
-        document.getElementById('listViewBtn').addEventListener('click', () => setView('list'));
-
-        document.getElementById('templateSearch').addEventListener('input', (e) => {
-            currentSearch = e.target.value.toLowerCase();
-            renderGrid();
-        });
-
-        document.getElementById('categoryFilter').addEventListener('change', (e) => {
-            currentFilter = e.target.value;
-            renderGrid();
-        });
-    }
-
-    // API Calls
-    async function loadTemplates() {
-        const grid = document.getElementById('templatesGrid');
-        grid.innerHTML = '<div class="col-span-full text-center py-20 text-t-muted"><i class="fas fa-spinner fa-spin text-3xl mb-4"></i><br>Loading library...</div>';
-
-        try {
-            const res = await fetch('/api/newsletter/admin/templates');
-            const data = await res.json();
-
-            if (data.success) {
-                allTemplates = data.templates || [];
-                updateStats();
-                renderGrid();
-            } else {
-                throw new Error(data.message);
-            }
-        } catch (e) {
-            console.error(e);
-            grid.innerHTML = `<div class="col-span-full text-center py-20 text-red-400">
-            <i class="fas fa-exclamation-triangle text-3xl mb-4"></i><br>
-            Failed to load templates. <button onclick="loadTemplates()" class="underline">Retry</button>
-        </div>`;
-        }
-    }
-
-    async function saveTemplate() {
-        const name = document.getElementById('tplName').value;
-        const category = document.getElementById('tplCategory').value;
-        const description = document.getElementById('tplDesc').value;
-        const content = document.getElementById('tplContent').value;
-
-        if (!name) return alert('Please enter a template name');
-        if (!content) return alert('Please enter template content');
-
-        const payload = {
-            name,
-            category,
-            description,
-            content_template: content,
-            subject_template: 'Default Subject' // Placeholder
-        };
-
-        const url = isEditingId
-            ? `/api/newsletter/admin/templates/${isEditingId}`
-            : '/api/newsletter/admin/templates';
-
-        const method = isEditingId ? 'PUT' : 'POST';
-
-        try {
-            const res = await fetch(url, {
-                method: method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                })
             });
             const data = await res.json();
 
             if (data.success) {
-                closeTemplateModal();
+                alert('Template imported successfully!');
                 loadTemplates();
-                // Show success notification (basic for now)
-                alert(isEditingId ? 'Template updated!' : 'Template created!');
             } else {
-                alert('Error: ' + data.message);
+                alert('Import failed: ' + data.message);
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Import error: ' + err.message);
+        }
+        e.target.value = ''; // Reset
+    }
+
+    async function loadTemplates() {
+        try {
+            const res = await fetch('/api/newsletter/admin/templates', {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` }
+            });
+            const data = await res.json();
+            if (data.success) {
+                allTemplates = data.templates || [];
+                updateTemplateStats();
+                renderTemplatesGrid();
             }
         } catch (e) {
             console.error(e);
-            alert('Failed to save template');
+            document.getElementById('templatesGrid').innerHTML = '<div class="col-span-full text-center text-red-500">Failed to load templates.</div>';
         }
     }
 
-    // UI Functions
-    function renderGrid() {
+    function renderTemplatesGrid() {
         const grid = document.getElementById('templatesGrid');
 
-        // Filter
         const filtered = allTemplates.filter(t => {
             const matchesSearch = t.name.toLowerCase().includes(currentSearch);
             const matchesCat = !currentFilter || t.category === currentFilter;
@@ -446,71 +256,55 @@
         });
 
         if (filtered.length === 0) {
-            grid.innerHTML = `
-        <div class="col-span-full flex flex-col items-center justify-center p-12 border-2 border-dashed border-white/10 rounded-2xl bg-base-tint/20">
-            <div class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4 text-t-muted">
-                <i class="fas fa-folder-open text-2xl"></i>
-            </div>
-            <h3 class="text-xl font-bold text-t-bright mb-2">No templates found</h3>
-            <p class="text-t-muted mb-6">Try adjusting your filters or create a new one.</p>
-            <button onclick="openModal()" class="px-6 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors">Create New Template</button>
-        </div>`;
+            grid.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500">No templates found.</div>';
             return;
         }
 
         grid.innerHTML = filtered.map(t => `
-        <div class="group relative bg-base-tint/40 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden hover:bg-base-tint/60 hover:shadow-2xl hover:shadow-accent/10 transition-all duration-300 hover:-translate-y-1">
-            
-            <!-- Thumbnail / Preview -->
-            <div class="aspect-[4/3] bg-base-shade relative overflow-hidden group-hover:border-b border-white/10">
-                <div class="absolute inset-0 flex items-center justify-center text-t-muted select-none">
-                    <i class="fas fa-envelope text-4xl opacity-20 group-hover:scale-110 transition-transform duration-500"></i>
+            <div class="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden flex flex-col transition-shadow hover:shadow-lg">
+                <div class="h-40 bg-gray-100 dark:bg-gray-600 flex items-center justify-center relative group">
+                    <i class="ph-bold ph-envelope-open text-4xl text-gray-400 dark:text-gray-500"></i>
+                    
+                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                        <button onclick="editTemplate(${t.id})" class="p-2 bg-white rounded-full text-blue-600 hover:bg-blue-50" title="Edit">
+                            <i class="ph-bold ph-pencil-simple"></i>
+                        </button>
+                         <button onclick="deleteTemplate(${t.id})" class="p-2 bg-white rounded-full text-red-600 hover:bg-red-50" title="Delete">
+                            <i class="ph-bold ph-trash"></i>
+                        </button>
+                    </div>
                 </div>
-                <!-- Icons for actions -->
-                <div class="absolute inset-0 bg-base-shade/80 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm flex items-center justify-center gap-3">
-                     <button onclick="editTemplate(${t.id})" class="p-3 bg-secondary text-white rounded-full hover:scale-110 transition-transform shadow-lg" title="Edit">
-                        <i class="fas fa-pen"></i>
-                    </button>
-                    <button onclick="deleteTemplate(${t.id})" class="p-3 bg-red-500 text-white rounded-full hover:scale-110 transition-transform shadow-lg" title="Delete">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Content -->
-            <div class="p-5">
-                <div class="flex justify-between items-start mb-2">
-                    <h3 class="text-lg font-bold text-t-bright line-clamp-1">${t.name}</h3>
-                </div>
-                <div class="flex items-center gap-2 mb-4">
-                    <span class="px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider rounded-md bg-white/10 text-t-medium border border-white/5">
-                        ${t.category || 'General'}
-                    </span>
-                    <span class="text-xs text-t-muted">${new Date(t.created_at).toLocaleDateString()}</span>
+                <div class="p-4 flex-1 flex flex-col">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-gray-900 dark:text-white line-clamp-1">${t.name}</h3>
+                    </div>
+                    <div class="mt-auto flex items-center gap-2">
+                        <span class="text-xs px-2 py-1 rounded bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 uppercase font-semibold tracking-wide">
+                            ${t.category}
+                        </span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400 ml-auto">${new Date(t.created_at).toLocaleDateString()}</span>
+                    </div>
                 </div>
             </div>
-        </div>
-    `).join('');
+        `).join('');
     }
 
-    function updateStats() {
+    function updateTemplateStats() {
         document.getElementById('totalTemplates').innerText = allTemplates.length;
-        document.getElementById('activeTemplates').innerText = allTemplates.length; // Placeholder logic
-        document.getElementById('customTemplates').innerText = allTemplates.filter(t => t.category !== 'system').length;
-        document.getElementById('systemTemplates').innerText = '0';
+        document.getElementById('customTemplates').innerText = allTemplates.length; // Simplified
     }
 
+    // Modal Functions
     function openModal(id = null) {
         const modal = document.getElementById('templateModal');
         const title = document.getElementById('modalTitle');
-
         isEditingId = id;
 
         if (id) {
             title.innerText = "Edit Template";
-            // Fetch specific details (or find in allTemplates)
-            // For simplicity, fetching from API ensures fresh content
-            fetch(`/api/newsletter/admin/templates/${id}`)
+            fetch(`/api/newsletter/admin/templates/${id}`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` }
+            })
                 .then(r => r.json())
                 .then(d => {
                     const t = d.template;
@@ -521,26 +315,10 @@
                     modal.classList.remove('hidden');
                 });
         } else {
-            title.innerText = "Create New Template";
-            // Reset form
+            title.innerText = "Create Template";
             document.getElementById('tplName').value = '';
             document.getElementById('tplDesc').value = '';
-            document.getElementById('tplContent').value = `<!DOCTYPE html>
-<html>
-<head>
-<style>
-  body { font-family: sans-serif; background: #f4f4f4; padding: 20px; }
-  .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
-</style>
-</head>
-<body>
-  <div class="container">
-    <h1>Hello World</h1>
-    <p>{{ content }}</p>
-    <a href="{{ unsubscribe_url }}">Unsubscribe</a>
-  </div>
-</body>
-</html>`;
+            document.getElementById('tplContent').value = '<html>\n<body>\n  <h1>Title</h1>\n  <p>{{ content }}</p>\n</body>\n</html>';
             modal.classList.remove('hidden');
         }
     }
@@ -549,23 +327,61 @@
         document.getElementById('templateModal').classList.add('hidden');
     }
 
-    window.editTemplate = (id) => openModal(id);
+    async function saveTemplate() {
+        const name = document.getElementById('tplName').value;
+        const category = document.getElementById('tplCategory').value;
+        const description = document.getElementById('tplDesc').value;
+        const content = document.getElementById('tplContent').value;
 
-    window.deleteTemplate = async (id) => {
-        if (!confirm("Delete this template?")) return;
+        if (!name) return alert('Name required');
+
+        const payload = {
+            name, category, description,
+            content_template: content,
+            subject_template: 'Template Subject'
+        };
+
+        const endpoint = isEditingId ? `/api/newsletter/admin/templates/${isEditingId}` : '/api/newsletter/admin/templates';
+        const method = isEditingId ? 'PUT' : 'POST';
+
         try {
-            await fetch(`/api/newsletter/admin/templates/${id}`, { method: 'DELETE' });
-            loadTemplates();
+            const res = await fetch(endpoint, {
+                method,
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (data.success) {
+                closeTemplateModal();
+                loadTemplates();
+                alert('Saved successfully');
+            } else {
+                alert('Error: ' + data.message);
+            }
         } catch (e) {
-            alert('Failed to delete');
+            alert('Save failed');
         }
+    }
+
+    window.editTemplate = (id) => openModal(id);
+    window.deleteTemplate = async (id) => {
+        if (!confirm("Delete template?")) return;
+        try {
+            await fetch(`/api/newsletter/admin/templates/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` }
+            });
+            loadTemplates();
+        } catch (e) { alert('Delete failed'); }
     };
 
-    window.setView = (view) => {
-        // Logic to toggle grid/list classes can be added here
-        // For now we stick to grid as it's prettier
-        console.log("Switching view to " + view);
-    };
+    window.closeTemplateModal = closeTemplateModal;
+    window.saveTemplate = saveTemplate;
 
+    // Run init if loaded standalone (rare case now, but safe)
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initNewsletterTemplates);
+    } else if (!window.adminApp) {
+        initNewsletterTemplates();
+    }
 </script>
-{% endblock %}
