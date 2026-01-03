@@ -402,19 +402,16 @@ class SearchService:
                 desc(BlogPost.view_count)
             ).limit(limit).all()
             
-            # Extract keywords from titles to use as search suggestions
+            # Return full titles for search suggestions
             suggestions = []
             for post in popular_posts:
-                # Extract meaningful keywords from title
-                keywords = self._extract_keywords_from_title(post.title)
-                if keywords:
-                    suggestions.extend(keywords[:2])  # Take up to 2 keywords per post
+                if post.title:
+                    suggestions.append(post.title)
                 
-            # Remove duplicates and return
-            return list(dict.fromkeys(suggestions))[:limit]
+            return suggestions[:limit]
         except Exception as e:
             logger.error(f"Error getting popular searches: {e}")
-            return ["ai", "startup", "technology", "business", "innovation"]
+            return ["AI and Machine Learning Fundamentals", "Startup Funding Guide", "Modern Web Development", "Business Strategy 101", "Innovation in Technology"]
 
     def _get_trending_topics(self, limit: int = 5) -> List[str]:
         """Get trending topics based on posts with highest views in the past 7 days"""
@@ -432,36 +429,16 @@ class SearchService:
                 desc(BlogPost.view_count)
             ).limit(limit).all()
             
-            # Extract keywords from titles to use as search suggestions
+            # Return full titles for search suggestions
             suggestions = []
             for post in trending_posts:
-                # Extract meaningful keywords from title
-                keywords = self._extract_keywords_from_title(post.title)
-                if keywords:
-                    suggestions.extend(keywords[:2])  # Take up to 2 keywords per post
+                if post.title:
+                    suggestions.append(post.title)
                 
-            # Remove duplicates and return
-            return list(dict.fromkeys(suggestions))[:limit]
+            return suggestions[:limit]
         except Exception as e:
             logger.error(f"Error getting trending topics: {e}")
-            return ["artificial intelligence", "blockchain", "web development", "startup funding", "digital transformation"]
-
-    def _extract_keywords_from_title(self, title: str) -> List[str]:
-        """Extract meaningful keywords from a post title"""
-        if not title:
-            return []
-            
-        # Clean and split title
-        import re
-        # Remove special characters and split
-        words = re.findall(r'\b\w{3,}\b', title.lower())
-        
-        # Common stop words to exclude
-        stop_words = {'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'its', 'may', 'new', 'now', 'old', 'see', 'two', 'who', 'boy', 'did', 'man', 'way', 'she', 'use', 'will', 'your'}
-        
-        # Filter out stop words and return meaningful keywords
-        keywords = [word for word in words if word not in stop_words]
-        return keywords[:3]  # Return up to 3 keywords
+            return ["Latest Technology Trends 2025", "Artificial Intelligence Breakthroughs", "Blockchain Applications", "Web Development Revolution", "Digital Transformation Guide"]
 
     def _count_posts_by_section(self, section: str) -> int:
         """Count posts in a specific section"""
