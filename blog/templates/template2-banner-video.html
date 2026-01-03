@@ -1010,19 +1010,23 @@ Innovation | NekwasaR Blog{% endif %}{% endblock %}
         };
 
         // Like functionality
-        window.toggleLike = function () {
+        // Like functionality
+        window.toggleLike = async function () {
             const likeSection = document.querySelector('.like-section');
+            if (!likeSection) return;
+            
             const likeIcon = document.querySelector('.like-icon');
-            const likeCount = document.querySelector('.like-count');
+            // FIX: Select ALL like-count elements to ensure both mobile and desktop views update
+            const likeCounts = document.querySelectorAll('.like-count');
             const postId = likeSection.dataset.postId;
 
             // Toggle liked state
             const isLiked = likeIcon.classList.contains('text-red-500');
-            const newCount = isLiked ?
-                parseInt(likeCount.textContent) - 1 :
-                parseInt(likeCount.textContent) + 1;
+            // Calculate new count based on the current text of the first element
+            const currentCount = parseInt(likeCounts[0].textContent.trim()) || 0;
+            const newCount = isLiked ? Math.max(0, currentCount - 1) : currentCount + 1;
 
-            // Update UI
+            // Update UI Icons
             if (isLiked) {
                 likeIcon.classList.remove('text-red-500', 'ph-fill');
                 likeIcon.classList.add('ph-bold');
@@ -1031,12 +1035,15 @@ Innovation | NekwasaR Blog{% endif %}{% endblock %}
                 likeIcon.classList.remove('ph-bold');
             }
 
-            likeCount.textContent = newCount;
+            // FIX: Update ALL like count elements
+            likeCounts.forEach(el => {
+                el.textContent = newCount;
+            });
 
             // Show notification
             showNotification(isLiked ? 'Post unliked' : 'Post liked', 'success');
 
-            // Store in localStorage
+            // Store in localStorage (Optimistic)
             const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '[]');
             if (isLiked) {
                 const index = likedPosts.indexOf(postId);
@@ -1045,6 +1052,39 @@ Innovation | NekwasaR Blog{% endif %}{% endblock %}
                 likedPosts.push(postId);
             }
             localStorage.setItem('likedPosts', JSON.stringify(likedPosts));
+
+            // Server Sync (Fire and forget)
+            try {
+                // Try to get fingerprint from global function or fallback
+                let fingerprint = 'unknown_device';
+                if (window.getFingerprint) {
+                    fingerprint = await window.getFingerprint();
+                } else if (localStorage.getItem('user_fingerprint')) {
+                    fingerprint = localStorage.getItem('user_fingerprint');
+                } else {
+                    // Simple fallback if no fingerprint function available
+                    fingerprint = 'browser_' + navigator.userAgent.replace(/\s+/g, '') + '_' + screen.width;
+                }
+
+                const method = isLiked ? 'DELETE' : 'POST';
+                const url = `/api/blogs/${postId}/likes`;
+                
+                let fetchUrl = url;
+                let fetchOptions = {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' }
+                };
+
+                if (method === 'DELETE') {
+                    fetchUrl += `?fingerprint=${encodeURIComponent(fingerprint)}`;
+                } else {
+                    fetchOptions.body = JSON.stringify({ fingerprint, user_identifier: fingerprint });
+                }
+
+                await fetch(fetchUrl, fetchOptions);
+            } catch (e) {
+                console.error('Background sync failed:', e);
+            }
         };
 
         // Create share modal HTML

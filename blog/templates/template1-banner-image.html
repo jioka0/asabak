@@ -2112,8 +2112,8 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
 
         // Update like UI based on status
         function updateLikeUI(isLiked) {
-            const likeIcon = document.querySelector('.like-icon');
-            if (likeIcon) {
+            const likeIcons = document.querySelectorAll('.like-icon');
+            likeIcons.forEach(likeIcon => {
                 if (isLiked) {
                     likeIcon.classList.add('text-red-500', 'ph-fill');
                     likeIcon.classList.remove('ph-bold');
@@ -2121,14 +2121,14 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
                     likeIcon.classList.remove('text-red-500', 'ph-fill');
                     likeIcon.classList.add('ph-bold');
                 }
-            }
+            });
         }
 
         // Like functionality for post
         window.toggleLike = async function () {
             const likeSection = document.querySelector('.like-section');
-            const likeIcon = document.querySelector('.like-icon');
-            const likeCount = document.querySelector('.like-count');
+            const likeIcons = document.querySelectorAll('.like-icon');
+            const likeCounts = document.querySelectorAll('.like-count');
             const postId = likeSection ? likeSection.dataset.postId : null;
 
             if (!postId) {
@@ -2137,7 +2137,8 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
             }
 
             const userIdentifier = getUserIdentifier();
-            const isCurrentlyLiked = likeIcon.classList.contains('text-red-500');
+            // Check the first icon (if exists) to determine current state
+            const isCurrentlyLiked = likeIcons.length > 0 && likeIcons[0].classList.contains('text-red-500');
 
             try {
                 let response;
@@ -2165,8 +2166,10 @@ Transforming Our World | NekwasaR Blog{% endif %}{% endblock %}
                     // Update UI based on server response
                     updateLikeUI(data.liked || false);
 
-                    // Update count from server
-                    likeCount.textContent = data.like_count || 0;
+                    // Update count from server for ALL elements
+                    likeCounts.forEach(el => {
+                        el.textContent = data.like_count || 0;
+                    });
 
                     // Show notification
                     showNotification(isCurrentlyLiked ? 'Post unliked' : 'Post liked', 'success');
