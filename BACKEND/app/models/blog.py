@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, ForeignKey, JSON, func, Enum, BigInteger, Float
+from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, ForeignKey, JSON, func, Enum, BigInteger, Float, UniqueConstraint
 from database import Base
 
 class BlogPost(Base):
@@ -62,7 +62,10 @@ class BlogLike(Base):
     fingerprint = Column(String(500), nullable=False, index=True)  # Device fingerprint
     user_identifier = Column(String(255))  # Legacy field for backward compatibility
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    expires_at = Column(DateTime(timezone=True), nullable=False)  # 3-day expiration
+
+    __table_args__ = (
+        UniqueConstraint('blog_post_id', 'fingerprint', name='uq_blog_post_like'),
+    )
 
 class BlogView(Base):
     __tablename__ = "blog_views"

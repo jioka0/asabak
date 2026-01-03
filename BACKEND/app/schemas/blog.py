@@ -179,7 +179,6 @@ class Like(BaseModel):
     fingerprint: str
     user_identifier: Optional[str] = None
     created_at: datetime
-    expires_at: datetime
 
     class Config:
         from_attributes = True

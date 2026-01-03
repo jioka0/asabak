@@ -131,8 +131,6 @@ async def create_comment(post_id: int, comment: CommentCreate, db: Session = Dep
 @router.post("/{post_id}/likes")
 async def like_post(post_id: int, like: LikeCreate, db: Session = Depends(get_db)):
     """Like a blog post using device fingerprint"""
-    from datetime import datetime, timedelta
-    
     logger.info(f"❤️ LIKE REQUEST: post_id={post_id}, like_data={like.dict()}")
     
     # Check if post exists
@@ -141,36 +139,47 @@ async def like_post(post_id: int, like: LikeCreate, db: Session = Depends(get_db
         logger.error(f"❌ LIKE REQUEST: Post not found with id={post_id}")
         raise HTTPException(404, "Blog post not found")
     
-    # Check if already liked by this fingerprint and not expired
+    # Check if already liked by this fingerprint
     try:
         existing = db.query(BlogLike).filter(
             BlogLike.blog_post_id == post_id,
-            BlogLike.fingerprint == like.fingerprint,
-            BlogLike.expires_at > func.now()
+            BlogLike.fingerprint == like.fingerprint
         ).first()
 
         liked = False
         if existing:
-            # Already liked, just return success
+            # Already liked, just return success with current state
             liked = True
             logger.info(f"✅ LIKE REQUEST: Already liked by fingerprint={like.fingerprint}")
         else:
-            # Create new like with 3-day expiration
-            expires_at = datetime.utcnow() + timedelta(days=3)
+            # Create new permanent like
             db_like = BlogLike(
                 blog_post_id=post_id,
                 fingerprint=like.fingerprint,
-                user_identifier=like.user_identifier,
-                expires_at=expires_at
+                user_identifier=like.user_identifier
             )
             db.add(db_like)
 
             # Update like count
             post.like_count += 1
             liked = True
-            db.commit()
-            db.refresh(db_like)
-            logger.info(f"✅ LIKE REQUEST: New like created for fingerprint={like.fingerprint}")
+            
+            try:
+                db.commit()
+                db.refresh(db_like)
+                logger.info(f"✅ LIKE REQUEST: New like created for fingerprint={like.fingerprint}")
+            except Exception as e:
+                # Handle possible race condition or unique constraint violation
+                db.rollback()
+                # Double check if it was created by another request
+                existing = db.query(BlogLike).filter(
+                    BlogLike.blog_post_id == post_id,
+                    BlogLike.fingerprint == like.fingerprint
+                ).first()
+                if existing:
+                     liked = True
+                else:
+                     raise e
 
         # Get updated count
         result = {"liked": liked, "like_count": post.like_count}
@@ -179,7 +188,8 @@ async def like_post(post_id: int, like: LikeCreate, db: Session = Depends(get_db
         
     except Exception as e:
         logger.error(f"❌ LIKE REQUEST ERROR: {str(e)}")
-        db.rollback()
+        # Only rollback if not already handled
+        # db.rollback() should be handled in the inner try/except for commit
         raise HTTPException(500, f"Failed to process like: {str(e)}")
 
 @router.delete("/{post_id}/likes")
@@ -202,8 +212,7 @@ async def unlike_post(post_id: int, fingerprint: str = Query(None, description="
     try:
         existing = db.query(BlogLike).filter(
             BlogLike.blog_post_id == post_id,
-            (BlogLike.fingerprint == identifier) | (BlogLike.user_identifier == identifier),
-            BlogLike.expires_at > func.now()
+            (BlogLike.fingerprint == identifier) | (BlogLike.user_identifier == identifier)
         ).first()
 
         unliked = False
@@ -242,8 +251,7 @@ async def get_like_status(post_id: int, fingerprint: str = Query(None, descripti
     try:
         existing = db.query(BlogLike).filter(
             BlogLike.blog_post_id == post_id,
-            (BlogLike.fingerprint == identifier) | (BlogLike.user_identifier == identifier),
-            BlogLike.expires_at > func.now()
+            (BlogLike.fingerprint == identifier) | (BlogLike.user_identifier == identifier)
         ).first()
         
         result = {"liked": existing is not None}
@@ -503,32 +511,3 @@ async def cleanup_expired_users(db: Session = Depends(get_db)):
 
     db.commit()
     return {"message": f"Cleaned up {expired_count} expired users"}
-
-@router.delete("/likes/expired")
-async def cleanup_expired_likes(db: Session = Depends(get_db)):
-    """Clean up expired blog post likes (should be called by scheduler)"""
-    # Delete expired likes and update like counts
-    expired_likes = db.query(BlogLike).filter(
-        BlogLike.expires_at <= func.now()
-    ).all()
-    
-    # Group by post_id to update counts efficiently
-    post_like_counts = {}
-    for like in expired_likes:
-        if like.blog_post_id not in post_like_counts:
-            post_like_counts[like.blog_post_id] = 0
-        post_like_counts[like.blog_post_id] += 1
-    
-    # Delete expired likes
-    db.query(BlogLike).filter(
-        BlogLike.expires_at <= func.now()
-    ).delete()
-    
-    # Update like counts for affected posts
-    for post_id, like_count in post_like_counts.items():
-        post = db.query(BlogPostModel).filter(BlogPostModel.id == post_id).first()
-        if post and post.like_count >= like_count:
-            post.like_count -= like_count
-    
-    db.commit()
-    return {"message": f"Cleaned up {len(expired_likes)} expired likes"}
