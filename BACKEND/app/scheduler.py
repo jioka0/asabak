@@ -32,35 +32,12 @@ async def cleanup_expired_data_job():
         # Get database session
         db = next(get_db())
         
-        # Cleanup expired likes
-        try:
-            # Get expired likes grouped by post for count updates
-            expired_likes = db.query(BlogLike).filter(
-                BlogLike.expires_at <= func.now()
-            ).all()
-            
-            # Group by post_id to update counts efficiently
-            post_like_counts = {}
-            for like in expired_likes:
-                if like.blog_post_id not in post_like_counts:
-                    post_like_counts[like.blog_post_id] = 0
-                post_like_counts[like.blog_post_id] += 1
-            
-            # Delete expired likes
-            db.query(BlogLike).filter(
-                BlogLike.expires_at <= func.now()
-            ).delete()
-            
-            # Update like counts for affected posts
-            for post_id, like_count in post_like_counts.items():
-                post = db.query(BlogPostModel).filter(BlogPostModel.id == post_id).first()
-                if post and post.like_count >= like_count:
-                    post.like_count -= like_count
-            
-            print(f"Cleaned up {len(expired_likes)} expired likes")
-            
-        except Exception as e:
-            print(f"Expired likes cleanup failed: {e}")
+        # Cleanup expired likes - REMOVED (Likes are now permanent)
+        # try:
+        #     # Logic removed
+        #     pass
+        # except Exception as e:
+        #     pass
         
         # Cleanup expired temporal users
         try:
