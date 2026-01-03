@@ -29,6 +29,8 @@ services:
       - SECRET_KEY=${SECRET_KEY}
       - API_HOST=0.0.0.0
       - API_PORT=8000
+      - BREVO_API_KEY=${BREVO_API_KEY}
+      - SENDER_EMAIL=${SENDER_EMAIL}
 
 volumes:
   postgres_data:
