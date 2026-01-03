@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from fastapi import BackgroundTasks
 
-from models.blog import NewsletterSubscriber, NewsletterCampaign, BlogPost, NewsletterTemplate
+from models.blog import NewsletterSubscriber, NewsletterCampaign, BlogPost, NewsletterTemplate, NewsletterAutomation
 from schemas.blog import NewsletterSubscriberCreate, NewsletterCampaignCreate, NewsletterTemplateCreate
 from services.email_service import email_service
 
@@ -14,41 +14,33 @@ logger = logging.getLogger(__name__)
 class NewsletterService:
     def __init__(self, db: Session):
         self.db = db
-        #     
-        #     if smtp_username and smtp_password:
-        #         self.mail_config = ConnectionConfig(
-        #             MAIL_USERNAME=smtp_username,
-        #             MAIL_PASSWORD=smtp_password,
-        #             MAIL_FROM=os.getenv("FROM_EMAIL", smtp_username),
-        #             MAIL_PORT=int(os.getenv("SMTP_PORT", 465)),
-        #             MAIL_SERVER=os.getenv("SMTP_SERVER", "smtp.gmail.com"),
-        #             MAIL_SSL=True,  # Using SSL for port 465
-        #             MAIL_TLS=False,
-        #             USE_CREDENTIALS=True
-        #         )
-        #         self.fm = FastMail(self.mail_config)
-        #         print("[Newsletter] Email service initialized successfully")
-        #     else:
-        #         print("[Newsletter] SMTP credentials not configured - email sending disabled")
-        # except Exception as e:
-        #     print(f"[Newsletter] Failed to initialize email service: {e}")
-        #     self.fm = None
 
-    async def subscribe_user(self, subscriber_data: NewsletterSubscriberCreate) -> Dict[str, Any]:
-        """Subscribe a user and send welcome email immediately"""
+    async def subscribe_user(self, subscriber_data: NewsletterSubscriberCreate, background_tasks: BackgroundTasks) -> Dict[str, Any]:
+        """Subscribe a user and trigger welcome automation"""
         try:
             # Check if already subscribed
             existing = self.db.query(NewsletterSubscriber).filter(
-                NewsletterSubscriber.email == subscriber_data.email,
-                NewsletterSubscriber.is_active == True
+                NewsletterSubscriber.email == subscriber_data.email
             ).first()
 
             if existing:
-                return {
-                    "success": False,
-                    "message": "You're already subscribed to our newsletter!",
-                    "subscriber_id": existing.id
-                }
+                if existing.is_active:
+                    return {
+                        "success": False,
+                        "message": "You're already subscribed to our newsletter!",
+                        "subscriber_id": existing.id
+                    }
+                else:
+                    # Reactivate
+                    existing.is_active = True
+                    existing.name = subscriber_data.name # Update name if changed
+                    self.db.commit()
+                    # Resend welcome? Maybe not if they unsubbed before. Let's treat as simple reactivation.
+                    return {
+                        "success": True,
+                        "message": "Welcome back! Your subscription has been reactivated.",
+                        "subscriber_id": existing.id
+                    }
 
             # Create new subscriber
             subscriber = NewsletterSubscriber(
@@ -62,15 +54,19 @@ class NewsletterService:
             self.db.commit()
             self.db.refresh(subscriber)
 
-            # Send welcome email immediately (skip if email not configured)
-            # try:
-            #     if os.getenv("SMTP_USERNAME") and os.getenv("SMTP_PASSWORD"):
-            #         await self._send_welcome_email(subscriber)
-            #     else:
-            #         print(f"[Newsletter] Email not configured - skipping welcome email for {subscriber.email}")
-            # except Exception as email_error:
-            #     print(f"[Newsletter] Failed to send welcome email: {email_error}")
-            #     # Don't fail the subscription if email fails
+            # Trigger Welcome Automation
+            # We look for an active automation rule for 'welcome'
+            welcome_auto = self.db.query(NewsletterAutomation).filter(
+                NewsletterAutomation.trigger_type == 'welcome',
+                NewsletterAutomation.is_active == True
+            ).first()
+
+            if welcome_auto and welcome_auto.template_id:
+                # Use the configured template
+                await self._send_content_email(subscriber, welcome_auto.template_id, is_automation=True, background_tasks=background_tasks)
+            else:
+                # Fallback to hardcoded regular welcome if no automation is set up yet
+                await self._send_welcome_email(subscriber, background_tasks)
 
             return {
                 "success": True,
@@ -80,6 +76,7 @@ class NewsletterService:
 
         except Exception as e:
             self.db.rollback()
+            logger.error(f"Subscription failed: {e}")
             raise Exception(f"Subscription failed: {str(e)}")
 
     async def unsubscribe_user(self, email: str) -> Dict[str, Any]:
@@ -94,6 +91,7 @@ class NewsletterService:
                 return {"success": False, "message": "Email not found in our subscriber list."}
 
             subscriber.is_active = False
+            subscriber.unsubscribed_at = datetime.now()
             self.db.commit()
 
             return {"success": True, "message": "Successfully unsubscribed from our newsletter."}
@@ -102,68 +100,94 @@ class NewsletterService:
             self.db.rollback()
             raise Exception(f"Unsubscription failed: {str(e)}")
 
-    async def send_weekly_newsletter(self) -> Dict[str, Any]:
-        """Send weekly newsletter to all active subscribers"""
+    async def create_campaign(self, campaign_data: NewsletterCampaignCreate, background_tasks: Optional[BackgroundTasks] = None) -> NewsletterCampaign:
+        """Create and optionally SEND a newsletter campaign"""
         try:
-            # Get active subscribers
-            subscribers = self.db.query(NewsletterSubscriber).filter(
-                NewsletterSubscriber.is_active == True
-            ).all()
-
-            if not subscribers:
-                return {"success": True, "message": "No active subscribers found.", "sent_count": 0}
-
-            # Get weekly content
-            weekly_content = self._get_weekly_content()
-
-            # Create campaign record
-            campaign = NewsletterCampaign(
-                subject=f"Weekly Update - {datetime.now().strftime('%B %d, %Y')}",
-                content=weekly_content,
-                template_type="weekly",
-                status="sent",
-                sent_at=datetime.now(),
-                recipient_count=len(subscribers)
-            )
-
-            self.db.add(campaign)
-            self.db.commit()
-
-            # Send to all subscribers
-            sent_count = 0
-            failed_count = 0
-
-            for subscriber in subscribers:
-                try:
-                    await self._send_newsletter_email(subscriber, weekly_content, campaign.subject)
-                    sent_count += 1
-                except Exception as e:
-                    print(f"Failed to send to {subscriber.email}: {e}")
-                    failed_count += 1
-
-            return {
-                "success": True,
-                "message": f"Weekly newsletter sent to {sent_count} subscribers.",
-                "sent_count": sent_count,
-                "failed_count": failed_count,
-                "campaign_id": campaign.id
-            }
-
-        except Exception as e:
-            self.db.rollback()
-            raise Exception(f"Weekly newsletter failed: {str(e)}")
-
-    async def create_campaign(self, campaign_data: NewsletterCampaignCreate) -> NewsletterCampaign:
-        """Create a newsletter campaign"""
-        try:
+            # Create the campaign record
             campaign = NewsletterCampaign(**campaign_data.dict())
+            if not campaign.status:
+                campaign.status = "draft"
+            
             self.db.add(campaign)
             self.db.commit()
             self.db.refresh(campaign)
+
+            # Check if it should be sent immediately
+            # Logic: If scheduled_at is None (Immediate) AND status is NOT 'draft' (user clicked Send Now in Wizard?)
+            # Actually, let's assume if the user hits the "Send Now" endpoint, they want to send it.
+            # But the Controller (endpoint) determines intent.
+            # Let's check if scheduled_at is NULL or in Past, we trigger send
+            
+            should_send_now = campaign.scheduled_at is None
+            
+            if should_send_now:
+                # Update status to 'sending'
+                campaign.status = "sending"
+                self.db.commit()
+
+                # Trigger sending
+                # If we have background tasks, use them to avoid blocking the API
+                if background_tasks:
+                    background_tasks.add_task(self._execute_campaign_send, campaign.id)
+                else: 
+                     # Fallback for sync execution (e.g. tests)
+                     await self._execute_campaign_send(campaign.id)
+
             return campaign
+            
         except Exception as e:
             self.db.rollback()
             raise Exception(f"Campaign creation failed: {str(e)}")
+
+    async def _execute_campaign_send(self, campaign_id: int):
+        """
+        Internal method to execute the sending of a campaign.
+        Iterates all active subscribers and sends the email.
+        """
+        # Create a new session for background task to avoid binding issues
+        # Or reuse if safer. For now, we assume self.db is thread-safe or scoped correctly (FastAPI Depends)
+        # Note: In production background tasks, you want a fresh DB session usually.
+        # Here we proceed with caution using self.db
+        
+        try:
+            campaign = self.db.query(NewsletterCampaign).filter(NewsletterCampaign.id == campaign_id).first()
+            if not campaign:
+                return
+
+            subscribers = self.db.query(NewsletterSubscriber).filter(NewsletterSubscriber.is_active == True).all()
+            
+            sent_count = 0
+            
+            # TODO: Batching logic here for large lists (chunks of 50)
+            # For now, simple loop
+            for sub in subscribers:
+                unsubscribe_url = f"https://nekwasar.com/api/newsletter/unsubscribe?email={sub.email}"
+                
+                # Render content (basic replacement)
+                # In a real system, use Jinja2
+                content_html = campaign.content.replace("{{name}}", sub.name).replace("{{unsubscribe_url}}", unsubscribe_url)
+
+                email_service.send_transactional_email(
+                    to_email=sub.email,
+                    to_name=sub.name,
+                    subject=campaign.subject,
+                    html_content=content_html
+                )
+                sent_count += 1
+            
+            # Update Campaign stats
+            campaign.status = "sent"
+            campaign.sent_at = datetime.now()
+            campaign.recipient_count = sent_count
+            self.db.commit()
+            
+            logger.info(f"Campaign {campaign_id} sent to {sent_count} recipients.")
+
+        except Exception as e:
+            logger.error(f"Error executing campaign {campaign_id}: {e}")
+            if campaign:
+                campaign.status = "failed"
+                self.db.commit()
 
     # Template Management
     async def create_template(self, template_data: NewsletterTemplateCreate) -> NewsletterTemplate:
@@ -247,152 +271,62 @@ class NewsletterService:
         except Exception as e:
             raise Exception(f"Failed to get subscriber stats: {str(e)}")
 
-    async def _send_welcome_email(self, subscriber: NewsletterSubscriber):
-        """Send welcome email to new subscriber"""
+    async def _send_content_email(self, subscriber: NewsletterSubscriber, template_id: int, is_automation: bool = False, background_tasks: Optional[BackgroundTasks] = None):
+        """Helper to send an email based on a Template ID"""
+        template = self.get_template(template_id)
+        if not template:
+            logger.warning(f"Template {template_id} not found for sending to {subscriber.email}")
+            return
+
+        unsubscribe_url = f"https://nekwasar.com/api/newsletter/unsubscribe?email={subscriber.email}"
+        
+        # Render
+        subject = template.subject_template
+        content = template.content_template.replace("{{name}}", subscriber.name).replace("{{unsubscribe_url}}", unsubscribe_url)
+
+        if background_tasks:
+            # Use background sender
+             background_tasks.add_task(
+                email_service.send_transactional_email,
+                subscriber.email,
+                subject,
+                content,
+                subscriber.name
+            )
+        else:
+            email_service.send_transactional_email(
+                to_email=subscriber.email,
+                to_name=subscriber.name,
+                subject=subject,
+                html_content=content
+            )
+
+    async def _send_welcome_email(self, subscriber: NewsletterSubscriber, background_tasks: Optional[BackgroundTasks] = None):
+        """Legacy fallback welcome email"""
         subject = "Welcome to NekwasaR Blog! 🎉"
+        unsubscribe_url = f"https://nekwasar.com/api/newsletter/unsubscribe?email={subscriber.email}"
 
         content = f"""
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <h1 style="color: #333; text-align: center;">Welcome to NekwasaR Blog! 🎉</h1>
-
-            <p style="font-size: 16px; line-height: 1.6;">Hi {subscriber.name},</p>
-
-            <p style="font-size: 16px; line-height: 1.6;">
-                Thank you for subscribing to our newsletter! You'll receive weekly updates featuring:
-            </p>
-
-            <ul style="font-size: 16px; line-height: 1.8;">
-                <li>Latest insights on AI and technology</li>
-                <li>Startup success stories and innovation trends</li>
-                <li>Exclusive content and tutorials</li>
-                <li>Industry news and analysis</li>
-            </ul>
-
-            <p style="font-size: 16px; line-height: 1.6;">
-                Our first newsletter will arrive in your inbox soon!
-            </p>
-
-            <div style="text-align: center; margin: 30px 0;">
-                <a href="https://nekwasar.com/blog"
-                   style="background-color: #007bff; color: white; padding: 12px 24px;
-                          text-decoration: none; border-radius: 5px; font-weight: bold;">
-                    Visit Our Blog
-                </a>
-            </div>
-
-            <p style="font-size: 14px; color: #666; text-align: center;">
-                You're receiving this because you subscribed to NekwasaR Blog.<br>
-                <a href="#" style="color: #666;">Unsubscribe</a> anytime.
-            </p>
-
-            <p style="font-size: 14px; color: #666; text-align: center; margin-top: 20px;">
-                Best regards,<br>
-                <strong>NekwasaR</strong>
-            </p>
+            <p>Hi {subscriber.name},</p>
+            <p>Thanks for subscribing!</p>
+            <p><a href="{unsubscribe_url}">Unsubscribe</a></p>
         </div>
         """
-
-        message = MessageSchema(
-            subject=subject,
-            recipients=[subscriber.email],
-            body=content,
-            subtype="html"
-        )
-
-        await self.fm.send_message(message)
-
-    async def _send_newsletter_email(self, subscriber: NewsletterSubscriber, content: str, subject: str):
-        """Send newsletter email to subscriber"""
-        # Add unsubscribe link to content
-        unsubscribe_url = f"https://nekwasar.com/api/newsletter/unsubscribe?email={subscriber.email}"
-
-        full_content = f"""
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            {content}
-
-            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
-
-            <p style="font-size: 12px; color: #666; text-align: center;">
-                You're receiving this newsletter because you subscribed to NekwasaR Blog.<br>
-                <a href="{unsubscribe_url}" style="color: #666;">Unsubscribe</a> from future emails.
-            </p>
-        </div>
-        """
-
-        message = MessageSchema(
-            subject=subject,
-            recipients=[subscriber.email],
-            body=full_content,
-            subtype="html"
-        )
-
-        await self.fm.send_message(message)
-
-    def _get_weekly_content(self) -> str:
-        """Generate weekly newsletter content from recent posts"""
-        try:
-            # Get recent posts from the last week
-            week_ago = datetime.now() - timedelta(days=7)
-            recent_posts = self.db.query(BlogPost).filter(
-                BlogPost.published_at >= week_ago,
-                BlogPost.is_featured == True
-            ).order_by(BlogPost.published_at.desc()).limit(5).all()
-
-            if not recent_posts:
-                # Fallback to any recent posts
-                recent_posts = self.db.query(BlogPost).filter(
-                    BlogPost.published_at >= week_ago
-                ).order_by(BlogPost.published_at.desc()).limit(5).all()
-
-            # Build newsletter content
-            content_parts = []
-
-            if recent_posts:
-                content_parts.append("<h2>This Week's Highlights</h2>")
-                for post in recent_posts:
-                    content_parts.append(f"""
-                    <div style="margin-bottom: 20px; padding: 15px; border-left: 4px solid #007bff; background-color: #f8f9fa;">
-                        <h3 style="margin: 0 0 10px 0;">
-                            <a href="https://nekwasar.com/blog/{post.slug}"
-                               style="color: #007bff; text-decoration: none;">
-                                {post.title}
-                            </a>
-                        </h3>
-                        <p style="margin: 0; color: #666; font-size: 14px;">
-                            {post.excerpt[:150] + '...' if post.excerpt and len(post.excerpt) > 150 else post.excerpt or 'Read more...'}
-                        </p>
-                    </div>
-                    """)
-            else:
-                content_parts.append("""
-                <h2>This Week's Highlights</h2>
-                <p>We're working on some exciting new content! Stay tuned for our next update.</p>
-                """)
-
-            # Add footer content
-            content_parts.append("""
-            <div style="text-align: center; margin: 30px 0;">
-                <a href="https://nekwasar.com/blog"
-                   style="background-color: #007bff; color: white; padding: 12px 24px;
-                          text-decoration: none; border-radius: 5px; font-weight: bold;">
-                    Visit Our Blog
-                </a>
-            </div>
-
-            <p style="text-align: center; color: #666;">
-                Follow us for daily updates:<br>
-                <a href="https://twitter.com/nekwasar" style="color: #007bff;">Twitter</a> |
-                <a href="https://linkedin.com/in/nekwasar" style="color: #007bff;">LinkedIn</a> |
-                <a href="https://github.com/nekwasar" style="color: #007bff;">GitHub</a>
-            </p>
-            """)
-
-            return "\n".join(content_parts)
-
-        except Exception as e:
-            # Fallback content if database query fails
-            return """
-            <h2>Weekly Update from NekwasaR</h2>
-            <p>Thank you for being part of our community! We're working on some exciting new content and insights.</p>
-            <p>Check back soon for our latest posts on technology, AI, and innovation.</p>
-            """
+        
+        if background_tasks:
+             background_tasks.add_task(
+                email_service.send_transactional_email,
+                subscriber.email,
+                subject,
+                content,
+                subscriber.name
+            )
+        else:
+            email_service.send_transactional_email(
+                to_email=subscriber.email,
+                to_name=subscriber.name,
+                subject=subject,
+                html_content=content
+            )
